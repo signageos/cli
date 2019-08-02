@@ -1,0 +1,56 @@
+{
+  "name": "@signageos/cli",
+  "version": "0.0.0",
+  "main": "./dist",
+  "files": [
+    "tools/npm-login.sh",
+    "dist",
+    "config",
+    "README.md",
+    "package.json",
+    "package-lock.json"
+  ],
+  "repository": {
+    "url": "git@gitlab.com:signageos/cli",
+    "type": "git"
+  },
+  "scripts": {
+    "build": "tsc",
+    "lint": "tslint --config node_modules/hugport-codestyle/tslint.json {src,tests}/**/*.{ts,tsx}",
+    "prebuild": "rm -rf dist/*",
+    "prepare": "npm run prebuild && npm run build && chmod +x dist/index.js",
+    "test": "env NODE_ENV=test mocha --opts mocha.opts",
+    "watch": "tsc --watch"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": "^8.9.0",
+    "npm": "5.3.0"
+  },
+  "bin": {
+    "sos": "./dist/index.js"
+  },
+  "publishConfig": {
+    "registry": "https://npm.signageos.io",
+    "access": "public"
+  },
+  "devDependencies": {
+    "@types/debug": "4.1.4",
+    "@types/lodash": "4.14.136",
+    "@types/mocha": "5.2.7",
+    "@types/node": "12.6.9",
+    "@types/should": "13.0.0",
+    "hugport-codestyle": "0.1.0-alpha.1",
+    "mocha": "6.2.0",
+    "should": "13.2.3",
+    "ts-node": "8.3.0",
+    "tslint": "5.18.0",
+    "typescript": "3.5.3",
+    "webpack": "4.39.1"
+  },
+  "dependencies": {
+    "debug": "4.1.1",
+    "dotenv": "8.0.0",
+    "lodash": "4.17.15"
+  }
+}
