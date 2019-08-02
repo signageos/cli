@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "main": "./dist/index.js",
   "files": [
-    "tools/npm-login.sh",
     "dist",
     "config",
     "README.md",
