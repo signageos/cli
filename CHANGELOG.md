@@ -8,3 +8,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Added
 - Package is available in npm registry https://www.npmjs.com/package/@signageos/cli
+- Applet generation command to create vanilla JS applet `sos applet generate --name my-new-applet`

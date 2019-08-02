@@ -35,9 +35,11 @@
     "access": "public"
   },
   "devDependencies": {
+    "@types/chalk": "2.2.0",
     "@types/command-line-args": "5.0.0",
     "@types/command-line-usage": "5.0.1",
     "@types/debug": "4.1.4",
+    "@types/fs-extra": "8.0.0",
     "@types/lodash": "4.14.136",
     "@types/mocha": "5.2.7",
     "@types/node": "12.6.9",
@@ -51,10 +53,12 @@
     "webpack": "4.39.1"
   },
   "dependencies": {
+    "chalk": "2.4.2",
     "command-line-args": "5.1.1",
     "command-line-usage": "6.0.2",
     "debug": "4.1.1",
     "dotenv": "8.0.0",
+    "fs-extra": "8.1.0",
     "lodash": "4.17.15"
   }
 }

@@ -2,7 +2,7 @@ import * as Debug from 'debug';
 import ICommand from "../Command/ICommand";
 import * as cliArgs from 'command-line-args';
 import { CommandLineOptions } from "command-line-args";
-import { appletInit } from './appletInitCommand';
+import { appletGenerate } from './Generate/appletGenerateCommand';
 import { generalOptionList, printUsage } from '../Command/usage';
 const debug = Debug('@signageos/cli:applet');
 
@@ -12,7 +12,7 @@ export const applet: ICommand = {
 		{ name: 'applet-uid', alias: 'i', type: String, description: 'Applet UID' },
 	],
 	commands: [
-		appletInit,
+		appletGenerate,
 	],
 	async run(options: CommandLineOptions) {
 		debug('Applet command');
