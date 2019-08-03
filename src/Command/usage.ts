@@ -4,11 +4,13 @@ import { OptionDefinition as ArgsOptionDefinition } from "command-line-args";
 import { OptionDefinition as UsageOptionDefinition } from "command-line-usage";
 import ICommand from './ICommand';
 import { applet } from '../Applet/appletCommand';
+import { login } from '../Auth/loginCommand';
 
 export type OptionDefinition = ArgsOptionDefinition & UsageOptionDefinition;
 
 export const generalCommands: ICommand[] = [
 	applet,
+	login,
 ];
 
 type IParameters = {
