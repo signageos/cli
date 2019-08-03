@@ -2,6 +2,7 @@ import * as fs from 'fs-extra';
 import * as child_process from 'child_process';
 import chalk from 'chalk';
 import * as path from 'path';
+import * as prompts from 'prompts';
 import { CommandLineOptions } from "command-line-args";
 
 const NAME_REGEXP = /^\w(\w|\d|-)*\w$/;
@@ -22,13 +23,22 @@ export const appletGenerate = {
 	commands: [],
 	async run(options: CommandLineOptions) {
 		const currentDirectory = process.cwd();
-		if (!options.name) {
+		let appletName: string | undefined = options.name;
+		if (!appletName) {
+			const response = await prompts({
+				type: 'text',
+				name: 'name',
+				message: `Type applet name`,
+			});
+			appletName = response.name;
+		}
+		if (!appletName) {
 			throw new Error(`Missing argument --name <string>`);
 		}
-		if (!NAME_REGEXP.test(options.name)) {
+		if (!NAME_REGEXP.test(appletName)) {
 			throw new Error(`Name has to match RegExp: ${NAME_REGEXP.toString()}`);
 		}
-		const appletRootDirectory = options['target-dir'] || path.join(currentDirectory, options.name);
+		const appletRootDirectory = options['target-dir'] || path.join(currentDirectory, appletName);
 
 		let entryFileName = 'index.js';
 		const dependencies = [
@@ -80,7 +90,7 @@ export const appletGenerate = {
 		}
 		generateFiles.push({
 			path: path.join(appletRootDirectory, 'package.json'),
-			content: JSON.stringify(await createPackageConfig(options.name, options.version), undefined, 2) + '\n',
+			content: JSON.stringify(await createPackageConfig(appletName, options.version), undefined, 2) + '\n',
 		});
 		generateFiles.push({
 			path: path.join(appletRootDirectory, 'webpack.config.js'),
@@ -94,7 +104,7 @@ export const appletGenerate = {
 		});
 		generateFiles.push({
 			path: path.join(appletRootDirectory, 'public', 'index.html'),
-			content: createIndexHtml(options.name),
+			content: createIndexHtml(appletName),
 		});
 
 		await fs.mkdir(appletRootDirectory);
@@ -113,8 +123,8 @@ export const appletGenerate = {
 			},
 		);
 		child.on('close', () => {
-			console.log(`\nApplet ${chalk.green(options.name)} created!`);
-			console.log(`use: cd ${chalk.green(options.name)} and ${chalk.green('npm start')}\n`);
+			console.log(`\nApplet ${chalk.green(appletName!)} created!`);
+			console.log(`use: cd ${chalk.green(appletName!)} and ${chalk.green('npm start')}\n`);
 		});
 	},
 };
