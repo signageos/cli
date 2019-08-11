@@ -3,6 +3,8 @@ import fetch from 'node-fetch';
 import { stringify } from 'querystring';
 import { RequestInit } from "node-fetch";
 
+export const AUTH_HEADER = 'X-Auth';
+
 export interface IOptions {
 	url: string;
 	auth: {
@@ -17,7 +19,7 @@ export function createOptions(method: 'POST' | 'GET' | 'PUT' | 'DELETE', options
 	return {
 		headers: {
 			'Content-Type': 'application/json',
-			'X-Auth': options.auth.clientId + ':' + options.auth.secret,
+			[AUTH_HEADER]: options.auth.clientId + ':' + options.auth.secret,
 			...options.headers || {},
 		},
 		method,

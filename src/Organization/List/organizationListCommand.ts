@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import * as Debug from 'debug';
 import { CommandLineOptions } from "command-line-args";
-import { getResource, deserializeJSON } from '../../helper';
+import { getResource, deserializeJSON, AUTH_HEADER } from '../../helper';
 import { loadConfig } from '../../RunControl/runControlHelper';
 import * as parameters from '../../../config/parameters';
 const debug = Debug('@signageos/cli:Organization:list');
@@ -24,7 +24,7 @@ async function getOrganizations() {
 		auth: parameters.auth,
 		version: 'v1' as 'v1',
 		headers: {
-			'X-Auth': config.identification + ':' + config.apiSecurityToken,
+			[AUTH_HEADER]: config.identification + ':' + config.apiSecurityToken,
 		},
 	};
 	const responseOfGet = await getResource(options, ORGANIZATION_RESOURCE);
