@@ -20,13 +20,13 @@ export function getOptionListRecursive(
 	commands: ICommand[] = generalCommands,
 	initialOptionList: OptionDefinition[] = generalOptionList,
 ): OptionDefinition[] {
-	return [
+	return deduplicateOptions([
 		...initialOptionList,
 		..._.flatMap(
 			commands,
 			(command: ICommand) => [...command.optionList, ...getOptionListRecursive(command.commands, [])],
 		),
-	];
+	]);
 }
 
 export const generalOptionList: OptionDefinition[] = [
@@ -47,7 +47,14 @@ export function printUsage(
 	optionList: OptionDefinition[],
 ) {
 	const usage = cliUsage({
-		optionList: [...generalOptionList, ...optionList],
+		optionList: deduplicateOptions([...generalOptionList, ...optionList]),
 	});
 	console.log(usage);
+}
+
+function deduplicateOptions(optionList: OptionDefinition[]) {
+	return _.uniqBy(
+		optionList,
+		(optionDef: OptionDefinition) => optionDef.name,
+	);
 }
