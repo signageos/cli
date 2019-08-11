@@ -8,9 +8,7 @@ const debug = Debug('@signageos/cli:applet');
 
 export const applet: ICommand = {
 	name: 'applet',
-	optionList: [
-		{ name: 'applet-uid', type: String, description: 'Applet UID' },
-	],
+	optionList: [],
 	commands: [
 		appletGenerate,
 	],
