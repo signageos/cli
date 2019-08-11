@@ -3,7 +3,7 @@ import * as Debug from 'debug';
 import { CommandLineOptions } from "command-line-args";
 import { getResource, deserializeJSON } from '../../helper';
 import { loadConfig } from '../../RunControl/runControlHelper';
-const parameters = require('../../../config/parameters');
+import * as parameters from '../../../config/parameters';
 const debug = Debug('@signageos/cli:Organization:list');
 
 export const organizationList = {

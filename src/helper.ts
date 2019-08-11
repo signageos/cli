@@ -6,8 +6,8 @@ import { RequestInit } from "node-fetch";
 export interface IOptions {
 	url: string;
 	auth: {
-		clientId: string;
-		secret: string;
+		clientId: string | undefined;
+		secret: string | undefined;
 	};
 	version: 'v1';
 	headers?: { [name: string]: string };

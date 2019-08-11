@@ -6,6 +6,7 @@ import ICommand from './ICommand';
 import { applet } from '../Applet/appletCommand';
 import { login } from '../Auth/loginCommand';
 import { organization } from '../Organization/organizationCommand';
+import * as parameters from '../../config/parameters';
 
 export type OptionDefinition = ArgsOptionDefinition & UsageOptionDefinition;
 
@@ -14,12 +15,6 @@ export const generalCommands: ICommand[] = [
 	login,
 	organization,
 ];
-
-type IParameters = {
-	apiUrl?: string;
-};
-
-const parameters: IParameters = require('../../config/parameters');
 
 export function getOptionListRecursive(
 	commands: ICommand[] = generalCommands,

@@ -4,7 +4,7 @@ import * as Debug from 'debug';
 import { CommandLineOptions } from "command-line-args";
 import { deserializeJSON, postResource } from '../helper';
 import { saveConfig, getConfigFilePath } from '../RunControl/runControlHelper';
-const parameters = require('../../config/parameters');
+import * as parameters from '../../config/parameters';
 const debug = Debug('@signageos/cli:Auth:login');
 
 export const login = {
