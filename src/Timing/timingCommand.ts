@@ -2,29 +2,20 @@ import * as Debug from 'debug';
 import ICommand from "../Command/ICommand";
 import * as cliArgs from 'command-line-args';
 import { CommandLineOptions } from "command-line-args";
-import { organizationList } from './List/organizationListCommand';
+import { timingList } from './List/timingListCommand';
 import { generalOptionList, printUsage } from '../Command/usage';
-import { organizationGet } from './Get/organizationGetCommand';
-const debug = Debug('@signageos/cli:organization');
+const debug = Debug('@signageos/cli:applet');
 
-export interface IOrganization {
-	uid: string;
-	name: string;
-	title: string;
-	createdAt: string;
-	oauthClientId: string;
-	oauthClientSecret: string;
-}
-
-export const organization: ICommand = {
-	name: 'organization',
-	optionList: [],
+export const timing: ICommand = {
+	name: 'timing',
+	optionList: [
+		{ name: 'timing-uid', type: String, description: 'Timing UID' },
+	],
 	commands: [
-		organizationList,
-		organizationGet,
+		timingList,
 	],
 	async run(options: CommandLineOptions) {
-		debug('Organization command');
+		debug('Timing command');
 		const [, commandName] = options.command;
 		const currentCommand = this.commands.find((command: ICommand) => command.name === commandName);
 		if (currentCommand) {

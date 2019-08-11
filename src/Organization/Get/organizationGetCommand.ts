@@ -4,19 +4,25 @@ import { CommandLineOptions } from "command-line-args";
 import { getResource, deserializeJSON, AUTH_HEADER } from '../../helper';
 import { loadConfig } from '../../RunControl/runControlHelper';
 import * as parameters from '../../../config/parameters';
-const debug = Debug('@signageos/cli:Organization:list');
+const debug = Debug('@signageos/cli:Organization:get');
 
-export const organizationList = {
-	name: 'list',
-	optionList: [],
+export const organizationGet = {
+	name: 'get',
+	optionList: [
+		{ name: 'organization-uid', type: String, description: 'Organization UID' },
+	],
 	commands: [],
-	async run(_options: CommandLineOptions) {
-		const organizations = await getOrganizations();
-		console.log(chalk.yellow(JSON.stringify(organizations, undefined, 2)));
+	async run(options: CommandLineOptions) {
+		const organizationUid: string | undefined = options['organization-uid'];
+		if (!organizationUid) {
+			throw new Error('Missing argument --organization-uid <string>');
+		}
+		const organization = await getOrganization(organizationUid);
+		console.log(chalk.yellow(JSON.stringify(organization, undefined, 2)));
 	},
 };
 
-export async function getOrganizations() {
+export async function getOrganization(organizationUid: string) {
 	const ORGANIZATION_RESOURCE = 'organization';
 	const config = await loadConfig();
 	const options = {
@@ -27,9 +33,9 @@ export async function getOrganizations() {
 			[AUTH_HEADER]: config.identification + ':' + config.apiSecurityToken,
 		},
 	};
-	const responseOfGet = await getResource(options, ORGANIZATION_RESOURCE);
+	const responseOfGet = await getResource(options, ORGANIZATION_RESOURCE + '/' + organizationUid);
 	const bodyOfGet = JSON.parse(await responseOfGet.text(), deserializeJSON);
-	debug('GET organizations response', bodyOfGet);
+	debug('GET organization response', bodyOfGet);
 	if (responseOfGet.status === 200) {
 		return bodyOfGet;
 	} else if (responseOfGet.status === 403) {

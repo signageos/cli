@@ -7,6 +7,7 @@ import { applet } from '../Applet/appletCommand';
 import { login } from '../Auth/loginCommand';
 import { organization } from '../Organization/organizationCommand';
 import * as parameters from '../../config/parameters';
+import { timing } from '../Timing/timingCommand';
 
 export type OptionDefinition = ArgsOptionDefinition & UsageOptionDefinition;
 
@@ -14,6 +15,7 @@ export const generalCommands: ICommand[] = [
 	applet,
 	login,
 	organization,
+	timing,
 ];
 
 export function getOptionListRecursive(
