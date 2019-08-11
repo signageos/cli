@@ -2,6 +2,22 @@
 import fetch from 'node-fetch';
 import { stringify } from 'querystring';
 import { RequestInit } from "node-fetch";
+import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
+import * as parameters from '../config/parameters';
+import { IOrganization } from './Organization/organizationFacade';
+
+export function createOrganizationRestApi(
+	organization: IOrganization,
+) {
+	return new RestApi({
+		url: parameters.apiUrl,
+		auth: {
+			clientId: organization.oauthClientId,
+			secret: organization.oauthClientSecret,
+		},
+		version: 'v1' as 'v1',
+	});
+}
 
 export const AUTH_HEADER = 'X-Auth';
 

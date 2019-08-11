@@ -7,15 +7,6 @@ import { generalOptionList, printUsage } from '../Command/usage';
 import { organizationGet } from './Get/organizationGetCommand';
 const debug = Debug('@signageos/cli:organization');
 
-export interface IOrganization {
-	uid: string;
-	name: string;
-	title: string;
-	createdAt: string;
-	oauthClientId: string;
-	oauthClientSecret: string;
-}
-
 export const organization: ICommand = {
 	name: 'organization',
 	optionList: [],
