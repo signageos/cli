@@ -4,10 +4,12 @@ import { CommandLineOptions } from "command-line-args";
 import { getOrganizationUid, getOrganization, ORGANIZATION_UID_OPTION } from '../../Organization/organizationFacade';
 import { getDeviceUid, DEVICE_UID_OPTION } from '../../Device/deviceFacade';
 import { createOrganizationRestApi } from '../../helper';
+import ICommand from '../../Command/ICommand';
 const debug = Debug('@signageos/cli:Timing:list');
 
-export const timingList = {
+export const timingList: ICommand = {
 	name: 'list',
+	description: 'List timings assigned to device',
 	optionList: [
 		ORGANIZATION_UID_OPTION,
 		DEVICE_UID_OPTION,

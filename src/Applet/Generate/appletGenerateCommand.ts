@@ -4,6 +4,7 @@ import chalk from 'chalk';
 import * as path from 'path';
 import * as prompts from 'prompts';
 import { CommandLineOptions } from "command-line-args";
+import ICommand from '../../Command/ICommand';
 
 const NAME_REGEXP = /^\w(\w|\d|-)*\w$/;
 const NPM_EXECUTABLE = 'npm';
@@ -13,8 +14,9 @@ interface IFile {
 	content: string;
 }
 
-export const appletGenerate = {
+export const appletGenerate: ICommand = {
 	name: 'generate',
+	description: 'Generate basic applet sample',
 	optionList: [
 		{ name: 'name', type: String, description: `Applet name. Match RegExp: ${NAME_REGEXP.toString()}` },
 		{ name: 'version', type: String, description: `Applet initial version. Use semantic version`, defaultValue: '0.0.0' },

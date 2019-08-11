@@ -3,6 +3,7 @@ import { OptionDefinition as UsageOptionDefinition } from "command-line-usage";
 
 export default interface ICommand {
 	name: string;
+	description: string;
 	optionList: (ArgsOptionDefinition & UsageOptionDefinition)[];
 	commands: ICommand[];
 	run(options: CommandLineOptions): Promise<void>;

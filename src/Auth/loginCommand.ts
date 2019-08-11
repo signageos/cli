@@ -5,10 +5,12 @@ import { CommandLineOptions } from "command-line-args";
 import { deserializeJSON, postResource } from '../helper';
 import { saveConfig, getConfigFilePath } from '../RunControl/runControlHelper';
 import * as parameters from '../../config/parameters';
+import ICommand from '../Command/ICommand';
 const debug = Debug('@signageos/cli:Auth:login');
 
-export const login = {
+export const login: ICommand = {
 	name: 'login',
+	description: 'Login account using username & password',
 	optionList: [
 		{ name: 'username', type: String, description: `Username or e-mail used for ${parameters.boxHost}` },
 	],

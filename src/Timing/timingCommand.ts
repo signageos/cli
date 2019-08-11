@@ -8,9 +8,8 @@ const debug = Debug('@signageos/cli:applet');
 
 export const timing: ICommand = {
 	name: 'timing',
-	optionList: [
-		{ name: 'timing-uid', type: String, description: 'Timing UID' },
-	],
+	description: 'Timing management',
+	optionList: [],
 	commands: [
 		timingList,
 	],

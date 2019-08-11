@@ -8,6 +8,7 @@ const debug = Debug('@signageos/cli:applet');
 
 export const applet: ICommand = {
 	name: 'applet',
+	description: 'Applet management',
 	optionList: [],
 	commands: [
 		appletGenerate,

@@ -9,6 +9,7 @@ const debug = Debug('@signageos/cli:organization');
 
 export const organization: ICommand = {
 	name: 'organization',
+	description: 'Organization management',
 	optionList: [],
 	commands: [
 		organizationList,
