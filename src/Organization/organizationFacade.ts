@@ -5,6 +5,7 @@ import { CommandLineOptions } from 'command-line-args';
 import { getResource, deserializeJSON, AUTH_HEADER } from '../helper';
 import { loadConfig } from '../RunControl/runControlHelper';
 import * as parameters from '../../config/parameters';
+import { getGlobalApiUrl } from '../Command/commandProcessor';
 const debug = Debug('@signageos/cli:Organization:facade');
 
 export interface IOrganization {
@@ -44,7 +45,7 @@ export async function getOrganizations() {
 	const ORGANIZATION_RESOURCE = 'organization';
 	const config = await loadConfig();
 	const options = {
-		url: parameters.apiUrl,
+		url: getGlobalApiUrl(),
 		auth: parameters.auth,
 		version: 'v1' as 'v1',
 		headers: {
@@ -67,7 +68,7 @@ export async function getOrganization(organizationUid: string) {
 	const ORGANIZATION_RESOURCE = 'organization';
 	const config = await loadConfig();
 	const options = {
-		url: parameters.apiUrl,
+		url: getGlobalApiUrl(),
 		auth: parameters.auth,
 		version: 'v1' as 'v1',
 		headers: {

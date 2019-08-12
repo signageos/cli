@@ -9,6 +9,11 @@ sos --help
 ```
 
 ## API reference
+### General
+| Argument                   | Decription                      | Default value                                     |
+|----------------------------|---------------------------------|---------------------------------------------------|
+| --api-url *(optional)*     | URL address to use for REST API | ${SOS_API_URL~'https://api.signageos.io'}         |
+
 ### Login
 ```bash
 sos login

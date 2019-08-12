@@ -4,7 +4,16 @@ import * as _ from 'lodash';
 import * as cliUsage from 'command-line-usage';
 import * as cliArgs from 'command-line-args';
 import ICommand, { ICommandOption } from './ICommand';
+import * as parameters from '../../config/parameters';
 const debug = Debug('@signageos/cli:Command:processor');
+
+export const API_URL_OPTION = {
+	name: 'api-url',
+	alias: 'u',
+	type: String,
+	defaultValue: parameters.apiUrl,
+	description: 'API URL to be used for REST requests',
+};
 
 export async function processCommand(currentCommand: ICommand, parentOptionList: ICommandOption[] = [], commandIndex: number = 0) {
 	const nestedOptionList = [...parentOptionList, ...currentCommand.optionList];
@@ -29,6 +38,11 @@ export async function processCommand(currentCommand: ICommand, parentOptionList:
 			}
 		}
 	}
+}
+
+export function getGlobalApiUrl(): string {
+	const options = cliArgs([API_URL_OPTION], { partial: true });
+	return options['api-url'];
 }
 
 function printUsage(

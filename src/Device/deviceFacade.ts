@@ -3,8 +3,8 @@ import * as Debug from 'debug';
 import * as prompts from 'prompts';
 import { CommandLineOptions } from "command-line-args";
 import { getResource, deserializeJSON } from '../helper';
-import * as parameters from "../../config/parameters";
 import { IOrganization } from '../Organization/organizationFacade';
+import { getGlobalApiUrl } from '../Command/commandProcessor';
 const debug = Debug('@signageos/cli:Device:facade');
 
 export interface IDevice {
@@ -43,7 +43,7 @@ export async function getDeviceUid(
 export async function getDevices(organization: IOrganization) {
 	const DEVICE_RESOURCE = 'device';
 	const options = {
-		url: parameters.apiUrl,
+		url: getGlobalApiUrl(),
 		auth: {
 			clientId: organization.oauthClientId,
 			secret: organization.oauthClientSecret,

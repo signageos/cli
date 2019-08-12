@@ -3,14 +3,14 @@ import fetch from 'node-fetch';
 import { stringify } from 'querystring';
 import { RequestInit } from "node-fetch";
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
-import * as parameters from '../config/parameters';
 import { IOrganization } from './Organization/organizationFacade';
+import { getGlobalApiUrl } from './Command/commandProcessor';
 
 export function createOrganizationRestApi(
 	organization: IOrganization,
 ) {
 	return new RestApi({
-		url: parameters.apiUrl,
+		url: getGlobalApiUrl(),
 		auth: {
 			clientId: organization.oauthClientId,
 			secret: organization.oauthClientSecret,

@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 - New UI for `--help` guide
+- `--api-url` will change the base url for REST API
 
 ## [0.1.0] - 2019-08-02
 ### Added

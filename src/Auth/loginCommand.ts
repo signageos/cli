@@ -6,6 +6,7 @@ import { deserializeJSON, postResource } from '../helper';
 import { saveConfig, getConfigFilePath } from '../RunControl/runControlHelper';
 import * as parameters from '../../config/parameters';
 import ICommand from '../Command/ICommand';
+import { getGlobalApiUrl } from '../Command/commandProcessor';
 const debug = Debug('@signageos/cli:Auth:login');
 
 export const login: ICommand = {
@@ -49,7 +50,7 @@ export const login: ICommand = {
 async function getOrCreateApiSecurityToken(identification: string, password: string) {
 	const ACCOUNT_SECURITY_TOKEN_RESOURCE = 'account/security-token';
 	const options = {
-		url: parameters.apiUrl,
+		url: getGlobalApiUrl(),
 		auth: parameters.auth,
 		version: 'v1' as 'v1',
 	};
