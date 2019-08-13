@@ -1,39 +1,37 @@
 #!/usr/bin/env node
 
-import * as Debug from 'debug';
-import * as cliArgs from 'command-line-args';
 import ICommand from './Command/ICommand';
-import { printUsage, generalCommands, getOptionListRecursive } from './Command/usage';
-const debug = Debug('@signageos/cli:index');
+import { applet } from './Applet/appletCommand';
+import { login } from './Auth/loginCommand';
+import { organization } from './Organization/organizationCommand';
+import { timing } from './Timing/timingCommand';
+import { processCommand, API_URL_OPTION } from './Command/commandProcessor';
 
-const generalOptions = cliArgs(getOptionListRecursive());
+const index: ICommand = {
+	name: 'sos',
+	description: 'signageOS',
+	optionList: [
+		{
+			name: 'command',
+			alias: 'c',
+			type: String,
+			multiple: true,
+			defaultOption: true,
+			defaultValue: [],
+			description: `(default) Command name`,
+		},
+		{ name: 'help', alias: 'h', type: Boolean, description: 'Display this usage guide.' },
+		API_URL_OPTION,
+	],
+	commands: [
+		applet,
+		login,
+		organization,
+		timing,
+	],
+	async run() {
+		throw new Error('Unknown command');
+	},
+};
 
-debug('Options', generalOptions);
-
-const [commandName] = generalOptions.command;
-
-const currentCommand = generalCommands.find((command: ICommand) => command.name === commandName);
-
-async function run() {
-	if (currentCommand) {
-		const commandOptions = cliArgs(getOptionListRecursive());
-		debug('Command options', commandOptions);
-
-		if (generalOptions.help) {
-			printUsage(currentCommand.optionList);
-		} else {
-			try {
-				await currentCommand.run(commandOptions);
-			} catch (error) {
-				console.error(error.message);
-				printUsage(currentCommand.optionList);
-				process.exit(1);
-			}
-		}
-	} else {
-		printUsage([]);
-		process.exit(1);
-	}
-}
-
-run();
+processCommand(index);

@@ -18,6 +18,7 @@ module.exports = {
 		distPath,
 	},
 	apiUrl: process.env.SOS_API_URL,
+	boxHost: process.env.SOS_BOX_HOST,
 	auth: {
 		clientId: process.env.SOS_AUTH_CLIENT_ID,
 		secret: process.env.SOS_AUTH_SECRET,
