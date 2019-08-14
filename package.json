@@ -15,5 +15,12 @@
     "webpack": "^4.39.1",
     "webpack-cli": "^3.3.6",
     "webpack-dev-server": "^3.7.2"
+  },
+  "dependencies": {
+    "@signageos/sdk": "^1.0.0-alpha.1"
+  },
+  "sos": {
+    "uid": "",
+    "name": "applet1"
   }
 }
