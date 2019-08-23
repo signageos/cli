@@ -8,6 +8,7 @@ const RUN_CONTROL_FILENAME = '.sosrc';
 export interface IConfig {
 	identification: string;
 	apiSecurityToken: string;
+	defaultOrganizationUid?: string;
 }
 
 export async function saveConfig(config: IConfig) {
@@ -16,6 +17,15 @@ export async function saveConfig(config: IConfig) {
 	await fs.writeFile(runControlFilePath, runControlFileContent, {
 		mode: 0o600,
 	});
+}
+
+export async function updateConfig(partialConfig: Partial<IConfig>) {
+	const currentConfig = await loadConfig();
+	const newConfig = {
+		...currentConfig,
+		...partialConfig,
+	};
+	await saveConfig(newConfig);
 }
 
 export async function loadConfig(): Promise<IConfig> {
