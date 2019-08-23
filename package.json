@@ -3,11 +3,12 @@
   "version": "0.0.0",
   "main": "dist/index.html",
   "scripts": {
-    "start": "webpack-dev-server --mode development --open",
+    "start": "webpack-dev-server --mode development --open-emulator",
     "build": "webpack --mode production"
   },
   "devDependencies": {
-    "@signageos/front-applet": "^3.2.0",
+    "@signageos/front-applet": "^3.2.0-master.78961603",
+    "@signageos/front-display": "^6.1.0-mz-cli2.3293",
     "css-loader": "^3.2.0",
     "html-webpack-inline-source-plugin": "0.0.10",
     "html-webpack-plugin": "^3.2.0",
