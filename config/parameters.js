@@ -6,6 +6,7 @@ const rootPath = __dirname + path.normalize('/..');
 const testsPath = rootPath + '/tests';
 const distPath = rootPath + '/dist';
 
+require('dotenv').config(rootPath);
 require('dotenv').config();
 
 module.exports = {
