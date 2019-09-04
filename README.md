@@ -65,6 +65,15 @@ sos organization get
 |---------------------------------|------------------------------|----------------|
 | --organization-uid *(required)* | Organization UID             | STDIN          |
 
+#### Organization Set Default
+- Sets default organization for current logged in account. This organization will be used for example in webpack plugin of applet to register emulator
+```bash
+sos organization set-default
+```
+| Argument                        | Decription                   | Default value  |
+|---------------------------------|------------------------------|----------------|
+| --organization-uid *(required)* | Organization UID             | STDIN          |
+
 ### Timing
 ```bash
 sos timing --help
