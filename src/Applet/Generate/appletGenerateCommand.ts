@@ -44,7 +44,8 @@ export const appletGenerate: ICommand = {
 
 		let entryFileName = 'index.js';
 		const dependencies = [
-			'@signageos/front-applet@latest',
+			'@signageos/front-applet@3.2.0-master.397',
+			'@signageos/front-display@7.0.0-beta.1',
 			'css-loader@3',
 			'html-webpack-plugin@3',
 			'html-webpack-inline-source-plugin@0',
@@ -57,6 +58,7 @@ export const appletGenerate: ICommand = {
 		const imports: string[] = [
 			`const HtmlWebpackPlugin = require('html-webpack-plugin')`,
 			`const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin')`,
+			`const SignageOSPlugin = require('@signageos/cli/dist/Webpack/Plugin')`,
 		];
 		const rules: string[] = [
 `			{
@@ -70,6 +72,7 @@ export const appletGenerate: ICommand = {
 				inlineSource: '.(js|css)$', // embed all javascript and css inline
 			})`,
 `			new HtmlWebpackInlineSourcePlugin()`,
+`			new SignageOSPlugin()`,
 		];
 
 		const generateFiles: IFile[] = [];
@@ -140,7 +143,7 @@ async function createPackageConfig(
 		version,
 		main: 'dist/index.html',
 		scripts: {
-			start: "webpack-dev-server --mode development --open",
+			start: "webpack-dev-server --mode development --open-emulator",
 			build: "webpack --mode production",
 		},
 	};
@@ -194,7 +197,7 @@ const createIndexHtml = (
 const createIndexJs = () => `
 require('./index.css');
 
-const sos = require('@signageos/front-applet');
+import sos from '@signageos/front-applet';
 
 // Wait on sos data are ready (https://docs.signageos.io/api/sos-applet-api/#onReady)
 sos.onReady().then(async function () {
@@ -206,6 +209,7 @@ sos.onReady().then(async function () {
 
 const createIndexCss = () => `
 body {
+	background-color: wheat;
 	text-align: center;
 }
 `;
