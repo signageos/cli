@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Fixed
+- Private dependency from private npm registry (now it can install any user)
+
 ## [0.3.0] - 2019-09-05
 ### Added
 - Login account using username/email and password to access other REST resources `sos login`
