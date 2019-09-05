@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Fixed
+- Default env variables for sos command (for example api.signageos.io host)
+
 ## [0.3.1] - 2019-09-05
 ### Fixed
 - Private dependency from private npm registry (now it can install any user)
