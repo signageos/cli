@@ -8,7 +8,9 @@ import chalk from 'chalk';
 import { loadConfig } from '../RunControl/runControlHelper';
 const createDomain = require('webpack-dev-server/lib/utils/createDomain');
 
-export default class Plugin {
+// TODO commonjs export
+export = Plugin;
+class Plugin {
 
 	public async apply(compiler: webpack.Compiler) {
 		try {
