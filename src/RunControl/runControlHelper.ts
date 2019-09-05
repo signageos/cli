@@ -6,8 +6,8 @@ import * as os from 'os';
 const RUN_CONTROL_FILENAME = '.sosrc';
 
 export interface IConfig {
-	identification: string;
-	apiSecurityToken: string;
+	identification?: string;
+	apiSecurityToken?: string;
 	defaultOrganizationUid?: string;
 }
 
@@ -30,6 +30,9 @@ export async function updateConfig(partialConfig: Partial<IConfig>) {
 
 export async function loadConfig(): Promise<IConfig> {
 	const runControlFilePath = getConfigFilePath();
+	if (!await fs.pathExists(runControlFilePath)) {
+		return {};
+	}
 	const runControlFileContent = await fs.readFile(runControlFilePath);
 	return ini.decode(runControlFileContent.toString()) as IConfig;
 }
