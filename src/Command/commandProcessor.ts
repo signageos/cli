@@ -1,6 +1,5 @@
 import * as Debug from 'debug';
 import chalk from 'chalk';
-import * as _ from 'lodash';
 import * as cliUsage from 'command-line-usage';
 import * as cliArgs from 'command-line-args';
 import ICommand, { ICommandOption } from './ICommand';
