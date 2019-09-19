@@ -16,7 +16,7 @@ export const API_URL_OPTION = {
 
 export async function processCommand(currentCommand: ICommand, parentOptionList: ICommandOption[] = [], commandIndex: number = 0) {
 	const nestedOptionList = [...parentOptionList, ...currentCommand.optionList];
-	const currentOptions = cliArgs(nestedOptionList);
+	const currentOptions = cliArgs(nestedOptionList, { partial: true });
 	debug('process', currentOptions);
 
 	const subCommandName = currentOptions.command[commandIndex];
