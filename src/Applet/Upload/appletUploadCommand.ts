@@ -1,3 +1,4 @@
+import chalk from 'chalk';
 import * as path from 'path';
 import * as fs from 'fs-extra';
 import * as prompts from 'prompts';
@@ -7,6 +8,7 @@ import { createOrganizationRestApi, deserializeJSON } from '../../helper';
 import { loadConfig, updateConfig } from '../../RunControl/runControlHelper';
 import { getOrganization, getOrganizationUid, ORGANIZATION_UID_OPTION } from '../../Organization/organizationFacade';
 import { getAppletName, getAppletVersion, getAppletFrontAppletVersion, tryGetAppletUid } from '../appletFacade';
+import * as parameters from '../../../config/parameters';
 
 const DEFAULT_APPLET_BINARY_FILE_PATH = 'dist/index.html';
 
@@ -51,6 +53,8 @@ export const appletUpload: ICommand = {
 			await saveToPackage(currentDirectory, { sos: { appletUid } });
 		}
 
+		const applet = await restApi.applet.get(appletUid);
+
 		await restApi.applet.version.get(appletUid, appletVersion).catch(() => appletVersionExists = false);
 
 		if (appletVersionExists) {
@@ -89,8 +93,11 @@ export const appletUpload: ICommand = {
 					frontAppletVersion: appletFrontAppletVersion,
 				},
 			);
+			console.log(`Applet ${chalk.green(applet.name!)} version ${chalk.green(appletVersion)} has been uploaded.`);
+			const appletBoxUri = `https://${parameters.boxHost}/applet/${applet.uid}/${appletVersion}/build`;
+			console.log(`To build specific applications (Tizen, WebOS, SSSP, BrightSign, RPi, Android etc.) go to ${chalk.blue(appletBoxUri)}`);
 		} else {
-			console.log('\nApplet version upload was canceled.');
+			throw new Error('Applet version upload was canceled.');
 		}
 	},
 };
