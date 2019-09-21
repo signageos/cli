@@ -99,3 +99,17 @@ sos timing list
 |---------------------------------|------------------------------|----------------|
 | --organization-uid *(required)* | Organization UID             | STDIN          |
 | --device-uid *(required)*       | Device UID                   | STDIN          |
+
+## Contribution
+Clone the repository and install dev dependencies
+```sh
+git clone git@github.com:signageos/cli.git # or https://github.com/signageos/cli.git
+npm install
+```
+
+To try `sos` command directly from source code, use `ts-node src/index.ts` instead of `sos` in project directory.
+
+*Global requirements*
+```sh
+npm install ts-node -g
+```
