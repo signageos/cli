@@ -31,7 +31,7 @@ export async function processCommand(currentCommand: ICommand, parentOptionList:
 			try {
 				await currentCommand.run(currentOptions);
 			} catch (error) {
-				console.error(error.message);
+				console.error(chalk.red(error.message));
 				printUsage(currentCommand, nestedOptionList);
 				process.exit(1);
 			}

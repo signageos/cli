@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Default API & BOX url are api.signageos.io & box.signageos.io
 - Build production webpack will not start emulator
 - Live Reload webpack plugin of applet will trigger sos.onReady event
+- Errors are printed in red color
 
 ## [0.3.2] - 2019-09-05
 ### Fixed
