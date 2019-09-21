@@ -51,7 +51,7 @@ async function getOrCreateApiSecurityToken(identification: string, password: str
 	const ACCOUNT_SECURITY_TOKEN_RESOURCE = 'account/security-token';
 	const options = {
 		url: getGlobalApiUrl(),
-		auth: parameters.auth,
+		auth: { clientId: undefined, secret: undefined },
 		version: 'v1' as 'v1',
 	};
 	const query = {

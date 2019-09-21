@@ -45,7 +45,7 @@ export const appletGenerate: ICommand = {
 		let entryFileName = 'index.js';
 		const dependencies = [
 			'@signageos/front-applet@4.0.0-beta.3',
-			'@signageos/front-display@7.0.0-beta.2',
+			'@signageos/front-display@7.0.0-beta.3',
 			'@signageos/cli@latest',
 			'css-loader@3',
 			'html-webpack-plugin@3',

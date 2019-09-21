@@ -2,9 +2,8 @@ import chalk from 'chalk';
 import * as Debug from 'debug';
 import * as prompts from 'prompts';
 import { CommandLineOptions } from 'command-line-args';
-import { getResource, deserializeJSON, AUTH_HEADER } from '../helper';
+import { getResource, deserializeJSON } from '../helper';
 import { loadConfig } from '../RunControl/runControlHelper';
-import * as parameters from '../../config/parameters';
 import { getGlobalApiUrl } from '../Command/commandProcessor';
 const debug = Debug('@signageos/cli:Organization:facade');
 
@@ -46,11 +45,11 @@ export async function getOrganizations() {
 	const config = await loadConfig();
 	const options = {
 		url: getGlobalApiUrl(),
-		auth: parameters.auth,
-		version: 'v1' as 'v1',
-		headers: {
-			[AUTH_HEADER]: config.identification + ':' + config.apiSecurityToken,
+		auth: {
+			clientId: config.identification,
+			secret: config.apiSecurityToken,
 		},
+		version: 'v1' as 'v1',
 	};
 	const responseOfGet = await getResource(options, ORGANIZATION_RESOURCE);
 	const bodyOfGet = JSON.parse(await responseOfGet.text(), deserializeJSON);
@@ -69,11 +68,11 @@ export async function getOrganization(organizationUid: string) {
 	const config = await loadConfig();
 	const options = {
 		url: getGlobalApiUrl(),
-		auth: parameters.auth,
-		version: 'v1' as 'v1',
-		headers: {
-			[AUTH_HEADER]: config.identification + ':' + config.apiSecurityToken,
+		auth: {
+			clientId: config.identification,
+			secret: config.apiSecurityToken,
 		},
+		version: 'v1' as 'v1',
 	};
 	const responseOfGet = await getResource(options, ORGANIZATION_RESOURCE + '/' + organizationUid);
 	const bodyOfGet = JSON.parse(await responseOfGet.text(), deserializeJSON);

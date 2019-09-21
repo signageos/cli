@@ -10,10 +10,6 @@ declare const parameters: {
 	},
     apiUrl: string;
 	boxHost: string;
-	auth: {
-		clientId: string | undefined;
-		secret: string | undefined;
-	},
 };
 
 export = parameters;

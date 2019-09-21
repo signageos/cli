@@ -45,6 +45,17 @@ npm run build
 | --version *(optional)*     | Initial version              | 0.0.0          |
 | --target-dir *(optional)*  | Generate applet to directory | ${PWD}/${name} |
 
+#### Applet Upload
+```bash
+sos applet upload
+# If applet is not created yet, it will create it
+# The applet version is used from package.json
+# Applet UID will be stored in package.json sos.appletUid
+```
+| Argument                   | Decription                   | Default value          |
+|----------------------------|------------------------------|------------------------|
+| --applet-path *(optional)* | Path of built index.html     | ${PWD}/dist/index.html |
+
 ### Organization
 ```bash
 sos organization --help
@@ -88,3 +99,17 @@ sos timing list
 |---------------------------------|------------------------------|----------------|
 | --organization-uid *(required)* | Organization UID             | STDIN          |
 | --device-uid *(required)*       | Device UID                   | STDIN          |
+
+## Contribution
+Clone the repository and install dev dependencies
+```sh
+git clone git@github.com:signageos/cli.git # or https://github.com/signageos/cli.git
+npm install
+```
+
+To try `sos` command directly from source code, use `ts-node src/index.ts` instead of `sos` in project directory.
+
+*Global requirements*
+```sh
+npm install ts-node -g
+```

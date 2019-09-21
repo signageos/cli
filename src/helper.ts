@@ -3,20 +3,27 @@ import fetch from 'node-fetch';
 import { stringify } from 'querystring';
 import { RequestInit } from "node-fetch";
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
+import IRestApiOptions from '@signageos/sdk/dist/RestApi/IOptions';
+import IRestApiAccountOptions from '@signageos/sdk/dist/RestApi/IOptions';
 import { IOrganization } from './Organization/organizationFacade';
 import { getGlobalApiUrl } from './Command/commandProcessor';
 
 export function createOrganizationRestApi(
 	organization: IOrganization,
 ) {
-	return new RestApi({
+	const options: IRestApiOptions = {
 		url: getGlobalApiUrl(),
 		auth: {
 			clientId: organization.oauthClientId,
 			secret: organization.oauthClientSecret,
 		},
 		version: 'v1' as 'v1',
-	});
+	};
+	const accountOptions: IRestApiAccountOptions = {
+		...options,
+	};
+
+	return new RestApi(options, accountOptions);
 }
 
 export const AUTH_HEADER = 'X-Auth';
