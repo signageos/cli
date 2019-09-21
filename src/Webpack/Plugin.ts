@@ -92,7 +92,10 @@ async function createEmulator(): Promise<IEmulator | undefined> {
 		const appletBinaryFileUrl = `${defaultUrl}${appletBinaryFilePath}`;
 
 		app.get(appletBinaryFilePath, (_req: express.Request, res: express.Response) => {
-			res.send(currentIndexHtml);
+			res.send(
+				'<script>window.onunload = function () { window.parent.location.reload(); }</script>'
+				+ currentIndexHtml,
+			);
 		});
 
 		const packageConfig = JSON.parse(fs.readFileSync(path.join(projectPath, 'package.json')).toString());
