@@ -47,6 +47,9 @@ export const appletGenerate: ICommand = {
 			'@signageos/front-applet@>=4.0.0-beta.5',
 			'@signageos/front-display@>=7.0.0-beta.3',
 			'@signageos/cli@latest',
+			'@babel/core@7',
+			'@babel/preset-env@7',
+			'babel-loader@8',
 			'css-loader@3',
 			'html-webpack-plugin@3',
 			'html-webpack-inline-source-plugin@0',
@@ -65,6 +68,13 @@ export const appletGenerate: ICommand = {
 `			{
 				test: /^(.(?!\.module\.css))*\.css$/,
 				use: ['style-loader', 'css-loader'],
+			}`,
+`			{
+				test: /\.jsx?$/,
+				exclude: /node_modules/,
+				loader: 'babel-loader',
+				options: { presets: [require.resolve('@babel/preset-env')] },
+				enforce: 'post',
 			}`,
 		];
 		const plugins: string[] = [
