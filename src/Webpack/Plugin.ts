@@ -3,6 +3,7 @@ import * as express from 'express';
 import * as path from 'path';
 import * as http from 'http';
 import * as url from 'url';
+import * as cors from 'cors';
 import * as fs from 'fs-extra';
 import * as serveStatic from 'serve-static';
 import chalk from 'chalk';
@@ -72,6 +73,9 @@ async function createEmulator(): Promise<IEmulator | undefined> {
 		let envVars = {};
 
 		const app = express();
+
+		app.use(cors());
+
 		app.get('/display.appcache', (_req: express.Request, res: express.Response) => {
 			const currentDate = new Date();
 			res.header('Last-Modified', currentDate.toString());
