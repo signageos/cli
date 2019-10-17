@@ -2,6 +2,8 @@ import * as webpack from 'webpack';
 import * as express from 'express';
 import * as path from 'path';
 import * as http from 'http';
+import * as url from 'url';
+import * as cors from 'cors';
 import * as fs from 'fs-extra';
 import * as serveStatic from 'serve-static';
 import chalk from 'chalk';
@@ -63,10 +65,17 @@ async function createEmulator(): Promise<IEmulator | undefined> {
 		const frontDisplayPath = path.dirname(require.resolve('@signageos/front-display/package.json', { paths: [projectPath]}));
 		const frontDisplayDistPath = path.join(frontDisplayPath, 'dist');
 
-		let currentIndexHtml: string | undefined;
+		let currentAssets: {
+			[filePath: string]: {
+				source(): string;
+			};
+		};
 		let envVars = {};
 
 		const app = express();
+
+		app.use(cors());
+
 		app.get('/display.appcache', (_req: express.Request, res: express.Response) => {
 			const currentDate = new Date();
 			res.header('Last-Modified', currentDate.toString());
@@ -88,14 +97,24 @@ async function createEmulator(): Promise<IEmulator | undefined> {
 		});
 
 		const defaultUrl = createDomain(sosWebpackConfig, server);
-		const appletBinaryFilePath = '/applet.html';
-		const appletBinaryFileUrl = `${defaultUrl}${appletBinaryFilePath}`;
+		const appletDirectoryPath = '/applet';
+		const appletBinaryFileUrl = `${defaultUrl}${appletDirectoryPath}/index.html`;
 
-		app.get(appletBinaryFilePath, (_req: express.Request, res: express.Response) => {
-			res.send(
-				'<script>window.onunload = function () { window.parent.location.reload(); }</script>'
-				+ currentIndexHtml,
-			);
+		app.use(appletDirectoryPath, (req: express.Request, res: express.Response, next: () => void) => {
+			const fileUrl = url.parse(req.url);
+			const relativeFilePath = path.relative('/', fileUrl.pathname!);
+			let prependFileContent = '';
+
+			if (relativeFilePath === 'index.html') {
+				// Propagate Hot reload of whole emulator
+				prependFileContent = '<script>window.onunload = function () { window.parent.location.reload(); }</script>';
+			}
+
+			if (typeof currentAssets[relativeFilePath] !== 'undefined') {
+				res.send(prependFileContent + currentAssets[relativeFilePath].source());
+			} else {
+				next();
+			}
 		});
 
 		const packageConfig = JSON.parse(fs.readFileSync(path.join(projectPath, 'package.json')).toString());
@@ -127,10 +146,10 @@ async function createEmulator(): Promise<IEmulator | undefined> {
 					debug('process.env', envVars);
 
 					if (typeof stats.compilation.assets['index.html'] === 'undefined') {
-						console.warn(`Applet has to have ${chalk.green('index.html')} in output files. Use ${chalk.green('HtmlWebpackPlugin')}!`);
+						console.warn(`Applet has to have ${chalk.green('index.html')} in output files.`);
 						return;
 					}
-					currentIndexHtml = stats.compilation.assets['index.html'].source();
+					currentAssets = stats.compilation.assets;
 				} catch (error) {
 					console.error(error);
 					process.exit(1);
