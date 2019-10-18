@@ -55,6 +55,17 @@ interface IEmulator {
 	stop(): void;
 }
 
+type WebpackAssets = {
+	[filePath: string]: {
+		existsAt: string;
+		source(): string;
+	};
+};
+
+type WebpackCompilation = webpack.compilation.Compilation & {
+	compiler: webpack.Compiler & { outputFileSystem: typeof fs };
+};
+
 async function createEmulator(): Promise<IEmulator | undefined> {
 	try {
 		const sosWebpackConfig = { ...{ useLocalIp: true, port: 8090 } };
@@ -65,11 +76,8 @@ async function createEmulator(): Promise<IEmulator | undefined> {
 		const frontDisplayPath = path.dirname(require.resolve('@signageos/front-display/package.json', { paths: [projectPath]}));
 		const frontDisplayDistPath = path.join(frontDisplayPath, 'dist');
 
-		let currentAssets: {
-			[filePath: string]: {
-				source(): string;
-			};
-		};
+		let currentCompilation: WebpackCompilation;
+		let lastCompilationAssets: WebpackAssets = {};
 		let envVars = {};
 
 		const app = express();
@@ -103,15 +111,16 @@ async function createEmulator(): Promise<IEmulator | undefined> {
 		app.use(appletDirectoryPath, (req: express.Request, res: express.Response, next: () => void) => {
 			const fileUrl = url.parse(req.url);
 			const relativeFilePath = path.relative('/', fileUrl.pathname!);
-			let prependFileContent = '';
 
 			if (relativeFilePath === 'index.html') {
 				// Propagate Hot reload of whole emulator
-				prependFileContent = '<script>window.onunload = function () { window.parent.location.reload(); }</script>';
-			}
-
-			if (typeof currentAssets[relativeFilePath] !== 'undefined') {
-				res.send(prependFileContent + currentAssets[relativeFilePath].source());
+				const prependFileContent = '<script>window.onunload = function () { window.parent.location.reload(); }</script>';
+				res.send(prependFileContent + lastCompilationAssets[relativeFilePath].source());
+			} else
+			if (typeof lastCompilationAssets[relativeFilePath] !== 'undefined') {
+				const compiledFilePath = lastCompilationAssets[relativeFilePath].existsAt;
+				const readStream = currentCompilation.compiler.outputFileSystem.createReadStream(compiledFilePath);
+				readStream.pipe(res);
 			} else {
 				next();
 			}
@@ -149,7 +158,8 @@ async function createEmulator(): Promise<IEmulator | undefined> {
 						console.warn(`Applet has to have ${chalk.green('index.html')} in output files.`);
 						return;
 					}
-					currentAssets = stats.compilation.assets;
+					currentCompilation = stats.compilation as WebpackCompilation;
+					lastCompilationAssets = { ...lastCompilationAssets, ...stats.compilation.assets };
 				} catch (error) {
 					console.error(error);
 					process.exit(1);
