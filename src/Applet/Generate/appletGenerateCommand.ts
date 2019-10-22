@@ -41,6 +41,7 @@ export const appletGenerate: ICommand = {
 			throw new Error(`Name has to match RegExp: ${NAME_REGEXP.toString()}`);
 		}
 		const appletRootDirectory = options['target-dir'] || path.join(currentDirectory, appletName);
+		const appletRootDirectoryName = options['target-dir'] || appletName;
 
 		let entryFileName = 'index.js';
 		const dependencies = [
@@ -140,7 +141,7 @@ export const appletGenerate: ICommand = {
 		);
 		child.on('close', () => {
 			console.log(`\nApplet ${chalk.green(appletName!)} created!`);
-			console.log(`use: cd ${chalk.green(appletName!)} and ${chalk.green('npm start')}\n`);
+			console.log(`use: cd ${chalk.green(appletRootDirectoryName!)} and ${chalk.green('npm start')}\n`);
 		});
 	},
 };
