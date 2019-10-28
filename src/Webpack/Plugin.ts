@@ -110,7 +110,7 @@ async function createEmulator(): Promise<IEmulator | undefined> {
 
 		app.use(appletDirectoryPath, (req: express.Request, res: express.Response, next: () => void) => {
 			const fileUrl = url.parse(req.url);
-			const relativeFilePath = path.relative('/', fileUrl.pathname!);
+			const relativeFilePath = fileUrl.pathname ? fileUrl.pathname.substr(1) : '';
 
 			if (relativeFilePath === 'index.html') {
 				// Propagate Hot reload of whole emulator
