@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Allow CORS in webpack plugin 8090 emulator proxy port for develop applet externally
 - Universal assets supported for webpack plugin (images, fonts, binaries etc.)
 - Make more memory efficient proxy of emulator webpack plugin
+- Compatibility with Node.js >= 8 (no upper limit)
 
 ## [0.4.4] - 2019-09-24
 ### Fixed
