@@ -51,6 +51,7 @@
     "@types/node": "12.6.9",
     "@types/node-fetch": "2.5.0",
     "@types/prompts": "2.0.1",
+    "@types/read-chunk": "3.1.0",
     "@types/should": "13.0.0",
     "@types/webpack": "4.39.1",
     "depcheck": "0.8.3",
@@ -77,6 +78,7 @@
     "mime": "1.6.0",
     "node-fetch": "2.6.0",
     "prompts": "2.1.0",
+    "read-chunk": "3.2.0",
     "serve-static": "1.14.1",
     "webpack": "4.39.3",
     "webpack-dev-server": "3.8.0"
