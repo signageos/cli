@@ -37,6 +37,7 @@
   },
   "devDependencies": {
     "@types/chalk": "2.2.0",
+    "@types/cli-progress": "1.8.1",
     "@types/command-line-args": "5.0.0",
     "@types/command-line-usage": "5.0.1",
     "@types/cors": "2.8.6",
@@ -62,6 +63,7 @@
   "dependencies": {
     "@signageos/sdk": "1.2.0-master.139",
     "chalk": "2.4.2",
+    "cli-progress": "3.3.1",
     "command-line-args": "5.1.1",
     "command-line-usage": "6.0.2",
     "cors": "2.8.5",
