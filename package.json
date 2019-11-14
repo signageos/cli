@@ -58,6 +58,7 @@
     "depcheck": "0.8.3",
     "hugport-codestyle": "0.1.0-alpha.1",
     "mocha": "6.2.0",
+    "rewiremock": "3.13.9",
     "should": "13.2.3",
     "ts-node": "8.3.0",
     "tslint": "5.18.0",
