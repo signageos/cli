@@ -7,6 +7,7 @@ import IRestApiOptions from '@signageos/sdk/dist/RestApi/IOptions';
 import IRestApiAccountOptions from '@signageos/sdk/dist/RestApi/IOptions';
 import { IOrganization } from './Organization/organizationFacade';
 import { getGlobalApiUrl } from './Command/commandProcessor';
+import { loadConfig } from './RunControl/runControlHelper';
 
 export function createOrganizationRestApi(
 	organization: IOrganization,
@@ -16,6 +17,26 @@ export function createOrganizationRestApi(
 		auth: {
 			clientId: organization.oauthClientId,
 			secret: organization.oauthClientSecret,
+		},
+		version: 'v1' as 'v1',
+	};
+	const accountOptions: IRestApiAccountOptions = {
+		...options,
+	};
+
+	return new RestApi(options, accountOptions);
+}
+
+export async function createFirmwareVersionRestApi() {
+	const config = await loadConfig();
+	if ( !config.identification || !config.apiSecurityToken ) {
+		throw new Error('Identification or token is missing.');
+	}
+	const options: IRestApiOptions = {
+		url: getGlobalApiUrl(),
+		auth: {
+			clientId: config.identification,
+			secret: config.apiSecurityToken,
 		},
 		version: 'v1' as 'v1',
 	};
