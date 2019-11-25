@@ -48,13 +48,22 @@ npm run build
 #### Applet Upload
 ```bash
 sos applet upload
-# If applet is not created yet, it will create it
-# The applet version is used from package.json
-# Applet UID will be stored in package.json sos.appletUid
+# Uploads all files in the applet directory
+
+sos applet upload --applet-path=dist/index.html
+# This will upload only the one specified file
+# Rest of the files will be removed from our servers
 ```
-| Argument                   | Decription                   | Default value          |
-|----------------------------|------------------------------|------------------------|
-| --applet-path *(optional)* | Path of built index.html     | ${PWD}/dist/index.html |
+- If applet is not created yet, it will create it
+- The applet version is used from `package.json`
+- Applet UID will be stored in `package.json` sos.appletUid
+- Ignore files priority (from top to bottom) `.sosignore` > `.npmignore` > `.gitignore`
+- Only one ignore file is used or non
+
+| Argument                       | Decription                    | Default value          |
+|--------------------------------|-------------------------------|------------------------|
+| --applet-path *(optional)*     | Path of applet directory root | ${PWD}                 |
+| --entry-file-path *(optional)* | Path of applet entry file     | ${PWD}/dist/index.html |
 
 ### Organization
 ```bash

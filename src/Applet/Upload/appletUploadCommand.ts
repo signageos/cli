@@ -1,16 +1,32 @@
 import chalk from 'chalk';
-import * as path from 'path';
-import * as fs from 'fs-extra';
 import * as prompts from 'prompts';
-import ICommand from '../../Command/ICommand';
 import { CommandLineOptions } from 'command-line-args';
-import { createOrganizationRestApi, deserializeJSON } from '../../helper';
-import { loadConfig, updateConfig } from '../../RunControl/runControlHelper';
-import { getOrganization, getOrganizationUid, ORGANIZATION_UID_OPTION } from '../../Organization/organizationFacade';
-import { getAppletName, getAppletVersion, getAppletFrontAppletVersion, tryGetAppletUid } from '../appletFacade';
+import ICommand from '../../Command/ICommand';
+import { createOrganizationRestApi } from '../../helper';
 import * as parameters from '../../../config/parameters';
-
-const DEFAULT_APPLET_BINARY_FILE_PATH = 'dist/index.html';
+import { getOrganization, ORGANIZATION_UID_OPTION } from '../../Organization/organizationFacade';
+import {
+	getAppletName,
+	getAppletVersion,
+	getAppletFrontAppletVersion,
+	tryGetAppletUid,
+} from '../appletFacade';
+import {
+	updateSingleFileApplet,
+	updateMultiFileApplet,
+	createSingleFileApplet,
+	createMultiFileFileApplet,
+} from './appletUploadFacade';
+import {
+	getOrganizationUidAndUpdateConfig,
+	getAppletBinaryFileAbsolutePath,
+	getAppletDirectoryAbsolutePath,
+	getAppletEntryFileAbsolutePath,
+	getAppletEntryFileRelativePath,
+	saveToPackage,
+} from './appletUploadCommandHelper';
+import { listDirectoryContentRecursively } from '../../FileSystem/helper';
+import { createProgressBar } from '../../CommandLine/progressBarFactory';
 
 export const appletUpload: ICommand = {
 	name: 'upload',
@@ -19,8 +35,14 @@ export const appletUpload: ICommand = {
 		{
 			name: 'applet-path',
 			type: String,
-			defaultValue: DEFAULT_APPLET_BINARY_FILE_PATH,
-			description: 'Path to the applet file. Relative to the command or absolute.',
+			// defaultValue: DEFAULT_APPLET_DIR_PATH,
+			description: 'Path to the applet file or the folder depending on the entry file. Relative to the command or absolute.',
+		},
+		{
+			name: 'entry-file-path',
+			type: String,
+			// defaultValue: DEFAULT_APPLET_ENTRY_FILE_PATH,
+			description: 'Path to the applet entry file. Relative to the command or absolute.',
 		},
 		ORGANIZATION_UID_OPTION,
 	],
@@ -33,13 +55,21 @@ export const appletUpload: ICommand = {
 
 		const appletName = await getAppletName(currentDirectory);
 		const appletVersion = await getAppletVersion(currentDirectory);
-		const appletBinaryFilePath = await getAppletBinaryFileAbsolutePath(currentDirectory, options);
 		const appletFrontAppletVersion = await getAppletFrontAppletVersion(currentDirectory);
 
-		const appletBinaryFilePathExists = await fs.pathExists(appletBinaryFilePath);
+		const appletPathOption = options['applet-path'] as string | undefined;
+		const appletEntryOption = options['entry-file-path'] as string | undefined;
 
-		if (!appletBinaryFilePathExists) {
-			throw new Error(`Applet binary file not found: ${appletBinaryFilePath}`);
+		let appletBinaryFilePath: string | undefined = undefined;
+		let appletDirectoryPath: string | undefined = undefined;
+		let appletEntryFilePath: string | undefined = undefined;
+
+		const isSingleFileApplet = !!(appletPathOption && !appletEntryOption);
+		if (isSingleFileApplet) {
+			appletBinaryFilePath = await getAppletBinaryFileAbsolutePath(currentDirectory, options);
+		} else {
+			appletDirectoryPath = await getAppletDirectoryAbsolutePath(currentDirectory, options);
+			appletEntryFilePath = await getAppletEntryFileAbsolutePath(currentDirectory, options);
 		}
 
 		let appletVersionExists = true;
@@ -73,77 +103,82 @@ export const appletUpload: ICommand = {
 			createNewAppletVersionConfirmed = response.newVersion ? true : false;
 		}
 
+		const appletFiles: string[] = [];
+		if (overrideAppletVersionConfirmed || createNewAppletVersionConfirmed) {
+			if (!isSingleFileApplet) {
+				appletFiles.push(...(await listDirectoryContentRecursively(appletDirectoryPath!, currentDirectory)));
+			}
+		}
+
 		if (overrideAppletVersionConfirmed) {
-			const appletBinary = await fs.createReadStream(appletBinaryFilePath, { encoding: 'utf8' });
-			await restApi.applet.version.update(
-				appletUid,
-				appletVersion,
-				{
-					binary: appletBinary,
-					frontAppletVersion: '',
-				},
-			);
+			if (isSingleFileApplet) {
+				await updateSingleFileApplet({
+					restApi,
+					applet: {
+						uid: appletUid,
+						version: appletVersion,
+						frontAppletVersion: appletFrontAppletVersion,
+						binaryFilePath: appletBinaryFilePath!,
+					},
+				});
+			} else {
+				const appletEntryFileRelativePath = getAppletEntryFileRelativePath(appletEntryFilePath!, appletDirectoryPath!);
+				const progressBar = createProgressBar();
+				await updateMultiFileApplet({
+					restApi,
+					applet: {
+						uid: appletUid,
+						version: appletVersion,
+						frontAppletVersion: appletFrontAppletVersion,
+						entryFilePath: appletEntryFileRelativePath,
+						directoryPath: appletDirectoryPath!,
+						files: appletFiles,
+					},
+					progressBar,
+				});
+			}
+			displaySuccessMessage(applet.uid, applet.name!, appletVersion, parameters.boxHost);
 		} else if (createNewAppletVersionConfirmed) {
-			const appletBinary = await fs.createReadStream(appletBinaryFilePath, { encoding: 'utf8' });
-			await restApi.applet.version.create(
-				appletUid,
-				{
-					binary: appletBinary,
-					version: appletVersion,
-					frontAppletVersion: appletFrontAppletVersion,
-				},
-			);
-			console.log(`Applet ${chalk.green(applet.name!)} version ${chalk.green(appletVersion)} has been uploaded.`);
-			const appletBoxUri = `https://${parameters.boxHost}/applet/${applet.uid}/${appletVersion}/build`;
-			console.log(`To build specific applications (Tizen, WebOS, SSSP, BrightSign, RPi, Android etc.) go to ${chalk.blue(appletBoxUri)}`);
+			if (isSingleFileApplet) {
+				await createSingleFileApplet({
+					restApi,
+					applet: {
+						uid: appletUid,
+						version: appletVersion,
+						frontAppletVersion: appletFrontAppletVersion,
+						binaryFilePath: appletBinaryFilePath!,
+					},
+				});
+			} else {
+				const appletEntryFileRelativePath = getAppletEntryFileRelativePath(appletEntryFilePath!, appletDirectoryPath!);
+				const progressBar = createProgressBar();
+				await createMultiFileFileApplet({
+					restApi,
+					applet: {
+						uid: appletUid,
+						version: appletVersion,
+						frontAppletVersion: appletFrontAppletVersion,
+						entryFilePath: appletEntryFileRelativePath,
+						directoryPath: appletDirectoryPath!,
+						files: appletFiles,
+					},
+					progressBar,
+				});
+			}
+			displaySuccessMessage(applet.uid, applet.name!, appletVersion, parameters.boxHost);
 		} else {
 			throw new Error('Applet version upload was canceled.');
 		}
 	},
 };
 
-async function getOrganizationUidAndUpdateConfig(options: CommandLineOptions): Promise<string> {
-	const config = await loadConfig();
-	let organizationUid: string | undefined = options['organization-uid'];
-
-	if (!organizationUid) {
-		organizationUid = config.defaultOrganizationUid;
-	}
-
-	if (!organizationUid) {
-		organizationUid = await getOrganizationUid(options);
-		await updateConfig({
-			defaultOrganizationUid: organizationUid,
-		});
-	}
-
-	return organizationUid;
-}
-
-function getAppletBinaryFileAbsolutePath(currentDirectory: string, options: CommandLineOptions): string {
-	let appletBinaryFilePath: string = options['applet-path'];
-
-	if (appletBinaryFilePath === DEFAULT_APPLET_BINARY_FILE_PATH) {
-		console.log(`\nUsed default applet binary file path: ${appletBinaryFilePath}`);
-	}
-	if (!path.isAbsolute(appletBinaryFilePath)) {
-		appletBinaryFilePath = path.join(currentDirectory, appletBinaryFilePath);
-		console.log(`\nWill upload applet binary file path: ${appletBinaryFilePath}`);
-	}
-
-	return appletBinaryFilePath;
-}
-
-async function saveToPackage(currentDirectory: string, data: any) {
-	const packageJSONPath = path.join(currentDirectory, 'package.json');
-	const packageJSONPathExists = await fs.pathExists(packageJSONPath);
-	let previousContent;
-
-	if (packageJSONPathExists) {
-		const packageRaw = await fs.readFile(packageJSONPath, { encoding: 'utf8' });
-		previousContent = JSON.parse(packageRaw, deserializeJSON);
-	}
-
-	const newContent = { ...previousContent, ...data };
-	await fs.writeFile(packageJSONPath, JSON.stringify(newContent, undefined, 2) + '\n');
+function displaySuccessMessage(
+	appletUid: string,
+	appletName: string,
+	appletVersion: string,
+	boxHost: string,
+) {
+	console.log(`Applet ${chalk.green(appletName)} version ${chalk.green(appletVersion)} has been uploaded.`);
+	const appletBoxUri = `https://${boxHost}/applet/${appletUid}/${appletVersion}/build`;
+	console.log(`To build specific applications (Tizen, WebOS, SSSP, BrightSign, RPi, Android etc.) go to ${chalk.blue(appletBoxUri)}`);
 }
