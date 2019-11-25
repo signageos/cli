@@ -66,6 +66,7 @@ export const appletUpload: ICommand = {
 
 		const isSingleFileApplet = !!(appletPathOption && !appletEntryOption);
 		if (isSingleFileApplet) {
+			displaySingleFileAppletDeprecationNote();
 			appletBinaryFilePath = await getAppletBinaryFileAbsolutePath(currentDirectory, options);
 		} else {
 			appletDirectoryPath = await getAppletDirectoryAbsolutePath(currentDirectory, options);
@@ -181,4 +182,10 @@ function displaySuccessMessage(
 	console.log(`Applet ${chalk.green(appletName)} version ${chalk.green(appletVersion)} has been uploaded.`);
 	const appletBoxUri = `https://${boxHost}/applet/${appletUid}/${appletVersion}/build`;
 	console.log(`To build specific applications (Tizen, WebOS, SSSP, BrightSign, RPi, Android etc.) go to ${chalk.blue(appletBoxUri)}`);
+}
+
+function displaySingleFileAppletDeprecationNote() {
+	console.log(
+		`${chalk.red(`Applets with only applet-path file are ${chalk.bold(`deprecated`)}.`)} Please find more information at our website.`,
+	);
 }

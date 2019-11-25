@@ -50,6 +50,7 @@ npm run build
 sos applet upload
 # Uploads all files in the applet directory
 
+#Deprecated
 sos applet upload --applet-path=dist/index.html
 # This will upload only the one specified file
 # Rest of the files will be removed from our servers
