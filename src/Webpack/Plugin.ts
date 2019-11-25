@@ -4,6 +4,7 @@ import * as path from 'path';
 import * as http from 'http';
 import * as url from 'url';
 import * as cors from 'cors';
+import * as mime from 'mime';
 import * as fs from 'fs-extra';
 import * as serveStatic from 'serve-static';
 import chalk from 'chalk';
@@ -113,12 +114,19 @@ async function createEmulator(): Promise<IEmulator | undefined> {
 			const relativeFilePath = fileUrl.pathname ? fileUrl.pathname.substr(1) : '';
 
 			if (relativeFilePath === 'index.html') {
-				// Propagate Hot reload of whole emulator
-				const prependFileContent = '<script>window.onunload = function () { window.parent.location.reload(); }</script>';
-				res.send(prependFileContent + lastCompilationAssets[relativeFilePath].source());
+				if (typeof lastCompilationAssets[relativeFilePath] === 'undefined') {
+					res.status(404).send();
+				} else {
+					// Propagate Hot reload of whole emulator
+					const prependFileContent = '<script>window.onunload = function () { window.parent.location.reload(); }</script>';
+					res.setHeader('Content-Type', 'text/html');
+					res.send(prependFileContent + lastCompilationAssets[relativeFilePath].source());
+				}
 			} else
 			if (typeof lastCompilationAssets[relativeFilePath] !== 'undefined') {
 				const compiledFilePath = lastCompilationAssets[relativeFilePath].existsAt;
+				const contentType = mime.lookup(relativeFilePath);
+				res.setHeader('Content-Type', contentType);
 				const readStream = currentCompilation.compiler.outputFileSystem.createReadStream(compiledFilePath);
 				readStream.pipe(res);
 			} else {
