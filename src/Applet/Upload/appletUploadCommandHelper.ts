@@ -36,16 +36,16 @@ export async function getAppletDirectoryAbsolutePath(currentDirectory: string, o
 	if (appletDirectoryPath.length > 1 && appletDirectoryPath[appletDirectoryPath.length - 1] === '/') {
 		appletDirectoryPath = appletDirectoryPath.substring(0, appletDirectoryPath.length - 1);
 	}
-	console.log(`\nUse applet directory path: ${appletDirectoryPath}`);
+	console.log(`\nUse applet project directory path: ${appletDirectoryPath}`);
 
 	const appletDirectoryPathExists = await fs.pathExists(appletDirectoryPath);
 	if (!appletDirectoryPathExists) {
-		throw new Error(`Applet directory not found: ${appletDirectoryPath}`);
+		throw new Error(`Applet project directory not found: ${appletDirectoryPath}`);
 	}
 
 	const isDirectory = (await fs.stat(appletDirectoryPath)).isDirectory();
 	if (!isDirectory) {
-		throw new Error(`Applet path is not a directory: ${appletDirectoryPath}`);
+		throw new Error(`Applet project path is not a directory: ${appletDirectoryPath}`);
 	}
 
 	return appletDirectoryPath;
