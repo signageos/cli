@@ -15,11 +15,12 @@ const createDomain = require('webpack-dev-server/lib/utils/createDomain');
 export interface ICreateEmulatorParams {
 	projectPath: string;
 	appletPath: string;
+	entryFileRelativePath: string;
 	emulatorServerPort: number;
 }
 
 export async function createEmulator(params: ICreateEmulatorParams): Promise<IEmulator> {
-	const { projectPath, emulatorServerPort, appletPath } = params;
+	const { projectPath, emulatorServerPort, appletPath, entryFileRelativePath } = params;
 
 	const serverDomainOptions = { useLocalIp: true, port: emulatorServerPort };
 	const frontDisplayPath = path.dirname(require.resolve('@signageos/front-display/package.json', { paths: [projectPath]}));
@@ -53,7 +54,7 @@ export async function createEmulator(params: ICreateEmulatorParams): Promise<IEm
 
 	const serverUrl: string = createDomain(serverDomainOptions, server);
 	const appletResourcePath = '/applet';
-	const appletBinaryFileUrl = `${serverUrl}${appletResourcePath}/index.html`;
+	const appletEntryFileUrl = `${serverUrl}${appletResourcePath}/${entryFileRelativePath}`;
 	const appletAssets = await glob(
 		['**/*'],
 		{
@@ -62,6 +63,11 @@ export async function createEmulator(params: ICreateEmulatorParams): Promise<IEm
 			dot: true,
 		},
 	);
+
+	const entryFileExists = appletAssets.includes(path.join(appletPath, entryFileRelativePath));
+	if (!entryFileExists) {
+		throw new Error(`Applet has to have ${chalk.green(entryFileRelativePath)} in applet directory.`);
+	}
 
 	app.use(appletResourcePath, (req: express.Request, res: express.Response, next: () => void) => {
 		const fileUrl = url.parse(req.url);
@@ -91,7 +97,7 @@ export async function createEmulator(params: ICreateEmulatorParams): Promise<IEm
 
 	envVars = {
 		version: packageConfig.version,
-		binaryFile: appletBinaryFileUrl,
+		binaryFile: appletEntryFileUrl,
 		frontAppletVersion: '', // has bundled front applet
 		frontAppletBinaryFile: '', // has bundled front applet
 		checksum: 'ASDFGHJKL1234567890',
