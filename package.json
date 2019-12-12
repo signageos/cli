@@ -60,7 +60,7 @@
     "typescript": "3.5.3"
   },
   "dependencies": {
-    "@signageos/sdk": "1.1.0",
+    "@signageos/sdk": "1.2.0-master.139",
     "chalk": "2.4.2",
     "command-line-args": "5.1.1",
     "command-line-usage": "6.0.2",
