@@ -123,6 +123,10 @@ export const appletGenerate: ICommand = {
 			path: path.join(appletRootDirectory, 'public', 'index.html'),
 			content: createIndexHtml(appletName),
 		});
+		generateFiles.push({
+			path: path.join(appletRootDirectory, '.sosignore'),
+			content: 'node_modules/\n',
+		});
 
 		await fs.mkdir(appletRootDirectory);
 		for (const generateFile of generateFiles) {

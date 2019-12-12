@@ -10,7 +10,7 @@ sos --help
 
 ## API reference
 ### General
-| Argument                   | Decription                      | Default value                                     |
+| Argument                   | Description                     | Default value                                     |
 |----------------------------|---------------------------------|---------------------------------------------------|
 | --api-url *(optional)*     | URL address to use for REST API | ${SOS_API_URL~'https://api.signageos.io'}         |
 
@@ -21,7 +21,7 @@ sos login
 - Login account to allow use REST API commands
 - Logged account credentials are stored in `~/.sosrc` file.
 
-| Argument                   | Decription                      | Default value  |
+| Argument                   | Description                     | Default value  |
 |----------------------------|---------------------------------|----------------|
 | --username *(required)*    | Username or e-mail user for box | STDIN          |
 
@@ -39,7 +39,7 @@ npm start
 # Build your applet production environment
 npm run build
 ```
-| Argument                   | Decription                   | Default value  |
+| Argument                   | Description                  | Default value  |
 |----------------------------|------------------------------|----------------|
 | --name *(required)*        | Name your applet             | STDIN          |
 | --version *(optional)*     | Initial version              | 0.0.0          |
@@ -48,13 +48,23 @@ npm run build
 #### Applet Upload
 ```bash
 sos applet upload
-# If applet is not created yet, it will create it
-# The applet version is used from package.json
-# Applet UID will be stored in package.json sos.appletUid
+# Uploads all files in the applet directory
+
+#Deprecated
+sos applet upload --applet-path=dist/index.html
+# This will upload only the one specified file
+# Rest of the files will be removed from our servers
 ```
-| Argument                   | Decription                   | Default value          |
-|----------------------------|------------------------------|------------------------|
-| --applet-path *(optional)* | Path of built index.html     | ${PWD}/dist/index.html |
+- If applet is not created yet, it will create it
+- The applet version is used from `package.json`
+- Applet UID will be stored in `package.json` sos.appletUid
+- Ignore files priority (from top to bottom) `.sosignore` > `.npmignore` > `.gitignore`
+- Only one ignore file is used or non
+
+| Argument                       | Description                   | Default value          |
+|--------------------------------|-------------------------------|------------------------|
+| --applet-path *(optional)*     | Path of applet directory root | ${PWD}                 |
+| --entry-file-path *(optional)* | Path of applet entry file     | ${PWD}/dist/index.html |
 
 ### Organization
 ```bash
@@ -72,7 +82,7 @@ sos organization list
 ```bash
 sos organization get
 ```
-| Argument                        | Decription                   | Default value  |
+| Argument                        | Description                  | Default value  |
 |---------------------------------|------------------------------|----------------|
 | --organization-uid *(required)* | Organization UID             | STDIN          |
 
@@ -81,7 +91,7 @@ sos organization get
 ```bash
 sos organization set-default
 ```
-| Argument                        | Decription                   | Default value  |
+| Argument                        | Description                  | Default value  |
 |---------------------------------|------------------------------|----------------|
 | --organization-uid *(required)* | Organization UID             | STDIN          |
 
@@ -95,7 +105,7 @@ sos timing --help
 ```bash
 sos timing list
 ```
-| Argument                        | Decription                   | Default value  |
+| Argument                        | Description                  | Default value  |
 |---------------------------------|------------------------------|----------------|
 | --organization-uid *(required)* | Organization UID             | STDIN          |
 | --device-uid *(required)*       | Device UID                   | STDIN          |
