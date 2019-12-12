@@ -6,6 +6,7 @@ import { login } from './Auth/loginCommand';
 import { organization } from './Organization/organizationCommand';
 import { timing } from './Timing/timingCommand';
 import { processCommand, API_URL_OPTION } from './Command/commandProcessor';
+import { firmware } from './Firmware/firmwareCommand';
 
 const index: ICommand = {
 	name: 'sos',
@@ -28,6 +29,7 @@ const index: ICommand = {
 		login,
 		organization,
 		timing,
+		firmware,
 	],
 	async run() {
 		throw new Error('Unknown command');
