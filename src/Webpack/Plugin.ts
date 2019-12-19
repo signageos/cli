@@ -125,7 +125,7 @@ async function createEmulator(): Promise<IEmulator | undefined> {
 			} else
 			if (typeof lastCompilationAssets[relativeFilePath] !== 'undefined') {
 				const compiledFilePath = lastCompilationAssets[relativeFilePath].existsAt;
-				const contentType = mime.lookup(relativeFilePath);
+				const contentType = mime.getType(relativeFilePath) || 'application/octet-stream';
 				res.setHeader('Content-Type', contentType);
 				const readStream = currentCompilation.compiler.outputFileSystem.createReadStream(compiledFilePath);
 				readStream.pipe(res);
