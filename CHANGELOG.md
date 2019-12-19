@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Added
 - Upload multi file applet
+- Firmware upload
+- Multi file applet emulator
 
 ## [0.5.0] - 2019-11-28
 ### Added
