@@ -28,6 +28,13 @@ import {
 import { listDirectoryContentRecursively } from '../../FileSystem/helper';
 import { createProgressBar } from '../../CommandLine/progressBarFactory';
 
+export const ENTRY_FILE_PATH_OPTION = {
+	name: 'entry-file-path',
+	type: String,
+	// defaultValue: DEFAULT_APPLET_ENTRY_FILE_PATH,
+	description: 'Path to the applet entry file. Relative to the command or absolute.',
+};
+
 export const appletUpload: ICommand = {
 	name: 'upload',
 	description: 'Uploads current applet version',
@@ -38,12 +45,7 @@ export const appletUpload: ICommand = {
 			// defaultValue: DEFAULT_APPLET_DIR_PATH,
 			description: 'Path to the applet file or the folder depending on the entry file. Relative to the command or absolute.',
 		},
-		{
-			name: 'entry-file-path',
-			type: String,
-			// defaultValue: DEFAULT_APPLET_ENTRY_FILE_PATH,
-			description: 'Path to the applet entry file. Relative to the command or absolute.',
-		},
+		ENTRY_FILE_PATH_OPTION,
 		ORGANIZATION_UID_OPTION,
 	],
 	commands: [],
