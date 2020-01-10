@@ -66,6 +66,21 @@ sos applet upload --applet-path=dist/index.html
 | --applet-path *(optional)*     | Path of applet directory root | ${PWD}                 |
 | --entry-file-path *(optional)* | Path of applet entry file     | ${PWD}/dist/index.html |
 
+#### Applet Start
+```bash
+sos applet start
+```
+- It's meant to be used with applets not created using the cli
+- Doesn't have a hot reload at the moment
+- Default values work for applet created using the cli
+
+| Argument                       | Description                           | Default value          |
+|--------------------------------|---------------------------------------|------------------------|
+| --port *(optional)*            | Port where the applet will run        | 8090                   |
+| --applet-dir *(optional)*      | Root path of built applet             | ${PWD}/dist            |
+| --project-dir *(optional)*     | Root path of applet project directory | ${PWD}                 |
+| --entry-file-path *(optional)* | Path of built applet entry file       | ${PWD}/dist/index.html |
+
 ### Organization
 ```bash
 sos organization --help
