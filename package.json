@@ -16,12 +16,12 @@
   },
   "scripts": {
     "build": "tsc",
-    "lint": "tslint --config node_modules/hugport-codestyle/tslint.json {src,tests}/**/*.{ts,tsx}",
+    "lint": "tslint --config node_modules/@signageos/codestyle/tslint.json {src,tests}/**/*.{ts,tsx}",
     "prebuild": "rm -rf dist/*",
     "prepare": "npm run prebuild && npm run build && chmod +x dist/index.js",
     "test": "env NODE_ENV=test mocha --opts mocha.opts",
     "watch": "tsc --watch",
-    "check": "depcheck --specials=tslint,webpack,mocha --parsers='*.ts:typescript,*.js:es6' --detectors='requireCallExpression,importDeclaration' --ignore-dirs='dist' --ignores='@types/*,hugport-codestyle,mocha,depcheck'"
+    "check": "depcheck --specials=tslint,webpack,mocha --parsers='*.ts:typescript,*.js:es6' --detectors='requireCallExpression,importDeclaration' --ignore-dirs='dist' --ignores='@types/*,@signageos/codestyle,mocha,depcheck'"
   },
   "license": "MIT",
   "engines": {
@@ -36,6 +36,7 @@
     "access": "public"
   },
   "devDependencies": {
+    "@signageos/codestyle": "0.0.12",
     "@types/chalk": "2.2.0",
     "@types/cli-progress": "1.8.1",
     "@types/command-line-args": "5.0.0",
@@ -57,7 +58,6 @@
     "@types/sinon": "7.5.0",
     "@types/webpack": "4.39.1",
     "depcheck": "0.8.3",
-    "hugport-codestyle": "0.1.0-alpha.1",
     "mocha": "6.2.0",
     "rewiremock": "3.13.9",
     "should": "13.2.3",
