@@ -39,11 +39,11 @@ npm start
 # Build your applet production environment
 npm run build
 ```
-| Argument                   | Description                  | Default value  |
-|----------------------------|------------------------------|----------------|
-| --name *(required)*        | Name your applet             | STDIN          |
-| --version *(optional)*     | Initial version              | 0.0.0          |
-| --target-dir *(optional)*  | Generate applet to directory | ${PWD}/${name} |
+| Argument                   | Description                          | Default value  |
+|----------------------------|--------------------------------------|----------------|
+| --name *(required)*        | Name your applet                     | STDIN          |
+| --version *(optional)*     | Initial version                      | 0.0.0          |
+| --target-dir *(optional)*  | Generate applet project to directory | ${PWD}/${name} |
 
 #### Applet Upload
 ```bash
@@ -63,7 +63,7 @@ sos applet upload --applet-path=dist/index.html
 
 | Argument                       | Description                   | Default value          |
 |--------------------------------|-------------------------------|------------------------|
-| --applet-path *(optional)*     | Path of applet directory root | ${PWD}                 |
+| --applet-path *(optional)*     | Path of project directory     | ${PWD}                 |
 | --entry-file-path *(optional)* | Path of applet entry file     | ${PWD}/dist/index.html |
 
 #### Applet Start
