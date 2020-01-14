@@ -43,7 +43,7 @@ export const appletUpload: ICommand = {
 			name: 'applet-path',
 			type: String,
 			// defaultValue: DEFAULT_APPLET_DIR_PATH,
-			description: 'Path to the applet file or the folder depending on the entry file. Relative to the command or absolute.',
+			description: 'Path to the applet file or the project folder depending on the entry file. Relative to the command or absolute.',
 		},
 		ENTRY_FILE_PATH_OPTION,
 		ORGANIZATION_UID_OPTION,
