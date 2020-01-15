@@ -10,12 +10,19 @@ import * as serveStatic from 'serve-static';
 import chalk from 'chalk';
 import Debug from 'debug';
 import { loadConfig } from '../RunControl/runControlHelper';
+import { IWebpackOptions } from '.';
 const createDomain = require('webpack-dev-server/lib/utils/createDomain');
 const debug = Debug('@signageos/cli:Webpack/Plugin');
 
 // TODO commonjs export
 export = Plugin;
 class Plugin {
+
+	constructor(
+		private options: IWebpackOptions = {},
+	) {
+		this.options = { ...{ useLocalIp: true, port: 8090 }, ...this.options };
+	}
 
 	public apply(compiler: webpack.Compiler) {
 		console.log('SOS Plugin started');
@@ -24,7 +31,7 @@ class Plugin {
 
 		compiler.plugin("watch-run", async (_compiler: webpack.Compiler, callback: () => void) => {
 			if (!emulator) {
-				emulator = await createEmulator();
+				emulator = await createEmulator(this.options);
 			}
 			callback();
 		});
@@ -67,13 +74,11 @@ type WebpackCompilation = webpack.compilation.Compilation & {
 	compiler: webpack.Compiler & { outputFileSystem: typeof fs };
 };
 
-async function createEmulator(): Promise<IEmulator | undefined> {
+async function createEmulator(options: IWebpackOptions): Promise<IEmulator | undefined> {
 	try {
-		const sosWebpackConfig = { ...{ useLocalIp: true, port: 8090 } };
-
 		const projectPath = process.cwd();
 
-		const defaultPort = sosWebpackConfig.port;
+		const defaultPort = options.port;
 		const frontDisplayPath = path.dirname(require.resolve('@signageos/front-display/package.json', { paths: [projectPath]}));
 		const frontDisplayDistPath = path.join(frontDisplayPath, 'dist');
 
@@ -102,10 +107,10 @@ async function createEmulator(): Promise<IEmulator | undefined> {
 
 		const server = http.createServer(app);
 		server.listen(defaultPort, () => {
-			console.log(`Emulator is running at ${chalk.blue(chalk.bold(createDomain(sosWebpackConfig, server)))}`);
+			console.log(`Emulator is running at ${chalk.blue(chalk.bold(createDomain(options, server)))}`);
 		});
 
-		const defaultUrl = createDomain(sosWebpackConfig, server);
+		const defaultUrl = createDomain(options, server);
 		const appletDirectoryPath = '/applet';
 		const appletBinaryFileUrl = `${defaultUrl}${appletDirectoryPath}/index.html`;
 

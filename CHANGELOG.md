@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Discrepancy between project and applet dirs naming
 
+### Added
+- Configure webpack plugin with options. `https`, `port`, `public`, `useLocalIp`, `host`
+
 ## [0.6.0] - 2020-01-13
 ### Added
 - Upload multi file applet
