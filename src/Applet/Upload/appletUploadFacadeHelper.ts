@@ -12,7 +12,7 @@ export function getAppletFileRelativePath(fileAbsolutePath: string, directoryAbs
 
 	const isFileInAppletDir = fileAbsolutePath.startsWith(directoryAbsolutePath);
 	if (!isFileInAppletDir) {
-		throw new Error(`Applet entry file must be in the applet directory.` +
+		throw new Error(`All project files must be in the project directory.` +
 		`\nFile path: ${fileAbsolutePath}` +
 		`\nApplet directory path: ${directoryAbsolutePath}`);
 	}
