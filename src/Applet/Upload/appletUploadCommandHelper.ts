@@ -101,21 +101,23 @@ export async function getAppletEntryFileAbsolutePath(currentDirectory: string, o
 
 export function getAppletEntryFileRelativePath(entryFileAbsolutePath: string, appletDirectoryAbsolutePath: string) {
 	const appletDirectoryAbsolutePathNormalized = path.normalize(appletDirectoryAbsolutePath);
-	if (!path.isAbsolute(entryFileAbsolutePath)) {
-		throw new Error(`Internal Error: Try input relative entry file path. Current path: ${entryFileAbsolutePath}`);
+	const entryFileAbsolutePathNormalized = path.normalize(entryFileAbsolutePath);
+
+	if (!path.isAbsolute(entryFileAbsolutePathNormalized)) {
+		throw new Error(`Internal Error: Try input relative entry file path. Current path: ${entryFileAbsolutePathNormalized}`);
 	}
 	if (!path.isAbsolute(appletDirectoryAbsolutePathNormalized)) {
 		throw new Error(`Internal Error: Try input relative applet directory path. Current path: ${appletDirectoryAbsolutePathNormalized}`);
 	}
 
-	const isEntryFileInAppletDir = entryFileAbsolutePath.startsWith(appletDirectoryAbsolutePathNormalized);
+	const isEntryFileInAppletDir = entryFileAbsolutePathNormalized.startsWith(appletDirectoryAbsolutePathNormalized);
 	if (!isEntryFileInAppletDir) {
 		throw new Error(`Applet entry file must be in the applet directory.` +
-		`\nEntry file path: ${entryFileAbsolutePath}` +
+		`\nEntry file path: ${entryFileAbsolutePathNormalized}` +
 		`\nApplet directory path: ${appletDirectoryAbsolutePathNormalized}`);
 	}
 
-	const entryFileRelativePath = entryFileAbsolutePath.substring(appletDirectoryAbsolutePathNormalized.length + 1);
+	const entryFileRelativePath = entryFileAbsolutePathNormalized.substring(appletDirectoryAbsolutePathNormalized.length + 1);
 
 	return entryFileRelativePath;
 }

@@ -3,21 +3,24 @@ import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import IAppletVersionFile from '@signageos/sdk/dist/RestApi/Applet/Version/File/IAppletVersionFile';
 
 export function getAppletFileRelativePath(fileAbsolutePath: string, directoryAbsolutePath: string) {
-	if (!path.isAbsolute(fileAbsolutePath)) {
-		throw new Error(`Internal Error: Got relative file path, but need absolute to continue. Current path: ${fileAbsolutePath}`);
+	const directoryAbsolutePathNormalized = path.normalize(directoryAbsolutePath);
+	const fileAbsolutePathNormalized = path.normalize(fileAbsolutePath);
+
+	if (!path.isAbsolute(fileAbsolutePathNormalized)) {
+		throw new Error(`Internal Error: Got relative file path, but need absolute to continue. Current path: ${fileAbsolutePathNormalized}`);
 	}
-	if (!path.isAbsolute(directoryAbsolutePath)) {
-		throw new Error(`Internal Error: Try input absolute applet directory path. Current path: ${directoryAbsolutePath}`);
+	if (!path.isAbsolute(directoryAbsolutePathNormalized)) {
+		throw new Error(`Internal Error: Try input absolute applet directory path. Current path: ${directoryAbsolutePathNormalized}`);
 	}
 
-	const isFileInAppletDir = fileAbsolutePath.startsWith(directoryAbsolutePath);
+	const isFileInAppletDir = fileAbsolutePathNormalized.startsWith(directoryAbsolutePathNormalized);
 	if (!isFileInAppletDir) {
 		throw new Error(`All project files must be in the project directory.` +
-		`\nFile path: ${fileAbsolutePath}` +
-		`\nApplet directory path: ${directoryAbsolutePath}`);
+		`\nFile path: ${fileAbsolutePathNormalized}` +
+		`\nApplet directory path: ${directoryAbsolutePathNormalized}`);
 	}
 
-	const fileRelativePath = fileAbsolutePath.substring(directoryAbsolutePath.length + 1);
+	const fileRelativePath = fileAbsolutePathNormalized.substring(directoryAbsolutePathNormalized.length + 1);
 
 	return fileRelativePath;
 }

@@ -59,11 +59,12 @@ export const updateMultiFileApplet = async (parameters: {
 	for (let index = 0; index < applet.files.length; index++) {
 		const fileAbsolutePath = applet.files[index];
 		const fileRelativePath = getAppletFileRelativePath(fileAbsolutePath, applet.directoryPath);
+		const fileRelativePosixPath = path.posix.normalize(fileRelativePath.replace(/\\/g, '/'));
 		const fileSize = (await fs.stat(fileAbsolutePath)).size;
 		const fileHash = await computeFileMD5(fileAbsolutePath);
-		const currentFileHash = currentAppletFiles[fileRelativePath] ? currentAppletFiles[fileRelativePath].hash : undefined;
+		const currentFileHash = currentAppletFiles[fileRelativePosixPath] ? currentAppletFiles[fileRelativePosixPath].hash : undefined;
 
-		delete currentAppletFiles[fileRelativePath];
+		delete currentAppletFiles[fileRelativePosixPath];
 
 		if (fileHash === currentFileHash) {
 			continue;
@@ -86,7 +87,7 @@ export const updateMultiFileApplet = async (parameters: {
 		await restApi.applet.version.file.update(
 			applet.uid,
 			applet.version,
-			fileRelativePath,
+			fileRelativePosixPath,
 			{
 				content: fileStream,
 				hash: fileHash,
@@ -173,12 +174,13 @@ export const createMultiFileFileApplet = async (parameters: {
 			}
 		});
 
+		const filePosixPath = path.posix.normalize(fileRelativePath.replace(/\\/g, '/'));
 		await restApi.applet.version.file.create(
 			applet.uid,
 			applet.version,
 			{
-				name: path.basename(fileRelativePath),
-				path: fileRelativePath,
+				name: path.basename(filePosixPath),
+				path: filePosixPath,
 				type: fileType,
 				hash: fileHash,
 				content: fileStream,
