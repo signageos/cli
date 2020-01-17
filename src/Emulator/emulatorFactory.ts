@@ -21,6 +21,7 @@ export interface ICreateEmulatorParams {
 
 export async function createEmulator(params: ICreateEmulatorParams): Promise<IEmulator> {
 	const { projectPath, emulatorServerPort, appletPath, entryFileRelativePath } = params;
+	const entryFileAbsolutePath = path.join(appletPath, entryFileRelativePath);
 
 	const serverDomainOptions = { useLocalIp: true, port: emulatorServerPort };
 	const frontDisplayPath = path.dirname(require.resolve('@signageos/front-display/package.json', { paths: [projectPath]}));
@@ -64,7 +65,7 @@ export async function createEmulator(params: ICreateEmulatorParams): Promise<IEm
 		},
 	);
 
-	const entryFileExists = appletAssets.includes(path.join(appletPath, entryFileRelativePath));
+	const entryFileExists = appletAssets.includes(entryFileAbsolutePath.replace(/\\/g, '/'));
 	if (!entryFileExists) {
 		throw new Error(`Applet has to have ${chalk.green(entryFileRelativePath)} in applet directory.`);
 	}

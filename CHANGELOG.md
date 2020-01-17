@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Fixed
 - Discrepancy between project and applet dirs naming
+- Issues with file paths on Windows
 
 ### Added
 - Configure webpack plugin with options. `https`, `port`, `public`, `useLocalIp`, `host`
