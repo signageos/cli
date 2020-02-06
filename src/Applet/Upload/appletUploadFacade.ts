@@ -47,12 +47,13 @@ export const updateMultiFileApplet = async (parameters: {
 	const currentAppletFiles = await getAppletFilesDictionary(restApi, applet.uid, applet.version);
 	let changedFilesCounter = 0;
 
+	const appletEntryFilePosixPath = path.posix.normalize(applet.entryFilePath.replace(/\\/g, '/'));
 	await restApi.applet.version.update(
 		applet.uid,
 		applet.version,
 		{
 			frontAppletVersion: applet.frontAppletVersion,
-			entryFile: applet.entryFilePath,
+			entryFile: appletEntryFilePosixPath,
 		},
 	);
 
@@ -146,12 +147,13 @@ export const createMultiFileFileApplet = async (parameters: {
 	progressBar?: ProgressBar;
 }) => {
 	const { restApi, applet, progressBar } = parameters;
+	const appletEntryFilePosixPath = path.posix.normalize(applet.entryFilePath.replace(/\\/g, '/'));
 	await restApi.applet.version.create(
 		applet.uid,
 		{
 			version: applet.version,
 			frontAppletVersion: applet.frontAppletVersion,
-			entryFile: applet.entryFilePath,
+			entryFile: appletEntryFilePosixPath,
 		},
 	);
 
