@@ -1,10 +1,12 @@
 import ICommand from "../../Command/ICommand";
 import { createFirmwareVersionRestApi } from "../../helper";
 import * as prompts from "prompts";
-import * as fs from 'fs-extra';
 import chalk from 'chalk';
 import { IFirmwareVersionCreatable } from "@signageos/sdk/dist/RestApi/Firmware/Version/IFirmwareVersion";
-import { computeMD5 } from "../../Stream/helper";
+import { uploadFirmwareVersion } from "./firmwareUploadFacade";
+import { createProgressBar } from "../../CommandLine/progressBarFactory";
+import { CommandLineOptions } from "command-line-args";
+import validateFileExistenceSync from "./firmwareUploadHelper";
 
 const questions = [
 	{
@@ -24,73 +26,103 @@ export const firmwareUpload: ICommand = {
 	description: 'Uploads selected firmware version',
 	optionList: [],
 	commands: [],
-	async run() {
+	async run(options: CommandLineOptions) {
+		const optionsProvided = !!(options['application-type'] && options['firmware-version'] && options.src && options.src.length > 0);
 		const restApi = await createFirmwareVersionRestApi();
-		// @ts-ignore ignores 'type' property in questions array
-		const { applicationType, version } = await prompts(questions);
-		if (!applicationType || !version) {
-			console.log(`${chalk.red('You must input application type and version')}`);
-			return;
-		}
+		let data: IFirmwareVersionCreatable = {
+			applicationType: '',
+			version: '',
+			files: [],
+		};
 		const pathSet = new Set<string>();
-		while (true) { // ask for files
-			const answer = await prompts({
-				type: 'text',
-				name: 'fileFsPath',
-				message: 'Absolute path to the file, type `stop` to stop.',
-			});
-			if (answer.fileFsPath === undefined || answer.fileFsPath === 'stop') { // EOF or stop
-				break;
+		let applicationType, version, success = true;
+		if (!optionsProvided) {
+			// @ts-ignore ignores 'type' property in questions array
+			const answers = await prompts(questions);
+			applicationType = answers.applicationType;
+			version  = answers.version;
+
+			if (!applicationType || !version) {
+				console.log(`${chalk.red('You must input application type and version')}`);
+				return;
 			}
-			const path = answer.fileFsPath;
-			if (fs.existsSync(path)) {
-				const stats = fs.statSync(path);
-				if (!stats.isFile()) {
-					console.log(`${chalk.red('Given path is not file')}`);
-					continue;
+			while (true) { // ask for files
+				const answer = await prompts({
+					type: 'text',
+					name: 'fileFsPath',
+					message: 'Absolute path to the file, type `stop` to stop.',
+				});
+				if (answer.fileFsPath === undefined || answer.fileFsPath === 'stop') { // EOF or stop
+					break;
 				}
-				pathSet.add(path);
-				console.log(`${chalk.green('File added to upload list')}`);
-			} else {
-				console.log(`${chalk.red('File doesn\'t exist on file system, try again')}`);
+				const path = answer.fileFsPath;
+				if (validateFileExistenceSync(path)) {
+					pathSet.add(path);
+					console.log(`${chalk.green('File added to upload list')}`);
+				} else {
+					console.log(`${chalk.red('File doesn\'t exist on file system, try again')}`);
+				}
 			}
+
+			if (pathSet.size > 0) {
+
+				console.log('Application type: ', chalk.green(applicationType));
+				console.log('Version: ', chalk.green(version));
+				console.log('List of files: ', Array.from(pathSet));
+
+				const confirmation = await prompts({
+					type: 'confirm',
+					name: 'confirmed',
+					message: 'Is this ok?',
+				});
+				if (confirmation.confirmed) {
+					data = {
+						applicationType,
+						version,
+						files: [],
+					};
+				} else {
+					success = false;
+				}
+			}
+		} else { // data is given cli args
+			applicationType = options['application-type'];
+			version = options['firmware-version'];
+			const pathArr: Array<string> = options.src;
+			pathArr.forEach((path: string) => {
+				if (!validateFileExistenceSync(path)) {
+					console.log(`${chalk.red(`File ${path} doesn\'t exist on file system.`)}`);
+					success = false;
+				}
+				if (success) {
+					pathSet.add(path);
+				}
+			});
+
+			data = {
+				applicationType,
+				version,
+				files: [],
+			};
 		}
 
-		if (pathSet.size > 0) {
-
-			console.log('Application type: ', chalk.green(applicationType));
-			console.log('Version: ', chalk.green(version));
-			console.log('List of files: ', Array.from(pathSet));
-
-			const confirmation = await prompts({
-				type: 'confirm',
-				name: 'confirmed',
-				message: 'Is this ok?',
-			});
-			if (confirmation.confirmed) {
-				const data: IFirmwareVersionCreatable = {
-					applicationType,
-					version,
-					files: [],
-				};
-
-				for (let filePath of Array.from(pathSet)) {
-
-					const stream = await fs.createReadStream(filePath);
-					const streamForComputation = await fs.createReadStream(filePath);
-					const fileSize = (await fs.stat(filePath)).size;
-					const md5Hash = await computeMD5(streamForComputation);
-					data.files.push({
-						hash: md5Hash,
-						content: stream,
-						size: fileSize,
-					});
-				}
-				console.log('uploading...');
-				await restApi.firmwareVersion.create(data);
+		if (success) {
+			const progressBar = createProgressBar();
+			const res = await uploadFirmwareVersion(
+				{
+					restApi,
+					firmware: data,
+					pathArr: Array.from(pathSet),
+					progressBar,
+				},
+			);
+			if (res) {
+				console.log(`${chalk.green('Task succeeded.')}`);
 			} else {
-				console.log(`${chalk.yellow('No action applied')}`);
+				console.log(`${chalk.red('Task failed.')}`);
 			}
+		} else {
+			console.log(`${chalk.yellow('No action applied')}`);
 		}
 	},
 };
