@@ -6,6 +6,7 @@ import { login } from './Auth/loginCommand';
 import { organization } from './Organization/organizationCommand';
 import { timing } from './Timing/timingCommand';
 import { processCommand, API_URL_OPTION } from './Command/commandProcessor';
+import { VERSION_OPTION } from './Cli/packageVersion';
 import { firmware } from './Firmware/firmwareCommand';
 
 const index: ICommand = {
@@ -23,6 +24,7 @@ const index: ICommand = {
 		},
 		{ name: 'help', alias: 'h', type: Boolean, description: 'Display this usage guide.' },
 		API_URL_OPTION,
+		VERSION_OPTION,
 	],
 	commands: [
 		applet,

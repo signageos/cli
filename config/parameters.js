@@ -11,6 +11,7 @@ dotenv.config({ path: path.join(rootPath, '.env') });
 
 module.exports = {
 	environment,
+	name: packageConfig.name,
 	version: packageConfig.version,
 	configPath: __dirname,
 	paths: {

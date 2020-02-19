@@ -1,6 +1,7 @@
 
 declare const parameters: {
     environment: 'dev' | 'production';
+	name: string;
 	version: string;
 	configPath: string;
 	paths: {

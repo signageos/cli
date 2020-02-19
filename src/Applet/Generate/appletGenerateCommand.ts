@@ -19,7 +19,7 @@ export const appletGenerate: ICommand = {
 	description: 'Generate basic applet sample',
 	optionList: [
 		{ name: 'name', type: String, description: `Applet name. Match RegExp: ${NAME_REGEXP.toString()}` },
-		{ name: 'version', type: String, description: `Applet initial version. Use semantic version`, defaultValue: '0.0.0' },
+		{ name: 'applet-version', type: String, description: `Applet initial version. Use semantic version`, defaultValue: '0.0.0' },
 		{ name: 'target-dir', type: String, description: 'Directory where will be the applet generated to' },
 	],
 	commands: [],
