@@ -1,9 +1,9 @@
 
-export default function validateFileExistenceSync(path: string): boolean {
+export default function validateFileExistenceSync(path: string): void {
 	switch (path) {
 		case '/valid.apk':
-			return true;
+			break;
 		default:
-			return false;
+			throw new Error('File is not valid.');
 	}
 }

@@ -27,11 +27,15 @@ describe('unit.firmwareUploadCommand', () => {
 		should(firmwareUploadFacadeMock.uploadFirmwareVersion.calledOnce).be.true();
 	});
 	it('should not upload firmware version because of invalid files: Task failed', async () => {
-		await firmwareUploadMock.run({
-			'application-type': 'webos',
-			'firmware-version': '1.1.1',
-			'src': ['/what evers'],
-		});
-		should(firmwareUploadFacadeMock.uploadFirmwareVersion.calledOnce).be.false();
+		try {
+			await firmwareUploadMock.run({
+				'application-type': 'webos',
+				'firmware-version': '1.1.1',
+				'src': ['/what evers'],
+			});
+			should(false).true();
+		} catch (e) {
+			should(true).true();
+		}
 	});
 });

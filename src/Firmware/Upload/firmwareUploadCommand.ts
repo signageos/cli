@@ -35,7 +35,7 @@ export const firmwareUpload: ICommand = {
 			files: [],
 		};
 		const pathSet = new Set<string>();
-		let applicationType, version, success = true;
+		let applicationType, version;
 		if (!optionsProvided) {
 			// @ts-ignore ignores 'type' property in questions array
 			const answers = await prompts(questions);
@@ -56,11 +56,12 @@ export const firmwareUpload: ICommand = {
 					break;
 				}
 				const path = answer.fileFsPath;
-				if (validateFileExistenceSync(path)) {
+				try {
+					validateFileExistenceSync(path);
 					pathSet.add(path);
 					console.log(`${chalk.green('File added to upload list')}`);
-				} else {
-					console.log(`${chalk.red('File doesn\'t exist on file system, try again')}`);
+				} catch (e) {
+					console.log(`${chalk.yellow(e.message)}`);
 				}
 			}
 
@@ -82,7 +83,7 @@ export const firmwareUpload: ICommand = {
 						files: [],
 					};
 				} else {
-					success = false;
+					throw new Error(`You must confirm your action.`);
 				}
 			}
 		} else { // data is given cli args
@@ -90,13 +91,8 @@ export const firmwareUpload: ICommand = {
 			version = options['firmware-version'];
 			const pathArr: Array<string> = options.src;
 			pathArr.forEach((path: string) => {
-				if (!validateFileExistenceSync(path)) {
-					console.log(`${chalk.red(`File ${path} doesn\'t exist on file system.`)}`);
-					success = false;
-				}
-				if (success) {
-					pathSet.add(path);
-				}
+				validateFileExistenceSync(path);
+				pathSet.add(path);
 			});
 
 			data = {
@@ -106,23 +102,14 @@ export const firmwareUpload: ICommand = {
 			};
 		}
 
-		if (success) {
-			const progressBar = createProgressBar();
-			const res = await uploadFirmwareVersion(
-				{
-					restApi,
-					firmware: data,
-					pathArr: Array.from(pathSet),
-					progressBar,
-				},
-			);
-			if (res) {
-				console.log(`${chalk.green('Task succeeded.')}`);
-			} else {
-				console.log(`${chalk.red('Task failed.')}`);
-			}
-		} else {
-			console.log(`${chalk.yellow('No action applied')}`);
-		}
+		const progressBar = createProgressBar();
+		await uploadFirmwareVersion(
+			{
+				restApi,
+				firmware: data,
+				pathArr: Array.from(pathSet),
+				progressBar,
+			},
+		);
 	},
 };

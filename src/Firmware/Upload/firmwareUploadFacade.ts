@@ -3,14 +3,13 @@ import { ProgressBar } from "../../CommandLine/IProgressBar";
 import { IFirmwareVersionCreatable } from "@signageos/sdk/dist/RestApi/Firmware/Version/IFirmwareVersion";
 import * as fs from 'fs-extra';
 import { computeMD5 } from "../../Stream/helper";
-import chalk from 'chalk';
 
 export async function uploadFirmwareVersion(parameters: {
 	restApi: RestApi;
 	firmware: IFirmwareVersionCreatable;
 	pathArr: Array<string>;
 	progressBar?: ProgressBar;
-}): Promise<boolean> {
+}): Promise<void> {
 	const { restApi, firmware, pathArr, progressBar } = parameters;
 	for (let filePath of pathArr) {
 
@@ -37,21 +36,13 @@ export async function uploadFirmwareVersion(parameters: {
 			size: fileSize,
 		});
 	}
-	let result = true;
-	let errMessage = '';
 	try {
 		await restApi.firmwareVersion.create(firmware);
 	} catch (e) {
-		result = false;
-		errMessage = e.message;
+		throw e;
 	} finally {
 		if (progressBar) {
 			progressBar.end();
 		}
-		if (!result) {
-			console.log(`${chalk.red(errMessage)}`);
-		}
 	}
-
-	return result;
 }

@@ -1,14 +1,12 @@
 import * as fs from 'fs-extra';
 
-export default function validateFileExistenceSync(path: string): boolean {
-	let fileExists = true;
+export default function validateFileExistenceSync(path: string): void {
 	if (fs.existsSync(path)) {
 		const stats = fs.statSync(path);
 		if (!stats.isFile()) {
-			fileExists = false;
+			throw new Error(`${path} is not file.`);
 		}
 	} else {
-		fileExists = false;
+		throw new Error(`${path} does not exist.`);
 	}
-	return fileExists;
 }
