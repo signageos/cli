@@ -38,8 +38,6 @@ export async function uploadFirmwareVersion(parameters: {
 	}
 	try {
 		await restApi.firmwareVersion.create(firmware);
-	} catch (e) {
-		throw e;
 	} finally {
 		if (progressBar) {
 			progressBar.end();

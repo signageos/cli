@@ -10,12 +10,12 @@ import validateFileExistenceSync from "./firmwareUploadHelper";
 
 const questions = [
 	{
-		type: 'text',
+		type: 'text' as 'text',
 		name: 'applicationType',
 		message: `Application type`,
 	},
 	{
-		type: 'text',
+		type: 'text' as 'text',
 		name: 'version',
 		message: `Firmware version`,
 	},
@@ -37,7 +37,6 @@ export const firmwareUpload: ICommand = {
 		const pathSet = new Set<string>();
 		let applicationType, version;
 		if (!optionsProvided) {
-			// @ts-ignore ignores 'type' property in questions array
 			const answers = await prompts(questions);
 			applicationType = answers.applicationType;
 			version  = answers.version;
