@@ -11,7 +11,7 @@
     "package-lock.json"
   ],
   "repository": {
-    "url": "git@gitlab.com:signageos/cli",
+    "url": "https://github.com/signageos/cli",
     "type": "git"
   },
   "scripts": {
