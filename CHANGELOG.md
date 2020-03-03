@@ -8,8 +8,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Applet generate version option renamed to applet-version
 
+### Removed
+- `@signageos/webpack-plugin` is separated to self repository
+
 ### Added
 - Version option
+
+### Fixed
+- Warnings during installation `npm i @signageos/cli -g`
+
+### Security
+- Audit fixes based on `npm audit`
+- Upgrade base node version engine to LTS 12
 
 ## [0.6.2] - 2020-02-06
 ### Fixed
