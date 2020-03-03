@@ -4,6 +4,7 @@ import * as cliUsage from 'command-line-usage';
 import * as cliArgs from 'command-line-args';
 import ICommand, { ICommandOption } from './ICommand';
 import * as parameters from '../../config/parameters';
+import { printVersion } from '../Cli/packageVersion';
 const debug = Debug('@signageos/cli:Command:processor');
 
 export const API_URL_OPTION = {
@@ -27,6 +28,9 @@ export async function processCommand(currentCommand: ICommand, parentOptionList:
 	} else {
 		if (currentOptions.help) {
 			printUsage(currentCommand, nestedOptionList);
+		} else
+		if (currentOptions.version) {
+			await printVersion();
 		} else {
 			try {
 				await currentCommand.run(currentOptions);
