@@ -21,6 +21,7 @@ export const appletGenerate: ICommand = {
 		{ name: 'name', type: String, description: `Applet name. Match RegExp: ${NAME_REGEXP.toString()}` },
 		{ name: 'applet-version', type: String, description: `Applet initial version. Use semantic version`, defaultValue: '0.0.0' },
 		{ name: 'target-dir', type: String, description: 'Directory where will be the applet generated to' },
+		{ name: 'npm-registry', type: String, description: `NPM registry URL. If you have your private npm registry` },
 	],
 	commands: [],
 	async run(options: CommandLineOptions) {
@@ -103,6 +104,12 @@ export const appletGenerate: ICommand = {
 			generateFiles.push({
 				path: path.join(appletRootDirectory, 'src', 'index.css'),
 				content: createIndexCss(),
+			});
+		}
+		if (options['npm-registry']) {
+			generateFiles.push({
+				path: path.join(appletRootDirectory, '.npmrc'),
+				content: createNpmRunControl(options['npm-registry']),
 			});
 		}
 		generateFiles.push({
@@ -228,4 +235,9 @@ body {
 	background-color: wheat;
 	text-align: center;
 }
+`;
+
+const createNpmRunControl = (registryUrl: string) => `
+registry=${registryUrl}
+always-auth=true
 `;

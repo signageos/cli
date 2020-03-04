@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 - Version option
+- Applet generate accepts optional argument for `--npm-registry`
 
 ### Fixed
 - Warnings during installation `npm i @signageos/cli -g`
