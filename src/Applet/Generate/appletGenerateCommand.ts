@@ -47,7 +47,7 @@ export const appletGenerate: ICommand = {
 		const dependencies = [
 			'@signageos/front-applet@4.0.0-beta.7',
 			'@signageos/front-display@7.0.0-beta.6',
-			'@signageos/cli@latest',
+			'@signageos/webpack-plugin@latest',
 			'@babel/core@7',
 			'@babel/preset-env@7',
 			'babel-loader@8',
@@ -63,7 +63,7 @@ export const appletGenerate: ICommand = {
 		const imports: string[] = [
 			`const HtmlWebpackPlugin = require('html-webpack-plugin')`,
 			`const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin')`,
-			`const SignageOSPlugin = require('@signageos/cli/dist/Webpack/Plugin')`,
+			`const SignageOSPlugin = require('@signageos/webpack-plugin')`,
 		];
 		const rules: string[] = [
 `			{
