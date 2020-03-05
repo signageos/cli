@@ -1,4 +1,4 @@
-image: $CI_REGISTRY/signageos/docker-node:10.14.2-alpine-build
+image: $CI_REGISTRY/signageos/docker-node:12.16.1-alpine-build
 services:
   - docker:dind
 
@@ -19,7 +19,7 @@ before_script:
   - npm config set unsafe-perm true
   - export VERSION=`cat ./VERSION`
   - export TAG=$([ "$CI_COMMIT_TAG" == "" ] && echo $CI_COMMIT_REF_NAME || echo $(echo ${VERSION}-latest | sed -E 's/^[0-9]+.[0-9]+.[0-9]+-([a-zA-Z0-9]+)(\.[0-9]+)?(-[a-zA-Z0-9]+)?$/\1/p' | tail -n1))
-  - npx @signageos/lib@just-tools version-upgrade $VERSION
+  - npx --userconfig ./.npmrc @signageos/lib version-upgrade $VERSION
   - mkdir -p dist
   - npm install --ignore-scripts
 

@@ -10,7 +10,7 @@ import * as glob from 'globby';
 import chalk from 'chalk';
 import { IEmulator } from './IEmulator';
 import { loadConfig } from '../RunControl/runControlHelper';
-const createDomain = require('webpack-dev-server/lib/utils/createDomain');
+import { createDomain } from './createDomain';
 
 export interface ICreateEmulatorParams {
 	projectPath: string;
