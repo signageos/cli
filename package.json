@@ -21,7 +21,7 @@
     "prepare": "npm run prebuild && npm run build && chmod +x dist/index.js",
     "test": "env NODE_ENV=test mocha --opts mocha.opts",
     "watch": "tsc --watch",
-    "check": "depcheck --specials=tslint,webpack,mocha --parsers='*.ts:typescript,*.js:es6' --detectors='requireCallExpression,importDeclaration' --ignore-dirs='dist' --ignores='@types/*,@signageos/codestyle,mocha,depcheck'"
+    "check": "depcheck --specials=tslint,webpack,mocha --parsers='*.ts:typescript,*.js:es6' --detectors='requireCallExpression,importDeclaration' --ignore-dirs='dist' --ignores='@types/*,@signageos/codestyle,mocha,depcheck,webpack'"
   },
   "license": "MIT",
   "engines": {
@@ -36,7 +36,7 @@
     "access": "public"
   },
   "devDependencies": {
-    "@signageos/codestyle": "0.0.12",
+    "@signageos/codestyle": "0.0.15",
     "@types/chalk": "2.2.0",
     "@types/child-process-promise": "2.2.1",
     "@types/cli-progress": "1.8.1",
