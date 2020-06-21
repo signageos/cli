@@ -1,10 +1,12 @@
 import * as path from 'path';
 import * as fs from 'fs-extra';
 import chalk from 'chalk';
+import * as Debug from 'debug';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import { getAppletFileRelativePath, getAppletFilesDictionary } from './appletUploadFacadeHelper';
 import { computeFileMD5, getFileType } from '../../FileSystem/helper';
 import { ProgressBar } from '../../CommandLine/IProgressBar';
+const debug = Debug('@signageos/cli:Applet:Upload:appletUploadFacade');
 
 export const DEFAULT_APPLET_DIR_PATH = '.';
 export const DEFAULT_APPLET_ENTRY_FILE_PATH = 'dist/index.html';
@@ -63,11 +65,14 @@ export const updateMultiFileApplet = async (parameters: {
 		const fileRelativePosixPath = path.posix.normalize(fileRelativePath.replace(/\\/g, '/'));
 		const fileSize = (await fs.stat(fileAbsolutePath)).size;
 		const fileHash = await computeFileMD5(fileAbsolutePath);
+		const fileType = await getFileType(fileAbsolutePath); // not correctly detected here
 		const currentFileHash = currentAppletFiles[fileRelativePosixPath] ? currentAppletFiles[fileRelativePosixPath].hash : undefined;
+		const currentFileType = currentAppletFiles[fileRelativePosixPath] ? currentAppletFiles[fileRelativePosixPath].type : undefined;
 
 		delete currentAppletFiles[fileRelativePosixPath];
 
-		if (fileHash === currentFileHash) {
+		debug('check file changed', fileHash, currentFileHash, fileType, currentFileType);
+		if (fileHash === currentFileHash && fileType === currentFileType) {
 			continue;
 		} else {
 			changedFilesCounter++;
@@ -93,6 +98,7 @@ export const updateMultiFileApplet = async (parameters: {
 				content: fileStream,
 				hash: fileHash,
 				size: fileSize,
+				type: fileType,
 			},
 		);
 	}

@@ -1,12 +1,13 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import * as readChunk from 'read-chunk';
-import * as fileType from 'file-type';
+import file from '@signageos/file';
 import * as glob from 'globby';
 import chalk from 'chalk';
+import * as Debug from 'debug';
 import { computeMD5 } from '../Stream/helper';
+const debug = Debug('@signageos/cli:FileSystem:helper');
 
-const  parseIgnoreFile: (input: Buffer) => string[] = require('parse-gitignore');
+const parseIgnoreFile: (input: Buffer) => string[] = require('parse-gitignore');
 
 const DEFAULT_IGNORE_FILE = '.sosignore';
 const IGNORE_FILES = [DEFAULT_IGNORE_FILE, '.npmignore', '.gitignore'];
@@ -19,11 +20,10 @@ export async function computeFileMD5(filePath: string) {
 }
 
 export async function getFileType(filePath: string) {
-	const buffer = await readChunk(filePath, 0, fileType.minimumBytes);
+	const fileResult = await file(filePath, { mimeType: true });
+	debug('file type', filePath, fileResult);
 
-	const fileTypeResult = fileType(buffer);
-
-	return fileTypeResult ? fileTypeResult.mime : DEFAULT_FILE_TYPE;
+	return fileResult?.mimeType ? fileResult.mimeType : DEFAULT_FILE_TYPE;
 }
 
 export async function listDirectoryContentRecursively(appletDirPath: string, ignoreFileDirPath: string): Promise<string[]> {
@@ -61,6 +61,7 @@ export async function listDirectoryContentRecursively(appletDirPath: string, ign
 			dot: true,
 		},
 	);
+	debug('listed files', files);
 
 	return files;
 }
