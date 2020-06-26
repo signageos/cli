@@ -47,6 +47,11 @@ export const appletUpload: ICommand = {
 		},
 		ENTRY_FILE_PATH_OPTION,
 		ORGANIZATION_UID_OPTION,
+		{
+			name: 'yes',
+			type: Boolean,
+			description: `Allow to upload new applet or override existing version without confirmation step`,
+		},
 	],
 	commands: [],
 	async run(options: CommandLineOptions) {
@@ -90,20 +95,40 @@ export const appletUpload: ICommand = {
 
 		await restApi.applet.version.get(appletUid, appletVersion).catch(() => appletVersionExists = false);
 
+		const yes = 'yes';
+		const skipConfirmation = options[yes] as boolean | undefined;
+
 		if (appletVersionExists) {
-			const response = await prompts({
-				type: 'confirm',
-				name: 'override',
-				message: `Do you want to override applet version ${appletVersion}?`,
-			});
-			overrideAppletVersionConfirmed = response.override ? true : false;
+
+			if (skipConfirmation) {
+
+				console.log(`Will override existing version ${appletVersion}`);
+				overrideAppletVersionConfirmed = true;
+
+			} else {
+				const response: prompts.Answers<"override"> = await prompts({
+					type: 'confirm',
+					name: 'override',
+					message: `Do you want to override applet version ${appletVersion}?`,
+				});
+				overrideAppletVersionConfirmed = response.override;
+			}
+
 		} else {
-			const response = await prompts({
-				type: 'confirm',
-				name: 'newVersion',
-				message: `Do you want to create new applet version ${appletVersion}?`,
-			});
-			createNewAppletVersionConfirmed = response.newVersion ? true : false;
+
+			if (skipConfirmation) {
+
+				console.log(`Will create new version ${appletVersion}`);
+				createNewAppletVersionConfirmed = true;
+
+			} else {
+				const response: prompts.Answers<"newVersion"> = await prompts({
+					type: 'confirm',
+					name: 'newVersion',
+					message: `Do you want to create new applet version ${appletVersion}?`,
+				});
+				createNewAppletVersionConfirmed = response.newVersion;
+			}
 		}
 
 		const appletFiles: string[] = [];
