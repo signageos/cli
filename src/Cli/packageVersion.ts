@@ -58,3 +58,18 @@ export async function getUpdateMessage(packageName: string, installedVersion: st
 		return undefined;
 	}
 }
+
+export async function newVersionAvailable(): Promise<boolean> {
+	const packageName: string               = getPackageName();
+	const installedVersion: string          = getPackageVersion();
+	const latestVersion: string | undefined = await getLatestVersion(packageName);
+
+	return latestVersion
+		? semver.gt(latestVersion, installedVersion)
+		: false;
+}
+
+export function getUpdateVersionMessage(): string {
+	const updateVersionMessage = chalk.bold.yellow(`New version of signageOS CLI Tool is available.`);
+	return updateVersionMessage;
+}
