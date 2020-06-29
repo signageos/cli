@@ -52,6 +52,11 @@ export const appletUpload: ICommand = {
 			type: Boolean,
 			description: `Allow to upload new applet or override existing version without confirmation step`,
 		},
+		{ // will output all files to upload for multifile applet
+			name: 'verbose',
+			type: Boolean,
+			description: `outputs all files to upload`,
+		},
 	],
 	commands: [],
 	async run(options: CommandLineOptions) {
@@ -95,6 +100,18 @@ export const appletUpload: ICommand = {
 
 		await restApi.applet.version.get(appletUid, appletVersion).catch(() => appletVersionExists = false);
 
+		const verbose = 'verbose';
+		const allowVerbose = options[verbose] as boolean | undefined;
+		const appletFiles: string[] = [];
+
+		if (!isSingleFileApplet) {
+			appletFiles.push(...(await listDirectoryContentRecursively(appletDirectoryPath!, currentDirectory)));
+		}
+
+		if (allowVerbose) {
+			printUploadFiles(appletFiles);
+		}
+
 		const yes = 'yes';
 		const skipConfirmation = options[yes] as boolean | undefined;
 
@@ -128,13 +145,6 @@ export const appletUpload: ICommand = {
 					message: `Do you want to create new applet version ${appletVersion}?`,
 				});
 				createNewAppletVersionConfirmed = response.newVersion;
-			}
-		}
-
-		const appletFiles: string[] = [];
-		if (overrideAppletVersionConfirmed || createNewAppletVersionConfirmed) {
-			if (!isSingleFileApplet) {
-				appletFiles.push(...(await listDirectoryContentRecursively(appletDirectoryPath!, currentDirectory)));
 			}
 		}
 
@@ -215,4 +225,12 @@ function displaySingleFileAppletDeprecationNote() {
 	console.log(
 		`${chalk.red(`Applets with only applet-path file are ${chalk.bold(`deprecated`)}.`)} Please find more information at our website.`,
 	);
+}
+
+/**
+ * TODO: what about format of output?
+ * @param appletFiles files to upload
+ */
+function printUploadFiles(appletFiles: string[]): void {
+	appletFiles.forEach((file: string) => console.log(file));
 }
