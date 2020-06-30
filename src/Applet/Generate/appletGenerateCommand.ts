@@ -170,6 +170,7 @@ async function createPackageConfig(
 			start: "webpack-dev-server --mode development --open-emulator",
 			build: "webpack --mode production",
 		},
+		files: ['dist'],
 	};
 }
 

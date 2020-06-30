@@ -46,9 +46,16 @@ export async function listDirectoryContentRecursively(appletDirPath: string, ign
 
 		const filesSet: Set<string> = prepareFilesToInclude();
 
-		pkgJson.files.forEach((f: string) => {
-			filesSet.add(f);
-		});
+		const paths = await glob(
+			pkgJson.files,
+			{
+				cwd: appletDirPath,
+				dot: true,
+			},
+		);
+
+		paths.forEach((p: string) => filesSet.add(p));
+
 		files = [...filesSet].map((f: string) => path.join(appletDirPath, f));
 
 	} else {
@@ -115,6 +122,20 @@ export async function validateAllFormalities(appletDir: string, entryFile: strin
 
 	if (pkgJson.main !== entryFile) {
 		throw new Error(`${pkgJson.main} from package.json file doesn't match with entry file: ${entryFile}`);
+	}
+
+	if (Array.isArray(pkgJson.files)) {
+		const paths: string[] = await glob(
+			pkgJson.files,
+			{
+				cwd: appletDir,
+				dot: true,
+			},
+		);
+
+		if (! paths.includes(pkgJson.main)) {
+			throw new Error(`${pkgJson.main} is not a part of tracking files`);
+		}
 	}
 
 }

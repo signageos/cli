@@ -16,6 +16,7 @@ import {
 	updateMultiFileApplet,
 	createSingleFileApplet,
 	createMultiFileFileApplet,
+	DEFAULT_APPLET_ENTRY_FILE_PATH,
 } from './appletUploadFacade';
 import {
 	getOrganizationUidAndUpdateConfig,
@@ -109,7 +110,7 @@ export const appletUpload: ICommand = {
 			try {
 				await validateAllFormalities(
 					appletDirectoryPath!,
-					options[ENTRY_FILE_PATH_OPTION.name],
+					options[ENTRY_FILE_PATH_OPTION.name] || DEFAULT_APPLET_ENTRY_FILE_PATH,
 				);
 			} catch (e) {
 				throw e;
