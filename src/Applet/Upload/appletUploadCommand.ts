@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import * as prompts from 'prompts';
 import { CommandLineOptions } from 'command-line-args';
 import ICommand from '../../Command/ICommand';
-import { createOrganizationRestApi } from '../../helper';
+import { createOrganizationRestApi, } from '../../helper';
 import * as parameters from '../../../config/parameters';
 import { getOrganization, ORGANIZATION_UID_OPTION } from '../../Organization/organizationFacade';
 import {
@@ -25,7 +25,7 @@ import {
 	getAppletEntryFileRelativePath,
 	saveToPackage,
 } from './appletUploadCommandHelper';
-import { listDirectoryContentRecursively } from '../../FileSystem/helper';
+import { listDirectoryContentRecursively, validateAllFormalities } from '../../FileSystem/helper';
 import { createProgressBar } from '../../CommandLine/progressBarFactory';
 
 export const ENTRY_FILE_PATH_OPTION = {
@@ -105,6 +105,15 @@ export const appletUpload: ICommand = {
 		const appletFiles: string[] = [];
 
 		if (!isSingleFileApplet) {
+
+			try {
+				await validateAllFormalities(
+					appletDirectoryPath!,
+					options[ENTRY_FILE_PATH_OPTION.name],
+				);
+			} catch (e) {
+				throw e;
+			}
 			appletFiles.push(...(await listDirectoryContentRecursively(appletDirectoryPath!, currentDirectory)));
 		}
 
@@ -233,4 +242,5 @@ function displaySingleFileAppletDeprecationNote() {
  */
 function printUploadFiles(appletFiles: string[]): void {
 	appletFiles.forEach((file: string) => console.log(file));
+	// console.log(appletFiles);
 }
