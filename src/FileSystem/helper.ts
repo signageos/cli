@@ -33,10 +33,11 @@ export async function getFileType(filePath: string) {
 	return fileResult?.mimeType ? fileResult.mimeType : DEFAULT_FILE_TYPE;
 }
 
+/**
+ * @note file existence is validated the the very beginning of upload
+ */
 export async function listDirectoryContentRecursively(appletDirPath: string, ignoreFileDirPath: string): Promise<string[]> {
-	/**
-	 * @note file existence is validate the the very beginning of upload
-	 */
+
 	const absolutePkgPath = path.join(appletDirPath, 'package.json');
 	const pkgJson: IAppletPackageJson = JSON.parse(await fs.readFile(absolutePkgPath, 'utf-8'));
 	let files: string[] = [];

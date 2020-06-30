@@ -128,7 +128,7 @@ export const appletUpload: ICommand = {
 
 			if (skipConfirmation) {
 
-				console.log(`Will override existing version ${appletVersion}`);
+				console.log(chalk.yellow(`Will override existing version ${appletVersion}`));
 				overrideAppletVersionConfirmed = true;
 
 			} else {
@@ -144,7 +144,7 @@ export const appletUpload: ICommand = {
 
 			if (skipConfirmation) {
 
-				console.log(`Will create new version ${appletVersion}`);
+				console.log(chalk.yellow(`Will create new version ${appletVersion}`));
 				createNewAppletVersionConfirmed = true;
 
 			} else {
@@ -181,7 +181,7 @@ export const appletUpload: ICommand = {
 						directoryPath: appletDirectoryPath!,
 						files: appletFiles,
 					},
-					progressBar,
+					progressBar: progressBar,
 				});
 			}
 			displaySuccessMessage(applet.uid, applet.name!, appletVersion, parameters.boxHost);
@@ -241,6 +241,9 @@ function displaySingleFileAppletDeprecationNote() {
  * @param appletFiles files to upload
  */
 function printUploadFiles(appletFiles: string[]): void {
+	if (appletFiles.length > 0) {
+		console.log(chalk.yellow(`Next files will be uploaded ...`));
+	}
 	appletFiles.forEach((file: string) => console.log(file));
 	// console.log(appletFiles);
 }
