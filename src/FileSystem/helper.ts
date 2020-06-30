@@ -37,10 +37,11 @@ export async function listDirectoryContentRecursively(appletDirPath: string, ign
 	/**
 	 * @note file existence is validate the the very beginning of upload
 	 */
-	const pkgJson: IAppletPackageJson = require(path.join(appletDirPath, 'package.json'));
+	const absolutePkgPath = path.join(appletDirPath, 'package.json');
+	const pkgJson: IAppletPackageJson = JSON.parse(await fs.readFile(absolutePkgPath, 'utf-8'));
 	let files: string[] = [];
 
-	if (pkgJson.files && pkgJson.files.length > 0) {
+	if (pkgJson.files && Array.isArray(pkgJson.files)) {
 
 		const filesSet: Set<string> = prepareFilesToInclude();
 
@@ -105,7 +106,7 @@ export async function validateAllFormalities(appletDir: string, entryFile: strin
 	const absolutePkgPath = path.join(appletDir, 'package.json');
 
 	try {
-		pkgJson = require(absolutePkgPath);
+		pkgJson = JSON.parse(await fs.readFile(absolutePkgPath, 'utf-8'));
 
 	} catch {
 		throw new Error(`Cannot find package.json file on path ${absolutePkgPath}`);
