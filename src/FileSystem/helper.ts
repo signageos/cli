@@ -34,7 +34,7 @@ export async function getFileType(filePath: string) {
 }
 
 /**
- * @note file existence is validated the the very beginning of upload
+ * @note file existence is validated the very beginning of upload
  */
 export async function listDirectoryContentRecursively(appletDirPath: string, ignoreFileDirPath: string): Promise<string[]> {
 

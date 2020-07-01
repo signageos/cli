@@ -113,8 +113,8 @@ export const appletUpload: ICommand = {
 					appletDirectoryPath!,
 					options[ENTRY_FILE_PATH_OPTION.name] || DEFAULT_APPLET_ENTRY_FILE_PATH,
 				);
-			} catch (e) {
-				throw e;
+			} catch (error) {
+				throw error;
 			}
 			appletFiles.push(...(await listDirectoryContentRecursively(appletDirectoryPath!, currentDirectory)));
 		}
@@ -239,7 +239,7 @@ function displaySingleFileAppletDeprecationNote() {
 }
 
 /**
- * TODO: what about format of output?
+ *
  * @param appletFiles files to upload
  */
 function printUploadFiles(appletFiles: string[]): void {
@@ -247,5 +247,4 @@ function printUploadFiles(appletFiles: string[]): void {
 		console.log(chalk.yellow(`Next files will be uploaded ...`));
 	}
 	appletFiles.forEach((file: string) => console.log(file));
-	// console.log(appletFiles);
 }

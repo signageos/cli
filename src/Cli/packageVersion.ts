@@ -60,8 +60,8 @@ export async function getUpdateMessage(packageName: string, installedVersion: st
 }
 
 export async function newVersionAvailable(): Promise<boolean> {
-	const packageName: string               = getPackageName();
-	const installedVersion: string          = getPackageVersion();
+	const packageName: string = getPackageName();
+	const installedVersion: string = getPackageVersion();
 	const latestVersion: string | undefined = await getLatestVersion(packageName);
 
 	return latestVersion

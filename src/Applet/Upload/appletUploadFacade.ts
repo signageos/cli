@@ -107,11 +107,11 @@ export const updateMultiFileApplet = async (parameters: {
 				},
 			);
 
-		} catch (e) {
+		} catch (error) {
 			if (fileSize === 0) {
 				throw new Error(`Empty files are temporarily disallowed ${fileAbsolutePath}`);
 			}
-			throw e;
+			throw error;
 		}
 
 	}
@@ -212,11 +212,11 @@ export const createMultiFileFileApplet = async (parameters: {
 				},
 			);
 
-		} catch (e) {
+		} catch (error) {
 			if (fileSize === 0) {
 				throw new Error(`Empty files are temporarily disallowed ${fileAbsolutePath}`);
 			}
-			throw e;
+			throw error;
 		}
 
 	}

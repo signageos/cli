@@ -46,7 +46,7 @@ export async function processCommand(
 				const newVer: boolean = await newVersionAvailable();
 
 				if (newVer) {
-					console.log( getUpdateVersionMessage() );
+					console.info(getUpdateVersionMessage());
 				}
 				await currentCommand.run(currentOptions);
 			} catch (error) {
