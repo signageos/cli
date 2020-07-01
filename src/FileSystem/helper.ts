@@ -43,19 +43,9 @@ export async function listDirectoryContentRecursively(appletDirPath: string, ign
 	let files: string[] = [];
 
 	if (pkgJson.files && Array.isArray(pkgJson.files)) {
-
 		const filesSet: Set<string> = prepareFilesToInclude();
-
-		const paths = await glob(
-			pkgJson.files,
-			{
-				cwd: appletDirPath,
-				dot: true,
-			},
-		);
-
+		const paths = await getAllPaths(appletDirPath, pkgJson.files);
 		paths.forEach((p: string) => filesSet.add(p));
-
 		files = [...filesSet].map((f: string) => path.join(appletDirPath, f));
 
 	} else {
@@ -125,17 +115,29 @@ export async function validateAllFormalities(appletDir: string, entryFile: strin
 	}
 
 	if (Array.isArray(pkgJson.files)) {
-		const paths: string[] = await glob(
-			pkgJson.files,
-			{
-				cwd: appletDir,
-				dot: true,
-			},
-		);
+		const paths: string[] = await getAllPaths(appletDir, pkgJson.files);
 
 		if (! paths.includes(pkgJson.main)) {
 			throw new Error(`${pkgJson.main} is not a part of tracking files`);
 		}
 	}
 
+}
+
+/**
+ * @note glob patterns are also supported
+ * @param appletDir directory of applet
+ * @param files is a list of tracked files
+ * @returns all matched results, which are included in `files`
+ */
+export async function getAllPaths(appletDir: string, files: string[]): Promise<string[]> {
+	const paths: string[] = await glob(
+		files,
+		{
+			cwd: appletDir,
+			dot: true,
+		},
+	);
+
+	return paths;
 }

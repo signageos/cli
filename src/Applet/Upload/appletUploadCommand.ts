@@ -92,6 +92,7 @@ export const appletUpload: ICommand = {
 
 		let appletUid = await tryGetAppletUid(currentDirectory);
 		if (!appletUid) {
+			console.log(chalk.yellow(`applet uid is not present in package file, adding one.`));
 			const createdApplet = await restApi.applet.create({ name: appletName });
 			appletUid = createdApplet.uid;
 			await saveToPackage(currentDirectory, { sos: { appletUid } });
