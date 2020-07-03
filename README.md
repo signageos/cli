@@ -8,6 +8,10 @@ npm install @signageos/cli -g
 sos --help
 ```
 
+### User Interface
+cli tool allows you to run commands interactively for best user experience, please use standard bash terminal on *nix systems
+and [gitbash](https://gitforwindows.org/), run it in [windows terminal](https://www.microsoft.com/en-us/p/windows-terminal/9n0dx20hk701?activetab=pivot:overviewtab).
+
 ## API reference
 ### General
 | Argument                   | Description                     | Default value                                     |

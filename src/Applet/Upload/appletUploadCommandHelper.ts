@@ -88,7 +88,7 @@ export async function getAppletEntryFileAbsolutePath(currentDirectory: string, o
 
 	const appletEntryFilePathExists = await fs.pathExists(appletEntryFilePath);
 	if (!appletEntryFilePathExists) {
-		throw new Error(`Applet entry file not found: ${appletEntryFilePath}`);
+		throw new Error(`Applet entry file not found: ${appletEntryFilePath} , did you forget to build your applet?`);
 	}
 
 	const isFile = (await fs.stat(appletEntryFilePath)).isFile();

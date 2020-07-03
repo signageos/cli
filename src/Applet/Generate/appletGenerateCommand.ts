@@ -112,9 +112,10 @@ export const appletGenerate: ICommand = {
 				content: createNpmRunControl(options['npm-registry']),
 			});
 		}
+		const appletVersion = 'applet-version';
 		generateFiles.push({
 			path: path.join(appletRootDirectory, 'package.json'),
-			content: JSON.stringify(await createPackageConfig(appletName, options.version), undefined, 2) + '\n',
+			content: JSON.stringify(await createPackageConfig(appletName, options[appletVersion]), undefined, 2) + '\n',
 		});
 		generateFiles.push({
 			path: path.join(appletRootDirectory, 'webpack.config.js'),
@@ -169,6 +170,7 @@ async function createPackageConfig(
 			start: "webpack-dev-server --mode development --open-emulator",
 			build: "webpack --mode production",
 		},
+		files: ['dist'],
 	};
 }
 
