@@ -4,7 +4,11 @@ import * as cliUsage from 'command-line-usage';
 import * as cliArgs from 'command-line-args';
 import ICommand, { ICommandOption } from './ICommand';
 import * as parameters from '../../config/parameters';
-import { printVersion } from '../Cli/packageVersion';
+import {
+	printVersion,
+	newVersionAvailable,
+	getUpdateVersionMessage,
+} from '../Cli/packageVersion';
 const debug = Debug('@signageos/cli:Command:processor');
 
 export const API_URL_OPTION = {
@@ -15,7 +19,11 @@ export const API_URL_OPTION = {
 	description: 'API URL to be used for REST requests',
 };
 
-export async function processCommand(currentCommand: ICommand, parentOptionList: ICommandOption[] = [], commandIndex: number = 0) {
+export async function processCommand(
+	currentCommand: ICommand,
+	parentOptionList: ICommandOption[] = [],
+	commandIndex: number = 0,
+) {
 	const nestedOptionList = [...parentOptionList, ...currentCommand.optionList];
 	const currentOptions = cliArgs(nestedOptionList, { partial: true });
 	debug('process', currentOptions);
@@ -26,13 +34,20 @@ export async function processCommand(currentCommand: ICommand, parentOptionList:
 	if (subCommand) {
 		await processCommand(subCommand, nestedOptionList, commandIndex + 1);
 	} else {
+
 		if (currentOptions.help) {
 			printUsage(currentCommand, nestedOptionList);
 		} else
 		if (currentOptions.version) {
 			await printVersion();
 		} else {
+
 			try {
+				const newVer: boolean = await newVersionAvailable();
+
+				if (newVer) {
+					console.info(getUpdateVersionMessage());
+				}
 				await currentCommand.run(currentOptions);
 			} catch (error) {
 				console.error(chalk.red(error.message));

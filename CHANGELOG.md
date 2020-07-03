@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Added
+- `verbose` flag to show all files when uploading multifile applet
+- `yes` flag to skip confirmation process and upload right away
+- in package.json file of the uploaded applet specify files to upload in `files` list (they will be uploaded regardless of all ignores), also supports glob patterns
+- in generated applet, `files` list is already added with `dist` directry by default
+
+### Fixed
+- show error on particular file when upload was unsuccessfull (i.e when uploading empty file)
+
 ## [0.7.1] - 2020-06-22
 ### Fixed
 - Applet file upload sets the content type of files as well

@@ -6,6 +6,7 @@ import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import { getAppletFileRelativePath, getAppletFilesDictionary } from './appletUploadFacadeHelper';
 import { computeFileMD5, getFileType } from '../../FileSystem/helper';
 import { ProgressBar } from '../../CommandLine/IProgressBar';
+
 const debug = Debug('@signageos/cli:Applet:Upload:appletUploadFacade');
 
 export const DEFAULT_APPLET_DIR_PATH = '.';
@@ -72,10 +73,14 @@ export const updateMultiFileApplet = async (parameters: {
 		delete currentAppletFiles[fileRelativePosixPath];
 
 		debug('check file changed', fileHash, currentFileHash, fileType, currentFileType);
+
 		if (fileHash === currentFileHash && fileType === currentFileType) {
 			continue;
 		} else {
+
 			changedFilesCounter++;
+			console.log(chalk.yellow(` Uploading ${fileAbsolutePath}`));
+
 		}
 
 		if (progressBar) {
@@ -89,18 +94,26 @@ export const updateMultiFileApplet = async (parameters: {
 				progressBar.update({ add: chunk.length });
 			}
 		});
+		try {
+			await restApi.applet.version.file.update(
+				applet.uid,
+				applet.version,
+				fileRelativePosixPath,
+				{
+					content: fileStream,
+					hash: fileHash,
+					size: fileSize,
+					type: fileType,
+				},
+			);
 
-		await restApi.applet.version.file.update(
-			applet.uid,
-			applet.version,
-			fileRelativePosixPath,
-			{
-				content: fileStream,
-				hash: fileHash,
-				size: fileSize,
-				type: fileType,
-			},
-		);
+		} catch (error) {
+			if (fileSize === 0) {
+				throw new Error(`Empty files are temporarily disallowed ${fileAbsolutePath}`);
+			}
+			throw error;
+		}
+
 	}
 
 	if (progressBar) {
@@ -183,18 +196,29 @@ export const createMultiFileFileApplet = async (parameters: {
 		});
 
 		const filePosixPath = path.posix.normalize(fileRelativePath.replace(/\\/g, '/'));
-		await restApi.applet.version.file.create(
-			applet.uid,
-			applet.version,
-			{
-				name: path.basename(filePosixPath),
-				path: filePosixPath,
-				type: fileType,
-				hash: fileHash,
-				content: fileStream,
-				size: fileSize,
-			},
-		);
+
+		try {
+			console.log(chalk.yellow(` Uploading ${fileAbsolutePath}`));
+			await restApi.applet.version.file.create(
+				applet.uid,
+				applet.version,
+				{
+					name: path.basename(filePosixPath),
+					path: filePosixPath,
+					type: fileType,
+					hash: fileHash,
+					content: fileStream,
+					size: fileSize,
+				},
+			);
+
+		} catch (error) {
+			if (fileSize === 0) {
+				throw new Error(`Empty files are temporarily disallowed ${fileAbsolutePath}`);
+			}
+			throw error;
+		}
+
 	}
 
 	if (progressBar) {

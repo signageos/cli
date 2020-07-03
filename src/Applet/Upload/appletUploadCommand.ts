@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import * as prompts from 'prompts';
 import { CommandLineOptions } from 'command-line-args';
 import ICommand from '../../Command/ICommand';
-import { createOrganizationRestApi } from '../../helper';
+import { createOrganizationRestApi, } from '../../helper';
 import * as parameters from '../../../config/parameters';
 import { getOrganization, ORGANIZATION_UID_OPTION } from '../../Organization/organizationFacade';
 import {
@@ -16,6 +16,7 @@ import {
 	updateMultiFileApplet,
 	createSingleFileApplet,
 	createMultiFileFileApplet,
+	DEFAULT_APPLET_ENTRY_FILE_PATH,
 } from './appletUploadFacade';
 import {
 	getOrganizationUidAndUpdateConfig,
@@ -25,7 +26,7 @@ import {
 	getAppletEntryFileRelativePath,
 	saveToPackage,
 } from './appletUploadCommandHelper';
-import { listDirectoryContentRecursively } from '../../FileSystem/helper';
+import { listDirectoryContentRecursively, validateAllFormalities } from '../../FileSystem/helper';
 import { createProgressBar } from '../../CommandLine/progressBarFactory';
 
 export const ENTRY_FILE_PATH_OPTION = {
@@ -47,6 +48,16 @@ export const appletUpload: ICommand = {
 		},
 		ENTRY_FILE_PATH_OPTION,
 		ORGANIZATION_UID_OPTION,
+		{
+			name: 'yes',
+			type: Boolean,
+			description: `Allow to upload new applet or override existing version without confirmation step`,
+		},
+		{ // will output all files to upload for multifile applet
+			name: 'verbose',
+			type: Boolean,
+			description: `outputs all files to upload`,
+		},
 	],
 	commands: [],
 	async run(options: CommandLineOptions) {
@@ -81,6 +92,7 @@ export const appletUpload: ICommand = {
 
 		let appletUid = await tryGetAppletUid(currentDirectory);
 		if (!appletUid) {
+			console.log(chalk.yellow(`applet uid is not present in package file, adding one.`));
 			const createdApplet = await restApi.applet.create({ name: appletName });
 			appletUid = createdApplet.uid;
 			await saveToPackage(currentDirectory, { sos: { appletUid } });
@@ -90,26 +102,60 @@ export const appletUpload: ICommand = {
 
 		await restApi.applet.version.get(appletUid, appletVersion).catch(() => appletVersionExists = false);
 
-		if (appletVersionExists) {
-			const response = await prompts({
-				type: 'confirm',
-				name: 'override',
-				message: `Do you want to override applet version ${appletVersion}?`,
-			});
-			overrideAppletVersionConfirmed = response.override ? true : false;
-		} else {
-			const response = await prompts({
-				type: 'confirm',
-				name: 'newVersion',
-				message: `Do you want to create new applet version ${appletVersion}?`,
-			});
-			createNewAppletVersionConfirmed = response.newVersion ? true : false;
+		const verbose = 'verbose';
+		const allowVerbose = options[verbose] as boolean | undefined;
+		const appletFiles: string[] = [];
+
+		if (!isSingleFileApplet) {
+
+			try {
+				await validateAllFormalities(
+					appletDirectoryPath!,
+					options[ENTRY_FILE_PATH_OPTION.name] || DEFAULT_APPLET_ENTRY_FILE_PATH,
+				);
+			} catch (error) {
+				throw error;
+			}
+			appletFiles.push(...(await listDirectoryContentRecursively(appletDirectoryPath!, currentDirectory)));
 		}
 
-		const appletFiles: string[] = [];
-		if (overrideAppletVersionConfirmed || createNewAppletVersionConfirmed) {
-			if (!isSingleFileApplet) {
-				appletFiles.push(...(await listDirectoryContentRecursively(appletDirectoryPath!, currentDirectory)));
+		if (allowVerbose) {
+			printUploadFiles(appletFiles);
+		}
+
+		const yes = 'yes';
+		const skipConfirmation = options[yes] as boolean | undefined;
+
+		if (appletVersionExists) {
+
+			if (skipConfirmation) {
+
+				console.log(chalk.yellow(`Will override existing version ${appletVersion}`));
+				overrideAppletVersionConfirmed = true;
+
+			} else {
+				const response: prompts.Answers<"override"> = await prompts({
+					type: 'confirm',
+					name: 'override',
+					message: `Do you want to override applet version ${appletVersion}?`,
+				});
+				overrideAppletVersionConfirmed = response.override;
+			}
+
+		} else {
+
+			if (skipConfirmation) {
+
+				console.log(chalk.yellow(`Will create new version ${appletVersion}`));
+				createNewAppletVersionConfirmed = true;
+
+			} else {
+				const response: prompts.Answers<"newVersion"> = await prompts({
+					type: 'confirm',
+					name: 'newVersion',
+					message: `Do you want to create new applet version ${appletVersion}?`,
+				});
+				createNewAppletVersionConfirmed = response.newVersion;
 			}
 		}
 
@@ -137,7 +183,7 @@ export const appletUpload: ICommand = {
 						directoryPath: appletDirectoryPath!,
 						files: appletFiles,
 					},
-					progressBar,
+					progressBar: progressBar,
 				});
 			}
 			displaySuccessMessage(applet.uid, applet.name!, appletVersion, parameters.boxHost);
@@ -190,4 +236,15 @@ function displaySingleFileAppletDeprecationNote() {
 	console.log(
 		`${chalk.red(`Applets with only applet-path file are ${chalk.bold(`deprecated`)}.`)} Please find more information at our website.`,
 	);
+}
+
+/**
+ *
+ * @param appletFiles files to upload
+ */
+function printUploadFiles(appletFiles: string[]): void {
+	if (appletFiles.length > 0) {
+		console.log(chalk.yellow(`Next files will be uploaded ...`));
+	}
+	appletFiles.forEach((file: string) => console.log(file));
 }
