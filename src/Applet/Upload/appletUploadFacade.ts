@@ -3,6 +3,7 @@ import * as fs from 'fs-extra';
 import chalk from 'chalk';
 import * as Debug from 'debug';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
+import NotFoundError from '@signageos/sdk/dist/RestApi/Error/NotFoundError';
 import { getAppletFileRelativePath, getAppletFilesDictionary } from './appletUploadFacadeHelper';
 import { computeFileMD5, getFileType } from '../../FileSystem/helper';
 import { ProgressBar } from '../../CommandLine/IProgressBar';
@@ -122,7 +123,20 @@ export const updateMultiFileApplet = async (parameters: {
 
 	for (const fileRelativePath in currentAppletFiles) {
 		if (currentAppletFiles.hasOwnProperty(fileRelativePath)) {
-			await restApi.applet.version.file.remove(applet.uid, applet.version, fileRelativePath);
+			try {
+				await restApi.applet.version.file.remove(applet.uid, applet.version, fileRelativePath);
+			} catch (error) {
+				if (error instanceof NotFoundError) {
+					/*
+					 * This means that the file we are trying to remove somehow already got removed.
+					 * It's not expected behavior but the running CLI command shouldn't fail because of it.
+					 * Probably it's caused by some other process interfering.
+					 */
+					debug(`remove old file ${fileRelativePath} failed`);
+				} else {
+					throw error;
+				}
+			}
 			changedFilesCounter++;
 		}
 	}
