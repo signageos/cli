@@ -24,7 +24,7 @@ export async function updateSingleFileApplet(parameters: {
 	};
 }) {
 	const { restApi, applet } = parameters;
-	const appletBinary = await fs.createReadStream(applet.binaryFilePath, { encoding: 'utf8' });
+	const appletBinary = fs.createReadStream(applet.binaryFilePath, { encoding: 'utf8' });
 	await restApi.applet.version.update(
 		applet.uid,
 		applet.version,
@@ -156,7 +156,7 @@ export const createSingleFileApplet = async (parameters: {
 	};
 }) => {
 	const { restApi, applet } = parameters;
-	const appletBinary = await fs.createReadStream(applet.binaryFilePath, { encoding: 'utf8' });
+	const appletBinary = fs.createReadStream(applet.binaryFilePath, { encoding: 'utf8' });
 	await restApi.applet.version.create(
 		applet.uid,
 		{
@@ -201,7 +201,7 @@ export const createMultiFileFileApplet = async (parameters: {
 			progressBar.init({size: fileSize, name: fileRelativePath});
 		}
 
-		const fileStream = await fs.createReadStream(fileAbsolutePath);
+		const fileStream = fs.createReadStream(fileAbsolutePath);
 		fileStream.pause();
 		fileStream.on('data', (chunk: Buffer) => {
 			if (progressBar) {
