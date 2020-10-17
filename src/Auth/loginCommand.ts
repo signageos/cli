@@ -36,18 +36,24 @@ export const login: ICommand = {
 		});
 
 		// TODO use @signageos/test api instead
-		const apiSecurityToken = await getOrCreateApiSecurityToken(identification, password);
+		const { id: tokenId, securityToken: apiSecurityToken, name } = await getOrCreateApiSecurityToken(identification, password);
 
 		await saveConfig({
-			identification,
+			identification: tokenId,
 			apiSecurityToken,
 		});
 
-		console.log(`User ${chalk.green(identification!)} has been logged in. Credentials are stored in ${chalk.blue(getConfigFilePath())}`);
+		console.log(`User ${chalk.green(identification!)} has been logged in with token "${name}". Credentials are stored in ${chalk.blue(getConfigFilePath())}`);
 	},
 };
 
-async function getOrCreateApiSecurityToken(identification: string, password: string) {
+interface ILoginResponseBody {
+	id: string;
+	securityToken: string;
+	name: string;
+}
+
+async function getOrCreateApiSecurityToken(identification: string, password: string): Promise<ILoginResponseBody> {
 	const ACCOUNT_SECURITY_TOKEN_RESOURCE = 'account/security-token';
 	const options = {
 		url: getGlobalApiUrl(),
@@ -62,7 +68,7 @@ async function getOrCreateApiSecurityToken(identification: string, password: str
 	const bodyOfPost = JSON.parse(await responseOfPost.text(), deserializeJSON);
 	debug('POST security-token response', bodyOfPost);
 	if (responseOfPost.status === 201) {
-		return bodyOfPost.securityToken;
+		return bodyOfPost;
 	} else if (responseOfPost.status === 403) {
 		throw new Error(`Incorrect username or password`);
 	} else {
