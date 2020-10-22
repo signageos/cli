@@ -1,6 +1,7 @@
 import chalk from 'chalk';
 import * as prompts from 'prompts';
 import * as Debug from 'debug';
+import * as os from 'os';
 import { CommandLineOptions } from "command-line-args";
 import { deserializeJSON, postResource } from '../helper';
 import { saveConfig, getConfigFilePath } from '../RunControl/runControlHelper';
@@ -60,9 +61,11 @@ async function getOrCreateApiSecurityToken(identification: string, password: str
 		auth: { clientId: undefined, secret: undefined },
 		version: 'v1' as 'v1',
 	};
+	const tokenName = generateTokenName();
 	const query = {
 		identification,
 		password,
+		name: tokenName,
 	};
 	const responseOfPost = await postResource(options, ACCOUNT_SECURITY_TOKEN_RESOURCE, query);
 	const bodyOfPost = JSON.parse(await responseOfPost.text(), deserializeJSON);
@@ -74,4 +77,12 @@ async function getOrCreateApiSecurityToken(identification: string, password: str
 	} else {
 		throw new Error('Unknown error: ' + (bodyOfPost && bodyOfPost.message ? bodyOfPost.message : responseOfPost.status));
 	}
+}
+
+function generateTokenName() {
+	const hostname = os.hostname();
+	const shortHostname = hostname.split('.')[0];
+	const userInfo = os.userInfo();
+
+	return `${userInfo.username}@${shortHostname}`;
 }
