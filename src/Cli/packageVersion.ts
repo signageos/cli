@@ -2,6 +2,7 @@ import chalk from 'chalk';
 import * as semver from 'semver';
 import { exec } from 'child-process-promise';
 import { getPackageVersion, getPackageName } from './helper';
+import { getCachedValue, updateCacheValue } from '../Cache/tmpCache';
 
 export const VERSION_OPTION = {
 	name: 'version',
@@ -59,10 +60,21 @@ export async function getUpdateMessage(packageName: string, installedVersion: st
 	}
 }
 
+const LATEST_VERSION_CACHE_KEY = 'package.latestVersion';
+const LATEST_VERSION_CACHE_EXPIRE_IN_MS = 60 * 60e3; // 1 hour
+
 export async function newVersionAvailable(): Promise<boolean> {
 	const packageName: string = getPackageName();
 	const installedVersion: string = getPackageVersion();
-	const latestVersion: string | undefined = await getLatestVersion(packageName);
+
+	let latestVersion: string | undefined = getCachedValue(LATEST_VERSION_CACHE_KEY) ?? undefined;
+
+	if (!latestVersion) {
+		latestVersion = await getLatestVersion(packageName);
+		if (latestVersion) {
+			updateCacheValue(LATEST_VERSION_CACHE_KEY, latestVersion, { expireInMs: LATEST_VERSION_CACHE_EXPIRE_IN_MS });
+		}
+	}
 
 	return latestVersion
 		? semver.gt(latestVersion, installedVersion)
