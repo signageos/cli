@@ -2,6 +2,7 @@ import * as fs from 'fs-extra';
 import * as ini from 'ini';
 import * as path from 'path';
 import * as os from 'os';
+import chalk from 'chalk';
 
 const RUN_CONTROL_FILENAME = '.sosrc';
 
@@ -34,7 +35,17 @@ export async function loadConfig(): Promise<IConfig> {
 		return {};
 	}
 	const runControlFileContent = await fs.readFile(runControlFilePath);
-	return ini.decode(runControlFileContent.toString()) as IConfig;
+	const config = ini.decode(runControlFileContent.toString()) as IConfig;
+
+	// Temporary suggestion to login getting faster token
+	if (config.identification && !config.identification.match(/[0-9a-f]{20,20}/)) {
+		console.warn(
+			chalk.bold.yellow(`Your authentication token is outdated. Please do the ${chalk.green('sos login')} again.`),
+		);
+		console.warn('After the log in, commands are becoming almost 10x faster.');
+	}
+
+	return config;
 }
 
 export function getConfigFilePath() {
