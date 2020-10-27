@@ -1,9 +1,11 @@
 import * as Debug from 'debug';
 import * as prompts from 'prompts';
 import { CommandLineOptions } from "command-line-args";
+import { deserializeJSON, getResource, postResource } from '../helper';
+import { IOrganization } from '../Organization/organizationFacade';
+import { getGlobalApiUrl } from '../Command/commandProcessor';
 import { DevicePowerAction } from '@signageos/sdk/dist/RestApi/Device/PowerAction/IPowerAction';
 import RestApi from "@signageos/sdk/dist/RestApi/RestApi";
-
 const debug = Debug('@signageos/cli:Device:facade');
 
 export interface IDevice {
@@ -80,4 +82,26 @@ export async function getActionType(options: CommandLineOptions)  {
 	}
 
 	return action;
+}
+
+export async function sendIpToDevice(organization: IOrganization, deviceUid: String, appletUid: String, deviceIp: String) {
+	const DEVICE_RESOURCE = `/device/${deviceUid}/applet/${appletUid}/command`;
+	const options = {
+		url: getGlobalApiUrl(),
+		auth: {
+			clientId: organization.oauthClientId,
+			secret: organization.oauthClientSecret,
+		},
+		version: 'v1' as 'v1',
+	};
+	const body = {
+		commandPayload : {
+			"type": "ConnectCommand",
+			"deviceIp": `${deviceIp}`,
+			"appletUid":  `${appletUid}`,
+			"version": "1.2.0",
+		},
+	};
+	const responseOfPost = await postResource(options, DEVICE_RESOURCE, null , body);
+	return JSON.parse(await responseOfPost.text(), deserializeJSON);
 }
