@@ -140,6 +140,34 @@ sos timing list
 | --organization-uid *(required)* | Organization UID             | STDIN          |
 | --device-uid *(required)*       | Device UID                   | STDIN          |
 
+### Device
+```bash
+sos device --help
+```
+
+#### Device Power action
+Perform specified power action on a device.
+```bash
+sos device power-action
+```
+| Argument                        | Description                  | Default value  |
+|---------------------------------|------------------------------|----------------|
+| --organization-uid *(required)* | Organization UID             | STDIN          |
+| --device-uid *(required)*       | Device UID                   | STDIN          |
+| --type *(required)*             | Type of power-action         | STDIN          |
+
+##### Device Power action types
+| Argument                        | Description                  | 
+|---------------------------------|------------------------------|
+| reload       | Applet Reload                                   |
+| displayOn    | Display power On                                | 
+| displayOff   | Display power Of                                |
+| restart      | Application restart                             |
+| disable      | Applet disable                                  |
+| enable       | Applet enable                                   |
+| reboot       | System reboot                                   |
+| refresh      | Applet Refresh                                  |
+
 ## Contribution
 Clone the repository and install dev dependencies
 ```sh

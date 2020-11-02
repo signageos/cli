@@ -8,6 +8,7 @@ import { timing } from './Timing/timingCommand';
 import { processCommand, API_URL_OPTION } from './Command/commandProcessor';
 import { VERSION_OPTION } from './Cli/packageVersion';
 import { firmware } from './Firmware/firmwareCommand';
+import { device } from "./Device/deviceCommand";
 
 const index: ICommand = {
 	name: 'sos',
@@ -32,6 +33,7 @@ const index: ICommand = {
 		organization,
 		timing,
 		firmware,
+		device,
 	],
 	async run() {
 		throw new Error('Unknown command');
