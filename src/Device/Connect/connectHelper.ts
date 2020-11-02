@@ -1,35 +1,62 @@
 
-import { networkInterfaces } from "os";
-import {
-	listDirectoryContentRecursively,
-} from "../../FileSystem/helper";
-import chalk from "chalk";
-import { createDomain } from "../../Emulator/createDomain";
+import * as os from "os";
+import * as fs from 'fs-extra';
 import * as http from 'http';
 import * as express from 'express';
 import * as cors from "cors";
+import * as ini from 'ini';
+import * as path from 'path';
+import chalk from "chalk";
+import { createDomain } from "../../Emulator/createDomain";
+import { listDirectoryContentRecursively } from "../../FileSystem/helper";
+import { getAppletFileRelativePath } from "../../Applet/Upload/appletUploadFacadeHelper";
+import { IApplet } from "../../Applet/appletFacade";
+import { networkInterfaces } from "os";
+import { disconnectDevice } from "../deviceFacade";
+import { IOrganization } from "../../Organization/organizationFacade";
+const archiver = require('archiver');
 
-export async function serveApplet(appletDirectoryPath: string) {
-	// await createAppletZip(appletDirectoryPath);
-	console.log(`Applet is running at ${chalk.blue(appletDirectoryPath)}`);
+const CONNECT_DIRECTORY = 'signageos';
+const connectRuntimeDirPath = path.join(os.tmpdir(), CONNECT_DIRECTORY);
+
+export interface IConnect {
+	deviceUid?: string;
+}
+
+export interface DeviceInfo {
+	name: string;
+	uid: string;
+}
+
+export async function serveApplet(
+		projectDirectory: string,
+		appletData: Partial<IApplet>,
+		device: DeviceInfo,
+) {
+	await createAppletZip(projectDirectory, device.uid);
 	const app = express();
+	if (!appletData.uid) {
+		throw new Error(`Missing appletUid in package.json. Make sure to first upload the applet to box via ${chalk.blue(chalk.bold("sos applet upload"))}`);
+	}
+	const zipAddress = `/applet/${appletData.uid}/${appletData.version}/.package.zip`;
 	app.use(cors());
-	app.use(express.static('/applet/fbdabe9bba0613c62dba2db6047a49585264851bf7b9518aa9/1.2.0'));
-
-	app.use('/applet/fbdabe9bba0613c62dba2db6047a49585264851bf7b9518aa9/1.2.0/.package.zip', express.static(__dirname + '/package.zip'));
+	app.use(zipAddress, express.static(path.join(connectRuntimeDirPath, device.uid, 'package.zip' + `${device.uid}`)));
 	const server = http.createServer(app);
-	server.listen( 8080 , () => {
-		console.log(`Applet is running at ${chalk.blue(chalk.bold(createDomain({useLocalIp: true, port: 8080}, server)))}`);
+	const deviceUlrInBox = `https://${process.env.SOS_BOX_HOST}/device/${device.uid}`;
+	server.listen( () => {
+		console.log(`Serving applet from ${chalk.blue(chalk.bold(createDomain({useLocalIp: true, port: 8080}, server)))} on ${chalk.magenta(chalk.bold(device.name))} (${chalk.blue(chalk.bold(deviceUlrInBox))})`);
 	});
+	const serverData = JSON.stringify(server.address());
+	const serverPort = JSON.parse(serverData).port;
 	return {
+		serverPort,
 		stop() {
 			server.close();
 		},
 	};
 }
 
-export async function getComputerIp() {
-	const protocol: string =  "http://";
+export async function getMachineIp() {
 	const nets = networkInterfaces(), machineIps = Object.create(null);
 	for (const name of Object.keys(nets)) {
 		for (const net of nets[name]) {
@@ -41,21 +68,55 @@ export async function getComputerIp() {
 			}
 		}
 	}
-	return  protocol.concat(machineIps[`en0`][0].concat(":8080"));
+	const firsInterface = Object.keys(machineIps)[0];
+	return  machineIps[firsInterface][0];
 }
 
 export async function createAppletZip (
 		projectDirectory: string,
+		deviceUid: string,
 ) {
 	const appletFiles: string[] = [];
-	appletFiles.push(...(await listDirectoryContentRecursively(projectDirectory!, "/Users/patrikbily/Dokumety_bezIC/Work/signageos/applet-examples/examples/framework-examples/vue-example/")));
+	const gitIgnorePath = projectDirectory;
+	appletFiles.push(...(await listDirectoryContentRecursively(projectDirectory, gitIgnorePath)));
 
-	const AdmZip = require('adm-zip');
-	const file = new AdmZip();
-	for (let fileAbsolutePath of appletFiles) {
-		console.log(`Applet is running at ${chalk.blue(fileAbsolutePath)}`);
-		file.addLocalFile(fileAbsolutePath);
+	const archive = archiver('zip');
+	const deviceConnectDir = path.join(connectRuntimeDirPath, deviceUid);
+	const output = fs.createWriteStream(path.join(deviceConnectDir, "package.zip" + `${deviceUid}`));
+	archive.pipe(output);
+	for (const fileAbsolutePath of appletFiles) {
+		const fileRelativePath = getAppletFileRelativePath(fileAbsolutePath, projectDirectory);
+		archive.file(fileRelativePath, {name: fileRelativePath});
 	}
-	file.writeZip(__dirname + '/package.zip');
-	return file;
+	archive.finalize();
+	return archive;
+}
+
+export async function createConnectFile(deviceUid: string) {
+	const deviceConnectDir = path.join(connectRuntimeDirPath, deviceUid);
+	await fs.ensureDir(path.join(connectRuntimeDirPath, deviceUid));
+	const fileName = path.join(deviceConnectDir, deviceUid);
+	const fileContent = ini.encode({deviceUid: deviceUid});
+	await fs.ensureDir(connectRuntimeDirPath);
+
+	await fs.writeFile(fileName, fileContent, {
+		mode: 0o600,
+	});
+}
+
+export async function stopApplication(organization: IOrganization, deviceUid: string)  {
+	await disconnectDevice(organization, deviceUid).finally(() => {
+		console.log(` ${chalk.blue(chalk.bold("Device was disconnected"))}`);
+	});
+	await deleteUsedFiles(connectRuntimeDirPath, deviceUid);
+	process.exit(0);
+}
+
+export async function deleteUsedFiles(temporaryDirPath: string, deviceUid: string) {
+	await fs.remove(temporaryDirPath.concat(`/${deviceUid}`));
+	await fs.remove(temporaryDirPath.concat('/package.zip' + deviceUid));
+	const files = await fs.readdir(connectRuntimeDirPath);
+	if (files.length === 0) {
+		await fs.remove(connectRuntimeDirPath);
+	}
 }

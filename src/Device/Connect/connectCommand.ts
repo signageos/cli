@@ -1,29 +1,39 @@
-import chalk from 'chalk';
 import ICommand from "../../Command/ICommand";
-import { getDeviceUid, sendIpToDevice } from "../deviceFacade";
+import { getDeviceUid, connectDevice } from "../deviceFacade";
 import { getOrganization, getOrganizationUid } from "../../Organization/organizationFacade";
 import { CommandLineOptions } from "command-line-args";
-import { getComputerIp, serveApplet } from "./connectHelper";
+import { createConnectFile, serveApplet, stopApplication } from "./connectHelper";
+import { getAppletDirectoryAbsolutePath as getProjectDirAbsolutePath } from "../../Applet/Upload/appletUploadCommandHelper";
+import { getApplet } from "../../Applet/appletFacade";
+import { createOrganizationRestApi } from "../../helper";
 
 export const connect: ICommand = {
 	name: 'connect',
 	description: 'Set ip for device',
 	optionList: [
 		{ name: 'ip', type: String, description: 'Ip address of computer in local network' },
-		{ name: 'applet-uid', type: String, description: 'Uid of applet form box' },
 		{ name: 'device-uid', type: String, description: 'Uid of device from box' },
+		{ name: 'applet-dir', type: String, description: 'Directory of the applet project' },
 	],
 	commands: [],
-	async run(options: CommandLineOptions) {
-		const computerIpEt0 = await getComputerIp();
+	run: async function (options: CommandLineOptions) {
+		const currentDirectory = process.cwd();
+		const projectDirAbsolutePath = await getProjectDirAbsolutePath(currentDirectory, options);
+		const appletData = await getApplet(projectDirAbsolutePath);
 		const organizationUid = await getOrganizationUid(options);
 		const organization = await getOrganization(organizationUid);
-		const deviceUid = await getDeviceUid(organization, options);
-		const response = await sendIpToDevice(organization, deviceUid, "fbdabe9bba0613c62dba2db6047a49585264851bf7b9518aa9", computerIpEt0);
-		await serveApplet("/Users/patrikbily/Dokumety_bezIC/Work/signageos/applet-examples/examples/framework-examples/vue-example/");
+		const restApi = createOrganizationRestApi(organization);
+		const deviceUid = await getDeviceUid(restApi, options);
+		const deviceData = await restApi.device.get(deviceUid);
+		await createConnectFile(deviceData.uid);
+		const serverData  = await serveApplet(projectDirAbsolutePath, appletData, deviceData);
+		await connectDevice(organization, deviceData.uid, appletData, serverData.serverPort);
 
-		console.log(chalk.green(JSON.stringify(response, undefined, 2)));
-		console.log(chalk.green(JSON.stringify(computerIpEt0, undefined, 2)));
-		console.log(chalk.green(JSON.stringify(deviceUid, undefined, 2)));
+		process.on('SIGINT', function () {
+			stopApplication(organization, deviceData.uid);
+		});
+		process.on('SIGTERM', function () {
+			stopApplication(organization, deviceData.uid);
+		});
 	},
 };

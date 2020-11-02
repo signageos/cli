@@ -7,6 +7,7 @@ import RestApi from "@signageos/sdk/dist/RestApi/RestApi";
 export interface IApplet {
 	uid: string;
 	name: string;
+	version?: string;
 }
 
 export async function getApplet(directoryPath: string): Promise<Partial<IApplet>> {
@@ -63,8 +64,7 @@ export async function getAppletFrontAppletVersion(_directoryPath: string): Promi
 export async function getAppletUid(
 	restApi: RestApi,
 ) {
-	const currentDirectory = process.cwd();
-	let appletUid: string | undefined = await tryGetAppletUid(currentDirectory);
+	let appletUid: string | undefined;
 
 	if (!appletUid) {
 		const applets = await restApi.applet.list();

@@ -169,6 +169,7 @@ async function createPackageConfig(
 			escheck: "npx es-check --module es5 dist/*.js",
 			build: "webpack --mode production",
 			postbuild: "npm run escheck",
+			connect: "webpack --watch",
 		},
 		files: ['dist'],
 	};
