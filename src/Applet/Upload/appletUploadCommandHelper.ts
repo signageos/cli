@@ -1,7 +1,7 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import { CommandLineOptions } from 'command-line-args';
-import { loadConfig, updateConfig } from '../../RunControl/runControlHelper';
+import { loadConfig, updateConfig } from '@signageos/sdk/dist/SosHelper/sosControlHelper';
 import { DEFAULT_APPLET_DIR_PATH, DEFAULT_APPLET_BINARY_FILE_PATH, DEFAULT_APPLET_ENTRY_FILE_PATH } from './appletUploadFacade';
 import { getOrganizationUid } from '../../Organization/organizationFacade';
 import { deserializeJSON } from '../../helper';

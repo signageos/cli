@@ -3,7 +3,7 @@ import * as Debug from 'debug';
 import { CommandLineOptions } from "command-line-args";
 import { getOrganizationUid, getOrganization, ORGANIZATION_UID_OPTION } from '../organizationFacade';
 import ICommand from '../../Command/ICommand';
-import { updateConfig } from '../../RunControl/runControlHelper';
+import { updateConfig } from '@signageos/sdk/dist/SosHelper/sosControlHelper';
 const debug = Debug('@signageos/cli:Organization:get');
 
 export const organizationSetDefault: ICommand = {

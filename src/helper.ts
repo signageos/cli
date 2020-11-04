@@ -7,7 +7,7 @@ import IRestApiOptions from '@signageos/sdk/dist/RestApi/IOptions';
 import IRestApiAccountOptions from '@signageos/sdk/dist/RestApi/IOptions';
 import { IOrganization } from './Organization/organizationFacade';
 import { getGlobalApiUrl } from './Command/commandProcessor';
-import { loadConfig } from './RunControl/runControlHelper';
+import { loadConfig } from '@signageos/sdk/dist/SosHelper/sosControlHelper';
 
 export function createOrganizationRestApi(
 	organization: IOrganization,

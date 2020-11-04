@@ -9,7 +9,7 @@ import * as fs from 'fs-extra';
 import * as glob from 'globby';
 import chalk from 'chalk';
 import { IEmulator } from './IEmulator';
-import { loadConfig } from '../RunControl/runControlHelper';
+import { loadConfig } from '@signageos/sdk/dist/SosHelper/sosControlHelper';
 import { createDomain } from './createDomain';
 
 export interface ICreateEmulatorParams {

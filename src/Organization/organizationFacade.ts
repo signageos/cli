@@ -3,7 +3,7 @@ import * as Debug from 'debug';
 import * as prompts from 'prompts';
 import { CommandLineOptions } from 'command-line-args';
 import { getResource, deserializeJSON } from '../helper';
-import { loadConfig } from '../RunControl/runControlHelper';
+import { loadConfig } from '@signageos/sdk/dist/SosHelper/sosControlHelper';
 import { getGlobalApiUrl } from '../Command/commandProcessor';
 const debug = Debug('@signageos/cli:Organization:facade');
 

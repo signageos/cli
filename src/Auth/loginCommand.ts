@@ -4,7 +4,7 @@ import * as Debug from 'debug';
 import * as os from 'os';
 import { CommandLineOptions } from "command-line-args";
 import { deserializeJSON, postResource } from '../helper';
-import { saveConfig, getConfigFilePath } from '../RunControl/runControlHelper';
+import { saveConfig, getConfigFilePath } from '@signageos/sdk/dist/SosHelper/sosControlHelper';
 import * as parameters from '../../config/parameters';
 import ICommand from '../Command/ICommand';
 import { getGlobalApiUrl } from '../Command/commandProcessor';

@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Changed
+- Now use helper from `sdk` instead of same local
+
 ## [0.8.3] - 2020-10-22
 ### Fixed
 - Optimize authentication for all REST API requests with new token ID (please do the `sos login` again to perform this changes on your machine)
