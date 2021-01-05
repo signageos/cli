@@ -50,6 +50,15 @@ npm run build
 | --target-dir *(optional)*    | Generate applet project to directory | ${PWD}/${name} |
 | --npm-registry *(optional)*  | NPM registry URL (for private npm)   |                |
 
+> ! Windows users note:
+> There are unresolved issue with NPX tool on Windows clients when your username contains spaces (e.g.: `John Doe`).
+> https://stackoverflow.com/a/58354623/4609457
+> To prevent this issue there is simple hotfix. Run following command in your Command Line (replace `John` with your real first name):
+> Sometimes the Administrator privileges are required (Run as Administrator)
+```cmd
+npm config set cache "C:\Users\John~1\AppData\Roaming\npm-cache" --global
+```
+
 #### Applet Upload
 ```bash
 npm run upload
