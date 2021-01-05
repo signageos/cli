@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Fixed
 - Command for generation of applet is generating multi-file applet now (not deprecated single-file).
+- Add missing useful NPM scripts into generated applet
 
 ## [0.8.3] - 2020-10-22
 ### Fixed

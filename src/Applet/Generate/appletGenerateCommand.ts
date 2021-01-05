@@ -163,7 +163,12 @@ async function createPackageConfig(
 		main: 'dist/index.html',
 		scripts: {
 			start: "webpack-dev-server --mode development --open-emulator",
+			prepare: "npm run clean && npm run build",
+			upload: "sos applet upload",
+			clean: "npx rimraf dist",
+			escheck: "npx es-check --module es5 dist/*.js",
 			build: "webpack --mode production",
+			postbuild: "npm run escheck",
 		},
 		files: ['dist'],
 	};

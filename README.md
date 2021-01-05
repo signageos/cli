@@ -52,8 +52,9 @@ npm run build
 
 #### Applet Upload
 ```bash
-sos applet upload
+npm run upload
 # Uploads all files in the applet directory
+# Or alternatively you can use direct cli: `sos applet upload`
 
 #Deprecated
 sos applet upload --applet-path=dist/index.html
