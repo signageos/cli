@@ -1,3 +1,4 @@
+import * as path from 'path';
 import RestApi from "@signageos/sdk/dist/RestApi/RestApi";
 import { ProgressBar } from "../../CommandLine/IProgressBar";
 import { IFirmwareVersionCreatable } from "@signageos/sdk/dist/RestApi/Firmware/Version/IFirmwareVersion";
@@ -11,24 +12,32 @@ export async function uploadFirmwareVersion(parameters: {
 	progressBar?: ProgressBar;
 }): Promise<void> {
 	const { restApi, firmware, pathArr, progressBar } = parameters;
-	for (let filePath of pathArr) {
 
-		const fileSize = (await fs.stat(filePath)).size;
+	const sizes = await Promise.all(pathArr.map(async (filePath: string) => {
+		const stat = await fs.stat(filePath);
+		return stat.size;
+	}));
+	const totalSize = sizes.reduce((sum: number, size) => sum + size, 0);
 
-		if (progressBar) {
-			progressBar.init({size: fileSize, name: filePath});
-		}
+	if (progressBar) {
+		progressBar.init({ size: totalSize, name: pathArr.join(',') });
+	}
 
-		const stream = await fs.createReadStream(filePath);
+	for (let index in pathArr) {
+		const filePath = pathArr[index];
+		const fileSize = sizes[index];
+		const fileName = path.basename(filePath);
+
+		const streamForComputation = fs.createReadStream(filePath);
+		const md5Hash = await computeMD5(streamForComputation);
+
+		const stream = fs.createReadStream(filePath);
 		stream.pause();
 		stream.on('data', (chunk: Buffer) => {
 			if (progressBar) {
-				progressBar.update({ add: chunk.length });
+				progressBar.update({ add: chunk.length, name: fileName });
 			}
 		});
-
-		const streamForComputation = await fs.createReadStream(filePath);
-		const md5Hash = await computeMD5(streamForComputation);
 
 		firmware.files.push({
 			hash: md5Hash,
