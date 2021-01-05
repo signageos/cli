@@ -54,7 +54,6 @@ export const appletGenerate: ICommand = {
 			'babel-loader@8',
 			'css-loader@3',
 			'html-webpack-plugin@3',
-			'html-webpack-inline-source-plugin@0',
 			'style-loader@0',
 			'webpack@4',
 			'webpack-dev-server@3',
@@ -63,7 +62,6 @@ export const appletGenerate: ICommand = {
 		const fileExtensions: string[] = ['.js'];
 		const imports: string[] = [
 			`const HtmlWebpackPlugin = require('html-webpack-plugin')`,
-			`const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin')`,
 			`const SignageOSPlugin = require('@signageos/webpack-plugin')`,
 		];
 		const rules: string[] = [
@@ -73,7 +71,6 @@ export const appletGenerate: ICommand = {
 			}`,
 `			{
 				test: /\.jsx?$/,
-				exclude: /node_modules/,
 				loader: 'babel-loader',
 				options: { presets: [require.resolve('@babel/preset-env')] },
 				enforce: 'post',
@@ -82,9 +79,7 @@ export const appletGenerate: ICommand = {
 		const plugins: string[] = [
 `			new HtmlWebpackPlugin({
 				template: 'public/index.html',
-				inlineSource: '.(js|css)$', // embed all javascript and css inline
 			})`,
-`			new HtmlWebpackInlineSourcePlugin()`,
 `			new SignageOSPlugin()`,
 		];
 
