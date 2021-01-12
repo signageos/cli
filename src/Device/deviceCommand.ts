@@ -1,4 +1,5 @@
 import ICommand from "../Command/ICommand";
+import { setContent } from './Content/setContentCommand';
 import { powerAction } from "./PowerAction/powerActionCommand";
 
 export const device: ICommand = {
@@ -7,6 +8,7 @@ export const device: ICommand = {
 	optionList: [
 	],
 	commands: [
+		setContent,
 		powerAction,
 	],
 	async run() {

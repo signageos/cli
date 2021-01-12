@@ -18,8 +18,8 @@ export const powerAction: ICommand = {
 	async run(options: CommandLineOptions) {
 		const organizationUid = await getOrganizationUid(options);
 		const organization = await getOrganization(organizationUid);
-		const deviceUid = await getDeviceUid(organization, options);
 		const restApi = createOrganizationRestApi(organization);
+		const deviceUid = await getDeviceUid(restApi, options);
 		const actionType = await getActionType(options);
 		await restApi.device.powerAction.set(deviceUid, {
 			devicePowerAction:  typeMap.get(actionType)!.action,

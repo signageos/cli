@@ -1,11 +1,8 @@
-import chalk from 'chalk';
 import * as Debug from 'debug';
 import * as prompts from 'prompts';
 import { CommandLineOptions } from "command-line-args";
-import { getResource, deserializeJSON } from '../helper';
-import { IOrganization } from '../Organization/organizationFacade';
-import { getGlobalApiUrl } from '../Command/commandProcessor';
 import { DevicePowerAction } from '@signageos/sdk/dist/RestApi/Device/PowerAction/IPowerAction';
+import RestApi from "@signageos/sdk/dist/RestApi/RestApi";
 
 const debug = Debug('@signageos/cli:Device:facade');
 
@@ -36,12 +33,12 @@ export const typeMap = new Map<string, ActionData>(
 export const DEVICE_UID_OPTION = { name: 'device-uid', type: String, description: 'Device UID' };
 
 export async function getDeviceUid(
-	organization: IOrganization,
+	restApi: RestApi,
 	options: CommandLineOptions,
 ) {
 	let deviceUid: string | undefined = options['device-uid'];
 	if (!deviceUid) {
-		const devices = await getDevices(organization);
+		const devices = await restApi.device.list();
 		const response = await prompts({
 			type: 'autocomplete',
 			name: 'deviceUid',
@@ -58,28 +55,6 @@ export async function getDeviceUid(
 		throw new Error('Missing argument --device-uid <string>');
 	}
 	return deviceUid;
-}
-
-export async function getDevices(organization: IOrganization) {
-	const DEVICE_RESOURCE = 'device';
-	const options = {
-		url: getGlobalApiUrl(),
-		auth: {
-			clientId: organization.oauthClientId,
-			secret: organization.oauthClientSecret,
-		},
-		version: 'v1' as 'v1',
-	};
-	const responseOfGet = await getResource(options, DEVICE_RESOURCE);
-	const bodyOfGet = JSON.parse(await responseOfGet.text(), deserializeJSON);
-	debug('GET devices response', bodyOfGet);
-	if (responseOfGet.status === 200) {
-		return bodyOfGet;
-	} else if (responseOfGet.status === 403) {
-		throw new Error(`Authentication error. Try to login using ${chalk.green('sos login')}`);
-	} else {
-		throw new Error('Unknown error: ' + (bodyOfGet && bodyOfGet.message ? bodyOfGet.message : responseOfGet.status));
-	}
 }
 
 export async function getActionType(options: CommandLineOptions)  {

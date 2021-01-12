@@ -168,6 +168,16 @@ sos device power-action
 | reboot       | System reboot                                   |
 | refresh      | Applet Refresh                                  |
 
+#### Device Set-Content
+```bash
+sos device set-content
+```
+| Argument                        | Description                  | Default value  |
+|---------------------------------|------------------------------|----------------|
+| --organization-uid *(required)* | Organization UID             | STDIN          |
+| --device-uid *(required)*       | Device UID                   | STDIN          |
+| --applet-uid *(required)*       | Applet UID                   | STDIN          |
+
 ## Contribution
 Clone the repository and install dev dependencies
 ```sh
