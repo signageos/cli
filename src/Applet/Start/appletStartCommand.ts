@@ -8,6 +8,7 @@ import {
 	getAppletEntryFileRelativePath,
 } from '../Upload/appletUploadCommandHelper';
 import { getAppletDirAbsolutePath } from './appletStartCommandHelper';
+import { loadEmulatorOrCreateNewAndReturnUid } from '../../Emulator/emulatorFacade';
 
 export const appletStart: ICommand = {
 	name: 'start',
@@ -27,8 +28,10 @@ export const appletStart: ICommand = {
 		const projectDirAbsolutePath = await getProjectDirAbsolutePath(currentDirectory, options);
 		const appletDirAbsolutePath = await getAppletDirAbsolutePath(currentDirectory, options);
 		const entryFileRelativePath = await getAppletEntryFileRelativePath(entryFileAbsolutePath, appletDirAbsolutePath);
+		const emulatorUid = await loadEmulatorOrCreateNewAndReturnUid();
 
 		await createEmulator({
+			emulatorUid,
 			appletPath: appletDirAbsolutePath,
 			projectPath: projectDirAbsolutePath,
 			entryFileRelativePath,

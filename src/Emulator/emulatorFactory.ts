@@ -17,6 +17,7 @@ export interface ICreateEmulatorParams {
 	appletPath: string;
 	entryFileRelativePath: string;
 	emulatorServerPort: number;
+	emulatorUid: string;
 }
 
 export async function createEmulator(params: ICreateEmulatorParams): Promise<IEmulator> {
@@ -39,12 +40,16 @@ export async function createEmulator(params: ICreateEmulatorParams): Promise<IEm
 		res.header('Content-type', 'text/cache-manifest; charset=UTF-8');
 		res.send(`CACHE MANIFEST\n# v1 - ${currentDate.toISOString()}\n/tmp\nNETWORK:\n*\n`);
 	});
-	app.get('/', (_req: express.Request, res: express.Response) => {
-		res.send(
-			`<script>window.__SOS_BUNDLED_APPLET = ${JSON.stringify(envVars)}</script>`
-			+ `<script>window.__SOS_AUTO_VERIFICATION = ${JSON.stringify(envVars)}</script>`
-			+ fs.readFileSync(path.join(frontDisplayDistPath, 'index.html')).toString(),
-		);
+	app.get('/', (req: express.Request, res: express.Response) => {
+		if (!req.query.duid) {
+			res.redirect(`${req.originalUrl}${req.originalUrl.includes('?') ? '&' : '?'}duid=${params.emulatorUid}`);
+		} else {
+			res.send(
+				`<script>window.__SOS_BUNDLED_APPLET = ${JSON.stringify(envVars)}</script>`
+				+ `<script>window.__SOS_AUTO_VERIFICATION = ${JSON.stringify(envVars)}</script>`
+				+ fs.readFileSync(path.join(frontDisplayDistPath, 'index.html')).toString(),
+			);
+		}
 	});
 	app.use(serveStatic(frontDisplayDistPath));
 
