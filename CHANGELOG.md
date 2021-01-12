@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
+- Deploy applet do device using `sos device set-content --applet-uid < > --device-uid < >`
 - New command for Applet reload `sos device power-action`
 
 ## [0.8.4] - 2021-01-05

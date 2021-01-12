@@ -8,7 +8,7 @@ import { timing } from './Timing/timingCommand';
 import { processCommand, API_URL_OPTION } from './Command/commandProcessor';
 import { VERSION_OPTION } from './Cli/packageVersion';
 import { firmware } from './Firmware/firmwareCommand';
-import { device } from "./Device/deviceCommand";
+import { device } from './Device/deviceCommand';
 
 const index: ICommand = {
 	name: 'sos',
