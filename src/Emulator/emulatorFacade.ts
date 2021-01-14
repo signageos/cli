@@ -1,8 +1,9 @@
 import chalk from 'chalk';
 import * as prompts from 'prompts';
-import { getResource, postResource, deserializeJSON, IOptions } from '../helper';
-import { loadConfig, updateConfig } from '../RunControl/runControlHelper';
+import { loadConfig, updateConfig, IConfig } from '../RunControl/runControlHelper';
 import { getGlobalApiUrl } from '../Command/commandProcessor';
+import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
+import AuthenitcationError from '@signageos/sdk/dist/RestApi/Error/AuthenticationError';
 
 interface IEmulatorData {
 	uid: string;
@@ -11,20 +12,35 @@ interface IEmulatorData {
 	createdAt: Date;
 }
 
-async function getListOfEmulators(options: IOptions) {
-	const response = await getResource(options, 'emulator');
-	if (response.status === 403) {
-		throw new Error(`Authentication error. Try to login using ${chalk.green('sos login')}`);
-	} else if (response.status !== 200) {
-		throw new Error('Unknown error: ' + response.status);
+const createRestApi = (config: IConfig) => {
+	const options = {
+		url: getGlobalApiUrl(),
+		auth: {
+			clientId: config.identification ?? '',
+			secret: config.apiSecurityToken ?? '',
+		},
+		version: 'v1' as 'v1',
+	};
+	return new RestApi(options, options);
+};
+
+async function getListOfEmulators(restApi: RestApi) {
+	try {
+		return await restApi.emulator.list();
+	} catch (e) {
+		if (e instanceof AuthenitcationError) {
+			throw new Error(`Authentication error. Try to login using ${chalk.green('sos login')}`);
+		} else {
+			throw new Error('Unknown error: ' + e.message);
+		}
 	}
-	return JSON.parse(await response.text(), deserializeJSON);
 }
 
-async function createNewEmulator(options: IOptions, organizationUid: string) {
-	const response = await postResource(options, 'emulator', undefined, { organizationUid });
-	if (response.status !== 201) {
-		throw new Error('Unknown error:' + response.status);
+async function createNewEmulator(restApi: RestApi, organizationUid: string) {
+	try {
+		return await restApi.emulator.create({ organizationUid });
+	} catch (e) {
+		throw new Error('Unknown error: ' + e.message);
 	}
 }
 
@@ -36,15 +52,8 @@ export async function loadEmulatorOrCreateNewAndReturnUid() {
 	if (!config.defaultOrganizationUid) {
 		throw new Error(`No default organization selected. Use ${chalk.green('sos organization set-default')} first.`);
 	}
-	const options = {
-		url: getGlobalApiUrl(),
-		auth: {
-			clientId: config.identification,
-			secret: config.apiSecurityToken,
-		},
-		version: 'v1' as 'v1',
-	};
-	const listOfEmulatorsResponse = await getListOfEmulators(options);
+	const restApi = createRestApi(config);
+	const listOfEmulatorsResponse = await getListOfEmulators(restApi);
 	const isSavedValidEmulator = config.emulatorUid && listOfEmulatorsResponse.some(
 		(emu: IEmulatorData) => emu.duid === config.emulatorUid,
 	);
@@ -74,8 +83,8 @@ export async function loadEmulatorOrCreateNewAndReturnUid() {
 		emulatorUid = selectedEmulator.duid;
 	} else {
 		console.log('No valid emulator assigned to your account found via API thus newone will be created');
-		await createNewEmulator(options, config.defaultOrganizationUid);
-		const newEmulatorList = await getListOfEmulators(options);
+		await createNewEmulator(restApi, config.defaultOrganizationUid);
+		const newEmulatorList = await getListOfEmulators(restApi);
 		const emulatorName = newEmulatorList[0].name;
 		emulatorUid = newEmulatorList[0].duid;
 		console.log(`New emulator ${chalk.green(emulatorName)} created and saved into .sosrc`);
