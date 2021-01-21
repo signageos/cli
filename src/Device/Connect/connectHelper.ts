@@ -40,6 +40,10 @@ export async function serveApplet(
 	}
 	const zipAddress = `/applet/${appletData.uid}/${appletData.version}/.package.zip`;
 	app.use(cors());
+	app.use((_req, res, next) => {
+		res.header('Cache-control', 'no-cache');
+		next();
+	});
 	app.use(zipAddress, express.static(path.join(connectRuntimeDirPath, device.uid, 'package.zip' + `${device.uid}`)));
 	const server = http.createServer(app);
 	const deviceUlrInBox = `https://${process.env.SOS_BOX_HOST}/device/${device.uid}`;
