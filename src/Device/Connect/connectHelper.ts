@@ -38,7 +38,7 @@ export async function serveApplet(
 	if (!appletData.uid) {
 		throw new Error(`Missing appletUid in package.json. Make sure to first upload the applet to box via ${chalk.blue(chalk.bold("sos applet upload"))}`);
 	}
-	const zipAddress = `/applet/${appletData.uid}/${appletData.version}/.package.zip`;
+	const zipAddress = `/applet/${appletData.uid}/${appletData.version}-:appletVersionPostfix/.package.zip`;
 	app.use(cors());
 	app.use((_req, res, next) => {
 		res.header('Cache-control', 'no-cache');
@@ -117,8 +117,8 @@ export async function stopApplication(organization: IOrganization, deviceUid: st
 }
 
 export async function deleteUsedFiles(temporaryDirPath: string, deviceUid: string) {
-	await fs.remove(temporaryDirPath.concat(`/${deviceUid}`));
-	await fs.remove(temporaryDirPath.concat('/package.zip' + deviceUid));
+	await fs.remove(path.join(temporaryDirPath, deviceUid));
+	await fs.remove(path.join(temporaryDirPath, "/package.zip", deviceUid));
 	const files = await fs.readdir(connectRuntimeDirPath);
 	if (files.length === 0) {
 		await fs.remove(connectRuntimeDirPath);

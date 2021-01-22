@@ -70,7 +70,8 @@ export async function getAppletFrontAppletVersion(_directoryPath: string): Promi
 export async function getAppletUid(
 	restApi: RestApi,
 ) {
-	let appletUid: string | undefined;
+	const currentDirectory = process.cwd();
+	let appletUid: string | undefined = await tryGetAppletUid(currentDirectory);
 
 	if (!appletUid) {
 		const applets = await restApi.applet.list();

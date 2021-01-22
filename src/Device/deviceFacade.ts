@@ -30,7 +30,7 @@ export const typeMap = new Map<string, ActionData>(
 		['restart', {name: 'Restart Device', action: DevicePowerAction.AppRestart}],
 		['disable', {name: 'Applet Disable', action: DevicePowerAction.AppletDisable}],
 		['enable', {name: 'Applet Enable', action: DevicePowerAction.AppletEnable}],
-		['reload', {name: 'Reload Device', action: DevicePowerAction.AppletReload}],
+		['reload', {name: 'Applet Reload', action: DevicePowerAction.AppletReload}],
 		['refresh', {name: 'Applet Refresh', action: DevicePowerAction.AppletRefresh}],
 	],
 );
