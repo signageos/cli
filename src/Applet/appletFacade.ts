@@ -3,14 +3,15 @@ import * as path from 'path';
 import { deserializeJSON } from '../helper';
 import * as prompts from 'prompts';
 import RestApi from "@signageos/sdk/dist/RestApi/RestApi";
+import ISdkApplet from '@signageos/sdk/dist/RestApi/Applet/IApplet';
 
 export interface IApplet {
 	uid: string;
 	name: string;
-	version?: string;
+	version: string;
 }
 
-export async function getApplet(directoryPath: string): Promise<Partial<IApplet>> {
+export async function getApplet(directoryPath: string): Promise<IApplet> {
 	const packageJSONPath = path.join(directoryPath, 'package.json');
 	const packageJSONPathExists = await fs.pathExists(packageJSONPath);
 
@@ -23,9 +24,14 @@ export async function getApplet(directoryPath: string): Promise<Partial<IApplet>
 
 	const appletUid = packageJSONObject.sos ? packageJSONObject.sos.appletUid : undefined;
 
+	if (!packageJSONObject.version) {
+		throw new Error(`No "version" key found in: ${packageJSONPath}`);
+	}
+
 	return {
 		uid: appletUid,
 		name: packageJSONObject.name,
+		version: packageJSONObject.version,
 	};
 }
 
@@ -72,7 +78,7 @@ export async function getAppletUid(
 			type: 'autocomplete',
 			name: 'appletUid',
 			message: `Select applet to use`,
-			choices: applets.map((applet: IApplet) => ({
+			choices: applets.map((applet: ISdkApplet) => ({
 				title: `${applet.name} (${applet.uid})`,
 				value: applet.uid,
 			})),
