@@ -1,8 +1,13 @@
 import * as Debug from 'debug';
 import * as prompts from 'prompts';
 import { CommandLineOptions } from "command-line-args";
+import { deserializeJSON, postResource } from '../helper';
+import { IOrganization } from '../Organization/organizationFacade';
+import { getGlobalApiUrl } from '../Command/commandProcessor';
 import { DevicePowerAction } from '@signageos/sdk/dist/RestApi/Device/PowerAction/IPowerAction';
 import RestApi from "@signageos/sdk/dist/RestApi/RestApi";
+import { IApplet } from "../Applet/appletFacade";
+import { getMachineIp } from "./Connect/connectHelper";
 
 const debug = Debug('@signageos/cli:Device:facade');
 
@@ -25,7 +30,7 @@ export const typeMap = new Map<string, ActionData>(
 		['restart', {name: 'Restart Device', action: DevicePowerAction.AppRestart}],
 		['disable', {name: 'Applet Disable', action: DevicePowerAction.AppletDisable}],
 		['enable', {name: 'Applet Enable', action: DevicePowerAction.AppletEnable}],
-		['reload', {name: 'Reboot Device', action: DevicePowerAction.AppletReload}],
+		['reload', {name: 'Applet Reload', action: DevicePowerAction.AppletReload}],
 		['refresh', {name: 'Applet Refresh', action: DevicePowerAction.AppletRefresh}],
 	],
 );
@@ -80,4 +85,40 @@ export async function getActionType(options: CommandLineOptions)  {
 	}
 
 	return action;
+}
+
+export async function connectDevice(organization: IOrganization, deviceUid: String, applet: Partial<IApplet>, serverPort: string) {
+	const DEVICE_RESOURCE = `/device/${deviceUid}/connect`;
+	const options = {
+		url: getGlobalApiUrl(),
+		auth: {
+			clientId: organization.oauthClientId,
+			secret: organization.oauthClientSecret,
+		},
+		version: 'v1' as 'v1',
+	};
+	const computerIp = await getMachineIp();
+	const protocol: string =  "http://";
+	const body = {
+			deviceUid: deviceUid,
+			appletUid:  applet.uid,
+			remoteIp: protocol.concat(computerIp + `:${serverPort}`),
+			appletVersion: applet.version,
+	};
+	const responseOfPost = await postResource(options, DEVICE_RESOURCE, null , body);
+	return JSON.parse(await responseOfPost.text(), deserializeJSON);
+}
+
+export async function disconnectDevice(organization: IOrganization, deviceUid: String) {
+	const DEVICE_RESOURCE = `/device/${deviceUid}/disconnect`;
+	const options = {
+		url: getGlobalApiUrl(),
+		auth: {
+			clientId: organization.oauthClientId,
+			secret: organization.oauthClientSecret,
+		},
+		version: 'v1' as 'v1',
+	};
+	const responseOfPost = await postResource(options, DEVICE_RESOURCE, null , {"deviceUid": `${deviceUid}`});
+	return JSON.parse(await responseOfPost.text(), deserializeJSON);
 }
