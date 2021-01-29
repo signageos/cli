@@ -178,6 +178,19 @@ sos device set-content
 | --device-uid *(required)*       | Device UID                   | STDIN          |
 | --applet-uid *(required)*       | Applet UID                   | STDIN          |
 
+#### Device connect
+```bash
+sos device connect
+# You will be provided with setting parameters
+# You should build and upload applet to box before connecting applet to device 
+# This upload all files in actual directory as multifile applet
+```
+| Argument                       | Description                           | Default value          |
+|--------------------------------|---------------------------------------|------------------------|
+| --ip *(required)*              | Ip address of computer in local network | Automatically get from networkInterface|
+| --device-uid *(required)*      | Uid of device from box'               |  STDIN           |
+| --applet-dir *(required)*      | Directory of the applet project       | ${PWD}|
+
 ## Contribution
 Clone the repository and install dev dependencies
 ```sh
