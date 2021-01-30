@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Deploy applet do device using `sos device set-content --applet-uid < > --device-uid < >`
 - New command for Applet reload `sos device power-action`
 - Connecting to device and upload applet from local computer
+- One emulator per account is used and its uid is stored in .sosrc file
 
 ## [0.8.4] - 2021-01-05
 ### Fixed

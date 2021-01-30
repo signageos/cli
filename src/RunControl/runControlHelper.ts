@@ -10,6 +10,7 @@ export interface IConfig {
 	identification?: string;
 	apiSecurityToken?: string;
 	defaultOrganizationUid?: string;
+	emulatorUid?: string;
 }
 
 export async function saveConfig(config: IConfig) {
