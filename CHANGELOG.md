@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Fixed
+- `sos applet start` works properly even for remote machine using IP address (not just for localhost)
+
 ## [0.9.0] - 2021-02-02
 ### Added
 - Deploy applet do device using `sos device set-content --applet-uid < > --device-uid < >`
