@@ -7,6 +7,7 @@ export const firmware: ICommand = {
 	optionList: [
 		{ name: 'application-type', alias: 'a', type: String, },
 		{ name: 'firmware-version', alias: 'f', type: String, },
+		{ name: 'firmware-type', type: String, },
 		{ name: 'src', type: String, multiple: true, },
 	],
 	commands: [

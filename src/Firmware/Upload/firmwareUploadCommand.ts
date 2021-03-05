@@ -20,6 +20,14 @@ const questions = [
 		message: `Firmware version`,
 	},
 ];
+const fwTypeQuestion = [
+	{
+		type: 'text' as 'text',
+		name: 'firmwareType',
+		message: `Model prefixed with brand. E.g.: "benq_sl550", "rpi4", "rpi"`,
+	},
+];
+const applicationTypesRequiringType = ['linux', 'android'];
 
 export const firmwareUpload: ICommand = {
 	name: 'upload',
@@ -35,13 +43,20 @@ export const firmwareUpload: ICommand = {
 			files: [],
 		};
 		const pathSet = new Set<string>();
-		let applicationType, version;
 		if (!optionsProvided) {
 			const answers = await prompts(questions);
-			applicationType = answers.applicationType;
-			version  = answers.version;
+			data.applicationType = answers.applicationType;
+			data.version = answers.version;
+			if (applicationTypesRequiringType.includes(data.applicationType)) {
+				const typeAnswers = await prompts(fwTypeQuestion);
+				data.type = typeAnswers.firmwareType;
+				if (!data.type) {
+					console.log(`${chalk.red('You must input firmware type')}`);
+					return;
+				}
+			}
 
-			if (!applicationType || !version) {
+			if (!data.applicationType || !data.version) {
 				console.log(`${chalk.red('You must input application type and version')}`);
 				return;
 			}
@@ -65,9 +80,11 @@ export const firmwareUpload: ICommand = {
 			}
 
 			if (pathSet.size > 0) {
-
-				console.log('Application type: ', chalk.green(applicationType));
-				console.log('Version: ', chalk.green(version));
+				console.log('Application type: ', chalk.green(data.applicationType));
+				console.log('Version: ', chalk.green(data.version));
+				if (data.type) {
+					console.log('Firmware type: ', chalk.green(data.type));
+				}
 				console.log('List of files: ', Array.from(pathSet));
 
 				const confirmation = await prompts({
@@ -75,30 +92,23 @@ export const firmwareUpload: ICommand = {
 					name: 'confirmed',
 					message: 'Is this ok?',
 				});
-				if (confirmation.confirmed) {
-					data = {
-						applicationType,
-						version,
-						files: [],
-					};
-				} else {
+				if (!confirmation.confirmed) {
 					throw new Error(`You must confirm your action.`);
 				}
 			}
 		} else { // data is given cli args
-			applicationType = options['application-type'];
-			version = options['firmware-version'];
+			data.applicationType = options['application-type'];
+			data.version = options['firmware-version'];
+			if (applicationTypesRequiringType.includes(data.applicationType) && !options['firmware-type']) {
+				console.log(`${chalk.red('You must input firmware type')}`);
+				return;
+			}
+			data.type = options['firmware-type'];
 			const pathArr: Array<string> = options.src;
 			pathArr.forEach((path: string) => {
 				validateFileExistenceSync(path);
 				pathSet.add(path);
 			});
-
-			data = {
-				applicationType,
-				version,
-				files: [],
-			};
 		}
 
 		const progressBar = createProgressBar();
