@@ -7,6 +7,7 @@ import { uploadFirmwareVersion } from "./firmwareUploadFacade";
 import { createProgressBar } from "../../CommandLine/progressBarFactory";
 import { CommandLineOptions } from "command-line-args";
 import validateFileExistenceSync from "./firmwareUploadHelper";
+import RequestError from "@signageos/sdk/dist/RestApi/Error/RequestError";
 
 const questions = [
 	{
@@ -32,7 +33,9 @@ const applicationTypesRequiringType = ['linux', 'android'];
 export const firmwareUpload: ICommand = {
 	name: 'upload',
 	description: 'Uploads selected firmware version',
-	optionList: [],
+	optionList: [
+		{ name: 'force', type: Boolean, description: 'When firmware cannot be uploaded due to invalid firmware "type", do it anyways.' },
+	],
 	commands: [],
 	async run(options: CommandLineOptions) {
 		const optionsProvided = !!(options['application-type'] && options['firmware-version'] && options.src && options.src.length > 0);
@@ -111,14 +114,39 @@ export const firmwareUpload: ICommand = {
 			});
 		}
 
-		const progressBar = createProgressBar();
-		await uploadFirmwareVersion(
-			{
-				restApi,
-				firmware: data,
-				pathArr: Array.from(pathSet),
-				progressBar,
-			},
-		);
+		try {
+			await uploadFirmwareVersion(
+				{
+					restApi,
+					firmware: data,
+					pathArr: Array.from(pathSet),
+					progressBar: createProgressBar(),
+				},
+			);
+		} catch (error) {
+			if (error instanceof RequestError && error.errorName === 'INVALID_TYPE_TO_FIRMWARE_VERSION_UPLOAD') {
+				const promptOverride = () => prompts({
+					type: 'confirm',
+					name: 'confirmed',
+					message: `A firmware "type=${data.type}" field is not valid because doesn't exist any device with this type `
+						+ `thus firmware version not to be uploaded. `
+						+ `If you are sure that "type=${data.type}" you've specified is valid, `
+						+ `you can override it confirming this question or using --force flag.`,
+				});
+				if (options.force || !optionsProvided && (await promptOverride()).confirmed) {
+					await uploadFirmwareVersion(
+						{
+							restApi,
+							firmware: data,
+							pathArr: Array.from(pathSet),
+							progressBar: createProgressBar(),
+							force: true,
+						},
+					);
+				}
+			} else {
+				throw error;
+			}
+		}
 	},
 };

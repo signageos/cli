@@ -10,6 +10,7 @@ export async function uploadFirmwareVersion(parameters: {
 	firmware: IFirmwareVersionCreatable;
 	pathArr: Array<string>;
 	progressBar?: ProgressBar;
+	force?: boolean;
 }): Promise<void> {
 	const { restApi, firmware, pathArr, progressBar } = parameters;
 
@@ -46,7 +47,7 @@ export async function uploadFirmwareVersion(parameters: {
 		});
 	}
 	try {
-		await restApi.firmwareVersion.create(firmware);
+		await restApi.firmwareVersion.create(firmware, parameters.force);
 	} finally {
 		if (progressBar) {
 			progressBar.end();
