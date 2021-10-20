@@ -70,7 +70,7 @@
     "webpack": "4.44.2"
   },
   "dependencies": {
-    "@signageos/file": "0.1.0",
+    "@signageos/file": "0.1.1",
     "@signageos/sdk": "1.6.4",
     "archiver": "5.0.2",
     "chalk": "2.4.2",
