@@ -73,6 +73,8 @@ sos applet upload --applet-path=dist/index.html
 - If applet is not created yet, it will create it
 - The applet version is used from `package.json`
 - Applet UID will be stored in `package.json` sos.appletUid
+- You can use SOS_APPLET_UID as environment variable to specify appletUid to upload to (sos.appletUid of package.json will be overlooked).
+- You can use SOS_APPLET_VERSION as environment variable to specify applet version to upload to (version of package.json will be overlooked).
 - Ignore files priority (from top to bottom) `.sosignore` > `.npmignore` > `.gitignore`
 - Only one ignore file is used or non
 

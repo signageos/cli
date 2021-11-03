@@ -5,6 +5,7 @@ import { loadConfig, updateConfig } from '../../RunControl/runControlHelper';
 import { DEFAULT_APPLET_DIR_PATH, DEFAULT_APPLET_BINARY_FILE_PATH, DEFAULT_APPLET_ENTRY_FILE_PATH } from './appletUploadFacade';
 import { getOrganizationUid } from '../../Organization/organizationFacade';
 import { deserializeJSON } from '../../helper';
+import { IPackageConfig } from '../../FileSystem/packageConfig';
 
 export async function getOrganizationUidAndUpdateConfig(options: CommandLineOptions): Promise<string> {
 	const config = await loadConfig();
@@ -122,7 +123,7 @@ export function getAppletEntryFileRelativePath(entryFileAbsolutePath: string, ap
 	return entryFileRelativePath;
 }
 
-export async function saveToPackage(currentDirectory: string, data: any) {
+export async function saveToPackage(currentDirectory: string, data: Partial<IPackageConfig>) {
 	const packageJSONPath = path.join(currentDirectory, 'package.json');
 	const packageJSONPathExists = await fs.pathExists(packageJSONPath);
 	let previousContent;

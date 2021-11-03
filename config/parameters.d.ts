@@ -11,6 +11,11 @@ declare const parameters: {
 	},
     apiUrl: string;
 	boxHost: string;
+	applet: {
+		uid: string | undefined;
+		version: string | undefined;
+		name: string | undefined;
+	};
 };
 
 export = parameters;

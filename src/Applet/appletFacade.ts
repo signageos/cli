@@ -4,6 +4,8 @@ import { deserializeJSON } from '../helper';
 import * as prompts from 'prompts';
 import RestApi from "@signageos/sdk/dist/RestApi/RestApi";
 import ISdkApplet from '@signageos/sdk/dist/RestApi/Applet/IApplet';
+import * as parameters from '../../config/parameters';
+import { IPackageConfig } from '../FileSystem/packageConfig';
 
 export interface IApplet {
 	uid: string;
@@ -20,18 +22,23 @@ export async function getApplet(directoryPath: string): Promise<IApplet> {
 	}
 
 	const packageJSONRaw = await fs.readFile(packageJSONPath, { encoding: 'utf8' });
-	const packageJSONObject = JSON.parse(packageJSONRaw, deserializeJSON);
+	const packageJSONObject: IPackageConfig = JSON.parse(packageJSONRaw, deserializeJSON);
 
-	const appletUid = packageJSONObject.sos ? packageJSONObject.sos.appletUid : undefined;
+	const appletUid = parameters.applet.uid ?? packageJSONObject.sos?.appletUid;
+	const appletVersion = parameters.applet.version ?? packageJSONObject.version;
+	const appletName = parameters.applet.name ?? packageJSONObject.name;
 
-	if (!packageJSONObject.version) {
-		throw new Error(`No "version" key found in: ${packageJSONPath}`);
+	if (!appletUid) {
+		throw new Error(`No "sos.appletUid" key found in: ${packageJSONPath} nor SOS_APPLET_UID environment variable specified`);
+	}
+	if (!appletVersion) {
+		throw new Error(`No "version" key found in: ${packageJSONPath} nor SOS_APPLET_VERSION environment variable specified`);
 	}
 
 	return {
 		uid: appletUid,
-		name: packageJSONObject.name,
-		version: packageJSONObject.version,
+		name: appletName,
+		version: appletVersion,
 	};
 }
 

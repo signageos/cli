@@ -21,4 +21,9 @@ module.exports = {
 	},
 	apiUrl: process.env.SOS_API_URL,
 	boxHost: process.env.SOS_BOX_HOST,
+	applet: {
+		uid: process.env.SOS_APPLET_UID,
+		version: process.env.SOS_APPLET_VERSION,
+		name: process.env.SOS_APPLET_NAME,
+	},
 };
