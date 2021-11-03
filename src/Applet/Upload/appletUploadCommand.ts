@@ -49,6 +49,12 @@ export const appletUpload: ICommand = {
 		ENTRY_FILE_PATH_OPTION,
 		ORGANIZATION_UID_OPTION,
 		{
+			name: 'no-update-package-config',
+			type: Boolean,
+			description: `Skip updating package.json with sos.appletUid value of created applet.`
+				+ `It's useful when appletUid is passed using SOS_APPLET_UID environment variable.`,
+		},
+		{
 			name: 'yes',
 			type: Boolean,
 			description: `Allow to upload new applet or override existing version without confirmation step`,
@@ -72,6 +78,7 @@ export const appletUpload: ICommand = {
 
 		const appletPathOption = options['applet-path'] as string | undefined;
 		const appletEntryOption = options['entry-file-path'] as string | undefined;
+		const noUpdatePackageConfig = options['no-update-package-config'] as boolean;
 
 		let appletBinaryFilePath: string | undefined = undefined;
 		let appletDirectoryPath: string | undefined = undefined;
@@ -95,7 +102,9 @@ export const appletUpload: ICommand = {
 			console.log(chalk.yellow(`applet uid is not present in package file, adding one.`));
 			const createdApplet = await restApi.applet.create({ name: appletName });
 			appletUid = createdApplet.uid;
-			await saveToPackage(currentDirectory, { sos: { appletUid } });
+			if (!noUpdatePackageConfig) {
+				await saveToPackage(currentDirectory, { sos: { appletUid } });
+			}
 		}
 
 		const applet = await restApi.applet.get(appletUid);

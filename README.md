@@ -192,6 +192,7 @@ sos device connect
 | --ip *(required)*              | Ip address of computer in local network | Automatically get from networkInterface|
 | --device-uid *(required)*      | Uid of device from box'               |  STDIN           |
 | --applet-dir *(required)*      | Directory of the applet project       | ${PWD}|
+| --no-update-package-config *(optional)*      | Prevents updating package.json config when applet doesn't exists       | false |
 
 ## Contribution
 Clone the repository and install dev dependencies
