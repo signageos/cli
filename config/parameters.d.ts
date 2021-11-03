@@ -16,6 +16,10 @@ declare const parameters: {
 		version: string | undefined;
 		name: string | undefined;
 	};
+	accountAuth: {
+		tokenId: string | undefined;
+		token: string | undefined;
+	};
 };
 
 export = parameters;

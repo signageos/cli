@@ -9,6 +9,14 @@ const distPath = rootPath + '/dist';
 
 dotenv.config({ path: path.join(rootPath, '.env') });
 
+if (process.env.SOS_API_IDENTIFICATION) {
+	console.warn(`Environment variable SOS_API_IDENTIFICATION found. Will override default credentials from ~/.sosrc`);
+}
+
+if (process.env.SOS_API_SECURITY_TOKEN) {
+	console.warn(`Environment variable SOS_API_SECURITY_TOKEN found. Will override default credentials from ~/.sosrc`);
+}
+
 module.exports = {
 	environment,
 	name: packageConfig.name,
@@ -25,5 +33,9 @@ module.exports = {
 		uid: process.env.SOS_APPLET_UID,
 		version: process.env.SOS_APPLET_VERSION,
 		name: process.env.SOS_APPLET_NAME,
+	},
+	accountAuth: {
+		tokenId: process.env.SOS_API_IDENTIFICATION,
+		token: process.env.SOS_API_SECURITY_TOKEN,
 	},
 };

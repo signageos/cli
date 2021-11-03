@@ -24,6 +24,7 @@ sos login
 ```
 - Login account to allow use REST API commands
 - Logged account credentials are stored in `~/.sosrc` file.
+- You override login credentials using environment variables `SOS_API_IDENTIFICATION` & `SOS_API_SECURITY_TOKEN`. Go to https://box.signageos.io/settings to generate the token.
 
 | Argument                   | Description                     | Default value  |
 |----------------------------|---------------------------------|----------------|
