@@ -1,5 +1,6 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
+import * as _ from 'lodash';
 import { CommandLineOptions } from 'command-line-args';
 import { loadConfig, updateConfig } from '../../RunControl/runControlHelper';
 import { DEFAULT_APPLET_DIR_PATH, DEFAULT_APPLET_BINARY_FILE_PATH, DEFAULT_APPLET_ENTRY_FILE_PATH } from './appletUploadFacade';
@@ -126,13 +127,13 @@ export function getAppletEntryFileRelativePath(entryFileAbsolutePath: string, ap
 export async function saveToPackage(currentDirectory: string, data: Partial<IPackageConfig>) {
 	const packageJSONPath = path.join(currentDirectory, 'package.json');
 	const packageJSONPathExists = await fs.pathExists(packageJSONPath);
-	let previousContent;
+	let previousContent: Partial<IPackageConfig> = {};
 
 	if (packageJSONPathExists) {
 		const packageRaw = await fs.readFile(packageJSONPath, { encoding: 'utf8' });
 		previousContent = JSON.parse(packageRaw, deserializeJSON);
 	}
 
-	const newContent = { ...previousContent, ...data };
+	const newContent = _.merge({}, previousContent, data);
 	await fs.writeFile(packageJSONPath, JSON.stringify(newContent, undefined, 2) + '\n');
 }

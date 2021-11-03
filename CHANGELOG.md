@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Applet uid & version can be specified as environment variables `SOS_APPLET_UID` & `SOS_APPLET_VERSION`.
 - Command `sos applet upload` optionally accepts `--no-update-package-config` argument which prevents updating package.json config.
 
+### Fixed
+- When uploading new applet, package.json sos is merged recursively.
+
 ## [0.9.3] - 2021-10-20
 ### Fixed
 - Command `sos applet upload` works stably even on win32 platform
