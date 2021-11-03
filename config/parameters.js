@@ -17,6 +17,10 @@ if (process.env.SOS_API_SECURITY_TOKEN) {
 	console.warn(`Environment variable SOS_API_SECURITY_TOKEN found. Will override default credentials from ~/.sosrc`);
 }
 
+if (process.env.SOS_ORGANIZATION_UID) {
+	console.warn(`Environment variable SOS_ORGANIZATION_UID found. Will override default credentials from ~/.sosrc`);
+}
+
 module.exports = {
 	environment,
 	name: packageConfig.name,
@@ -38,4 +42,5 @@ module.exports = {
 		tokenId: process.env.SOS_API_IDENTIFICATION,
 		token: process.env.SOS_API_SECURITY_TOKEN,
 	},
+	defaultOrganizationUid: process.env.SOS_ORGANIZATION_UID,
 };

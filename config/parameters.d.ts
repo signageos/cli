@@ -20,6 +20,7 @@ declare const parameters: {
 		tokenId: string | undefined;
 		token: string | undefined;
 	};
+	defaultOrganizationUid: string | undefined;
 };
 
 export = parameters;

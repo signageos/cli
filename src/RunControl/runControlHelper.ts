@@ -46,6 +46,9 @@ export async function loadConfig(): Promise<IConfig> {
 	if (parameters.accountAuth.token) {
 		config.apiSecurityToken = parameters.accountAuth.token;
 	}
+	if (parameters.accountAuth.token) {
+		config.defaultOrganizationUid = parameters.defaultOrganizationUid;
+	}
 
 	// Temporary suggestion to login getting faster token
 	if (config.identification && !config.identification.match(/[0-9a-f]{20,20}/)) {

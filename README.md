@@ -124,6 +124,8 @@ sos organization get
 ```bash
 sos organization set-default
 ```
+- You override default organization using environment variable `SOS_ORGANIZATION_UID`. Go to https://box.signageos.io/organizations to git the organizationUid.
+
 | Argument                        | Description                  | Default value  |
 |---------------------------------|------------------------------|----------------|
 | --organization-uid *(required)* | Organization UID             | STDIN          |
