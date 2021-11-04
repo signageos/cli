@@ -24,10 +24,10 @@ import {
 	getAppletDirectoryAbsolutePath,
 	getAppletEntryFileAbsolutePath,
 	getAppletEntryFileRelativePath,
-	saveToPackage,
 } from './appletUploadCommandHelper';
 import { listDirectoryContentRecursively, validateAllFormalities } from '../../FileSystem/helper';
 import { createProgressBar } from '../../CommandLine/progressBarFactory';
+import { saveToPackage } from '../../FileSystem/packageConfig';
 
 export const ENTRY_FILE_PATH_OPTION = {
 	name: 'entry-file-path',
