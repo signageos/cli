@@ -1,4 +1,5 @@
 import ICommand from "../../Command/ICommand";
+import { appletTestRun } from "./Upload/appletTestRunCommand";
 import { appletTestUpload } from "./Upload/appletTestUploadCommand";
 
 export const appletTest: ICommand = {
@@ -7,6 +8,7 @@ export const appletTest: ICommand = {
 	optionList: [],
 	commands: [
 		appletTestUpload,
+		appletTestRun,
 	],
 	async run() {
 		throw new Error('Unknown command');

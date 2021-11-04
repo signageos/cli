@@ -112,6 +112,18 @@ sos applet test upload
 | --yes *(optional)*             | Skip interactive mode before it's uploaded    | false                  |
 | --verbose *(optional)*         | Show detailed info about changed files        | false                  |
 
+#### Applet Tests Run
+```bash
+sos applet test run
+```
+
+- Run test files uploaded to server remotely.
+
+| Argument                       | Description                                                  | Default value          |
+|--------------------------------|--------------------------------------------------------------|------------------------|
+| --yes *(optional)*             | Skip interactive mode before it's uploaded                   | false                  |
+| --test *(optional)*            | Test files which should be run. If omitted, all test are run | {all tests}            |
+
 ### Organization
 ```bash
 sos organization --help
