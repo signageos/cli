@@ -99,6 +99,19 @@ sos applet start
 | --project-dir *(optional)*     | Root path of applet project directory | ${PWD}                 |
 | --entry-file-path *(optional)* | Path of built applet entry file       | ${PWD}/dist/index.html |
 
+#### Applet Tests Upload
+```bash
+sos applet test upload
+```
+
+- Upload all test files specified in package.json in sos.tests. The property is array of strings (relative paths to test files). E.g.: `["tests/sample.spec.js", "tests/sample2.spec.js"]`
+- It removes files which are extra on server already
+
+| Argument                       | Description                                   | Default value          |
+|--------------------------------|-----------------------------------------------|------------------------|
+| --yes *(optional)*             | Skip interactive mode before it's uploaded    | false                  |
+| --verbose *(optional)*         | Show detailed info about changed files        | false                  |
+
 ### Organization
 ```bash
 sos organization --help

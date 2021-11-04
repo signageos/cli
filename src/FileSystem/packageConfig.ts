@@ -5,6 +5,7 @@ import * as _ from 'lodash';
 
 export interface ISosPackageConfig {
 	appletUid?: string;
+	tests?: string[];
 }
 
 export interface IPackageConfig {
