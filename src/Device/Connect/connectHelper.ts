@@ -14,6 +14,7 @@ import { IApplet } from "../../Applet/appletFacade";
 import { networkInterfaces } from "os";
 import { disconnectDevice } from "../deviceFacade";
 import { IOrganization } from "../../Organization/organizationFacade";
+import * as parameters from '../../../config/parameters';
 const archiver = require('archiver');
 
 const CONNECT_DIRECTORY = 'signageos';
@@ -46,7 +47,7 @@ export async function serveApplet(
 	});
 	app.use(zipAddress, express.static(path.join(connectRuntimeDirPath, device.uid, 'package.zip' + `${device.uid}`)));
 	const server = http.createServer(app);
-	const deviceUlrInBox = `https://${process.env.SOS_BOX_HOST}/device/${device.uid}`;
+	const deviceUlrInBox = `https://${parameters.boxHost}/device/${device.uid}`;
 	server.listen( () => {
 		console.log(`Serving applet from ${chalk.blue(chalk.bold(createDomain({useLocalIp: true, port: 8080}, server)))} on ${chalk.magenta(chalk.bold(device.name))} (${chalk.blue(chalk.bold(deviceUlrInBox))})`);
 	});
