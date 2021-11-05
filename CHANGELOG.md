@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Added
+- Applet uid & version can be specified as environment variables `SOS_APPLET_UID` & `SOS_APPLET_VERSION`.
+- Command `sos applet upload` optionally accepts `--no-update-package-config` argument which prevents updating package.json config.
+- Allow parametrize credentials using environment variables `SOS_API_IDENTIFICATION` & `SOS_API_SECURITY_TOKEN`.
+- Allow parametrize default organization using environment variable `SOS_ORGANIZATION_UID`.
+- Uploading applet tests command
+- Running applet tests command
+
+### Fixed
+- When uploading new applet, package.json sos is merged recursively.
+
 ## [0.9.3] - 2021-10-20
 ### Fixed
 - Command `sos applet upload` works stably even on win32 platform

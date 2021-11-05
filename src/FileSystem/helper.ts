@@ -5,6 +5,7 @@ import * as glob from 'globby';
 import chalk from 'chalk';
 import * as Debug from 'debug';
 import { computeMD5 } from '../Stream/helper';
+import { loadPackage } from './packageConfig';
 const debug = Debug('@signageos/cli:FileSystem:helper');
 
 const parseIgnoreFile: (input: Buffer) => string[] = require('parse-gitignore');
@@ -12,13 +13,6 @@ const parseIgnoreFile: (input: Buffer) => string[] = require('parse-gitignore');
 const DEFAULT_IGNORE_FILE = '.sosignore';
 const IGNORE_FILES = [DEFAULT_IGNORE_FILE, '.npmignore', '.gitignore'];
 const DEFAULT_FILE_TYPE = 'application/octet-stream';
-
-interface IAppletPackageJson {
-	name: string;
-	version: string;
-	main: string;
-	files?: string[];
-}
 
 export async function computeFileMD5(filePath: string) {
 	const fileStream = fs.createReadStream(filePath);
@@ -37,9 +31,7 @@ export async function getFileType(filePath: string) {
  * @note file existence is validated the very beginning of upload
  */
 export async function listDirectoryContentRecursively(appletDirPath: string, ignoreFileDirPath: string): Promise<string[]> {
-
-	const absolutePkgPath = path.join(appletDirPath, 'package.json');
-	const pkgJson: IAppletPackageJson = JSON.parse(await fs.readFile(absolutePkgPath, 'utf-8'));
+	const pkgJson = await loadPackage(appletDirPath) ?? {};
 	let files: string[] = [];
 
 	if (pkgJson.files && Array.isArray(pkgJson.files)) {
@@ -100,13 +92,9 @@ function prepareFilesToInclude(): Set<string> {
 }
 
 export async function validateAllFormalities(appletDir: string, entryFile: string): Promise<void> {
-	let pkgJson: IAppletPackageJson;
-	const absolutePkgPath = path.join(appletDir, 'package.json');
-
-	try {
-		pkgJson = JSON.parse(await fs.readFile(absolutePkgPath, 'utf-8'));
-
-	} catch {
+	const pkgJson = await loadPackage(appletDir);
+	if (!pkgJson) {
+		const absolutePkgPath = path.join(appletDir, 'package.json');
 		throw new Error(`Cannot find package.json file on path ${absolutePkgPath}`);
 	}
 

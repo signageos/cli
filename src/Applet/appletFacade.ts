@@ -1,9 +1,9 @@
-import * as fs from 'fs-extra';
 import * as path from 'path';
-import { deserializeJSON } from '../helper';
 import * as prompts from 'prompts';
 import RestApi from "@signageos/sdk/dist/RestApi/RestApi";
 import ISdkApplet from '@signageos/sdk/dist/RestApi/Applet/IApplet';
+import * as parameters from '../../config/parameters';
+import { loadPackage } from '../FileSystem/packageConfig';
 
 export interface IApplet {
 	uid: string;
@@ -13,25 +13,29 @@ export interface IApplet {
 
 export async function getApplet(directoryPath: string): Promise<IApplet> {
 	const packageJSONPath = path.join(directoryPath, 'package.json');
-	const packageJSONPathExists = await fs.pathExists(packageJSONPath);
-
-	if (!packageJSONPathExists) {
+	const packageJSONObject = await loadPackage(directoryPath);
+	if (!packageJSONObject) {
 		throw new Error(`No package.json found in: ${packageJSONPath}`);
 	}
 
-	const packageJSONRaw = await fs.readFile(packageJSONPath, { encoding: 'utf8' });
-	const packageJSONObject = JSON.parse(packageJSONRaw, deserializeJSON);
+	const appletUid = parameters.applet.uid ?? packageJSONObject.sos?.appletUid;
+	const appletVersion = parameters.applet.version ?? packageJSONObject.version;
+	const appletName = parameters.applet.name ?? packageJSONObject.name;
 
-	const appletUid = packageJSONObject.sos ? packageJSONObject.sos.appletUid : undefined;
-
-	if (!packageJSONObject.version) {
-		throw new Error(`No "version" key found in: ${packageJSONPath}`);
+	if (!appletUid) {
+		throw new Error(`No "sos.appletUid" key found in: ${packageJSONPath} nor SOS_APPLET_UID environment variable specified`);
+	}
+	if (!appletVersion) {
+		throw new Error(`No "version" key found in: ${packageJSONPath} nor SOS_APPLET_VERSION environment variable specified`);
+	}
+	if (!appletName) {
+		throw new Error(`No "name" key found in: ${packageJSONPath} nor SOS_APPLET_NAME environment variable specified`);
 	}
 
 	return {
 		uid: appletUid,
-		name: packageJSONObject.name,
-		version: packageJSONObject.version,
+		name: appletName,
+		version: appletVersion,
 	};
 }
 
@@ -47,11 +51,10 @@ export async function getAppletName(directoryPath: string): Promise<string> {
 }
 
 export async function getAppletVersion(directoryPath: string): Promise<string> {
-	const packageJSONPath = path.join(directoryPath, 'package.json');
-	const packageJSONRaw = await fs.readFile(packageJSONPath, { encoding: 'utf8' });
-	const packageJSONObject = JSON.parse(packageJSONRaw, deserializeJSON);
+	const packageJSONObject = await loadPackage(directoryPath) ?? {};
 
 	if (!packageJSONObject.version) {
+		const packageJSONPath = path.join(directoryPath, 'package.json');
 		throw new Error(`No "version" key found in: ${packageJSONPath}`);
 	}
 

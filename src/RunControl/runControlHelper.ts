@@ -3,6 +3,7 @@ import * as ini from 'ini';
 import * as path from 'path';
 import * as os from 'os';
 import chalk from 'chalk';
+import * as parameters from '../../config/parameters';
 
 const RUN_CONTROL_FILENAME = '.sosrc';
 
@@ -32,11 +33,22 @@ export async function updateConfig(partialConfig: Partial<IConfig>) {
 
 export async function loadConfig(): Promise<IConfig> {
 	const runControlFilePath = getConfigFilePath();
-	if (!await fs.pathExists(runControlFilePath)) {
-		return {};
+	let config: IConfig = {};
+	if (await fs.pathExists(runControlFilePath)) {
+		const runControlFileContent = await fs.readFile(runControlFilePath);
+		config = ini.decode(runControlFileContent.toString()) as IConfig;
 	}
-	const runControlFileContent = await fs.readFile(runControlFilePath);
-	const config = ini.decode(runControlFileContent.toString()) as IConfig;
+
+	// Overriding from env vars if available
+	if (parameters.accountAuth.tokenId) {
+		config.identification = parameters.accountAuth.tokenId;
+	}
+	if (parameters.accountAuth.token) {
+		config.apiSecurityToken = parameters.accountAuth.token;
+	}
+	if (parameters.accountAuth.token) {
+		config.defaultOrganizationUid = parameters.defaultOrganizationUid;
+	}
 
 	// Temporary suggestion to login getting faster token
 	if (config.identification && !config.identification.match(/[0-9a-f]{20,20}/)) {

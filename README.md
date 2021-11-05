@@ -24,6 +24,7 @@ sos login
 ```
 - Login account to allow use REST API commands
 - Logged account credentials are stored in `~/.sosrc` file.
+- You override login credentials using environment variables `SOS_API_IDENTIFICATION` & `SOS_API_SECURITY_TOKEN`. Go to https://box.signageos.io/settings to generate the token.
 
 | Argument                   | Description                     | Default value  |
 |----------------------------|---------------------------------|----------------|
@@ -73,6 +74,8 @@ sos applet upload --applet-path=dist/index.html
 - If applet is not created yet, it will create it
 - The applet version is used from `package.json`
 - Applet UID will be stored in `package.json` sos.appletUid
+- You can use SOS_APPLET_UID as environment variable to specify appletUid to upload to (sos.appletUid of package.json will be overlooked).
+- You can use SOS_APPLET_VERSION as environment variable to specify applet version to upload to (version of package.json will be overlooked).
 - Ignore files priority (from top to bottom) `.sosignore` > `.npmignore` > `.gitignore`
 - Only one ignore file is used or non
 
@@ -95,6 +98,31 @@ sos applet start
 | --applet-dir *(optional)*      | Root path of built applet             | ${PWD}/dist            |
 | --project-dir *(optional)*     | Root path of applet project directory | ${PWD}                 |
 | --entry-file-path *(optional)* | Path of built applet entry file       | ${PWD}/dist/index.html |
+
+#### Applet Tests Upload
+```bash
+sos applet test upload
+```
+
+- Upload all test files specified in package.json in sos.tests. The property is array of strings (relative paths to test files). E.g.: `["tests/sample.spec.js", "tests/sample2.spec.js"]`
+- It removes files which are extra on server already
+
+| Argument                       | Description                                   | Default value          |
+|--------------------------------|-----------------------------------------------|------------------------|
+| --yes *(optional)*             | Skip interactive mode before it's uploaded    | false                  |
+| --verbose *(optional)*         | Show detailed info about changed files        | false                  |
+
+#### Applet Tests Run
+```bash
+sos applet test run
+```
+
+- Run test files uploaded to server remotely.
+
+| Argument                       | Description                                                  | Default value          |
+|--------------------------------|--------------------------------------------------------------|------------------------|
+| --yes *(optional)*             | Skip interactive mode before it's uploaded                   | false                  |
+| --test *(optional)*            | Test files which should be run. If omitted, all test are run | {all tests}            |
 
 ### Organization
 ```bash
@@ -121,6 +149,8 @@ sos organization get
 ```bash
 sos organization set-default
 ```
+- You override default organization using environment variable `SOS_ORGANIZATION_UID`. Go to https://box.signageos.io/organizations to git the organizationUid.
+
 | Argument                        | Description                  | Default value  |
 |---------------------------------|------------------------------|----------------|
 | --organization-uid *(required)* | Organization UID             | STDIN          |
@@ -190,6 +220,7 @@ sos device connect
 | --ip *(required)*              | Ip address of computer in local network | Automatically get from networkInterface|
 | --device-uid *(required)*      | Uid of device from box'               |  STDIN           |
 | --applet-dir *(required)*      | Directory of the applet project       | ${PWD}|
+| --no-update-package-config *(optional)*      | Prevents updating package.json config when applet doesn't exists       | false |
 
 ## Contribution
 Clone the repository and install dev dependencies

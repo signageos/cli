@@ -11,6 +11,16 @@ declare const parameters: {
 	},
     apiUrl: string;
 	boxHost: string;
+	applet: {
+		uid: string | undefined;
+		version: string | undefined;
+		name: string | undefined;
+	};
+	accountAuth: {
+		tokenId: string | undefined;
+		token: string | undefined;
+	};
+	defaultOrganizationUid: string | undefined;
 };
 
 export = parameters;
