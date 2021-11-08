@@ -46,7 +46,7 @@ export async function loadConfig(): Promise<IConfig> {
 	if (parameters.accountAuth.token) {
 		config.apiSecurityToken = parameters.accountAuth.token;
 	}
-	if (parameters.accountAuth.token) {
+	if (parameters.defaultOrganizationUid) {
 		config.defaultOrganizationUid = parameters.defaultOrganizationUid;
 	}
 
