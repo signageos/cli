@@ -40,7 +40,7 @@ export async function getOrganizationUid(options: CommandLineOptions) {
 	return organizationUid;
 }
 
-export async function getOrganizations() {
+export async function getOrganizations(): Promise<IOrganization[]> {
 	const ORGANIZATION_RESOURCE = 'organization';
 	const config = await loadConfig();
 	const options = {
@@ -63,7 +63,7 @@ export async function getOrganizations() {
 	}
 }
 
-export async function getOrganization(organizationUid: string) {
+export async function getOrganization(organizationUid: string): Promise<IOrganization> {
 	const ORGANIZATION_RESOURCE = 'organization';
 	const config = await loadConfig();
 	const options = {

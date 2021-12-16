@@ -19,8 +19,8 @@ export const timingList: ICommand = {
 		debug('Timing create');
 		const organizationUid = await getOrganizationUid(options);
 		const organization = await getOrganization(organizationUid);
-		const deviceUid = await getDeviceUid(organization, options);
 		const restApi = createOrganizationRestApi(organization);
+		const deviceUid = await getDeviceUid(restApi, options);
 		const timings = await restApi.timing.getList({
 			deviceUid,
 		});
