@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Fixed
 - Listing timings
+- Creating applet without sos.appletUid in package.json
 
 ## [0.10.1] - 2021-12-12
 ### Fixed
