@@ -6,7 +6,7 @@ import * as parameters from '../../config/parameters';
 import { loadPackage } from '../FileSystem/packageConfig';
 
 export interface IApplet {
-	uid: string;
+	uid?: string;
 	name: string;
 	version: string;
 }
@@ -22,9 +22,6 @@ export async function getApplet(directoryPath: string): Promise<IApplet> {
 	const appletVersion = parameters.applet.version ?? packageJSONObject.version;
 	const appletName = parameters.applet.name ?? packageJSONObject.name;
 
-	if (!appletUid) {
-		throw new Error(`No "sos.appletUid" key found in: ${packageJSONPath} nor SOS_APPLET_UID environment variable specified`);
-	}
 	if (!appletVersion) {
 		throw new Error(`No "version" key found in: ${packageJSONPath} nor SOS_APPLET_VERSION environment variable specified`);
 	}
@@ -63,7 +60,6 @@ export async function getAppletVersion(directoryPath: string): Promise<string> {
 
 export async function tryGetAppletUid(directoryPath: string): Promise<string | undefined> {
 	const applet = await getApplet(directoryPath);
-
 	return applet.uid;
 }
 
