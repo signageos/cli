@@ -26,6 +26,7 @@ const APPLET_DIRECTORY_PATH = '/applet';
 type IEnvVars = {
 	frontAppletVersion: string;
 	frontAppletBinaryFile: string;
+	uid: string;
 	version: string;
 	binaryFilePath: string;
 	organizationUid: string;
@@ -50,6 +51,7 @@ export async function createEmulator(params: ICreateEmulatorParams): Promise<IEm
 	}
 
 	const envVars: IEnvVars = {
+		uid: packageConfig.sos?.appletUid || '__default_timing__',
 		version: packageConfig.version,
 		organizationUid,
 		binaryFilePath: `${APPLET_DIRECTORY_PATH}/${entryFileRelativePath}`,
@@ -76,6 +78,7 @@ export async function createEmulator(params: ICreateEmulatorParams): Promise<IEm
 				`<script>
 					window.__SOS_BUNDLED_APPLET = {};
 					window.__SOS_BUNDLED_APPLET.binaryFile = location.origin + ${JSON.stringify(envVars.binaryFilePath)};
+					window.__SOS_BUNDLED_APPLET.uid = ${JSON.stringify(envVars.uid)};
 					window.__SOS_BUNDLED_APPLET.version = ${JSON.stringify(envVars.version)};
 					window.__SOS_BUNDLED_APPLET.checksum = ${JSON.stringify(envVars.checksum)};
 					window.__SOS_BUNDLED_APPLET.frontAppletVersion = ${JSON.stringify(envVars.frontAppletVersion)};
