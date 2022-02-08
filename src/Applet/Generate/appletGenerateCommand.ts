@@ -1,6 +1,6 @@
 import * as fs from 'fs-extra';
 import * as child_process from 'child_process';
-import chalk from 'chalk';
+import * as chalk from 'chalk';
 import * as path from 'path';
 import * as prompts from 'prompts';
 import { CommandLineOptions } from "command-line-args";

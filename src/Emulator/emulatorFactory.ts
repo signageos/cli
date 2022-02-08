@@ -7,7 +7,7 @@ import * as serveStatic from 'serve-static';
 import * as mime from 'mime';
 import * as fsExtra from 'fs-extra';
 import * as glob from 'globby';
-import chalk from 'chalk';
+import * as chalk from 'chalk';
 import { IEmulator } from './IEmulator';
 import { loadConfig } from '../RunControl/runControlHelper';
 import { createDomain } from './createDomain';

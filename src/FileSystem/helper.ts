@@ -2,7 +2,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import file from '@signageos/file';
 import * as glob from 'globby';
-import chalk from 'chalk';
+import * as chalk from 'chalk';
 import * as Debug from 'debug';
 import { computeMD5 } from '../Stream/helper';
 import { loadPackage } from './packageConfig';

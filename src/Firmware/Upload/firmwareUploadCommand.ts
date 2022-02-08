@@ -1,7 +1,7 @@
 import ICommand from "../../Command/ICommand";
 import { createFirmwareVersionRestApi } from "../../helper";
 import * as prompts from "prompts";
-import chalk from 'chalk';
+import * as chalk from 'chalk';
 import { IFirmwareVersionCreatable } from "@signageos/sdk/dist/RestApi/Firmware/Version/IFirmwareVersion";
 import { uploadFirmwareVersion } from "./firmwareUploadFacade";
 import { createProgressBar } from "../../CommandLine/progressBarFactory";

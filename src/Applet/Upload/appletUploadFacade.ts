@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as fs from 'fs-extra';
-import chalk from 'chalk';
+import * as chalk from 'chalk';
 import * as Debug from 'debug';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import NotFoundError from '@signageos/sdk/dist/RestApi/Error/NotFoundError';

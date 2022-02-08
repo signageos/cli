@@ -1,4 +1,4 @@
-import chalk from 'chalk';
+import * as chalk from 'chalk';
 import * as prompts from 'prompts';
 import { loadConfig, updateConfig, IConfig } from '../RunControl/runControlHelper';
 import { getGlobalApiUrl } from '../Command/commandProcessor';

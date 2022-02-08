@@ -1,4 +1,4 @@
-import chalk from 'chalk';
+import * as chalk from 'chalk';
 import * as semver from 'semver';
 import { exec } from 'child-process-promise';
 import { getPackageVersion, getPackageName } from './helper';

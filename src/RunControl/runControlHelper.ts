@@ -2,7 +2,7 @@ import * as fs from 'fs-extra';
 import * as ini from 'ini';
 import * as path from 'path';
 import * as os from 'os';
-import chalk from 'chalk';
+import * as chalk from 'chalk';
 import * as parameters from '../../config/parameters';
 
 const RUN_CONTROL_FILENAME = '.sosrc';

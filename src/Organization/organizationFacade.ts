@@ -1,4 +1,4 @@
-import chalk from 'chalk';
+import * as chalk from 'chalk';
 import * as Debug from 'debug';
 import * as prompts from 'prompts';
 import { CommandLineOptions } from 'command-line-args';

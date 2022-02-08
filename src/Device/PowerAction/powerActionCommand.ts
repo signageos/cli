@@ -3,7 +3,7 @@ import { getOrganization, getOrganizationUid, ORGANIZATION_UID_OPTION } from "..
 import { DEVICE_UID_OPTION, getDeviceUid, typeMap } from "../deviceFacade";
 import { CommandLineOptions } from "command-line-args";
 import { createOrganizationRestApi } from "../../helper";
-import chalk from "chalk";
+import * as chalk from 'chalk';
 import { getActionType } from "../deviceFacade";
 
 export const powerAction: ICommand = {

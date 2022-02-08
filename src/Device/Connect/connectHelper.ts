@@ -6,7 +6,7 @@ import * as express from 'express';
 import * as cors from "cors";
 import * as ini from 'ini';
 import * as path from 'path';
-import chalk from "chalk";
+import * as chalk from 'chalk';
 import { createDomain } from "../../Emulator/createDomain";
 import { listDirectoryContentRecursively } from "../../FileSystem/helper";
 import { getAppletFileRelativePath } from "../../Applet/Upload/appletUploadFacadeHelper";

@@ -1,4 +1,4 @@
-import chalk from 'chalk';
+import * as chalk from 'chalk';
 import { getAppletUid, getAppletVersionFromApi } from '../../Applet/appletFacade';
 import ICommand, { ICommandOption } from "../../Command/ICommand";
 import { createOrganizationRestApi } from '../../helper';

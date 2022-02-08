@@ -1,4 +1,4 @@
-import chalk from 'chalk';
+import * as chalk from 'chalk';
 import * as Debug from 'debug';
 import { CommandLineOptions } from "command-line-args";
 import { getOrganizationUid, getOrganization, ORGANIZATION_UID_OPTION } from '../../Organization/organizationFacade';
