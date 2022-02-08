@@ -1,7 +1,7 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import file from '@signageos/file';
-import * as glob from 'globby';
+import * as globby from 'globby';
 import * as chalk from 'chalk';
 import * as Debug from 'debug';
 import { computeMD5 } from '../Stream/helper';
@@ -69,7 +69,7 @@ export async function listDirectoryContentRecursively(appletDirPath: string, ign
 			ignoreFilePatterns.forEach((pattern: string) => ignorePatterns.push(`!${pattern}`));
 		}
 
-		files = await glob(
+		files = await globby(
 			['**/*', ...ignorePatterns],
 			{
 				cwd: appletDirPath,
@@ -119,7 +119,7 @@ export async function validateAllFormalities(appletDir: string, entryFile: strin
  * @returns all matched results, which are included in `files`
  */
 export async function getAllPaths(appletDir: string, files: string[]): Promise<string[]> {
-	const paths: string[] = await glob(
+	const paths: string[] = await globby(
 		files,
 		{
 			cwd: appletDir,
