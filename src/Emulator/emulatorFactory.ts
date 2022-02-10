@@ -61,6 +61,11 @@ export async function createEmulator(params: ICreateEmulatorParams): Promise<IEm
 	};
 
 	const app = express();
+	const history = require('connect-history-api-fallback');
+
+	app.use(history({
+		index: '/applet/index.html',
+	}));
 
 	app.use(cors());
 
