@@ -46,9 +46,9 @@ export const appletGenerate: ICommand = {
 
 		let entryFileName = 'index.js';
 		const dependencies = [
-			'@signageos/front-applet@5.2.0-patrik-upgrade.1096',
-			'@signageos/front-display@9.14.0-patrik-up-dep.5852',
-			'@signageos/webpack-plugin@0.1.3-patrik-dep-up.95',
+			'@signageos/front-applet@latest',
+			'@signageos/front-display@latest',
+			'@signageos/webpack-plugin@latest',
 			'@babel/core@7',
 			'@babel/preset-env@7',
 			'babel-loader@8',
@@ -172,6 +172,9 @@ async function createPackageConfig(
 			connect: "webpack --watch",
 		},
 		files: ['dist'],
+		description: "signageOS applet",
+		repository: { },
+		license: "UNLICENSED",
 	};
 }
 
