@@ -37,56 +37,42 @@ export async function getApplet(directoryPath: string): Promise<IApplet> {
 }
 
 export async function getAppletName(directoryPath: string): Promise<string> {
-	const packageJSONPath = path.join(directoryPath, 'package.json');
 	const applet = await getApplet(directoryPath);
-
-	if (!applet.name) {
-		throw new Error(`No "name" key found in: ${packageJSONPath}`);
-	}
-
 	return applet.name;
 }
 
 export async function getAppletVersion(directoryPath: string): Promise<string> {
-	const packageJSONObject = await loadPackage(directoryPath) ?? {};
-
-	if (!packageJSONObject.version) {
-		const packageJSONPath = path.join(directoryPath, 'package.json');
-		throw new Error(`No "version" key found in: ${packageJSONPath}`);
-	}
-
-	return packageJSONObject.version;
-}
-
-export async function tryGetAppletUid(directoryPath: string): Promise<string | undefined> {
 	const applet = await getApplet(directoryPath);
-	return applet.uid;
+	return applet.version;
 }
 
-export async function getAppletFrontAppletVersion(_directoryPath: string): Promise<string> {
-	return ''; // TODO load from package.json when sos platform is supported
-}
 export async function getAppletUid(
 	restApi: RestApi,
 ) {
 	const currentDirectory = process.cwd();
-	let appletUid: string | undefined = await tryGetAppletUid(currentDirectory);
+	const currentApplet = await getApplet(currentDirectory);
+
+	let appletUid: string | undefined = currentApplet.uid;
 
 	if (!appletUid) {
 		const applets = await restApi.applet.list();
-		const response = await prompts({
-			type: 'autocomplete',
-			name: 'appletUid',
-			message: `Select applet to use`,
-			choices: applets.map((applet: ISdkApplet) => ({
-				title: `${applet.name} (${applet.uid})`,
-				value: applet.uid,
-			})),
-		});
-		appletUid = response.appletUid;
-	}
-	if (!appletUid) {
-		throw new Error('Missing argument --applet-uid <string>');
+		const candidatesOfApplets = applets.filter((applet) => applet.name === currentApplet.name);
+		if (candidatesOfApplets.length === 0) {
+			appletUid = undefined;
+		} else if (candidatesOfApplets.length > 1) {
+			const response = await prompts({
+				type: 'autocomplete',
+				name: 'appletUid',
+				message: `Select applet to use`,
+				choices: candidatesOfApplets.map((applet: ISdkApplet) => ({
+					title: `${applet.name} (${applet.uid})`,
+					value: applet.uid,
+				})),
+			});
+			appletUid = response.appletUid;
+		} else {
+			appletUid = candidatesOfApplets[0].uid;
+		}
 	}
 	return appletUid;
 }

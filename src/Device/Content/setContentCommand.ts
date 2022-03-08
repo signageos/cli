@@ -18,6 +18,9 @@ export const setContent: ICommand = {
 		const organization = await getOrganization(organizationUid);
 		const restApi = createOrganizationRestApi(organization);
 		const appletUid = await getAppletUid(restApi);
+		if (!appletUid) {
+			throw new Error('Missing argument --applet-uid <string>');
+		}
 		const appletVersion  = await getAppletVersionFromApi(restApi, appletUid);
 		const deviceUid = await getDeviceUid(restApi, options);
 		await restApi.timing.create({

@@ -19,7 +19,6 @@ export async function updateSingleFileApplet(parameters: {
 	applet: {
 		uid: string;
 		version: string;
-		frontAppletVersion: string;
 		binaryFilePath: string;
 	};
 }) {
@@ -30,7 +29,6 @@ export async function updateSingleFileApplet(parameters: {
 		applet.version,
 		{
 			binary: appletBinary,
-			frontAppletVersion: applet.frontAppletVersion,
 		},
 	);
 }
@@ -40,7 +38,6 @@ export const updateMultiFileApplet = async (parameters: {
 	applet: {
 		uid: string;
 		version: string;
-		frontAppletVersion: string;
 		entryFilePath: string;
 		directoryPath: string;
 		files: string[];
@@ -56,7 +53,6 @@ export const updateMultiFileApplet = async (parameters: {
 		applet.uid,
 		applet.version,
 		{
-			frontAppletVersion: applet.frontAppletVersion,
 			entryFile: appletEntryFilePosixPath,
 		},
 	);
@@ -151,7 +147,6 @@ export const createSingleFileApplet = async (parameters: {
 	applet: {
 		uid: string;
 		version: string;
-		frontAppletVersion: string;
 		binaryFilePath: string;
 	};
 }) => {
@@ -162,7 +157,7 @@ export const createSingleFileApplet = async (parameters: {
 		{
 			binary: appletBinary,
 			version: applet.version,
-			frontAppletVersion: applet.frontAppletVersion,
+			frontAppletVersion: '', // Back compatibility requires to setup front-applet version in UI
 		},
 	);
 };
@@ -172,7 +167,6 @@ export const createMultiFileFileApplet = async (parameters: {
 	applet: {
 		uid: string;
 		version: string;
-		frontAppletVersion: string;
 		entryFilePath: string;
 		directoryPath: string;
 		files: string[];
@@ -185,7 +179,6 @@ export const createMultiFileFileApplet = async (parameters: {
 		applet.uid,
 		{
 			version: applet.version,
-			frontAppletVersion: applet.frontAppletVersion,
 			entryFile: appletEntryFilePosixPath,
 		},
 	);

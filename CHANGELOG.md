@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Added
+- The appletUid does not have to be hardcoded inside package.json and is auto-detected from current organization based on name
+
+### Changed
+- The option `--no-update-package-config` is reversed into option `--update-package-config` and by default the package.json is not updated. See README.
+
 ## [0.10.3] - 2022-01-18
 ### Fixed
 - Compatibility with peer dependency for front-display version 9.13.0+ (because of changed API)

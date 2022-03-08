@@ -8,8 +8,7 @@ import { getOrganization, ORGANIZATION_UID_OPTION } from '../../Organization/org
 import {
 	getAppletName,
 	getAppletVersion,
-	getAppletFrontAppletVersion,
-	tryGetAppletUid,
+	getAppletUid,
 } from '../appletFacade';
 import {
 	updateSingleFileApplet,
@@ -49,9 +48,9 @@ export const appletUpload: ICommand = {
 		ENTRY_FILE_PATH_OPTION,
 		ORGANIZATION_UID_OPTION,
 		{
-			name: 'no-update-package-config',
+			name: 'update-package-config',
 			type: Boolean,
-			description: `Skip updating package.json with sos.appletUid value of created applet.`
+			description: `Force updating package.json with sos.appletUid value of created applet.`
 				+ `It's useful when appletUid is passed using SOS_APPLET_UID environment variable.`,
 		},
 		{
@@ -74,11 +73,10 @@ export const appletUpload: ICommand = {
 
 		const appletName = await getAppletName(currentDirectory);
 		const appletVersion = await getAppletVersion(currentDirectory);
-		const appletFrontAppletVersion = await getAppletFrontAppletVersion(currentDirectory);
 
 		const appletPathOption = options['applet-path'] as string | undefined;
 		const appletEntryOption = options['entry-file-path'] as string | undefined;
-		const noUpdatePackageConfig = options['no-update-package-config'] as boolean;
+		const updatePackageConfig = options['update-package-config'] as boolean;
 
 		let appletBinaryFilePath: string | undefined = undefined;
 		let appletDirectoryPath: string | undefined = undefined;
@@ -97,12 +95,12 @@ export const appletUpload: ICommand = {
 		let overrideAppletVersionConfirmed = false;
 		let createNewAppletVersionConfirmed = false;
 
-		let appletUid = await tryGetAppletUid(currentDirectory);
+		let appletUid = await getAppletUid(restApi);
 		if (!appletUid) {
 			console.log(chalk.yellow(`applet uid is not present in package file, adding one.`));
 			const createdApplet = await restApi.applet.create({ name: appletName });
 			appletUid = createdApplet.uid;
-			if (!noUpdatePackageConfig) {
+			if (updatePackageConfig) {
 				await saveToPackage(currentDirectory, { sos: { appletUid } });
 			}
 		}
@@ -175,7 +173,6 @@ export const appletUpload: ICommand = {
 					applet: {
 						uid: appletUid,
 						version: appletVersion,
-						frontAppletVersion: appletFrontAppletVersion,
 						binaryFilePath: appletBinaryFilePath!,
 					},
 				});
@@ -187,7 +184,6 @@ export const appletUpload: ICommand = {
 					applet: {
 						uid: appletUid,
 						version: appletVersion,
-						frontAppletVersion: appletFrontAppletVersion,
 						entryFilePath: appletEntryFileRelativePath,
 						directoryPath: appletDirectoryPath!,
 						files: appletFiles,
@@ -203,7 +199,6 @@ export const appletUpload: ICommand = {
 					applet: {
 						uid: appletUid,
 						version: appletVersion,
-						frontAppletVersion: appletFrontAppletVersion,
 						binaryFilePath: appletBinaryFilePath!,
 					},
 				});
@@ -215,7 +210,6 @@ export const appletUpload: ICommand = {
 					applet: {
 						uid: appletUid,
 						version: appletVersion,
-						frontAppletVersion: appletFrontAppletVersion,
 						entryFilePath: appletEntryFileRelativePath,
 						directoryPath: appletDirectoryPath!,
 						files: appletFiles,

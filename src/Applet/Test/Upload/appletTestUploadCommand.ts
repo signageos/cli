@@ -6,8 +6,8 @@ import { createOrganizationRestApi, } from '../../../helper';
 import { getOrganization, ORGANIZATION_UID_OPTION } from '../../../Organization/organizationFacade';
 import { loadTestFilesContents, validateTestFiles } from './appletTestUploadFacade';
 import {
+	getAppletUid,
 	getAppletVersion,
-	tryGetAppletUid,
 } from '../../appletFacade';
 import {
 	getOrganizationUidAndUpdateConfig,
@@ -43,9 +43,9 @@ export const appletTestUpload: ICommand = {
 		const restApi = createOrganizationRestApi(organization);
 
 		const version = await getAppletVersion(currentDirectory);
-		let appletUid = await tryGetAppletUid(currentDirectory);
+		const appletUid = await getAppletUid(restApi);
 		if (!appletUid) {
-			throw new Error(`applet uid is not present in package file.`);
+			throw new Error('Not selected Applet or sos.appletUid is not present in package.json');
 		}
 
 		const applet = await restApi.applet.get(appletUid);
