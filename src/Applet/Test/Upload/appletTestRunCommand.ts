@@ -9,7 +9,7 @@ import {
 	getAppletVersion,
 } from '../../appletFacade';
 import {
-	getOrganizationUidAndUpdateConfig,
+	getOrganizationUidOrDefaultOrSelect,
 } from '../../Upload/appletUploadCommandHelper';
 import { createProgressBar } from '../../../CommandLine/progressBarFactory';
 import { DEVICE_UID_OPTION, getDeviceUid } from '../../../Device/deviceFacade';
@@ -41,7 +41,7 @@ export const appletTestRun: ICommand = {
 		let tests: string[] | null = options.test;
 
 		const currentDirectory = process.cwd();
-		const organizationUid = await getOrganizationUidAndUpdateConfig(options);
+		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
 		const organization = await getOrganization(organizationUid);
 		const restApi = createOrganizationRestApi(organization);
 		const deviceUid = await getDeviceUid(restApi, options);

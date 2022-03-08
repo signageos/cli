@@ -18,7 +18,7 @@ import {
 	DEFAULT_APPLET_ENTRY_FILE_PATH,
 } from './appletUploadFacade';
 import {
-	getOrganizationUidAndUpdateConfig,
+	getOrganizationUidOrDefaultOrSelect,
 	getAppletBinaryFileAbsolutePath,
 	getAppletDirectoryAbsolutePath,
 	getAppletEntryFileAbsolutePath,
@@ -67,7 +67,7 @@ export const appletUpload: ICommand = {
 	commands: [],
 	async run(options: CommandLineOptions) {
 		const currentDirectory = process.cwd();
-		const organizationUid = await getOrganizationUidAndUpdateConfig(options);
+		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
 		const organization = await getOrganization(organizationUid);
 		const restApi = createOrganizationRestApi(organization);
 

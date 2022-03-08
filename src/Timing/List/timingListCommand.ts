@@ -1,10 +1,11 @@
 import chalk from 'chalk';
 import * as Debug from 'debug';
 import { CommandLineOptions } from "command-line-args";
-import { getOrganizationUid, getOrganization, ORGANIZATION_UID_OPTION } from '../../Organization/organizationFacade';
+import { getOrganization, ORGANIZATION_UID_OPTION } from '../../Organization/organizationFacade';
 import { getDeviceUid, DEVICE_UID_OPTION } from '../../Device/deviceFacade';
 import { createOrganizationRestApi } from '../../helper';
 import ICommand from '../../Command/ICommand';
+import { getOrganizationUidOrDefaultOrSelect } from '../../Applet/Upload/appletUploadCommandHelper';
 const debug = Debug('@signageos/cli:Timing:list');
 
 export const timingList: ICommand = {
@@ -17,7 +18,7 @@ export const timingList: ICommand = {
 	commands: [],
 	async run(options: CommandLineOptions) {
 		debug('Timing create');
-		const organizationUid = await getOrganizationUid(options);
+		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
 		const organization = await getOrganization(organizationUid);
 		const restApi = createOrganizationRestApi(organization);
 		const deviceUid = await getDeviceUid(restApi, options);

@@ -1,9 +1,9 @@
 import ICommand from "../../Command/ICommand";
 import { getDeviceUid, connectDevice } from "../deviceFacade";
-import { getOrganization, getOrganizationUid } from "../../Organization/organizationFacade";
+import { getOrganization } from "../../Organization/organizationFacade";
 import { CommandLineOptions } from "command-line-args";
 import { createConnectFile, serveApplet, stopApplication } from "./connectHelper";
-import { getAppletDirectoryAbsolutePath as getProjectDirAbsolutePath } from "../../Applet/Upload/appletUploadCommandHelper";
+import { getAppletDirectoryAbsolutePath as getProjectDirAbsolutePath, getOrganizationUidOrDefaultOrSelect } from "../../Applet/Upload/appletUploadCommandHelper";
 import { getApplet } from "../../Applet/appletFacade";
 import { createOrganizationRestApi } from "../../helper";
 
@@ -20,7 +20,7 @@ export const connect: ICommand = {
 		const currentDirectory = process.cwd();
 		const projectDirAbsolutePath = await getProjectDirAbsolutePath(currentDirectory, options);
 		const appletData = await getApplet(projectDirAbsolutePath);
-		const organizationUid = await getOrganizationUid(options);
+		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
 		const organization = await getOrganization(organizationUid);
 		const restApi = createOrganizationRestApi(organization);
 		const deviceUid = await getDeviceUid(restApi, options);

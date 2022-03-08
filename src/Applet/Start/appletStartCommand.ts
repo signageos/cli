@@ -28,14 +28,15 @@ export const appletStart: ICommand = {
 		const projectDirAbsolutePath = await getProjectDirAbsolutePath(currentDirectory, options);
 		const appletDirAbsolutePath = await getAppletDirAbsolutePath(currentDirectory, options);
 		const entryFileRelativePath = await getAppletEntryFileRelativePath(entryFileAbsolutePath, appletDirAbsolutePath);
-		const emulatorUid = await loadEmulatorOrCreateNewAndReturnUid();
+		const emulatorUid = await loadEmulatorOrCreateNewAndReturnUid(options);
 
-		await createEmulator({
+		const createEmulatorParams = {
 			emulatorUid,
 			appletPath: appletDirAbsolutePath,
 			projectPath: projectDirAbsolutePath,
 			entryFileRelativePath,
 			emulatorServerPort,
-		});
+		};
+		await createEmulator(createEmulatorParams, options);
 	},
 };

@@ -26,6 +26,11 @@ const index: ICommand = {
 		{ name: 'help', alias: 'h', type: Boolean, description: 'Display this usage guide.' },
 		API_URL_OPTION,
 		VERSION_OPTION,
+		{
+			name: 'no-default-organization',
+			type: Boolean,
+			description: 'Prevent using the defaultOrganizationUid from ~/.sosrc which were set using command sos organization set-default',
+		},
 	],
 	commands: [
 		applet,

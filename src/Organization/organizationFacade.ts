@@ -18,7 +18,7 @@ export interface IOrganization {
 
 export const ORGANIZATION_UID_OPTION = { name: 'organization-uid', type: String, description: 'Organization UID' };
 
-export async function getOrganizationUid(options: CommandLineOptions) {
+export async function selectOrganizationUid(options: CommandLineOptions) {
 	let organizationUid: string | undefined = options['organization-uid'];
 	if (!organizationUid) {
 		const organizations = await getOrganizations();

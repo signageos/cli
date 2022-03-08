@@ -1,8 +1,9 @@
 import chalk from 'chalk';
 import { getAppletUid, getAppletVersionFromApi } from '../../Applet/appletFacade';
+import { getOrganizationUidOrDefaultOrSelect } from '../../Applet/Upload/appletUploadCommandHelper';
 import ICommand, { ICommandOption } from "../../Command/ICommand";
 import { createOrganizationRestApi } from '../../helper';
-import { getOrganizationUid, getOrganization } from '../../Organization/organizationFacade';
+import { getOrganization } from '../../Organization/organizationFacade';
 import { getDeviceUid } from '../deviceFacade';
 
 export const setContent: ICommand = {
@@ -14,7 +15,7 @@ export const setContent: ICommand = {
 		],
 	commands: [],
 	async run(options: ICommandOption) {
-		const organizationUid = await getOrganizationUid(options);
+		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
 		const organization = await getOrganization(organizationUid);
 		const restApi = createOrganizationRestApi(organization);
 		const appletUid = await getAppletUid(restApi);

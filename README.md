@@ -146,6 +146,7 @@ sos organization get
 
 #### Organization Set Default
 - Sets default organization for current logged in account. This organization will be used for example in webpack plugin of applet to register emulator
+- If you not set default organization, by default will be used the organization you will be asked to select from list where you have access to.
 ```bash
 sos organization set-default
 ```

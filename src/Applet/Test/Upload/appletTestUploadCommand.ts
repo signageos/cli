@@ -10,7 +10,7 @@ import {
 	getAppletVersion,
 } from '../../appletFacade';
 import {
-	getOrganizationUidAndUpdateConfig,
+	getOrganizationUidOrDefaultOrSelect,
 } from '../../Upload/appletUploadCommandHelper';
 import { createProgressBar } from '../../../CommandLine/progressBarFactory';
 import { loadPackage } from '../../../FileSystem/packageConfig';
@@ -38,7 +38,7 @@ export const appletTestUpload: ICommand = {
 		const skipConfirmation = !!options.yes;
 
 		const currentDirectory = process.cwd();
-		const organizationUid = await getOrganizationUidAndUpdateConfig(options);
+		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
 		const organization = await getOrganization(organizationUid);
 		const restApi = createOrganizationRestApi(organization);
 

@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 - The option `--no-update-package-config` is reversed into option `--update-package-config` and by default the package.json is not updated. See README.
+- The `defaultOrganizationUid` is now always used as default for all commands instead of selecting one. Use argument `--no-default-organization` or remove line `defaultOrganizationUid` from `~/.sosrc` to prevent this.
 
 ## [0.10.3] - 2022-01-18
 ### Fixed

@@ -1,23 +1,20 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import { CommandLineOptions } from 'command-line-args';
-import { loadConfig, updateConfig } from '../../RunControl/runControlHelper';
+import { loadConfig } from '../../RunControl/runControlHelper';
 import { DEFAULT_APPLET_DIR_PATH, DEFAULT_APPLET_BINARY_FILE_PATH, DEFAULT_APPLET_ENTRY_FILE_PATH } from './appletUploadFacade';
-import { getOrganizationUid } from '../../Organization/organizationFacade';
+import { selectOrganizationUid } from '../../Organization/organizationFacade';
 
-export async function getOrganizationUidAndUpdateConfig(options: CommandLineOptions): Promise<string> {
+export async function getOrganizationUidOrDefaultOrSelect(options: CommandLineOptions): Promise<string> {
 	const config = await loadConfig();
 	let organizationUid: string | undefined = options['organization-uid'];
 
-	if (!organizationUid) {
+	if (!organizationUid && !options['no-default-organization']) {
 		organizationUid = config.defaultOrganizationUid;
 	}
 
 	if (!organizationUid) {
-		organizationUid = await getOrganizationUid(options);
-		await updateConfig({
-			defaultOrganizationUid: organizationUid,
-		});
+		organizationUid = await selectOrganizationUid(options);
 	}
 
 	return organizationUid;

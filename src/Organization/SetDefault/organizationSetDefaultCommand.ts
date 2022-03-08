@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import * as Debug from 'debug';
 import { CommandLineOptions } from "command-line-args";
-import { getOrganizationUid, getOrganization, ORGANIZATION_UID_OPTION } from '../organizationFacade';
+import { selectOrganizationUid, getOrganization, ORGANIZATION_UID_OPTION } from '../organizationFacade';
 import ICommand from '../../Command/ICommand';
 import { updateConfig } from '../../RunControl/runControlHelper';
 const debug = Debug('@signageos/cli:Organization:get');
@@ -15,7 +15,7 @@ export const organizationSetDefault: ICommand = {
 	commands: [],
 	async run(options: CommandLineOptions) {
 		debug('Organization set default');
-		const defaultOrganizationUid = await getOrganizationUid(options);
+		const defaultOrganizationUid = await selectOrganizationUid(options);
 		const organization = await getOrganization(defaultOrganizationUid);
 		await updateConfig({
 			defaultOrganizationUid,
