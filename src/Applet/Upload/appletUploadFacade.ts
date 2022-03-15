@@ -149,7 +149,7 @@ export const createSingleFileApplet = async (parameters: {
 		version: string;
 		binaryFilePath: string;
 	};
-}) => {
+}) => {
 	const { restApi, applet } = parameters;
 	const appletBinary = fs.createReadStream(applet.binaryFilePath, { encoding: 'utf8' });
 	await restApi.applet.version.create(
@@ -172,7 +172,7 @@ export const createMultiFileFileApplet = async (parameters: {
 		files: string[];
 	};
 	progressBar?: ProgressBar;
-}) => {
+}) => {
 	const { restApi, applet, progressBar } = parameters;
 	const appletEntryFilePosixPath = path.posix.normalize(applet.entryFilePath.replace(/\\/g, '/'));
 	await restApi.applet.version.create(

@@ -3,6 +3,6 @@ import { ORGANIZATION_UID_OPTION } from '../../../src/Organization/organizationF
 
 export default {
 	getOrganizationUidOrDefaultOrSelect: sinon.fake(() => 'fakeOrganizationUid'),
-	getOrganization: sinon.fake(() => Promise.resolve({ fakeOrganization: true })),
+	getOrganization: sinon.fake(() => Promise.resolve({ fakeOrganization: true })),
 	ORGANIZATION_UID_OPTION,
 };

@@ -37,7 +37,7 @@ export async function getAppletFilesDictionary(
 		appletVersion,
 	);
 
-	currentAppletFiles.forEach((file: IAppletVersionFile) => {
+	currentAppletFiles.forEach((file: IAppletVersionFile) => {
 		filesDictionary[file.path] = file;
 	});
 

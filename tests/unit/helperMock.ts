@@ -32,7 +32,7 @@ export const restApiWithNonExistingAppletVersion = {
 		applet: {
 			...appletApi,
 			version: {
-				get: sinon.fake(() => Promise.reject()),
+				get: sinon.fake(() => Promise.reject()),
 			},
 		},
 	})),

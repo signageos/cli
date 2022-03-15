@@ -106,7 +106,7 @@ export const appletUpload: ICommand = {
 
 		const applet = await restApi.applet.get(appletUid);
 
-		await restApi.applet.version.get(appletUid, appletVersion).catch(() => appletVersionExists = false);
+		await restApi.applet.version.get(appletUid, appletVersion).catch(() => appletVersionExists = false);
 
 		const verbose = 'verbose';
 		const allowVerbose = options[verbose] as boolean | undefined;
