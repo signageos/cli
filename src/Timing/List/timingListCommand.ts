@@ -1,21 +1,24 @@
 import chalk from 'chalk';
 import * as Debug from 'debug';
-import { CommandLineOptions } from "command-line-args";
 import { getOrganization, getOrganizationUidOrDefaultOrSelect, ORGANIZATION_UID_OPTION } from '../../Organization/organizationFacade';
 import { getDeviceUid, DEVICE_UID_OPTION } from '../../Device/deviceFacade';
 import { createOrganizationRestApi } from '../../helper';
-import ICommand from '../../Command/ICommand';
+import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
+import { GENERAL_OPTION_LIST } from '../../generalCommand';
 const debug = Debug('@signageos/cli:Timing:list');
 
-export const timingList: ICommand = {
+const OPTION_LIST = [
+	...GENERAL_OPTION_LIST,
+	ORGANIZATION_UID_OPTION,
+	DEVICE_UID_OPTION,
+] as const;
+
+export const timingList = createCommandDefinition({
 	name: 'list',
 	description: 'List timings assigned to device',
-	optionList: [
-		ORGANIZATION_UID_OPTION,
-		DEVICE_UID_OPTION,
-	],
+	optionList: OPTION_LIST,
 	commands: [],
-	async run(options: CommandLineOptions) {
+	async run(options: CommandLineOptions<typeof OPTION_LIST>) {
 		debug('Timing create');
 		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
 		const organization = await getOrganization(organizationUid);
@@ -26,4 +29,4 @@ export const timingList: ICommand = {
 		});
 		console.log(chalk.yellow(JSON.stringify(timings, undefined, 2)));
 	},
-};
+});

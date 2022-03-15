@@ -1,9 +1,9 @@
-import ICommand from "../Command/ICommand";
 import { organizationList } from './List/organizationListCommand';
 import { organizationGet } from './Get/organizationGetCommand';
 import { organizationSetDefault } from "./SetDefault/organizationSetDefaultCommand";
+import { createCommandDefinition } from '../Command/commandDefinition';
 
-export const organization: ICommand = {
+export const organization = createCommandDefinition({
 	name: 'organization',
 	description: 'Organization management',
 	optionList: [],
@@ -15,4 +15,4 @@ export const organization: ICommand = {
 	async run() {
 		throw new Error('Unknown command');
 	},
-};
+});

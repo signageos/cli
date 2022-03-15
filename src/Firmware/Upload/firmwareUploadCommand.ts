@@ -1,13 +1,12 @@
-import ICommand from "../../Command/ICommand";
 import { createFirmwareVersionRestApi } from "../../helper";
 import * as prompts from "prompts";
 import chalk from 'chalk';
 import { IFirmwareVersionCreatable } from "@signageos/sdk/dist/RestApi/Firmware/Version/IFirmwareVersion";
 import { uploadFirmwareVersion } from "./firmwareUploadFacade";
 import { createProgressBar } from "../../CommandLine/progressBarFactory";
-import { CommandLineOptions } from "command-line-args";
 import validateFileExistenceSync from "./firmwareUploadHelper";
 import RequestError from "@signageos/sdk/dist/RestApi/Error/RequestError";
+import { CommandLineOptions, createCommandDefinition } from "../../Command/commandDefinition";
 
 const questions = [
 	{
@@ -30,14 +29,20 @@ const fwTypeQuestion = [
 ];
 const applicationTypesRequiringType = ['linux', 'android'];
 
-export const firmwareUpload: ICommand = {
+const OPTION_LIST = [
+	{ name: 'application-type', alias: 'a', type: String, },
+	{ name: 'firmware-version', alias: 'f', type: String, },
+	{ name: 'firmware-type', type: String, },
+	{ name: 'src', type: String, multiple: true, },
+	{ name: 'force', type: Boolean, description: 'When firmware cannot be uploaded due to invalid firmware "type", do it anyways.' },
+] as const;
+
+export const firmwareUpload = createCommandDefinition({
 	name: 'upload',
 	description: 'Uploads selected firmware version',
-	optionList: [
-		{ name: 'force', type: Boolean, description: 'When firmware cannot be uploaded due to invalid firmware "type", do it anyways.' },
-	],
+	optionList: OPTION_LIST,
 	commands: [],
-	async run(options: CommandLineOptions) {
+	async run(options: CommandLineOptions<typeof OPTION_LIST>) {
 		const optionsProvided = !!(options['application-type'] && options['firmware-version'] && options.src && options.src.length > 0);
 		const restApi = await createFirmwareVersionRestApi();
 		let data: IFirmwareVersionCreatable = {
@@ -100,6 +105,12 @@ export const firmwareUpload: ICommand = {
 				}
 			}
 		} else { // data is given cli args
+			if (!options['application-type']) {
+				throw new Error('Argument --application-type is required');
+			}
+			if (!options['firmware-version']) {
+				throw new Error('Argument --firmware-version is required');
+			}
 			data.applicationType = options['application-type'];
 			data.version = options['firmware-version'];
 			if (applicationTypesRequiringType.includes(data.applicationType) && !options['firmware-type']) {
@@ -107,8 +118,8 @@ export const firmwareUpload: ICommand = {
 				return;
 			}
 			data.type = options['firmware-type'];
-			const pathArr: Array<string> = options.src;
-			pathArr.forEach((path: string) => {
+			const pathArr = options.src;
+			pathArr?.forEach((path: string) => {
 				validateFileExistenceSync(path);
 				pathSet.add(path);
 			});
@@ -149,4 +160,4 @@ export const firmwareUpload: ICommand = {
 			}
 		}
 	},
-};
+});

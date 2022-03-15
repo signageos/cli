@@ -1,7 +1,5 @@
 import chalk from 'chalk';
 import * as prompts from 'prompts';
-import { CommandLineOptions } from 'command-line-args';
-import ICommand from '../../../Command/ICommand';
 import { createOrganizationRestApi, } from '../../../helper';
 import { getOrganization, getOrganizationUidOrDefaultOrSelect, ORGANIZATION_UID_OPTION } from '../../../Organization/organizationFacade';
 import { loadTestFilesContents, validateTestFiles } from './appletTestUploadFacade';
@@ -12,25 +10,30 @@ import {
 import { createProgressBar } from '../../../CommandLine/progressBarFactory';
 import { loadPackage } from '../../../FileSystem/packageConfig';
 import IAppletTestSuite from '@signageos/sdk/dist/RestApi/Applet/Version/IAppletTestSuite';
+import { CommandLineOptions, createCommandDefinition } from '../../../Command/commandDefinition';
+import { GENERAL_OPTION_LIST } from '../../../generalCommand';
 
-export const appletTestUpload: ICommand = {
+const OPTION_LIST = [
+	...GENERAL_OPTION_LIST,
+	ORGANIZATION_UID_OPTION,
+	{
+		name: 'yes',
+		type: Boolean,
+		description: `Allow to upload new applet test or override existing test without confirmation step`,
+	},
+	{
+		name: 'verbose',
+		type: Boolean,
+		description: `outputs all files to upload`,
+	},
+] as const;
+
+export const appletTestUpload = createCommandDefinition({
 	name: 'upload',
 	description: 'Uploads applet test',
-	optionList: [
-		ORGANIZATION_UID_OPTION,
-		{
-			name: 'yes',
-			type: Boolean,
-			description: `Allow to upload new applet test or override existing test without confirmation step`,
-		},
-		{ // will output all files to upload for multifile applet
-			name: 'verbose',
-			type: Boolean,
-			description: `outputs all files to upload`,
-		},
-	],
+	optionList: OPTION_LIST,
 	commands: [],
-	async run(options: CommandLineOptions) {
+	async run(options: CommandLineOptions<typeof OPTION_LIST>) {
 		const isVerbose = !!options.verbose;
 		const skipConfirmation = !!options.yes;
 
@@ -116,7 +119,7 @@ export const appletTestUpload: ICommand = {
 			progressBar.end();
 		}
 	},
-};
+});
 
 function displaySuccessMessage(
 	appletName: string,

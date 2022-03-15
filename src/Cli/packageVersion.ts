@@ -9,7 +9,7 @@ export const VERSION_OPTION = {
 	alias: 'v',
 	type: Boolean,
 	description: 'Display installed version of the CLI.',
-};
+} as const;
 
 export async function printVersion() {
 	console.log(getPackageVersion());

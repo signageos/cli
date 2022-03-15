@@ -1,19 +1,24 @@
 import chalk from 'chalk';
 import { getAppletUid, getAppletVersionFromApi } from '../../Applet/appletFacade';
-import ICommand, { ICommandOption } from "../../Command/ICommand";
+import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
+import { GENERAL_OPTION_LIST } from '../../generalCommand';
 import { createOrganizationRestApi } from '../../helper';
-import { getOrganization, getOrganizationUidOrDefaultOrSelect } from '../../Organization/organizationFacade';
+import { getOrganization, getOrganizationUidOrDefaultOrSelect, ORGANIZATION_UID_OPTION } from '../../Organization/organizationFacade';
 import { getDeviceUid } from '../deviceFacade';
 
-export const setContent: ICommand = {
+const OPTION_LIST = [
+	...GENERAL_OPTION_LIST,
+	ORGANIZATION_UID_OPTION,
+	{ name: 'applet-uid', type: String, description: 'Uid of applet form box' },
+	{ name: 'device-uid', type: String, description: 'Uid of device from box' },
+] as const;
+
+export const setContent = createCommandDefinition({
 	name: 'set-content',
 	description: 'Set content for device',
-	optionList: [
-		{ name: 'applet-uid', type: String, description: 'Uid of applet form box' },
-		{ name: 'device-uid', type: String, description: 'Uid of device from box' },
-		],
+	optionList: OPTION_LIST,
 	commands: [],
-	async run(options: ICommandOption) {
+	async run(options: CommandLineOptions<typeof OPTION_LIST>) {
 		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
 		const organization = await getOrganization(organizationUid);
 		const restApi = createOrganizationRestApi(organization);
@@ -40,4 +45,4 @@ export const setContent: ICommand = {
 		});
 		console.log(chalk.green(`Applet ${appletUid} was set on device ${deviceUid}`));
 	},
-};
+});

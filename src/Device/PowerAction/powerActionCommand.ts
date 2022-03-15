@@ -1,21 +1,24 @@
-import ICommand from "../../Command/ICommand";
 import { getOrganization, getOrganizationUidOrDefaultOrSelect, ORGANIZATION_UID_OPTION } from "../../Organization/organizationFacade";
-import { DEVICE_UID_OPTION, getDeviceUid, typeMap } from "../deviceFacade";
-import { CommandLineOptions } from "command-line-args";
+import { DEVICE_UID_OPTION, getDeviceUid, POWER_ACTION_TYPE_OPTION, typeMap } from "../deviceFacade";
 import { createOrganizationRestApi } from "../../helper";
 import chalk from "chalk";
 import { getActionType } from "../deviceFacade";
+import { CommandLineOptions, createCommandDefinition } from "../../Command/commandDefinition";
+import { GENERAL_OPTION_LIST } from "../../generalCommand";
 
-export const powerAction: ICommand = {
+const OPTION_LIST = [
+	...GENERAL_OPTION_LIST,
+	ORGANIZATION_UID_OPTION,
+	DEVICE_UID_OPTION,
+	POWER_ACTION_TYPE_OPTION,
+] as const;
+
+export const powerAction = createCommandDefinition({
 	name: 'power-action',
 	description: 'Perform power action on device',
-	optionList: [
-		ORGANIZATION_UID_OPTION,
-		DEVICE_UID_OPTION,
-		{ name: 'type', type: String, description: `Type of device power action`},
-	],
+	optionList: OPTION_LIST,
 	commands: [],
-	async run(options: CommandLineOptions) {
+	async run(options: CommandLineOptions<typeof OPTION_LIST>) {
 		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
 		const organization = await getOrganization(organizationUid);
 		const restApi = createOrganizationRestApi(organization);
@@ -27,4 +30,4 @@ export const powerAction: ICommand = {
 			console.log(chalk.green(`Action ${typeMap.get(actionType)!.name} was successful on device ${deviceUid}`));
 		});
 	},
-};
+});

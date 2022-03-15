@@ -10,8 +10,8 @@ import * as glob from 'globby';
 import chalk from 'chalk';
 import { IEmulator } from './IEmulator';
 import { createDomain } from './createDomain';
-import { CommandLineOptions } from 'command-line-args';
-import { getOrganizationUidOrDefaultOrSelect } from '../Organization/organizationFacade';
+import { getOrganizationUidOrDefaultOrSelect, NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION } from '../Organization/organizationFacade';
+import { CommandLineOptions } from '../Command/commandDefinition';
 
 export interface ICreateEmulatorParams {
 	projectPath: string;
@@ -34,7 +34,10 @@ type IEnvVars = {
 	checksum: string;
 };
 
-export async function createEmulator(params: ICreateEmulatorParams, options: CommandLineOptions): Promise<IEmulator> {
+export async function createEmulator(
+	params: ICreateEmulatorParams,
+	options: CommandLineOptions<[typeof ORGANIZATION_UID_OPTION, typeof NO_DEFAULT_ORGANIZATION_OPTION]>,
+): Promise<IEmulator> {
 	const { projectPath, emulatorServerPort, appletPath, entryFileRelativePath } = params;
 	const entryFileAbsolutePath = path.join(appletPath, entryFileRelativePath);
 

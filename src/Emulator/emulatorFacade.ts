@@ -4,8 +4,8 @@ import { loadConfig, updateConfig, IConfig } from '../RunControl/runControlHelpe
 import { getGlobalApiUrl } from '../Command/commandProcessor';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import AuthenitcationError from '@signageos/sdk/dist/RestApi/Error/AuthenticationError';
-import { CommandLineOptions } from 'command-line-args';
-import { getOrganizationUidOrDefaultOrSelect } from '../Organization/organizationFacade';
+import { getOrganizationUidOrDefaultOrSelect, NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION } from '../Organization/organizationFacade';
+import { CommandLineOptions } from '../Command/commandDefinition';
 
 interface IEmulatorData {
 	uid: string;
@@ -46,7 +46,9 @@ async function createNewEmulator(restApi: RestApi, organizationUid: string) {
 	}
 }
 
-export async function loadEmulatorOrCreateNewAndReturnUid(options: CommandLineOptions) {
+export async function loadEmulatorOrCreateNewAndReturnUid(
+	options: CommandLineOptions<[typeof ORGANIZATION_UID_OPTION, typeof NO_DEFAULT_ORGANIZATION_OPTION]>,
+) {
 	const config = await loadConfig();
 	if (!config.identification || !config.apiSecurityToken) {
 		throw new Error(`No authenticized account found. Try to login using ${chalk.green('sos login')}`);

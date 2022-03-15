@@ -1,11 +1,12 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import { CommandLineOptions } from 'command-line-args';
+import { CommandLineOptions } from '../../Command/commandDefinition';
+import { OPTION_LIST } from './appletStartCommand';
 
 export const DEFAULT_APPLET_DIR_PATH = 'dist';
 
-export async function getAppletDirAbsolutePath(currentDirectory: string, options: CommandLineOptions): Promise<string> {
-	let appletDirectoryPath: string | undefined = options['applet-dir'];
+export async function getAppletDirAbsolutePath(currentDirectory: string, options: CommandLineOptions<typeof OPTION_LIST>): Promise<string> {
+	let appletDirectoryPath: string | undefined = options['applet-path'];
 
 	if (!appletDirectoryPath) {
 		appletDirectoryPath = DEFAULT_APPLET_DIR_PATH;

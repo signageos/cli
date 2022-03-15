@@ -1,7 +1,5 @@
 import chalk from 'chalk';
 import * as prompts from 'prompts';
-import { CommandLineOptions } from 'command-line-args';
-import ICommand from '../../Command/ICommand';
 import { createOrganizationRestApi, } from '../../helper';
 import * as parameters from '../../../config/parameters';
 import { getOrganization, getOrganizationUidOrDefaultOrSelect, ORGANIZATION_UID_OPTION } from '../../Organization/organizationFacade';
@@ -26,45 +24,51 @@ import {
 import { listDirectoryContentRecursively, validateAllFormalities } from '../../FileSystem/helper';
 import { createProgressBar } from '../../CommandLine/progressBarFactory';
 import { saveToPackage } from '../../FileSystem/packageConfig';
+import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
+import { GENERAL_OPTION_LIST } from '../../generalCommand';
 
 export const ENTRY_FILE_PATH_OPTION = {
 	name: 'entry-file-path',
 	type: String,
 	// defaultValue: DEFAULT_APPLET_ENTRY_FILE_PATH,
 	description: 'Path to the applet entry file. Relative to the command or absolute.',
-};
+} as const;
 
-export const appletUpload: ICommand = {
+export const APPLET_PATH_OPTION = {
+	name: 'applet-path',
+	type: String,
+	// defaultValue: DEFAULT_APPLET_DIR_PATH,
+	description: 'Path to the applet file or the project folder depending on the entry file. Relative to the command or absolute.',
+} as const;
+export const OPTION_LIST = [
+	...GENERAL_OPTION_LIST,
+	APPLET_PATH_OPTION,
+	ENTRY_FILE_PATH_OPTION,
+	ORGANIZATION_UID_OPTION,
+	{
+		name: 'update-package-config',
+		type: Boolean,
+		description: `Force updating package.json with sos.appletUid value of created applet.`
+			+ `It's useful when appletUid is passed using SOS_APPLET_UID environment variable.`,
+	},
+	{
+		name: 'yes',
+		type: Boolean,
+		description: `Allow to upload new applet or override existing version without confirmation step`,
+	},
+	{
+		name: 'verbose',
+		type: Boolean,
+		description: `outputs all files to upload`,
+	},
+] as const;
+
+export const appletUpload = createCommandDefinition({
 	name: 'upload',
 	description: 'Uploads current applet version',
-	optionList: [
-		{
-			name: 'applet-path',
-			type: String,
-			// defaultValue: DEFAULT_APPLET_DIR_PATH,
-			description: 'Path to the applet file or the project folder depending on the entry file. Relative to the command or absolute.',
-		},
-		ENTRY_FILE_PATH_OPTION,
-		ORGANIZATION_UID_OPTION,
-		{
-			name: 'update-package-config',
-			type: Boolean,
-			description: `Force updating package.json with sos.appletUid value of created applet.`
-				+ `It's useful when appletUid is passed using SOS_APPLET_UID environment variable.`,
-		},
-		{
-			name: 'yes',
-			type: Boolean,
-			description: `Allow to upload new applet or override existing version without confirmation step`,
-		},
-		{ // will output all files to upload for multifile applet
-			name: 'verbose',
-			type: Boolean,
-			description: `outputs all files to upload`,
-		},
-	],
+	optionList: OPTION_LIST,
 	commands: [],
-	async run(options: CommandLineOptions) {
+	async run(options: CommandLineOptions<typeof OPTION_LIST>) {
 		const currentDirectory = process.cwd();
 		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
 		const organization = await getOrganization(organizationUid);
@@ -221,7 +225,7 @@ export const appletUpload: ICommand = {
 			throw new Error('Applet version upload was canceled.');
 		}
 	},
-};
+});
 
 function displaySuccessMessage(
 	appletUid: string,
