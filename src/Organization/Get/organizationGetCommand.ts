@@ -1,9 +1,8 @@
 import chalk from 'chalk';
 import * as Debug from 'debug';
 import { CommandLineOptions } from "command-line-args";
-import { getOrganization, ORGANIZATION_UID_OPTION } from '../organizationFacade';
+import { getOrganization, getOrganizationUidOrDefaultOrSelect, ORGANIZATION_UID_OPTION } from '../organizationFacade';
 import ICommand from '../../Command/ICommand';
-import { getOrganizationUidOrDefaultOrSelect } from '../../Applet/Upload/appletUploadCommandHelper';
 const debug = Debug('@signageos/cli:Organization:get');
 
 export const organizationGet: ICommand = {

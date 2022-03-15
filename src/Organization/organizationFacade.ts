@@ -18,6 +18,21 @@ export interface IOrganization {
 
 export const ORGANIZATION_UID_OPTION = { name: 'organization-uid', type: String, description: 'Organization UID' };
 
+export async function getOrganizationUidOrDefaultOrSelect(options: CommandLineOptions): Promise<string> {
+	const config = await loadConfig();
+	let organizationUid: string | undefined = options['organization-uid'];
+
+	if (!organizationUid && !options['no-default-organization']) {
+		organizationUid = config.defaultOrganizationUid;
+	}
+
+	if (!organizationUid) {
+		organizationUid = await selectOrganizationUid(options);
+	}
+
+	return organizationUid;
+}
+
 export async function selectOrganizationUid(options: CommandLineOptions) {
 	let organizationUid: string | undefined = options['organization-uid'];
 	if (!organizationUid) {

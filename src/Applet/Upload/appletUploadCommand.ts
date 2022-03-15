@@ -4,7 +4,7 @@ import { CommandLineOptions } from 'command-line-args';
 import ICommand from '../../Command/ICommand';
 import { createOrganizationRestApi, } from '../../helper';
 import * as parameters from '../../../config/parameters';
-import { getOrganization, ORGANIZATION_UID_OPTION } from '../../Organization/organizationFacade';
+import { getOrganization, getOrganizationUidOrDefaultOrSelect, ORGANIZATION_UID_OPTION } from '../../Organization/organizationFacade';
 import {
 	getAppletName,
 	getAppletVersion,
@@ -18,7 +18,6 @@ import {
 	DEFAULT_APPLET_ENTRY_FILE_PATH,
 } from './appletUploadFacade';
 import {
-	getOrganizationUidOrDefaultOrSelect,
 	getAppletBinaryFileAbsolutePath,
 	getAppletDirectoryAbsolutePath,
 	getAppletEntryFileAbsolutePath,

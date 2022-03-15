@@ -3,14 +3,11 @@ import * as prompts from 'prompts';
 import { CommandLineOptions } from 'command-line-args';
 import ICommand from '../../../Command/ICommand';
 import { createOrganizationRestApi, } from '../../../helper';
-import { getOrganization, ORGANIZATION_UID_OPTION } from '../../../Organization/organizationFacade';
+import { getOrganization, getOrganizationUidOrDefaultOrSelect, ORGANIZATION_UID_OPTION } from '../../../Organization/organizationFacade';
 import {
 	getAppletUid,
 	getAppletVersion,
 } from '../../appletFacade';
-import {
-	getOrganizationUidOrDefaultOrSelect,
-} from '../../Upload/appletUploadCommandHelper';
 import { createProgressBar } from '../../../CommandLine/progressBarFactory';
 import { DEVICE_UID_OPTION, getDeviceUid } from '../../../Device/deviceFacade';
 import { validateTestIdentifiers } from './appletTestRunFacade';

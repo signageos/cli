@@ -1,9 +1,9 @@
 import ICommand from "../../Command/ICommand";
 import { getDeviceUid, connectDevice } from "../deviceFacade";
-import { getOrganization } from "../../Organization/organizationFacade";
+import { getOrganization, getOrganizationUidOrDefaultOrSelect } from "../../Organization/organizationFacade";
 import { CommandLineOptions } from "command-line-args";
 import { createConnectFile, serveApplet, stopApplication } from "./connectHelper";
-import { getAppletDirectoryAbsolutePath as getProjectDirAbsolutePath, getOrganizationUidOrDefaultOrSelect } from "../../Applet/Upload/appletUploadCommandHelper";
+import { getAppletDirectoryAbsolutePath as getProjectDirAbsolutePath } from "../../Applet/Upload/appletUploadCommandHelper";
 import { getApplet } from "../../Applet/appletFacade";
 import { createOrganizationRestApi } from "../../helper";
 

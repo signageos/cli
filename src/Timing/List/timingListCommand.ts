@@ -1,11 +1,10 @@
 import chalk from 'chalk';
 import * as Debug from 'debug';
 import { CommandLineOptions } from "command-line-args";
-import { getOrganization, ORGANIZATION_UID_OPTION } from '../../Organization/organizationFacade';
+import { getOrganization, getOrganizationUidOrDefaultOrSelect, ORGANIZATION_UID_OPTION } from '../../Organization/organizationFacade';
 import { getDeviceUid, DEVICE_UID_OPTION } from '../../Device/deviceFacade';
 import { createOrganizationRestApi } from '../../helper';
 import ICommand from '../../Command/ICommand';
-import { getOrganizationUidOrDefaultOrSelect } from '../../Applet/Upload/appletUploadCommandHelper';
 const debug = Debug('@signageos/cli:Timing:list');
 
 export const timingList: ICommand = {

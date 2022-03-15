@@ -3,15 +3,12 @@ import * as prompts from 'prompts';
 import { CommandLineOptions } from 'command-line-args';
 import ICommand from '../../../Command/ICommand';
 import { createOrganizationRestApi, } from '../../../helper';
-import { getOrganization, ORGANIZATION_UID_OPTION } from '../../../Organization/organizationFacade';
+import { getOrganization, getOrganizationUidOrDefaultOrSelect, ORGANIZATION_UID_OPTION } from '../../../Organization/organizationFacade';
 import { loadTestFilesContents, validateTestFiles } from './appletTestUploadFacade';
 import {
 	getAppletUid,
 	getAppletVersion,
 } from '../../appletFacade';
-import {
-	getOrganizationUidOrDefaultOrSelect,
-} from '../../Upload/appletUploadCommandHelper';
 import { createProgressBar } from '../../../CommandLine/progressBarFactory';
 import { loadPackage } from '../../../FileSystem/packageConfig';
 import IAppletTestSuite from '@signageos/sdk/dist/RestApi/Applet/Version/IAppletTestSuite';

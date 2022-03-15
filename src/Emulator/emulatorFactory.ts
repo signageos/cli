@@ -10,8 +10,8 @@ import * as glob from 'globby';
 import chalk from 'chalk';
 import { IEmulator } from './IEmulator';
 import { createDomain } from './createDomain';
-import { getOrganizationUidOrDefaultOrSelect } from '../Applet/Upload/appletUploadCommandHelper';
 import { CommandLineOptions } from 'command-line-args';
+import { getOrganizationUidOrDefaultOrSelect } from '../Organization/organizationFacade';
 
 export interface ICreateEmulatorParams {
 	projectPath: string;

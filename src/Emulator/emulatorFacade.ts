@@ -4,8 +4,8 @@ import { loadConfig, updateConfig, IConfig } from '../RunControl/runControlHelpe
 import { getGlobalApiUrl } from '../Command/commandProcessor';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import AuthenitcationError from '@signageos/sdk/dist/RestApi/Error/AuthenticationError';
-import { getOrganizationUidOrDefaultOrSelect } from '../Applet/Upload/appletUploadCommandHelper';
 import { CommandLineOptions } from 'command-line-args';
+import { getOrganizationUidOrDefaultOrSelect } from '../Organization/organizationFacade';
 
 interface IEmulatorData {
 	uid: string;

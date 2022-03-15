@@ -1,24 +1,7 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import { CommandLineOptions } from 'command-line-args';
-import { loadConfig } from '../../RunControl/runControlHelper';
 import { DEFAULT_APPLET_DIR_PATH, DEFAULT_APPLET_BINARY_FILE_PATH, DEFAULT_APPLET_ENTRY_FILE_PATH } from './appletUploadFacade';
-import { selectOrganizationUid } from '../../Organization/organizationFacade';
-
-export async function getOrganizationUidOrDefaultOrSelect(options: CommandLineOptions): Promise<string> {
-	const config = await loadConfig();
-	let organizationUid: string | undefined = options['organization-uid'];
-
-	if (!organizationUid && !options['no-default-organization']) {
-		organizationUid = config.defaultOrganizationUid;
-	}
-
-	if (!organizationUid) {
-		organizationUid = await selectOrganizationUid(options);
-	}
-
-	return organizationUid;
-}
 
 export async function getAppletDirectoryAbsolutePath(currentDirectory: string, options: CommandLineOptions): Promise<string> {
 	let appletDirectoryPath: string | undefined = options['applet-path'];

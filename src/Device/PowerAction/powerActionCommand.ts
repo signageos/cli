@@ -1,11 +1,10 @@
 import ICommand from "../../Command/ICommand";
-import { getOrganization, ORGANIZATION_UID_OPTION } from "../../Organization/organizationFacade";
+import { getOrganization, getOrganizationUidOrDefaultOrSelect, ORGANIZATION_UID_OPTION } from "../../Organization/organizationFacade";
 import { DEVICE_UID_OPTION, getDeviceUid, typeMap } from "../deviceFacade";
 import { CommandLineOptions } from "command-line-args";
 import { createOrganizationRestApi } from "../../helper";
 import chalk from "chalk";
 import { getActionType } from "../deviceFacade";
-import { getOrganizationUidOrDefaultOrSelect } from "../../Applet/Upload/appletUploadCommandHelper";
 
 export const powerAction: ICommand = {
 	name: 'power-action',
