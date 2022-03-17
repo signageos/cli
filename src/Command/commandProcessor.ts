@@ -8,7 +8,7 @@ import {
 	getUpdateVersionMessage,
 } from '../Cli/packageVersion';
 import { ICommand, ICommandOption, OptionList } from './commandDefinition';
-import { API_URL_OPTION } from '../generalCommand';
+import { API_URL_OPTION, PROFILE_OPTION } from '../generalCommand';
 const debug = Debug('@signageos/cli:Command:processor');
 
 export async function processCommand(
@@ -53,6 +53,11 @@ export async function processCommand(
 export function getGlobalApiUrl(): string {
 	const options = cliArgs([API_URL_OPTION], { partial: true });
 	return options[API_URL_OPTION.name];
+}
+
+export function getGlobalProfile(): string {
+	const options = cliArgs([PROFILE_OPTION], { partial: true });
+	return options[PROFILE_OPTION.name];
 }
 
 function printUsage(

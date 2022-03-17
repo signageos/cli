@@ -24,6 +24,12 @@ export const HELP_OPTION = {
 	type: Boolean,
 	description: 'Display this usage guide.',
 } as const;
+export const PROFILE_OPTION = {
+	name: 'profile',
+	type: String,
+	description: 'signageOS Profile to be used for authentication and other values from ~/.sosrc config file.',
+	defaultValue: parameters.profile,
+} as const;
 
 export const GENERAL_OPTION_LIST = [
 	COMMAND_OPTION,
@@ -31,4 +37,5 @@ export const GENERAL_OPTION_LIST = [
 	API_URL_OPTION,
 	VERSION_OPTION,
 	NO_DEFAULT_ORGANIZATION_OPTION,
+	PROFILE_OPTION,
 ] as const;

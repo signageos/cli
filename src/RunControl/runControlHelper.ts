@@ -2,8 +2,10 @@ import * as fs from 'fs-extra';
 import * as ini from 'ini';
 import * as path from 'path';
 import * as os from 'os';
+import * as _ from 'lodash';
 import chalk from 'chalk';
 import * as parameters from '../../config/parameters';
+import { getGlobalProfile } from '../Command/commandProcessor';
 
 const RUN_CONTROL_FILENAME = '.sosrc';
 
@@ -14,10 +16,28 @@ export interface IConfig {
 	emulatorUid?: string;
 }
 
-export async function saveConfig(config: IConfig) {
+type IConfigFile = IConfig & {
+	[P in `profile ${string}`]?: IConfig;
+};
+
+export async function saveConfig(newConfig: IConfig) {
 	const runControlFilePath = getConfigFilePath();
-	const runControlFileContent = ini.encode(config);
-	await fs.writeFile(runControlFilePath, runControlFileContent, {
+	let configFile: IConfigFile = {};
+	if (await fs.pathExists(runControlFilePath)) {
+		const originalRCFileContent = await fs.readFile(runControlFilePath);
+		configFile = ini.decode(originalRCFileContent.toString()) as IConfigFile;
+	}
+
+	const profile = getGlobalProfile();
+	if (profile) {
+		configFile[`profile ${profile}`] = newConfig;
+	} else {
+		configFile = _.omitBy(configFile, (_val, key) => !key.startsWith('profile '));
+		Object.assign(configFile, newConfig);
+	}
+
+	const newRCFileContent = ini.encode(configFile);
+	await fs.writeFile(runControlFilePath, newRCFileContent, {
 		mode: 0o600,
 	});
 }
@@ -33,11 +53,14 @@ export async function updateConfig(partialConfig: Partial<IConfig>) {
 
 export async function loadConfig(): Promise<IConfig> {
 	const runControlFilePath = getConfigFilePath();
-	let config: IConfig = {};
+	let configFile: IConfigFile = {};
 	if (await fs.pathExists(runControlFilePath)) {
 		const runControlFileContent = await fs.readFile(runControlFilePath);
-		config = ini.decode(runControlFileContent.toString()) as IConfig;
+		configFile = ini.decode(runControlFileContent.toString()) as IConfigFile;
 	}
+
+	const profile = getGlobalProfile();
+	const config = profile ? configFile[`profile ${profile}`] ?? {} : configFile;
 
 	// Overriding from env vars if available
 	if (parameters.accountAuth.tokenId) {

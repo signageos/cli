@@ -9,6 +9,9 @@ const distPath = rootPath + '/dist';
 
 dotenv.config({ path: path.join(rootPath, '.env') });
 
+if (process.env.SOS_PROFILE) {
+	console.warn(`Environment variable SOS_PROFILE found. Will use non default profile from ~/.sosrc`);
+}
 if (process.env.SOS_API_IDENTIFICATION) {
 	console.warn(`Environment variable SOS_API_IDENTIFICATION found. Will override default credentials from ~/.sosrc`);
 }
@@ -31,6 +34,7 @@ module.exports = {
 		testsPath,
 		distPath,
 	},
+	profile: process.env.SOS_PROFILE,
 	apiUrl: process.env.SOS_API_URL,
 	boxHost: process.env.SOS_BOX_HOST,
 	applet: {

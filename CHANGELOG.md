@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Added
 - The appletUid does not have to be hardcoded inside package.json and is auto-detected from current organization based on name
+- Support for profiles inside the ~/.sosrc file using ini `[profile xxx]` sections and SOS_PROFILE env. var. or `--profile` argument 
 
 ### Changed
 - The option `--no-update-package-config` is reversed into option `--update-package-config` and by default the package.json is not updated. See README.
