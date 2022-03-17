@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - The appletUid does not have to be hardcoded inside package.json and is auto-detected from current organization based on name
 - Support for profiles inside the ~/.sosrc file using ini `[profile xxx]` sections and SOS_PROFILE env. var. or `--profile` argument 
 
+### Fixed
+- When default organization is not set it asks for saving it to the current ~/.sosrc file
+
 ### Changed
 - The option `--no-update-package-config` is reversed into option `--update-package-config` and by default the package.json is not updated. See README.
 - The `defaultOrganizationUid` is now always used as default for all commands instead of selecting one. Use argument `--no-default-organization` or remove line `defaultOrganizationUid` from `~/.sosrc` to prevent this.

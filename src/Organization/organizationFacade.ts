@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import * as Debug from 'debug';
 import * as prompts from 'prompts';
 import { getResource, deserializeJSON } from '../helper';
-import { loadConfig } from '../RunControl/runControlHelper';
+import { loadConfig, updateConfig } from '../RunControl/runControlHelper';
 import { getGlobalApiUrl } from '../Command/commandProcessor';
 import { CommandLineOptions } from '../Command/commandDefinition';
 const debug = Debug('@signageos/cli:Organization:facade');
@@ -40,6 +40,19 @@ export async function getOrganizationUidOrDefaultOrSelect(
 
 	if (!organizationUid) {
 		organizationUid = await selectOrganizationUid(options);
+		if (organizationUid) {
+			const response = await prompts({
+				type: 'confirm',
+				name: 'setDefault',
+				message: `Do you want to set the organization as a default for current profile?`,
+				initial: false,
+			});
+			if (response.setDefault) {
+				await updateConfig({
+					defaultOrganizationUid: organizationUid,
+				});
+			}
+		}
 	}
 
 	return organizationUid;
