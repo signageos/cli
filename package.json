@@ -21,7 +21,8 @@
     "prepare": "npm run prebuild && npm run build && chmod +x dist/index.js",
     "test": "env NODE_ENV=test mocha --file .mocharc.json",
     "watch": "tsc --watch",
-    "check": "npm run depcheck && npx --userconfig ./.npmrc @signageos/lib check-deps",
+    "check": "npm run depcheck && npx --userconfig ./.npmrc @signageos/lib check-deps && npm run check-circular-deps",
+    "check-circular-deps": "npx madge --circular --extensions ts ./src/",
     "depcheck": "depcheck --specials=tslint,webpack,mocha --parsers='*.ts:typescript,*.js:es6' --detectors='requireCallExpression,importDeclaration' --ignore-dirs='dist' --ignores='@types/*,@signageos/codestyle,mocha,depcheck,webpack'"
   },
   "license": "MIT",
