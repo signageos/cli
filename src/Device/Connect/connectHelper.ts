@@ -11,7 +11,6 @@ import { createDomain } from "../../Emulator/createDomain";
 import { listDirectoryContentRecursively } from "../../FileSystem/helper";
 import { getAppletFileRelativePath } from "../../Applet/Upload/appletUploadFacadeHelper";
 import { IApplet } from "../../Applet/appletFacade";
-import { networkInterfaces } from "os";
 import { disconnectDevice } from "../deviceFacade";
 import { IOrganization } from "../../Organization/organizationFacade";
 import * as parameters from '../../../config/parameters';
@@ -59,22 +58,6 @@ export async function serveApplet(
 			server.close();
 		},
 	};
-}
-
-export async function getMachineIp() {
-	const nets = networkInterfaces(), machineIps = Object.create(null);
-	for (const name of Object.keys(nets)) {
-		for (const net of nets[name]) {
-			if (net.family === 'IPv4' && !net.internal) {
-				if (!machineIps[name]) {
-					machineIps[name] = [];
-				}
-				machineIps[name].push(net.address);
-			}
-		}
-	}
-	const firsInterface = Object.keys(machineIps)[0];
-	return  machineIps[firsInterface][0];
 }
 
 export async function createAppletZip (
