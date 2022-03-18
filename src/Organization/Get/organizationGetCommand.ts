@@ -1,12 +1,11 @@
 import chalk from 'chalk';
 import * as Debug from 'debug';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
-import { GENERAL_OPTION_LIST } from '../../generalCommand';
-import { getOrganization, getOrganizationUidOrDefaultOrSelect, ORGANIZATION_UID_OPTION } from '../organizationFacade';
+import { getOrganization, getOrganizationUidOrDefaultOrSelect, NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION } from '../organizationFacade';
 const debug = Debug('@signageos/cli:Organization:get');
 
 const OPTION_LIST = [
-	...GENERAL_OPTION_LIST,
+	NO_DEFAULT_ORGANIZATION_OPTION,
 	ORGANIZATION_UID_OPTION,
 ] as const;
 

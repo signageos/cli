@@ -1,7 +1,11 @@
 import * as parameters from '../config/parameters';
-import { VERSION_OPTION } from './Cli/packageVersion';
-import { NO_DEFAULT_ORGANIZATION_OPTION } from './Organization/organizationFacade';
 
+export const VERSION_OPTION = {
+	name: 'version',
+	alias: 'v',
+	type: Boolean,
+	description: 'Display installed version of the CLI.',
+} as const;
 export const API_URL_OPTION = {
 	name: 'api-url',
 	alias: 'u',
@@ -36,6 +40,5 @@ export const GENERAL_OPTION_LIST = [
 	HELP_OPTION,
 	API_URL_OPTION,
 	VERSION_OPTION,
-	NO_DEFAULT_ORGANIZATION_OPTION,
 	PROFILE_OPTION,
 ] as const;

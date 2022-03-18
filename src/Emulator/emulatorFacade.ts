@@ -1,11 +1,11 @@
 import chalk from 'chalk';
 import * as prompts from 'prompts';
 import { loadConfig, updateConfig, IConfig } from '../RunControl/runControlHelper';
-import { getGlobalApiUrl } from '../Command/commandProcessor';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import AuthenitcationError from '@signageos/sdk/dist/RestApi/Error/AuthenticationError';
 import { getOrganizationUidOrDefaultOrSelect, NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION } from '../Organization/organizationFacade';
 import { CommandLineOptions } from '../Command/commandDefinition';
+import { getGlobalApiUrl } from '../Command/globalArgs';
 
 interface IEmulatorData {
 	uid: string;

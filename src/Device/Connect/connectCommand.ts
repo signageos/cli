@@ -1,15 +1,13 @@
 import { getDeviceUid, connectDevice } from "../deviceFacade";
-import { getOrganization, getOrganizationUidOrDefaultOrSelect, ORGANIZATION_UID_OPTION } from "../../Organization/organizationFacade";
+import { getOrganization, getOrganizationUidOrDefaultOrSelect, NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION } from "../../Organization/organizationFacade";
 import { createConnectFile, serveApplet, stopApplication } from "./connectHelper";
-import { getAppletDirectoryAbsolutePath as getProjectDirAbsolutePath } from "../../Applet/Upload/appletUploadCommandHelper";
+import { APPLET_PATH_OPTION, getAppletDirectoryAbsolutePath as getProjectDirAbsolutePath } from "../../Applet/Upload/appletUploadCommandHelper";
 import { getApplet } from "../../Applet/appletFacade";
 import { createOrganizationRestApi } from "../../helper";
 import { CommandLineOptions, createCommandDefinition } from "../../Command/commandDefinition";
-import { APPLET_PATH_OPTION } from "../../Applet/Upload/appletUploadCommand";
-import { GENERAL_OPTION_LIST } from "../../generalCommand";
 
 const OPTION_LIST = [
-	...GENERAL_OPTION_LIST,
+	NO_DEFAULT_ORGANIZATION_OPTION,
 	ORGANIZATION_UID_OPTION,
 	{ name: 'ip', type: String, description: 'Ip address of computer in local network' },
 	{ name: 'device-uid', type: String, description: 'Uid of device from box' },

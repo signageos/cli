@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import * as prompts from 'prompts';
 import { createOrganizationRestApi, } from '../../helper';
 import * as parameters from '../../../config/parameters';
-import { getOrganization, getOrganizationUidOrDefaultOrSelect, ORGANIZATION_UID_OPTION } from '../../Organization/organizationFacade';
+import { getOrganization, getOrganizationUidOrDefaultOrSelect, NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION } from '../../Organization/organizationFacade';
 import {
 	getAppletName,
 	getAppletVersion,
@@ -13,9 +13,11 @@ import {
 	updateMultiFileApplet,
 	createSingleFileApplet,
 	createMultiFileFileApplet,
-	DEFAULT_APPLET_ENTRY_FILE_PATH,
 } from './appletUploadFacade';
 import {
+	APPLET_PATH_OPTION,
+	DEFAULT_APPLET_ENTRY_FILE_PATH,
+	ENTRY_FILE_PATH_OPTION,
 	getAppletBinaryFileAbsolutePath,
 	getAppletDirectoryAbsolutePath,
 	getAppletEntryFileAbsolutePath,
@@ -25,23 +27,11 @@ import { listDirectoryContentRecursively, validateAllFormalities } from '../../F
 import { createProgressBar } from '../../CommandLine/progressBarFactory';
 import { saveToPackage } from '../../FileSystem/packageConfig';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
-import { GENERAL_OPTION_LIST } from '../../generalCommand';
 
-export const ENTRY_FILE_PATH_OPTION = {
-	name: 'entry-file-path',
-	type: String,
-	description: 'Path to the applet entry file. Relative to the command or absolute.',
-} as const;
-
-export const APPLET_PATH_OPTION = {
-	name: 'applet-path',
-	type: String,
-	description: 'Path to the applet file or the project folder depending on the entry file. Relative to the command or absolute.',
-} as const;
 export const OPTION_LIST = [
-	...GENERAL_OPTION_LIST,
 	APPLET_PATH_OPTION,
 	ENTRY_FILE_PATH_OPTION,
+	NO_DEFAULT_ORGANIZATION_OPTION,
 	ORGANIZATION_UID_OPTION,
 	{
 		name: 'update-package-config',

@@ -5,13 +5,13 @@ import * as os from 'os';
 import { deserializeJSON, postResource } from '../helper';
 import { saveConfig, getConfigFilePath } from '../RunControl/runControlHelper';
 import * as parameters from '../../config/parameters';
-import { getGlobalApiUrl } from '../Command/commandProcessor';
 import { CommandLineOptions, createCommandDefinition } from '../Command/commandDefinition';
+import { getGlobalApiUrl } from '../Command/globalArgs';
 const debug = Debug('@signageos/cli:Auth:login');
 
 const OPTION_LIST = [
 	{ name: 'username', type: String, description: `Username or e-mail used for ${parameters.boxHost}` },
-];
+] as const;
 export const login = createCommandDefinition({
 	name: 'login',
 	description: 'Login account using username & password',

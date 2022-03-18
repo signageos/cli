@@ -1,13 +1,12 @@
 import chalk from 'chalk';
 import { getAppletUid, getAppletVersionFromApi } from '../../Applet/appletFacade';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
-import { GENERAL_OPTION_LIST } from '../../generalCommand';
 import { createOrganizationRestApi } from '../../helper';
-import { getOrganization, getOrganizationUidOrDefaultOrSelect, ORGANIZATION_UID_OPTION } from '../../Organization/organizationFacade';
+import { getOrganization, getOrganizationUidOrDefaultOrSelect, NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION } from '../../Organization/organizationFacade';
 import { getDeviceUid } from '../deviceFacade';
 
 const OPTION_LIST = [
-	...GENERAL_OPTION_LIST,
+	NO_DEFAULT_ORGANIZATION_OPTION,
 	ORGANIZATION_UID_OPTION,
 	{ name: 'applet-uid', type: String, description: 'Uid of applet form box' },
 	{ name: 'device-uid', type: String, description: 'Uid of device from box' },

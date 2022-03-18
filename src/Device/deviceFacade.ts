@@ -2,12 +2,12 @@ import * as Debug from 'debug';
 import * as prompts from 'prompts';
 import { deserializeJSON, postResource } from '../helper';
 import { IOrganization } from '../Organization/organizationFacade';
-import { getGlobalApiUrl } from '../Command/commandProcessor';
 import { DevicePowerAction } from '@signageos/sdk/dist/RestApi/Device/PowerAction/IPowerAction';
 import RestApi from "@signageos/sdk/dist/RestApi/RestApi";
 import { IApplet } from "../Applet/appletFacade";
-import { getMachineIp } from "./Connect/connectHelper";
 import { CommandLineOptions } from '../Command/commandDefinition';
+import { getGlobalApiUrl } from '../Command/globalArgs';
+import { getMachineIp } from '../Helper/localMachineHelper';
 
 const debug = Debug('@signageos/cli:Device:facade');
 

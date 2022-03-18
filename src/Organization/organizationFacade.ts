@@ -3,8 +3,8 @@ import * as Debug from 'debug';
 import * as prompts from 'prompts';
 import { getResource, deserializeJSON } from '../helper';
 import { loadConfig, updateConfig } from '../RunControl/runControlHelper';
-import { getGlobalApiUrl } from '../Command/commandProcessor';
 import { CommandLineOptions } from '../Command/commandDefinition';
+import { getGlobalApiUrl } from '../Command/globalArgs';
 const debug = Debug('@signageos/cli:Organization:facade');
 
 export interface IOrganization {

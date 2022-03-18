@@ -10,10 +10,6 @@ import { ProgressBar } from '../../CommandLine/IProgressBar';
 
 const debug = Debug('@signageos/cli:Applet:Upload:appletUploadFacade');
 
-export const DEFAULT_APPLET_DIR_PATH = '.';
-export const DEFAULT_APPLET_ENTRY_FILE_PATH = 'dist/index.html';
-export const DEFAULT_APPLET_BINARY_FILE_PATH = 'dist/index.html';
-
 export async function updateSingleFileApplet(parameters: {
 	restApi: RestApi;
 	applet: {

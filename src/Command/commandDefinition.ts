@@ -1,5 +1,6 @@
 import { OptionDefinition as ArgsOptionDefinition } from "command-line-args";
 import { OptionDefinition as UsageOptionDefinition } from "command-line-usage";
+import { GENERAL_OPTION_LIST } from "../generalCommand";
 
 export type ICommandOption = Readonly<ArgsOptionDefinition & UsageOptionDefinition>;
 export type OptionList = Readonly<ICommandOption[]>;
@@ -16,11 +17,13 @@ type GetTypeByConstructor<T extends (BooleanConstructor | StringConstructor | Nu
 
 type ArrayIfMultiple<O, T> = O extends { multiple: true } ? T[] : T;
 
+type OptionListWithGeneral<OL extends OptionList> = [...typeof GENERAL_OPTION_LIST, ...OL];
+
 export type CommandLineOptions<OL extends OptionList> = {
-	[P in OL[number]['name']]?: ArrayIfMultiple<
-		Extract<OL[number], { name: P }>,
-		GetTypeByConstructor<Extract<OL[number], { name: P }>['type']>
-	>;
+	[P in OptionListWithGeneral<OL>[number]['name']]: ArrayIfMultiple<
+		Extract<OptionListWithGeneral<OL>[number], { name: P }>,
+		GetTypeByConstructor<Extract<OptionListWithGeneral<OL>[number], { name: P }>['type']>
+	> | undefined;
 };
 
 export type ICommand<

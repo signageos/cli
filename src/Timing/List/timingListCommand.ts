@@ -1,14 +1,13 @@
 import chalk from 'chalk';
 import * as Debug from 'debug';
-import { getOrganization, getOrganizationUidOrDefaultOrSelect, ORGANIZATION_UID_OPTION } from '../../Organization/organizationFacade';
+import { getOrganization, getOrganizationUidOrDefaultOrSelect, NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION } from '../../Organization/organizationFacade';
 import { getDeviceUid, DEVICE_UID_OPTION } from '../../Device/deviceFacade';
 import { createOrganizationRestApi } from '../../helper';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
-import { GENERAL_OPTION_LIST } from '../../generalCommand';
 const debug = Debug('@signageos/cli:Timing:list');
 
 const OPTION_LIST = [
-	...GENERAL_OPTION_LIST,
+	NO_DEFAULT_ORGANIZATION_OPTION,
 	ORGANIZATION_UID_OPTION,
 	DEVICE_UID_OPTION,
 ] as const;

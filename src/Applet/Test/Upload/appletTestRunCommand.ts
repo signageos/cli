@@ -1,7 +1,12 @@
 import chalk from 'chalk';
 import * as prompts from 'prompts';
 import { createOrganizationRestApi, } from '../../../helper';
-import { getOrganization, getOrganizationUidOrDefaultOrSelect, ORGANIZATION_UID_OPTION } from '../../../Organization/organizationFacade';
+import {
+	getOrganization,
+	getOrganizationUidOrDefaultOrSelect,
+	NO_DEFAULT_ORGANIZATION_OPTION,
+	ORGANIZATION_UID_OPTION,
+} from '../../../Organization/organizationFacade';
 import {
 	getAppletUid,
 	getAppletVersion,
@@ -12,10 +17,9 @@ import { validateTestIdentifiers } from './appletTestRunFacade';
 import wait from '../../../Timer/wait';
 import IDeviceAppletTest from '@signageos/sdk/dist/RestApi/Device/AppletTest/IDeviceAppletTest';
 import { CommandLineOptions, createCommandDefinition } from '../../../Command/commandDefinition';
-import { GENERAL_OPTION_LIST } from '../../../generalCommand';
 
 const OPTION_LIST = [
-	...GENERAL_OPTION_LIST,
+	NO_DEFAULT_ORGANIZATION_OPTION,
 	DEVICE_UID_OPTION,
 	ORGANIZATION_UID_OPTION,
 	{

@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import * as prompts from 'prompts';
 import { createOrganizationRestApi, } from '../../../helper';
-import { getOrganization, getOrganizationUidOrDefaultOrSelect, ORGANIZATION_UID_OPTION } from '../../../Organization/organizationFacade';
+import { getOrganization, getOrganizationUidOrDefaultOrSelect, NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION } from '../../../Organization/organizationFacade';
 import { loadTestFilesContents, validateTestFiles } from './appletTestUploadFacade';
 import {
 	getAppletUid,
@@ -11,10 +11,9 @@ import { createProgressBar } from '../../../CommandLine/progressBarFactory';
 import { loadPackage } from '../../../FileSystem/packageConfig';
 import IAppletTestSuite from '@signageos/sdk/dist/RestApi/Applet/Version/IAppletTestSuite';
 import { CommandLineOptions, createCommandDefinition } from '../../../Command/commandDefinition';
-import { GENERAL_OPTION_LIST } from '../../../generalCommand';
 
 const OPTION_LIST = [
-	...GENERAL_OPTION_LIST,
+	NO_DEFAULT_ORGANIZATION_OPTION,
 	ORGANIZATION_UID_OPTION,
 	{
 		name: 'yes',

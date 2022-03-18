@@ -4,13 +4,6 @@ import { exec } from 'child-process-promise';
 import { getPackageVersion, getPackageName } from './helper';
 import { getCachedValue, updateCacheValue } from '../Cache/tmpCache';
 
-export const VERSION_OPTION = {
-	name: 'version',
-	alias: 'v',
-	type: Boolean,
-	description: 'Display installed version of the CLI.',
-} as const;
-
 export async function printVersion() {
 	console.log(getPackageVersion());
 	await printUpdateMessage();

@@ -37,3 +37,11 @@ export const restApiWithNonExistingAppletVersion = {
 		},
 	})),
 };
+
+export const generalOptions = {
+	'api-url': undefined,
+	'command': undefined,
+	'help': undefined,
+	'version': undefined,
+	'profile': undefined,
+} as const;

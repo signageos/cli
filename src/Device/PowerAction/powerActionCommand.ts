@@ -1,13 +1,12 @@
-import { getOrganization, getOrganizationUidOrDefaultOrSelect, ORGANIZATION_UID_OPTION } from "../../Organization/organizationFacade";
+import { getOrganization, getOrganizationUidOrDefaultOrSelect, NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION } from "../../Organization/organizationFacade";
 import { DEVICE_UID_OPTION, getDeviceUid, POWER_ACTION_TYPE_OPTION, typeMap } from "../deviceFacade";
 import { createOrganizationRestApi } from "../../helper";
 import chalk from "chalk";
 import { getActionType } from "../deviceFacade";
 import { CommandLineOptions, createCommandDefinition } from "../../Command/commandDefinition";
-import { GENERAL_OPTION_LIST } from "../../generalCommand";
 
 const OPTION_LIST = [
-	...GENERAL_OPTION_LIST,
+	NO_DEFAULT_ORGANIZATION_OPTION,
 	ORGANIZATION_UID_OPTION,
 	DEVICE_UID_OPTION,
 	POWER_ACTION_TYPE_OPTION,

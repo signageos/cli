@@ -5,7 +5,7 @@ import * as os from 'os';
 import * as _ from 'lodash';
 import chalk from 'chalk';
 import * as parameters from '../../config/parameters';
-import { getGlobalProfile } from '../Command/commandProcessor';
+import { getGlobalProfile } from '../Command/globalArgs';
 
 const RUN_CONTROL_FILENAME = '.sosrc';
 

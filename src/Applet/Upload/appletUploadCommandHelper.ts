@@ -1,8 +1,22 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import { CommandLineOptions } from '../../Command/commandDefinition';
-import { APPLET_PATH_OPTION, ENTRY_FILE_PATH_OPTION, OPTION_LIST } from './appletUploadCommand';
-import { DEFAULT_APPLET_DIR_PATH, DEFAULT_APPLET_BINARY_FILE_PATH, DEFAULT_APPLET_ENTRY_FILE_PATH } from './appletUploadFacade';
+
+export const ENTRY_FILE_PATH_OPTION = {
+	name: 'entry-file-path',
+	type: String,
+	description: 'Path to the applet entry file. Relative to the command or absolute.',
+} as const;
+
+export const APPLET_PATH_OPTION = {
+	name: 'applet-path',
+	type: String,
+	description: 'Path to the applet file or the project folder depending on the entry file. Relative to the command or absolute.',
+} as const;
+
+export const DEFAULT_APPLET_DIR_PATH = '.';
+export const DEFAULT_APPLET_ENTRY_FILE_PATH = 'dist/index.html';
+export const DEFAULT_APPLET_BINARY_FILE_PATH = 'dist/index.html';
 
 export async function getAppletDirectoryAbsolutePath(
 	currentDirectory: string,
@@ -36,7 +50,7 @@ export async function getAppletDirectoryAbsolutePath(
 
 export async function getAppletBinaryFileAbsolutePath(
 	currentDirectory: string,
-	options: CommandLineOptions<typeof OPTION_LIST>,
+	options: CommandLineOptions<[typeof APPLET_PATH_OPTION]>,
 ): Promise<string> {
 	let appletBinaryFilePath: string | undefined = options['applet-path'];
 
