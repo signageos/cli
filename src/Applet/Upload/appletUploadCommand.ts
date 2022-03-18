@@ -30,14 +30,12 @@ import { GENERAL_OPTION_LIST } from '../../generalCommand';
 export const ENTRY_FILE_PATH_OPTION = {
 	name: 'entry-file-path',
 	type: String,
-	// defaultValue: DEFAULT_APPLET_ENTRY_FILE_PATH,
 	description: 'Path to the applet entry file. Relative to the command or absolute.',
 } as const;
 
 export const APPLET_PATH_OPTION = {
 	name: 'applet-path',
 	type: String,
-	// defaultValue: DEFAULT_APPLET_DIR_PATH,
 	description: 'Path to the applet file or the project folder depending on the entry file. Relative to the command or absolute.',
 } as const;
 export const OPTION_LIST = [
