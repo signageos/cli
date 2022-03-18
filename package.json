@@ -23,7 +23,7 @@
     "watch": "tsc --watch",
     "check": "npm run depcheck && npx --userconfig ./.npmrc @signageos/lib check-deps && npm run check-circular-deps",
     "check-circular-deps": "npx madge --circular --extensions ts ./src/",
-    "depcheck": "depcheck --specials=tslint,webpack,mocha --parsers='*.ts:typescript,*.js:es6' --detectors='requireCallExpression,importDeclaration' --ignore-dirs='dist' --ignores='@types/*,@signageos/codestyle,mocha,depcheck,webpack'"
+    "depcheck": "depcheck --specials=tslint,webpack,mocha --parsers='**/*.ts:typescript,**/*.js:es6' --detectors='requireCallExpression,importDeclaration' --ignore-dirs='dist' --ignores='@types/*,@signageos/codestyle,mocha,depcheck,webpack'"
   },
   "license": "MIT",
   "engines": {
@@ -61,7 +61,7 @@
     "@types/should": "13.0.0",
     "@types/sinon": "7.5.0",
     "@types/webpack": "4.41.7",
-    "depcheck": "1.2.0",
+    "depcheck": "1.4.3",
     "mocha": "8.4.0",
     "rewiremock": "3.13.9",
     "should": "13.2.3",
