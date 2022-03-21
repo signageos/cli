@@ -121,10 +121,11 @@ export const firmwareUpload: ICommand = {
 					firmware: data,
 					pathArr: Array.from(pathSet),
 					progressBar: createProgressBar(),
+					force: options.force,
 				},
 			);
 		} catch (error) {
-			if (error instanceof RequestError && error.errorName === 'INVALID_TYPE_TO_FIRMWARE_VERSION_UPLOAD') {
+			if (!options.force && error instanceof RequestError && error.errorName === 'INVALID_TYPE_TO_FIRMWARE_VERSION_UPLOAD') {
 				const promptOverride = () => prompts({
 					type: 'confirm',
 					name: 'confirmed',
@@ -133,7 +134,7 @@ export const firmwareUpload: ICommand = {
 						+ `If you are sure that "type=${data.type}" you've specified is valid, `
 						+ `you can override it confirming this question or using --force flag.`,
 				});
-				if (options.force || !optionsProvided && (await promptOverride()).confirmed) {
+				if ((await promptOverride()).confirmed) {
 					await uploadFirmwareVersion(
 						{
 							restApi,
