@@ -2,22 +2,22 @@ import chalk from 'chalk';
 import * as prompts from 'prompts';
 import * as Debug from 'debug';
 import * as os from 'os';
-import { CommandLineOptions } from "command-line-args";
 import { deserializeJSON, postResource } from '../helper';
 import { saveConfig, getConfigFilePath } from '../RunControl/runControlHelper';
 import * as parameters from '../../config/parameters';
-import ICommand from '../Command/ICommand';
-import { getGlobalApiUrl } from '../Command/commandProcessor';
+import { CommandLineOptions, createCommandDefinition } from '../Command/commandDefinition';
+import { getGlobalApiUrl } from '../Command/globalArgs';
 const debug = Debug('@signageos/cli:Auth:login');
 
-export const login: ICommand = {
+const OPTION_LIST = [
+	{ name: 'username', type: String, description: `Username or e-mail used for ${parameters.boxHost}` },
+] as const;
+export const login = createCommandDefinition({
 	name: 'login',
 	description: 'Login account using username & password',
-	optionList: [
-		{ name: 'username', type: String, description: `Username or e-mail used for ${parameters.boxHost}` },
-	],
+	optionList: OPTION_LIST,
 	commands: [],
-	async run(options: CommandLineOptions) {
+	async run(options: CommandLineOptions<typeof OPTION_LIST>) {
 		let identification: string | undefined = options.username;
 		if (!identification) {
 			const response = await prompts({
@@ -46,7 +46,7 @@ export const login: ICommand = {
 
 		console.log(`User ${chalk.green(identification!)} has been logged in with token "${name}". Credentials are stored in ${chalk.blue(getConfigFilePath())}`);
 	},
-};
+});
 
 interface ILoginResponseBody {
 	id: string;

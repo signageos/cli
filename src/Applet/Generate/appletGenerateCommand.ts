@@ -3,8 +3,7 @@ import * as child_process from 'child_process';
 import chalk from 'chalk';
 import * as path from 'path';
 import * as prompts from 'prompts';
-import { CommandLineOptions } from "command-line-args";
-import ICommand from '../../Command/ICommand';
+import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
 
 const NAME_REGEXP = /^\w(\w|\d|-)*\w$/;
 const NPM_EXECUTABLE = 'npm';
@@ -14,17 +13,19 @@ interface IFile {
 	content: string;
 }
 
-export const appletGenerate: ICommand = {
+const OPTION_LIST = [
+	{ name: 'name', type: String, description: `Applet name. Match RegExp: ${NAME_REGEXP.toString()}` },
+	{ name: 'applet-version', type: String, description: `Applet initial version. Use semantic version`, defaultValue: '0.0.0' },
+	{ name: 'target-dir', type: String, description: 'Directory where will be the applet generated to' },
+	{ name: 'npm-registry', type: String, description: `NPM registry URL. If you have your private npm registry` },
+] as const;
+
+export const appletGenerate = createCommandDefinition({
 	name: 'generate',
 	description: 'Generate basic applet sample',
-	optionList: [
-		{ name: 'name', type: String, description: `Applet name. Match RegExp: ${NAME_REGEXP.toString()}` },
-		{ name: 'applet-version', type: String, description: `Applet initial version. Use semantic version`, defaultValue: '0.0.0' },
-		{ name: 'target-dir', type: String, description: 'Directory where will be the applet generated to' },
-		{ name: 'npm-registry', type: String, description: `NPM registry URL. If you have your private npm registry` },
-	],
+	optionList: OPTION_LIST,
 	commands: [],
-	async run(options: CommandLineOptions) {
+	async run(options: CommandLineOptions<typeof OPTION_LIST>) {
 		const currentDirectory = process.cwd();
 		let appletName: string | undefined = options.name;
 		if (!appletName) {
@@ -85,17 +86,15 @@ export const appletGenerate: ICommand = {
 
 		const generateFiles: IFile[] = [];
 
-		if (options.typescript) {
-			// TODO typescript support
-		} else {
+		// TODO typescript support
+		{
 			generateFiles.push({
 				path: path.join(appletRootDirectory, 'src', 'index.js'),
 				content: createIndexJs(),
 			});
 		}
-		if (options.sass) {
-			// TODO sass support
-		} else {
+		// TODO sass support
+		{
 			generateFiles.push({
 				path: path.join(appletRootDirectory, 'src', 'index.css'),
 				content: createIndexCss(),
@@ -107,10 +106,12 @@ export const appletGenerate: ICommand = {
 				content: createNpmRunControl(options['npm-registry']),
 			});
 		}
-		const appletVersion = 'applet-version';
+		if (!options['applet-version']) {
+			throw new Error('Argument --applet-version is required');
+		}
 		generateFiles.push({
 			path: path.join(appletRootDirectory, 'package.json'),
-			content: JSON.stringify(await createPackageConfig(appletName, options[appletVersion]), undefined, 2) + '\n',
+			content: JSON.stringify(await createPackageConfig(appletName, options['applet-version']), undefined, 2) + '\n',
 		});
 		generateFiles.push({
 			path: path.join(appletRootDirectory, 'webpack.config.js'),
@@ -151,7 +152,7 @@ export const appletGenerate: ICommand = {
 			console.log(`use: cd ${chalk.green(appletRootDirectoryName!)} and ${chalk.green('npm start')}\n`);
 		});
 	},
-};
+});
 
 async function createPackageConfig(
 	name: string,

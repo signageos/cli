@@ -1,29 +1,27 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import { CommandLineOptions } from 'command-line-args';
-import { loadConfig, updateConfig } from '../../RunControl/runControlHelper';
-import { DEFAULT_APPLET_DIR_PATH, DEFAULT_APPLET_BINARY_FILE_PATH, DEFAULT_APPLET_ENTRY_FILE_PATH } from './appletUploadFacade';
-import { getOrganizationUid } from '../../Organization/organizationFacade';
+import { CommandLineOptions } from '../../Command/commandDefinition';
 
-export async function getOrganizationUidAndUpdateConfig(options: CommandLineOptions): Promise<string> {
-	const config = await loadConfig();
-	let organizationUid: string | undefined = options['organization-uid'];
+export const ENTRY_FILE_PATH_OPTION = {
+	name: 'entry-file-path',
+	type: String,
+	description: 'Path to the applet entry file. Relative to the command or absolute.',
+} as const;
 
-	if (!organizationUid) {
-		organizationUid = config.defaultOrganizationUid;
-	}
+export const APPLET_PATH_OPTION = {
+	name: 'applet-path',
+	type: String,
+	description: 'Path to the applet file or the project folder depending on the entry file. Relative to the command or absolute.',
+} as const;
 
-	if (!organizationUid) {
-		organizationUid = await getOrganizationUid(options);
-		await updateConfig({
-			defaultOrganizationUid: organizationUid,
-		});
-	}
+export const DEFAULT_APPLET_DIR_PATH = '.';
+export const DEFAULT_APPLET_ENTRY_FILE_PATH = 'dist/index.html';
+export const DEFAULT_APPLET_BINARY_FILE_PATH = 'dist/index.html';
 
-	return organizationUid;
-}
-
-export async function getAppletDirectoryAbsolutePath(currentDirectory: string, options: CommandLineOptions): Promise<string> {
+export async function getAppletDirectoryAbsolutePath(
+	currentDirectory: string,
+	options: CommandLineOptions<[typeof APPLET_PATH_OPTION]>,
+): Promise<string> {
 	let appletDirectoryPath: string | undefined = options['applet-path'];
 
 	if (!appletDirectoryPath) {
@@ -50,7 +48,10 @@ export async function getAppletDirectoryAbsolutePath(currentDirectory: string, o
 	return appletDirectoryPath;
 }
 
-export async function getAppletBinaryFileAbsolutePath(currentDirectory: string, options: CommandLineOptions): Promise<string> {
+export async function getAppletBinaryFileAbsolutePath(
+	currentDirectory: string,
+	options: CommandLineOptions<[typeof APPLET_PATH_OPTION]>,
+): Promise<string> {
 	let appletBinaryFilePath: string | undefined = options['applet-path'];
 
 	if (!appletBinaryFilePath) {
@@ -74,7 +75,10 @@ export async function getAppletBinaryFileAbsolutePath(currentDirectory: string, 
 	return appletBinaryFilePath;
 }
 
-export async function getAppletEntryFileAbsolutePath(currentDirectory: string, options: CommandLineOptions): Promise<string> {
+export async function getAppletEntryFileAbsolutePath(
+	currentDirectory: string,
+	options: CommandLineOptions<[typeof ENTRY_FILE_PATH_OPTION]>,
+): Promise<string> {
 	let appletEntryFilePath: string | undefined = options['entry-file-path'];
 
 	if (!appletEntryFilePath) {

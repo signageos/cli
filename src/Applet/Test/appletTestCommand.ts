@@ -1,8 +1,8 @@
-import ICommand from "../../Command/ICommand";
+import { createCommandDefinition } from "../../Command/commandDefinition";
 import { appletTestRun } from "./Upload/appletTestRunCommand";
 import { appletTestUpload } from "./Upload/appletTestUploadCommand";
 
-export const appletTest: ICommand = {
+export const appletTest = createCommandDefinition({
 	name: 'test',
 	description: 'Applet test management',
 	optionList: [],
@@ -13,4 +13,4 @@ export const appletTest: ICommand = {
 	async run() {
 		throw new Error('Unknown command');
 	},
-};
+});

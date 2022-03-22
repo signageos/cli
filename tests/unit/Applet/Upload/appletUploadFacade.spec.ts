@@ -50,7 +50,6 @@ describe('Applet.Upload.appletUploadFacade', () => {
 					applet: {
 						uid: 'test1',
 						version: '1.0.0',
-						frontAppletVersion: '1.2.0',
 						entryFilePath: 'index.html',
 						directoryPath: tmpDir,
 						files: [newFile1, newFile2],
@@ -62,7 +61,6 @@ describe('Applet.Upload.appletUploadFacade', () => {
 					'test1',
 					'1.0.0',
 					{
-						frontAppletVersion: '1.2.0',
 						entryFile: 'index.html',
 					},
 				]);
@@ -129,7 +127,6 @@ describe('Applet.Upload.appletUploadFacade', () => {
 					applet: {
 						uid: 'test1',
 						version: '1.0.0',
-						frontAppletVersion: '1.2.0',
 						entryFilePath: 'index.html',
 						directoryPath: tmpDir,
 						files: [file1, file2],
@@ -141,7 +138,6 @@ describe('Applet.Upload.appletUploadFacade', () => {
 					'test1',
 					'1.0.0',
 					{
-						frontAppletVersion: '1.2.0',
 						entryFile: 'index.html',
 					},
 				]);
@@ -202,7 +198,6 @@ describe('Applet.Upload.appletUploadFacade', () => {
 					applet: {
 						uid: 'test1',
 						version: '1.0.0',
-						frontAppletVersion: '1.2.0',
 						entryFilePath: 'index.html',
 						directoryPath: tmpDir,
 						files: [file1],
@@ -214,7 +209,6 @@ describe('Applet.Upload.appletUploadFacade', () => {
 					'test1',
 					'1.0.0',
 					{
-						frontAppletVersion: '1.2.0',
 						entryFile: 'index.html',
 					},
 				]);
@@ -256,7 +250,6 @@ describe('Applet.Upload.appletUploadFacade', () => {
 					applet: {
 						uid: 'test1',
 						version: '1.0.0',
-						frontAppletVersion: '1.2.0',
 						entryFilePath: 'index.html',
 						directoryPath: tmpDir,
 						files: [newFile1],
@@ -300,7 +293,6 @@ describe('Applet.Upload.appletUploadFacade', () => {
 						applet: {
 							uid: 'test1',
 							version: '1.0.0',
-							frontAppletVersion: '1.2.0',
 							entryFilePath: 'index.html',
 							directoryPath: tmpDir,
 							files: [newFile1],

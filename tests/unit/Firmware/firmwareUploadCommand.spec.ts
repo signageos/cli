@@ -11,6 +11,7 @@ rewireMock('./firmwareUploadFacade').with(firmwareUploadFacadeMock);
 rewireMock('../../helper').with(createFirmwareVersionRestApi);
 
 import { firmwareUpload as firmwareUploadMock } from '../../../src/Firmware/Upload/firmwareUploadCommand';
+import { generalOptions } from '../helperMock';
 
 rewireMock.disable();
 
@@ -20,6 +21,9 @@ describe('unit.firmwareUploadCommand', () => {
 	});
 	it('should upload firmware version: Task succeeded', async () => {
 		await firmwareUploadMock.run({
+			...generalOptions,
+			'firmware-type': undefined,
+			'force': undefined,
 			'application-type': 'webos',
 			'firmware-version': '1.1.1',
 			'src': ['/valid.apk'],
@@ -29,6 +33,9 @@ describe('unit.firmwareUploadCommand', () => {
 	it('should not upload firmware version because of invalid files: Task failed', async () => {
 		try {
 			await firmwareUploadMock.run({
+				...generalOptions,
+				'firmware-type': undefined,
+				'force': undefined,
 				'application-type': 'webos',
 				'firmware-version': '1.1.1',
 				'src': ['/what evers'],

@@ -2,25 +2,16 @@ import * as Debug from 'debug';
 import chalk from 'chalk';
 import * as cliUsage from 'command-line-usage';
 import * as cliArgs from 'command-line-args';
-import ICommand, { ICommandOption } from './ICommand';
-import * as parameters from '../../config/parameters';
 import {
 	printVersion,
 	newVersionAvailable,
 	getUpdateVersionMessage,
 } from '../Cli/packageVersion';
+import { ICommand, ICommandOption, OptionList } from './commandDefinition';
 const debug = Debug('@signageos/cli:Command:processor');
 
-export const API_URL_OPTION = {
-	name: 'api-url',
-	alias: 'u',
-	type: String,
-	defaultValue: parameters.apiUrl,
-	description: 'API URL to be used for REST requests',
-};
-
 export async function processCommand(
-	currentCommand: ICommand,
+	currentCommand: ICommand<string, OptionList>,
 	parentOptionList: ICommandOption[] = [],
 	commandIndex: number = 0,
 ) {
@@ -29,7 +20,7 @@ export async function processCommand(
 	debug('process', currentOptions);
 
 	const subCommandName = currentOptions.command[commandIndex];
-	const subCommand = currentCommand.commands.find((command: ICommand) => command.name === subCommandName);
+	const subCommand = currentCommand.commands.find((command: ICommand<string, OptionList>) => command.name === subCommandName);
 
 	if (subCommand) {
 		await processCommand(subCommand, nestedOptionList, commandIndex + 1);
@@ -58,13 +49,8 @@ export async function processCommand(
 	}
 }
 
-export function getGlobalApiUrl(): string {
-	const options = cliArgs([API_URL_OPTION], { partial: true });
-	return options['api-url'];
-}
-
 function printUsage(
-	currentCommand: ICommand,
+	currentCommand: ICommand<string, OptionList>,
 	optionList: ICommandOption[],
 ) {
 	console.log(chalk.bold(currentCommand.name));

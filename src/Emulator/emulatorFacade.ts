@@ -1,9 +1,11 @@
 import chalk from 'chalk';
 import * as prompts from 'prompts';
 import { loadConfig, updateConfig, IConfig } from '../RunControl/runControlHelper';
-import { getGlobalApiUrl } from '../Command/commandProcessor';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import AuthenitcationError from '@signageos/sdk/dist/RestApi/Error/AuthenticationError';
+import { getOrganizationUidOrDefaultOrSelect, NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION } from '../Organization/organizationFacade';
+import { CommandLineOptions } from '../Command/commandDefinition';
+import { getGlobalApiUrl } from '../Command/globalArgs';
 
 interface IEmulatorData {
 	uid: string;
@@ -44,14 +46,14 @@ async function createNewEmulator(restApi: RestApi, organizationUid: string) {
 	}
 }
 
-export async function loadEmulatorOrCreateNewAndReturnUid() {
+export async function loadEmulatorOrCreateNewAndReturnUid(
+	options: CommandLineOptions<[typeof ORGANIZATION_UID_OPTION, typeof NO_DEFAULT_ORGANIZATION_OPTION]>,
+) {
 	const config = await loadConfig();
 	if (!config.identification || !config.apiSecurityToken) {
 		throw new Error(`No authenticized account found. Try to login using ${chalk.green('sos login')}`);
 	}
-	if (!config.defaultOrganizationUid) {
-		throw new Error(`No default organization selected. Use ${chalk.green('sos organization set-default')} first.`);
-	}
+	const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
 	const restApi = createRestApi(config);
 	const listOfEmulatorsResponse = await getListOfEmulators(restApi);
 	const isSavedValidEmulator = config.emulatorUid && listOfEmulatorsResponse.some(
@@ -83,7 +85,7 @@ export async function loadEmulatorOrCreateNewAndReturnUid() {
 		emulatorUid = selectedEmulator.duid;
 	} else {
 		console.log('No valid emulator assigned to your account found via API thus newone will be created');
-		await createNewEmulator(restApi, config.defaultOrganizationUid);
+		await createNewEmulator(restApi, organizationUid);
 		const newEmulatorList = await getListOfEmulators(restApi);
 		const emulatorName = newEmulatorList[0].name;
 		emulatorUid = newEmulatorList[0].duid;

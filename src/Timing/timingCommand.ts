@@ -1,7 +1,7 @@
-import ICommand from "../Command/ICommand";
+import { createCommandDefinition } from '../Command/commandDefinition';
 import { timingList } from './List/timingListCommand';
 
-export const timing: ICommand = {
+export const timing = createCommandDefinition({
 	name: 'timing',
 	description: 'Timing management',
 	optionList: [],
@@ -11,4 +11,4 @@ export const timing: ICommand = {
 	async run() {
 		throw new Error('Unknown command');
 	},
-};
+});

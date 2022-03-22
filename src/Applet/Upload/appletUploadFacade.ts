@@ -10,16 +10,11 @@ import { ProgressBar } from '../../CommandLine/IProgressBar';
 
 const debug = Debug('@signageos/cli:Applet:Upload:appletUploadFacade');
 
-export const DEFAULT_APPLET_DIR_PATH = '.';
-export const DEFAULT_APPLET_ENTRY_FILE_PATH = 'dist/index.html';
-export const DEFAULT_APPLET_BINARY_FILE_PATH = 'dist/index.html';
-
 export async function updateSingleFileApplet(parameters: {
 	restApi: RestApi;
 	applet: {
 		uid: string;
 		version: string;
-		frontAppletVersion: string;
 		binaryFilePath: string;
 	};
 }) {
@@ -30,7 +25,6 @@ export async function updateSingleFileApplet(parameters: {
 		applet.version,
 		{
 			binary: appletBinary,
-			frontAppletVersion: applet.frontAppletVersion,
 		},
 	);
 }
@@ -40,7 +34,6 @@ export const updateMultiFileApplet = async (parameters: {
 	applet: {
 		uid: string;
 		version: string;
-		frontAppletVersion: string;
 		entryFilePath: string;
 		directoryPath: string;
 		files: string[];
@@ -56,7 +49,6 @@ export const updateMultiFileApplet = async (parameters: {
 		applet.uid,
 		applet.version,
 		{
-			frontAppletVersion: applet.frontAppletVersion,
 			entryFile: appletEntryFilePosixPath,
 		},
 	);
@@ -151,10 +143,9 @@ export const createSingleFileApplet = async (parameters: {
 	applet: {
 		uid: string;
 		version: string;
-		frontAppletVersion: string;
 		binaryFilePath: string;
 	};
-}) => {
+}) => {
 	const { restApi, applet } = parameters;
 	const appletBinary = fs.createReadStream(applet.binaryFilePath, { encoding: 'utf8' });
 	await restApi.applet.version.create(
@@ -162,7 +153,7 @@ export const createSingleFileApplet = async (parameters: {
 		{
 			binary: appletBinary,
 			version: applet.version,
-			frontAppletVersion: applet.frontAppletVersion,
+			frontAppletVersion: '', // Back compatibility requires to setup front-applet version in UI
 		},
 	);
 };
@@ -172,20 +163,18 @@ export const createMultiFileFileApplet = async (parameters: {
 	applet: {
 		uid: string;
 		version: string;
-		frontAppletVersion: string;
 		entryFilePath: string;
 		directoryPath: string;
 		files: string[];
 	};
 	progressBar?: ProgressBar;
-}) => {
+}) => {
 	const { restApi, applet, progressBar } = parameters;
 	const appletEntryFilePosixPath = path.posix.normalize(applet.entryFilePath.replace(/\\/g, '/'));
 	await restApi.applet.version.create(
 		applet.uid,
 		{
 			version: applet.version,
-			frontAppletVersion: applet.frontAppletVersion,
 			entryFile: appletEntryFilePosixPath,
 		},
 	);
