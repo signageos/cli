@@ -8,14 +8,9 @@ import { IApplet } from "../Applet/appletFacade";
 import { CommandLineOptions } from '../Command/commandDefinition';
 import { getGlobalApiUrl } from '../Command/globalArgs';
 import { getMachineIp } from '../Helper/localMachineHelper';
+import IDeviceReadOnly from '@signageos/sdk/dist/RestApi/Device/IDevice';
 
 const debug = Debug('@signageos/cli:Device:facade');
-
-export interface IDevice {
-	uid: string;
-	name: string;
-	// TODO missing props
-}
 
 export interface ActionData {
 	name: string;
@@ -49,8 +44,8 @@ export async function getDeviceUid(
 			type: 'autocomplete',
 			name: 'deviceUid',
 			message: `Select device to use`,
-			choices: devices.map((dev: IDevice) => ({
-				title: `${dev.name} (${dev.uid})`,
+			choices: devices.map((dev: IDeviceReadOnly) => ({
+				title: `${dev.name ?? `Unnamed device, created ${dev.createdAt.toString()}`} (${dev.uid})`,
 				value: dev.uid,
 			})),
 		});
