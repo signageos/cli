@@ -1,21 +1,16 @@
 import * as Debug from 'debug';
 import * as prompts from 'prompts';
-import { CommandLineOptions } from "command-line-args";
 import { deserializeJSON, postResource } from '../helper';
 import { IOrganization } from '../Organization/organizationFacade';
-import { getGlobalApiUrl } from '../Command/commandProcessor';
 import { DevicePowerAction } from '@signageos/sdk/dist/RestApi/Device/PowerAction/IPowerAction';
 import RestApi from "@signageos/sdk/dist/RestApi/RestApi";
 import { IApplet } from "../Applet/appletFacade";
-import { getMachineIp } from "./Connect/connectHelper";
+import { CommandLineOptions } from '../Command/commandDefinition';
+import { getGlobalApiUrl } from '../Command/globalArgs';
+import { getMachineIp } from '../Helper/localMachineHelper';
+import IDeviceReadOnly from '@signageos/sdk/dist/RestApi/Device/IDevice';
 
 const debug = Debug('@signageos/cli:Device:facade');
-
-export interface IDevice {
-	uid: string;
-	name: string;
-	// TODO missing props
-}
 
 export interface ActionData {
 	name: string;
@@ -35,11 +30,12 @@ export const typeMap = new Map<string, ActionData>(
 	],
 );
 
-export const DEVICE_UID_OPTION = { name: 'device-uid', type: String, description: 'Device UID' };
+export const DEVICE_UID_OPTION = { name: 'device-uid', type: String, description: 'Device UID' } as const;
+export const POWER_ACTION_TYPE_OPTION = { name: 'type', type: String, description: `Type of device power action` } as const;
 
 export async function getDeviceUid(
 	restApi: RestApi,
-	options: CommandLineOptions,
+	options: CommandLineOptions<[typeof DEVICE_UID_OPTION]>,
 ) {
 	let deviceUid: string | undefined = options['device-uid'];
 	if (!deviceUid) {
@@ -48,8 +44,8 @@ export async function getDeviceUid(
 			type: 'autocomplete',
 			name: 'deviceUid',
 			message: `Select device to use`,
-			choices: devices.map((dev: IDevice) => ({
-				title: `${dev.name} (${dev.uid})`,
+			choices: devices.map((dev: IDeviceReadOnly) => ({
+				title: `${dev.name ?? `Unnamed device, created ${dev.createdAt.toString()}`} (${dev.uid})`,
 				value: dev.uid,
 			})),
 		});
@@ -62,7 +58,7 @@ export async function getDeviceUid(
 	return deviceUid;
 }
 
-export async function getActionType(options: CommandLineOptions)  {
+export async function getActionType(options: CommandLineOptions<[typeof POWER_ACTION_TYPE_OPTION]>)  {
 	let action: string | undefined = options.type;
 
 	if (!action) {

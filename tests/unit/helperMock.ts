@@ -32,8 +32,16 @@ export const restApiWithNonExistingAppletVersion = {
 		applet: {
 			...appletApi,
 			version: {
-				get: sinon.fake(() => Promise.reject()),
+				get: sinon.fake(() => Promise.reject()),
 			},
 		},
 	})),
 };
+
+export const generalOptions = {
+	'api-url': undefined,
+	'command': undefined,
+	'help': undefined,
+	'version': undefined,
+	'profile': undefined,
+} as const;

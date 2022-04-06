@@ -1,9 +1,9 @@
-import ICommand from "../Command/ICommand";
 import { setContent } from './Content/setContentCommand';
 import { powerAction } from "./PowerAction/powerActionCommand";
 import { connect } from "./Connect/connectCommand";
+import { createCommandDefinition } from '../Command/commandDefinition';
 
-export const device: ICommand = {
+export const device = createCommandDefinition({
 	name: 'device',
 	description: 'device management',
 	optionList: [
@@ -16,4 +16,4 @@ export const device: ICommand = {
 	async run() {
 		throw new Error('Unknown command');
 	},
-};
+});

@@ -117,7 +117,7 @@ describe('unit.appletUploadCommand', () => {
 			},
 		];
 
-		testOptions.forEach(({ name, value }: { name: string, value: any }) => {
+		testOptions.forEach(({ name, value }: { name: string, value: any }) => {
 			it(`should update with override - ${name}`, async () => {
 				await singleFileAppletUploadOverrideTrue.run(value);
 				should(appletUploadFacadeMock.updateMultiFileApplet.calledOnce).true();

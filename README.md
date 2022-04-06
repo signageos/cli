@@ -17,6 +17,7 @@ and [gitbash](https://gitforwindows.org/), run it in [windows terminal](https://
 | Argument                   | Description                     | Default value                                     |
 |----------------------------|---------------------------------|---------------------------------------------------|
 | --api-url *(optional)*     | URL address to use for REST API | ${SOS_API_URL~'https://api.signageos.io'}         |
+| --profile *(optional)*     | Profile used for separation of credentials and other configurations set in the `~/.sosrc` file | ${SOS_PROFILE}         |
 
 ### Login
 ```bash
@@ -29,6 +30,19 @@ sos login
 | Argument                   | Description                     | Default value  |
 |----------------------------|---------------------------------|----------------|
 | --username *(required)*    | Username or e-mail user for box | STDIN          |
+
+#### Run control file
+There are file created when run command `sos login` in the path `~/.sosrc`. This file contains by default only following values (as default profile is used).
+```ini
+identification=xxxxxxxxxxxxxxxxxxxx
+apiSecurityToken=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+If you'd like to manage more accounts/configurations on one machine, you can use environment variable `SOS_PROFILE` or argument `--profile`. The configuration file will uses a INI section `profile xxxx` for the profile named `xxxx`. You can use as many profiles as you want.
+```ini
+[profile xxxx]
+identification=xxxxxxxxxxxxxxxxxxxx
+apiSecurityToken=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
 
 ### Applet
 ```bash
@@ -146,6 +160,7 @@ sos organization get
 
 #### Organization Set Default
 - Sets default organization for current logged in account. This organization will be used for example in webpack plugin of applet to register emulator
+- If you not set default organization, by default will be used the organization you will be asked to select from list where you have access to.
 ```bash
 sos organization set-default
 ```
@@ -220,7 +235,7 @@ sos device connect
 | --ip *(required)*              | Ip address of computer in local network | Automatically get from networkInterface|
 | --device-uid *(required)*      | Uid of device from box'               |  STDIN           |
 | --applet-dir *(required)*      | Directory of the applet project       | ${PWD}|
-| --no-update-package-config *(optional)*      | Prevents updating package.json config when applet doesn't exists       | false |
+| --update-package-config *(optional)*      | Update package.json value `sos.appletUid` config when applet doesn't exists and is created       | false |
 
 ## Contribution
 Clone the repository and install dev dependencies

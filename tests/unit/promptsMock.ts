@@ -9,7 +9,7 @@ export const promptsMockFactory = (questionAndAnswers: Question[]) => {
 	return sinon.fake(({ name }: {
 		name: string;
 	}) => {
-		const question = questionAndAnswers.find(({ questionName }: Question) => questionName === name);
+		const question = questionAndAnswers.find(({ questionName }: Question) => questionName === name);
 		if (question) {
 			return Promise.resolve({ [name] : question.answer});
 		} else {

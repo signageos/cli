@@ -1,23 +1,30 @@
 import chalk from 'chalk';
 import { getAppletUid, getAppletVersionFromApi } from '../../Applet/appletFacade';
-import ICommand, { ICommandOption } from "../../Command/ICommand";
+import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
 import { createOrganizationRestApi } from '../../helper';
-import { getOrganizationUid, getOrganization } from '../../Organization/organizationFacade';
+import { getOrganization, getOrganizationUidOrDefaultOrSelect, NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION } from '../../Organization/organizationFacade';
 import { getDeviceUid } from '../deviceFacade';
 
-export const setContent: ICommand = {
+const OPTION_LIST = [
+	NO_DEFAULT_ORGANIZATION_OPTION,
+	ORGANIZATION_UID_OPTION,
+	{ name: 'applet-uid', type: String, description: 'Uid of applet form box' },
+	{ name: 'device-uid', type: String, description: 'Uid of device from box' },
+] as const;
+
+export const setContent = createCommandDefinition({
 	name: 'set-content',
 	description: 'Set content for device',
-	optionList: [
-		{ name: 'applet-uid', type: String, description: 'Uid of applet form box' },
-		{ name: 'device-uid', type: String, description: 'Uid of device from box' },
-		],
+	optionList: OPTION_LIST,
 	commands: [],
-	async run(options: ICommandOption) {
-		const organizationUid = await getOrganizationUid(options);
+	async run(options: CommandLineOptions<typeof OPTION_LIST>) {
+		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
 		const organization = await getOrganization(organizationUid);
 		const restApi = createOrganizationRestApi(organization);
 		const appletUid = await getAppletUid(restApi);
+		if (!appletUid) {
+			throw new Error('Missing argument --applet-uid <string>');
+		}
 		const appletVersion  = await getAppletVersionFromApi(restApi, appletUid);
 		const deviceUid = await getDeviceUid(restApi, options);
 		await restApi.timing.create({
@@ -37,4 +44,4 @@ export const setContent: ICommand = {
 		});
 		console.log(chalk.green(`Applet ${appletUid} was set on device ${deviceUid}`));
 	},
-};
+});

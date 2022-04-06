@@ -9,6 +9,7 @@ declare const parameters: {
 		testsPath: string;
 		distPath: string;
 	},
+	profile: string | undefined;
     apiUrl: string;
 	boxHost: string;
 	applet: {

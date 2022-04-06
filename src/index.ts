@@ -1,32 +1,19 @@
 #!/usr/bin/env node
 
-import ICommand from './Command/ICommand';
 import { applet } from './Applet/appletCommand';
 import { login } from './Auth/loginCommand';
 import { organization } from './Organization/organizationCommand';
 import { timing } from './Timing/timingCommand';
-import { processCommand, API_URL_OPTION } from './Command/commandProcessor';
-import { VERSION_OPTION } from './Cli/packageVersion';
+import { processCommand } from './Command/commandProcessor';
 import { firmware } from './Firmware/firmwareCommand';
 import { device } from './Device/deviceCommand';
+import { GENERAL_OPTION_LIST } from './generalCommand';
+import { createCommandDefinition } from './Command/commandDefinition';
 
-const index: ICommand = {
+const index = createCommandDefinition({
 	name: 'sos',
 	description: 'signageOS',
-	optionList: [
-		{
-			name: 'command',
-			alias: 'c',
-			type: String,
-			multiple: true,
-			defaultOption: true,
-			defaultValue: [],
-			description: `(default) Command name`,
-		},
-		{ name: 'help', alias: 'h', type: Boolean, description: 'Display this usage guide.' },
-		API_URL_OPTION,
-		VERSION_OPTION,
-	],
+	optionList: GENERAL_OPTION_LIST,
 	commands: [
 		applet,
 		login,
@@ -38,6 +25,6 @@ const index: ICommand = {
 	async run() {
 		throw new Error('Unknown command');
 	},
-};
+});
 
 processCommand(index);

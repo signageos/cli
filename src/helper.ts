@@ -5,18 +5,22 @@ import { RequestInit } from "node-fetch";
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import IRestApiOptions from '@signageos/sdk/dist/RestApi/IOptions';
 import IRestApiAccountOptions from '@signageos/sdk/dist/RestApi/IOptions';
-import { IOrganization } from './Organization/organizationFacade';
-import { getGlobalApiUrl } from './Command/commandProcessor';
 import { loadConfig } from './RunControl/runControlHelper';
+import { getGlobalApiUrl } from './Command/globalArgs';
+
+interface ICredentials {
+	oauthClientId: string;
+	oauthClientSecret: string;
+}
 
 export function createOrganizationRestApi(
-	organization: IOrganization,
+	credentials: ICredentials,
 ) {
 	const options: IRestApiOptions = {
 		url: getGlobalApiUrl(),
 		auth: {
-			clientId: organization.oauthClientId,
-			secret: organization.oauthClientSecret,
+			clientId: credentials.oauthClientId,
+			secret: credentials.oauthClientSecret,
 		},
 		version: 'v1' as 'v1',
 	};

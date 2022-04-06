@@ -1,11 +1,6 @@
 import * as should from 'should';
 import * as pathTool from 'path';
 import rewireMock from 'rewiremock';
-import {
-	DEFAULT_APPLET_BINARY_FILE_PATH,
-	DEFAULT_APPLET_ENTRY_FILE_PATH,
-	DEFAULT_APPLET_DIR_PATH,
-} from '../../../../src/Applet/Upload/appletUploadFacade';
 
 const EXISTING_RELATIVE_DIR_PATH = 'existingRelativeDirPath';
 const EXISTING_RELATIVE_FILE_PATH = 'existingRelativeFilePath';
@@ -61,7 +56,11 @@ import {
 	getAppletBinaryFileAbsolutePath,
 	getAppletEntryFileAbsolutePath,
 	getAppletEntryFileRelativePath,
+	DEFAULT_APPLET_BINARY_FILE_PATH,
+	DEFAULT_APPLET_ENTRY_FILE_PATH,
+	DEFAULT_APPLET_DIR_PATH,
 } from '../../../../src/Applet/Upload/appletUploadCommandHelper';
+import { generalOptions } from '../../helperMock';
 rewireMock.disable();
 
 describe('unit.appletUploadCommandHelper', () => {
@@ -72,6 +71,7 @@ describe('unit.appletUploadCommandHelper', () => {
 			const actualAbsolutePath = await getAppletDirectoryAbsolutePath(
 				'/',
 				{
+					...generalOptions,
 					'applet-path': DEFAULT_APPLET_DIR_PATH,
 				},
 			);
@@ -83,6 +83,7 @@ describe('unit.appletUploadCommandHelper', () => {
 			const actualAbsolutePath = await getAppletDirectoryAbsolutePath(
 				'/whatever',
 				{
+					...generalOptions,
 					'applet-path': EXISTING_ABSOLUTE_DIR_PATH,
 				},
 			);
@@ -94,6 +95,7 @@ describe('unit.appletUploadCommandHelper', () => {
 			const actualAbsolutePath = await getAppletDirectoryAbsolutePath(
 				'/',
 				{
+					...generalOptions,
 					'applet-path': EXISTING_RELATIVE_DIR_PATH,
 				},
 			);
@@ -105,6 +107,7 @@ describe('unit.appletUploadCommandHelper', () => {
 			const actualAbsolutePath = await getAppletDirectoryAbsolutePath(
 				'/',
 				{
+					...generalOptions,
 					'applet-path': EXISTING_RELATIVE_DIR_PATH + '/',
 				},
 			);
@@ -116,6 +119,7 @@ describe('unit.appletUploadCommandHelper', () => {
 			const actualAbsolutePath = await getAppletDirectoryAbsolutePath(
 				'/',
 				{
+					...generalOptions,
 					'applet-path': EXISTING_ABSOLUTE_DIR_PATH + '/',
 				},
 			);
@@ -129,6 +133,7 @@ describe('unit.appletUploadCommandHelper', () => {
 				await getAppletDirectoryAbsolutePath(
 					'/whatever',
 					{
+						...generalOptions,
 						'applet-path': '/nonExistingAbsolutePath',
 					},
 				);
@@ -145,6 +150,7 @@ describe('unit.appletUploadCommandHelper', () => {
 				await getAppletDirectoryAbsolutePath(
 					'/whatever',
 					{
+						...generalOptions,
 						'applet-path': EXISTING_ABSOLUTE_FILE_PATH,
 					},
 				);
@@ -161,6 +167,7 @@ describe('unit.appletUploadCommandHelper', () => {
 				await getAppletDirectoryAbsolutePath(
 					'/',
 					{
+						...generalOptions,
 						'applet-path': EXISTING_RELATIVE_FILE_PATH,
 					},
 				);
@@ -178,6 +185,7 @@ describe('unit.appletUploadCommandHelper', () => {
 			const actualAbsolutePath = await getAppletBinaryFileAbsolutePath(
 				'/',
 				{
+					...generalOptions,
 					'applet-path': DEFAULT_APPLET_BINARY_FILE_PATH,
 				},
 			);
@@ -189,6 +197,7 @@ describe('unit.appletUploadCommandHelper', () => {
 			const actualAbsolutePath = await getAppletBinaryFileAbsolutePath(
 				'/whatever',
 				{
+					...generalOptions,
 					'applet-path': EXISTING_ABSOLUTE_FILE_PATH,
 				},
 			);
@@ -200,6 +209,7 @@ describe('unit.appletUploadCommandHelper', () => {
 			const actualAbsolutePath = await getAppletBinaryFileAbsolutePath(
 				'/',
 				{
+					...generalOptions,
 					'applet-path': EXISTING_RELATIVE_FILE_PATH,
 				},
 			);
@@ -213,6 +223,7 @@ describe('unit.appletUploadCommandHelper', () => {
 				await getAppletBinaryFileAbsolutePath(
 					'/whatever',
 					{
+						...generalOptions,
 						'applet-path': '/nonExistingAbsolutePath',
 					},
 				);
@@ -229,6 +240,7 @@ describe('unit.appletUploadCommandHelper', () => {
 				await getAppletBinaryFileAbsolutePath(
 					'/whatever',
 					{
+						...generalOptions,
 						'applet-path': EXISTING_ABSOLUTE_DIR_PATH,
 					},
 				);
@@ -245,6 +257,7 @@ describe('unit.appletUploadCommandHelper', () => {
 				await getAppletBinaryFileAbsolutePath(
 					'/',
 					{
+						...generalOptions,
 						'applet-path': EXISTING_RELATIVE_DIR_PATH,
 					},
 				);
@@ -262,6 +275,7 @@ describe('unit.appletUploadCommandHelper', () => {
 			const actualAbsolutePath = await getAppletEntryFileAbsolutePath(
 				'/',
 				{
+					...generalOptions,
 					'entry-file-path': DEFAULT_APPLET_ENTRY_FILE_PATH,
 				},
 			);
@@ -273,6 +287,7 @@ describe('unit.appletUploadCommandHelper', () => {
 			const actualAbsolutePath = await getAppletEntryFileAbsolutePath(
 				'/whatever',
 				{
+					...generalOptions,
 					'entry-file-path': EXISTING_ABSOLUTE_FILE_PATH,
 				},
 			);
@@ -284,6 +299,7 @@ describe('unit.appletUploadCommandHelper', () => {
 			const actualAbsolutePath = await getAppletEntryFileAbsolutePath(
 				'/',
 				{
+					...generalOptions,
 					'entry-file-path': EXISTING_RELATIVE_FILE_PATH,
 				},
 			);
@@ -297,6 +313,7 @@ describe('unit.appletUploadCommandHelper', () => {
 				await getAppletEntryFileAbsolutePath(
 					'/whatever',
 					{
+						...generalOptions,
 						'entry-file-path': '/nonExistingAbsolutePath',
 					},
 				);
@@ -313,6 +330,7 @@ describe('unit.appletUploadCommandHelper', () => {
 				await getAppletEntryFileAbsolutePath(
 					'/whatever',
 					{
+						...generalOptions,
 						'entry-file-path': EXISTING_ABSOLUTE_DIR_PATH,
 					},
 				);
@@ -329,6 +347,7 @@ describe('unit.appletUploadCommandHelper', () => {
 				await getAppletEntryFileAbsolutePath(
 					'/',
 					{
+						...generalOptions,
 						'entry-file-path': EXISTING_RELATIVE_DIR_PATH,
 					},
 				);

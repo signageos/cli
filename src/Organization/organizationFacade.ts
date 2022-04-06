@@ -1,10 +1,10 @@
 import chalk from 'chalk';
 import * as Debug from 'debug';
 import * as prompts from 'prompts';
-import { CommandLineOptions } from 'command-line-args';
 import { getResource, deserializeJSON } from '../helper';
-import { loadConfig } from '../RunControl/runControlHelper';
-import { getGlobalApiUrl } from '../Command/commandProcessor';
+import { loadConfig, updateConfig } from '../RunControl/runControlHelper';
+import { CommandLineOptions } from '../Command/commandDefinition';
+import { getGlobalApiUrl } from '../Command/globalArgs';
 const debug = Debug('@signageos/cli:Organization:facade');
 
 export interface IOrganization {
@@ -16,9 +16,49 @@ export interface IOrganization {
 	oauthClientSecret: string;
 }
 
-export const ORGANIZATION_UID_OPTION = { name: 'organization-uid', type: String, description: 'Organization UID' };
+export const ORGANIZATION_UID_OPTION = { name: 'organization-uid', type: String, description: 'Organization UID' } as const;
+export const NO_DEFAULT_ORGANIZATION_OPTION = {
+	name: 'no-default-organization',
+	type: Boolean,
+	description: 'Prevent using the defaultOrganizationUid from ~/.sosrc which were set using command sos organization set-default',
+} as const;
 
-export async function getOrganizationUid(options: CommandLineOptions) {
+export const ORGANIZATION_OPTIONS = [
+	ORGANIZATION_UID_OPTION,
+	NO_DEFAULT_ORGANIZATION_OPTION,
+];
+
+export async function getOrganizationUidOrDefaultOrSelect(
+	options: CommandLineOptions<[typeof ORGANIZATION_UID_OPTION, typeof NO_DEFAULT_ORGANIZATION_OPTION]>,
+): Promise<string> {
+	const config = await loadConfig();
+	let organizationUid: string | undefined = options['organization-uid'];
+
+	if (!organizationUid && !options['no-default-organization']) {
+		organizationUid = config.defaultOrganizationUid;
+	}
+
+	if (!organizationUid) {
+		organizationUid = await selectOrganizationUid(options);
+		if (organizationUid) {
+			const response = await prompts({
+				type: 'confirm',
+				name: 'setDefault',
+				message: `Do you want to set the organization as a default for current profile?`,
+				initial: false,
+			});
+			if (response.setDefault) {
+				await updateConfig({
+					defaultOrganizationUid: organizationUid,
+				});
+			}
+		}
+	}
+
+	return organizationUid;
+}
+
+export async function selectOrganizationUid(options: CommandLineOptions<[typeof ORGANIZATION_UID_OPTION]>) {
 	let organizationUid: string | undefined = options['organization-uid'];
 	if (!organizationUid) {
 		const organizations = await getOrganizations();

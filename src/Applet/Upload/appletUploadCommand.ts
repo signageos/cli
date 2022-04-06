@@ -1,25 +1,23 @@
 import chalk from 'chalk';
 import * as prompts from 'prompts';
-import { CommandLineOptions } from 'command-line-args';
-import ICommand from '../../Command/ICommand';
 import { createOrganizationRestApi, } from '../../helper';
 import * as parameters from '../../../config/parameters';
-import { getOrganization, ORGANIZATION_UID_OPTION } from '../../Organization/organizationFacade';
+import { getOrganization, getOrganizationUidOrDefaultOrSelect, NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION } from '../../Organization/organizationFacade';
 import {
 	getAppletName,
 	getAppletVersion,
-	getAppletFrontAppletVersion,
-	tryGetAppletUid,
+	getAppletUid,
 } from '../appletFacade';
 import {
 	updateSingleFileApplet,
 	updateMultiFileApplet,
 	createSingleFileApplet,
 	createMultiFileFileApplet,
-	DEFAULT_APPLET_ENTRY_FILE_PATH,
 } from './appletUploadFacade';
 import {
-	getOrganizationUidAndUpdateConfig,
+	APPLET_PATH_OPTION,
+	DEFAULT_APPLET_ENTRY_FILE_PATH,
+	ENTRY_FILE_PATH_OPTION,
 	getAppletBinaryFileAbsolutePath,
 	getAppletDirectoryAbsolutePath,
 	getAppletEntryFileAbsolutePath,
@@ -28,57 +26,48 @@ import {
 import { listDirectoryContentRecursively, validateAllFormalities } from '../../FileSystem/helper';
 import { createProgressBar } from '../../CommandLine/progressBarFactory';
 import { saveToPackage } from '../../FileSystem/packageConfig';
+import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
 
-export const ENTRY_FILE_PATH_OPTION = {
-	name: 'entry-file-path',
-	type: String,
-	// defaultValue: DEFAULT_APPLET_ENTRY_FILE_PATH,
-	description: 'Path to the applet entry file. Relative to the command or absolute.',
-};
+export const OPTION_LIST = [
+	APPLET_PATH_OPTION,
+	ENTRY_FILE_PATH_OPTION,
+	NO_DEFAULT_ORGANIZATION_OPTION,
+	ORGANIZATION_UID_OPTION,
+	{
+		name: 'update-package-config',
+		type: Boolean,
+		description: `Force updating package.json with sos.appletUid value of created applet.`
+			+ `It's useful when appletUid is passed using SOS_APPLET_UID environment variable.`,
+	},
+	{
+		name: 'yes',
+		type: Boolean,
+		description: `Allow to upload new applet or override existing version without confirmation step`,
+	},
+	{
+		name: 'verbose',
+		type: Boolean,
+		description: `outputs all files to upload`,
+	},
+] as const;
 
-export const appletUpload: ICommand = {
+export const appletUpload = createCommandDefinition({
 	name: 'upload',
 	description: 'Uploads current applet version',
-	optionList: [
-		{
-			name: 'applet-path',
-			type: String,
-			// defaultValue: DEFAULT_APPLET_DIR_PATH,
-			description: 'Path to the applet file or the project folder depending on the entry file. Relative to the command or absolute.',
-		},
-		ENTRY_FILE_PATH_OPTION,
-		ORGANIZATION_UID_OPTION,
-		{
-			name: 'no-update-package-config',
-			type: Boolean,
-			description: `Skip updating package.json with sos.appletUid value of created applet.`
-				+ `It's useful when appletUid is passed using SOS_APPLET_UID environment variable.`,
-		},
-		{
-			name: 'yes',
-			type: Boolean,
-			description: `Allow to upload new applet or override existing version without confirmation step`,
-		},
-		{ // will output all files to upload for multifile applet
-			name: 'verbose',
-			type: Boolean,
-			description: `outputs all files to upload`,
-		},
-	],
+	optionList: OPTION_LIST,
 	commands: [],
-	async run(options: CommandLineOptions) {
+	async run(options: CommandLineOptions<typeof OPTION_LIST>) {
 		const currentDirectory = process.cwd();
-		const organizationUid = await getOrganizationUidAndUpdateConfig(options);
+		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
 		const organization = await getOrganization(organizationUid);
 		const restApi = createOrganizationRestApi(organization);
 
 		const appletName = await getAppletName(currentDirectory);
 		const appletVersion = await getAppletVersion(currentDirectory);
-		const appletFrontAppletVersion = await getAppletFrontAppletVersion(currentDirectory);
 
 		const appletPathOption = options['applet-path'] as string | undefined;
 		const appletEntryOption = options['entry-file-path'] as string | undefined;
-		const noUpdatePackageConfig = options['no-update-package-config'] as boolean;
+		const updatePackageConfig = options['update-package-config'] as boolean;
 
 		let appletBinaryFilePath: string | undefined = undefined;
 		let appletDirectoryPath: string | undefined = undefined;
@@ -97,19 +86,19 @@ export const appletUpload: ICommand = {
 		let overrideAppletVersionConfirmed = false;
 		let createNewAppletVersionConfirmed = false;
 
-		let appletUid = await tryGetAppletUid(currentDirectory);
+		let appletUid = await getAppletUid(restApi);
 		if (!appletUid) {
 			console.log(chalk.yellow(`applet uid is not present in package file, adding one.`));
 			const createdApplet = await restApi.applet.create({ name: appletName });
 			appletUid = createdApplet.uid;
-			if (!noUpdatePackageConfig) {
+			if (updatePackageConfig) {
 				await saveToPackage(currentDirectory, { sos: { appletUid } });
 			}
 		}
 
 		const applet = await restApi.applet.get(appletUid);
 
-		await restApi.applet.version.get(appletUid, appletVersion).catch(() => appletVersionExists = false);
+		await restApi.applet.version.get(appletUid, appletVersion).catch(() => appletVersionExists = false);
 
 		const verbose = 'verbose';
 		const allowVerbose = options[verbose] as boolean | undefined;
@@ -175,7 +164,6 @@ export const appletUpload: ICommand = {
 					applet: {
 						uid: appletUid,
 						version: appletVersion,
-						frontAppletVersion: appletFrontAppletVersion,
 						binaryFilePath: appletBinaryFilePath!,
 					},
 				});
@@ -187,7 +175,6 @@ export const appletUpload: ICommand = {
 					applet: {
 						uid: appletUid,
 						version: appletVersion,
-						frontAppletVersion: appletFrontAppletVersion,
 						entryFilePath: appletEntryFileRelativePath,
 						directoryPath: appletDirectoryPath!,
 						files: appletFiles,
@@ -203,7 +190,6 @@ export const appletUpload: ICommand = {
 					applet: {
 						uid: appletUid,
 						version: appletVersion,
-						frontAppletVersion: appletFrontAppletVersion,
 						binaryFilePath: appletBinaryFilePath!,
 					},
 				});
@@ -215,7 +201,6 @@ export const appletUpload: ICommand = {
 					applet: {
 						uid: appletUid,
 						version: appletVersion,
-						frontAppletVersion: appletFrontAppletVersion,
 						entryFilePath: appletEntryFileRelativePath,
 						directoryPath: appletDirectoryPath!,
 						files: appletFiles,
@@ -228,7 +213,7 @@ export const appletUpload: ICommand = {
 			throw new Error('Applet version upload was canceled.');
 		}
 	},
-};
+});
 
 function displaySuccessMessage(
 	appletUid: string,

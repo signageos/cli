@@ -1,56 +1,60 @@
 import chalk from 'chalk';
 import * as prompts from 'prompts';
-import { CommandLineOptions } from 'command-line-args';
-import ICommand from '../../../Command/ICommand';
 import { createOrganizationRestApi, } from '../../../helper';
-import { getOrganization, ORGANIZATION_UID_OPTION } from '../../../Organization/organizationFacade';
 import {
+	getOrganization,
+	getOrganizationUidOrDefaultOrSelect,
+	NO_DEFAULT_ORGANIZATION_OPTION,
+	ORGANIZATION_UID_OPTION,
+} from '../../../Organization/organizationFacade';
+import {
+	getAppletUid,
 	getAppletVersion,
-	tryGetAppletUid,
 } from '../../appletFacade';
-import {
-	getOrganizationUidAndUpdateConfig,
-} from '../../Upload/appletUploadCommandHelper';
 import { createProgressBar } from '../../../CommandLine/progressBarFactory';
 import { DEVICE_UID_OPTION, getDeviceUid } from '../../../Device/deviceFacade';
 import { validateTestIdentifiers } from './appletTestRunFacade';
 import wait from '../../../Timer/wait';
 import IDeviceAppletTest from '@signageos/sdk/dist/RestApi/Device/AppletTest/IDeviceAppletTest';
+import { CommandLineOptions, createCommandDefinition } from '../../../Command/commandDefinition';
 
-export const appletTestRun: ICommand = {
+const OPTION_LIST = [
+	NO_DEFAULT_ORGANIZATION_OPTION,
+	DEVICE_UID_OPTION,
+	ORGANIZATION_UID_OPTION,
+	{
+		name: 'test',
+		type: String,
+		multiple: true,
+		description: `Specify the test identifiers/files to be run. If not specified, all will be run.`,
+	},
+	{
+		name: 'yes',
+		type: Boolean,
+		description: `Allow to run applet test without confirmation step`,
+	},
+] as const;
+
+export const appletTestRun = createCommandDefinition({
 	name: 'run',
 	description: 'Runs applet tests',
-	optionList: [
-		DEVICE_UID_OPTION,
-		ORGANIZATION_UID_OPTION,
-		{
-			name: 'test',
-			type: String,
-			multiple: true,
-			description: `Specify the test identifiers/files to be run. If not specified, all will be run.`,
-		},
-		{
-			name: 'yes',
-			type: Boolean,
-			description: `Allow to run applet test without confirmation step`,
-		},
-	],
+	optionList: OPTION_LIST,
 	commands: [],
-	async run(options: CommandLineOptions) {
+	async run(options: CommandLineOptions<typeof OPTION_LIST>) {
 		const skipConfirmation = !!options.yes;
-		let tests: string[] | null = options.test;
+		let tests = options.test;
 
 		const currentDirectory = process.cwd();
-		const organizationUid = await getOrganizationUidAndUpdateConfig(options);
+		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
 		const organization = await getOrganization(organizationUid);
 		const restApi = createOrganizationRestApi(organization);
 		const deviceUid = await getDeviceUid(restApi, options);
 		const device = await restApi.device.get(deviceUid);
 
 		const version = await getAppletVersion(currentDirectory);
-		let appletUid = await tryGetAppletUid(currentDirectory);
+		const appletUid = await getAppletUid(restApi);
 		if (!appletUid) {
-			throw new Error(`applet uid is not present in package file.`);
+			throw new Error('Not selected Applet or sos.appletUid is not present in package.json');
 		}
 
 		const applet = await restApi.applet.get(appletUid);
@@ -113,7 +117,7 @@ export const appletTestRun: ICommand = {
 			progressBar.end();
 		}
 	},
-};
+});
 
 function displaySuccessMessage(
 	appletName: string,
