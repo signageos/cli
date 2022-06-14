@@ -53,12 +53,12 @@ export const appletGenerate = createCommandDefinition({
 			'@babel/core@7',
 			'@babel/preset-env@7',
 			'babel-loader@8',
-			'css-loader@3',
-			'html-webpack-plugin@3',
-			'style-loader@0',
-			'webpack@4',
-			'webpack-dev-server@3',
-			'webpack-cli@3',
+			'css-loader@6',
+			'html-webpack-plugin@5',
+			'style-loader@3',
+			'webpack@5',
+			'webpack-dev-server@4',
+			'webpack-cli@4',
 		];
 		const fileExtensions: string[] = ['.js'];
 		const imports: string[] = [
@@ -163,7 +163,7 @@ async function createPackageConfig(
 		version,
 		main: 'dist/index.html',
 		scripts: {
-			start: "webpack-dev-server --mode development --open-emulator",
+			start: "webpack serve --mode development",
 			prepare: "npm run clean && npm run build",
 			upload: "sos applet upload",
 			clean: "npx rimraf dist",
@@ -190,6 +190,7 @@ ${imports.join(';\n')}
 
 exports = module.exports = {
 	entry: ${JSON.stringify('./src/' + entryFileName)},
+	target: ${JSON.stringify(['web', 'es5'])},
 	output: {
 		filename: 'index.js',
 	},
