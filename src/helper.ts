@@ -8,10 +8,17 @@ import IRestApiAccountOptions from '@signageos/sdk/dist/RestApi/IOptions';
 import { loadConfig } from './RunControl/runControlHelper';
 import { getGlobalApiUrl } from './Command/globalArgs';
 import { ApiVersions } from '@signageos/sdk/dist/RestApi/apiVersions';
+import * as parameters from '../config/parameters';
 
 interface ICredentials {
 	oauthClientId: string;
 	oauthClientSecret: string;
+}
+
+export function createClientVersions() {
+	return {
+		['signageOS_CLI']: parameters.version,
+	};
 }
 
 export function createOrganizationRestApi(
@@ -24,6 +31,7 @@ export function createOrganizationRestApi(
 			secret: credentials.oauthClientSecret,
 		},
 		version: ApiVersions.V1,
+		clientVersions: createClientVersions(),
 	};
 	const accountOptions: IRestApiAccountOptions = {
 		...options,
@@ -44,6 +52,7 @@ export async function createFirmwareVersionRestApi() {
 			secret: config.apiSecurityToken,
 		},
 		version: ApiVersions.V1,
+		clientVersions: createClientVersions(),
 	};
 	const accountOptions: IRestApiAccountOptions = {
 		...options,

@@ -7,6 +7,7 @@ import { getOrganizationUidOrDefaultOrSelect, NO_DEFAULT_ORGANIZATION_OPTION, OR
 import { CommandLineOptions } from '../Command/commandDefinition';
 import { getGlobalApiUrl } from '../Command/globalArgs';
 import { ApiVersions } from '@signageos/sdk/dist/RestApi/apiVersions';
+import { createClientVersions } from '../helper';
 
 interface IEmulatorData {
 	uid: string;
@@ -23,6 +24,7 @@ const createRestApi = (config: IConfig) => {
 			secret: config.apiSecurityToken ?? '',
 		},
 		version: ApiVersions.V1,
+		clientVersions: createClientVersions(),
 	};
 	return new RestApi(options, options);
 };
