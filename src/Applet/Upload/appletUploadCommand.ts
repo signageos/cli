@@ -4,9 +4,8 @@ import { createOrganizationRestApi, } from '../../helper';
 import * as parameters from '../../../config/parameters';
 import { getOrganization, getOrganizationUidOrDefaultOrSelect, NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION } from '../../Organization/organizationFacade';
 import {
-	getAppletName,
-	getAppletVersion,
 	getAppletUid,
+	getApplet,
 } from '../appletFacade';
 import {
 	updateSingleFileApplet,
@@ -62,8 +61,7 @@ export const appletUpload = createCommandDefinition({
 		const organization = await getOrganization(organizationUid);
 		const restApi = createOrganizationRestApi(organization);
 
-		const appletName = await getAppletName(currentDirectory);
-		const appletVersion = await getAppletVersion(currentDirectory);
+		const { name: appletName, version: appletVersion, frontAppletVersion } = await getApplet(currentDirectory);
 
 		const appletPathOption = options['applet-path'] as string | undefined;
 		const appletEntryOption = options['entry-file-path'] as string | undefined;
@@ -165,6 +163,7 @@ export const appletUpload = createCommandDefinition({
 						uid: appletUid,
 						version: appletVersion,
 						binaryFilePath: appletBinaryFilePath!,
+						frontAppletVersion,
 					},
 				});
 			} else {
@@ -191,6 +190,7 @@ export const appletUpload = createCommandDefinition({
 						uid: appletUid,
 						version: appletVersion,
 						binaryFilePath: appletBinaryFilePath!,
+						frontAppletVersion,
 					},
 				});
 			} else {

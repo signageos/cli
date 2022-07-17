@@ -3,9 +3,16 @@ import * as path from 'path';
 import { deserializeJSON } from '../helper';
 import * as _ from 'lodash';
 
+type IDependencies = {
+	['@signageos/front-applet']: string;
+	[packageName: string]: string;
+};
+
 export interface ISosPackageConfig {
 	appletUid?: string;
 	tests?: string[];
+	/** @deprecated Used only for single-file applets as backward compatibility. */
+	dependencies?: IDependencies;
 }
 
 export interface IPackageConfig {
@@ -14,6 +21,8 @@ export interface IPackageConfig {
 	sos?: ISosPackageConfig;
 	main: string;
 	files?: string[];
+	dependencies?: IDependencies;
+	devDependencies?: IDependencies;
 }
 
 export async function saveToPackage(currentDirectory: string, data: Partial<IPackageConfig>) {
