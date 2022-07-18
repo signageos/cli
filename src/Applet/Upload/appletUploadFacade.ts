@@ -16,6 +16,8 @@ export async function updateSingleFileApplet(parameters: {
 		uid: string;
 		version: string;
 		binaryFilePath: string;
+		/** @deprecated Optional value for set current version of front-applet package */
+		frontAppletVersion?: string;
 	};
 }) {
 	const { restApi, applet } = parameters;
@@ -25,6 +27,7 @@ export async function updateSingleFileApplet(parameters: {
 		applet.version,
 		{
 			binary: appletBinary,
+			frontAppletVersion: applet.frontAppletVersion,
 		},
 	);
 }
@@ -144,6 +147,8 @@ export const createSingleFileApplet = async (parameters: {
 		uid: string;
 		version: string;
 		binaryFilePath: string;
+		/** @deprecated Optional value for set current version of front-applet package */
+		frontAppletVersion?: string;
 	};
 }) => {
 	const { restApi, applet } = parameters;
@@ -153,7 +158,7 @@ export const createSingleFileApplet = async (parameters: {
 		{
 			binary: appletBinary,
 			version: applet.version,
-			frontAppletVersion: '', // Back compatibility requires to setup front-applet version in UI
+			frontAppletVersion: applet.frontAppletVersion,
 		},
 	);
 };

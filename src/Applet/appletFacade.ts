@@ -9,6 +9,8 @@ export interface IApplet {
 	uid?: string;
 	name: string;
 	version: string;
+	/** @deprecated Used only for single-file applets as backward compatibility. */
+	frontAppletVersion?: string;
 }
 
 export async function getApplet(directoryPath: string): Promise<IApplet> {
@@ -21,6 +23,10 @@ export async function getApplet(directoryPath: string): Promise<IApplet> {
 	const appletUid = parameters.applet.uid ?? packageJSONObject.sos?.appletUid;
 	const appletVersion = parameters.applet.version ?? packageJSONObject.version;
 	const appletName = parameters.applet.name ?? packageJSONObject.name;
+	const frontAppletVersion = packageJSONObject.sos?.dependencies?.['@signageos/front-applet']
+		?? packageJSONObject.dependencies?.['@signageos/front-applet']
+		?? packageJSONObject.devDependencies?.['@signageos/front-applet']
+		?? '';
 
 	if (!appletVersion) {
 		throw new Error(`No "version" key found in: ${packageJSONPath} nor SOS_APPLET_VERSION environment variable specified`);
@@ -33,12 +39,8 @@ export async function getApplet(directoryPath: string): Promise<IApplet> {
 		uid: appletUid,
 		name: appletName,
 		version: appletVersion,
+		frontAppletVersion,
 	};
-}
-
-export async function getAppletName(directoryPath: string): Promise<string> {
-	const applet = await getApplet(directoryPath);
-	return applet.name;
 }
 
 export async function getAppletVersion(directoryPath: string): Promise<string> {
