@@ -47,15 +47,6 @@ export const updateMultiFileApplet = async (parameters: {
 	const currentAppletFiles = await getAppletFilesDictionary(restApi, applet.uid, applet.version);
 	let changedFilesCounter = 0;
 
-	const appletEntryFilePosixPath = path.posix.normalize(applet.entryFilePath.replace(/\\/g, '/'));
-	await restApi.applet.version.update(
-		applet.uid,
-		applet.version,
-		{
-			entryFile: appletEntryFilePosixPath,
-		},
-	);
-
 	for (let index = 0; index < applet.files.length; index++) {
 		const fileAbsolutePath = applet.files[index];
 		const fileRelativePath = getAppletFileRelativePath(fileAbsolutePath, applet.directoryPath);
@@ -83,7 +74,7 @@ export const updateMultiFileApplet = async (parameters: {
 			progressBar.init({size: fileSize, name: fileRelativePath});
 		}
 
-		const fileStream = await fs.createReadStream(fileAbsolutePath);
+		const fileStream = fs.createReadStream(fileAbsolutePath);
 		fileStream.pause();
 		fileStream.on('data', (chunk: Buffer) => {
 			if (progressBar) {
@@ -91,6 +82,7 @@ export const updateMultiFileApplet = async (parameters: {
 			}
 		});
 		try {
+			// update file is just alias to create file (both are idempotent)
 			await restApi.applet.version.file.update(
 				applet.uid,
 				applet.version,
@@ -101,6 +93,7 @@ export const updateMultiFileApplet = async (parameters: {
 					size: fileSize,
 					type: fileType,
 				},
+				{ build: false },
 			);
 
 		} catch (error) {
@@ -112,14 +105,10 @@ export const updateMultiFileApplet = async (parameters: {
 
 	}
 
-	if (progressBar) {
-		progressBar.end();
-	}
-
 	for (const fileRelativePath in currentAppletFiles) {
 		if (currentAppletFiles.hasOwnProperty(fileRelativePath)) {
 			try {
-				await restApi.applet.version.file.remove(applet.uid, applet.version, fileRelativePath);
+				await restApi.applet.version.file.remove(applet.uid, applet.version, fileRelativePath, { build: false });
 			} catch (error) {
 				if (error instanceof NotFoundError) {
 					/*
@@ -134,6 +123,20 @@ export const updateMultiFileApplet = async (parameters: {
 			}
 			changedFilesCounter++;
 		}
+	}
+
+	// The update applet version has to be the last after upload all files to trigger applet version build
+	const appletEntryFilePosixPath = path.posix.normalize(applet.entryFilePath.replace(/\\/g, '/'));
+	await restApi.applet.version.update(
+		applet.uid,
+		applet.version,
+		{
+			entryFile: appletEntryFilePosixPath,
+		},
+	);
+
+	if (progressBar) {
+		progressBar.end();
 	}
 
 	if (changedFilesCounter === 0) {
@@ -218,6 +221,7 @@ export const createMultiFileFileApplet = async (parameters: {
 					content: fileStream,
 					size: fileSize,
 				},
+				{ build: false },
 			);
 
 		} catch (error) {
@@ -228,6 +232,15 @@ export const createMultiFileFileApplet = async (parameters: {
 		}
 
 	}
+
+	// The extra update applet version which has to be after upload all files to trigger applet version build
+	await restApi.applet.version.update(
+		applet.uid,
+		applet.version,
+		{
+			entryFile: appletEntryFilePosixPath,
+		},
+	);
 
 	if (progressBar) {
 		progressBar.end();

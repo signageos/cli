@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Fixed
 - Uploading single file applet with front-applet version
+- Uploading applet files will invoke building applet only once at the end
+- CLI version in User-Agent header (e.g.: `signageOS_CLI/1.0.4`)
 
 ## [1.0.3] - 2022-06-14
 ### Fixed

@@ -5,6 +5,7 @@ import { getResource, deserializeJSON } from '../helper';
 import { loadConfig, updateConfig } from '../RunControl/runControlHelper';
 import { CommandLineOptions } from '../Command/commandDefinition';
 import { getGlobalApiUrl } from '../Command/globalArgs';
+import { ApiVersions } from '@signageos/sdk/dist/RestApi/apiVersions';
 const debug = Debug('@signageos/cli:Organization:facade');
 
 export interface IOrganization {
@@ -89,7 +90,7 @@ export async function getOrganizations(): Promise<IOrganization[]> {
 			clientId: config.identification,
 			secret: config.apiSecurityToken,
 		},
-		version: 'v1' as 'v1',
+		version: ApiVersions.V1,
 	};
 	const responseOfGet = await getResource(options, ORGANIZATION_RESOURCE);
 	const bodyOfGet = JSON.parse(await responseOfGet.text(), deserializeJSON);
@@ -112,7 +113,7 @@ export async function getOrganization(organizationUid: string): Promise<IOrganiz
 			clientId: config.identification,
 			secret: config.apiSecurityToken,
 		},
-		version: 'v1' as 'v1',
+		version: ApiVersions.V1,
 	};
 	const responseOfGet = await getResource(options, ORGANIZATION_RESOURCE + '/' + organizationUid);
 	const bodyOfGet = JSON.parse(await responseOfGet.text(), deserializeJSON);

@@ -7,6 +7,7 @@ import { saveConfig, getConfigFilePath } from '../RunControl/runControlHelper';
 import * as parameters from '../../config/parameters';
 import { CommandLineOptions, createCommandDefinition } from '../Command/commandDefinition';
 import { getGlobalApiUrl } from '../Command/globalArgs';
+import { ApiVersions } from '@signageos/sdk/dist/RestApi/apiVersions';
 const debug = Debug('@signageos/cli:Auth:login');
 
 const OPTION_LIST = [
@@ -59,7 +60,7 @@ async function getOrCreateApiSecurityToken(identification: string, password: str
 	const options = {
 		url: getGlobalApiUrl(),
 		auth: { clientId: undefined, secret: undefined },
-		version: 'v1' as 'v1',
+		version: ApiVersions.V1,
 	};
 	const tokenName = generateTokenName();
 	const query = {

@@ -86,8 +86,8 @@ describe('Applet.Upload.appletUploadFacade', () => {
 				should(fileUpdateSecondCallArgs[3].type).equal('text/plain');
 
 				should(mockRestApi.applet.version.file.remove.callCount).equal(2);
-				should(mockRestApi.applet.version.file.remove.getCall(0).args).deepEqual(['test1', '1.0.0', 'oldFile1.txt']);
-				should(mockRestApi.applet.version.file.remove.getCall(1).args).deepEqual(['test1', '1.0.0', 'oldFile2.txt']);
+				should(mockRestApi.applet.version.file.remove.getCall(0).args).deepEqual(['test1', '1.0.0', 'oldFile1.txt', { build: false }]);
+				should(mockRestApi.applet.version.file.remove.getCall(1).args).deepEqual(['test1', '1.0.0', 'oldFile2.txt', { build: false }]);
 			} finally {
 				await fs.remove(tmpDir);
 			}

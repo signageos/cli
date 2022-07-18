@@ -9,6 +9,7 @@ import { CommandLineOptions } from '../Command/commandDefinition';
 import { getGlobalApiUrl } from '../Command/globalArgs';
 import { getMachineIp } from '../Helper/localMachineHelper';
 import IDeviceReadOnly from '@signageos/sdk/dist/RestApi/Device/IDevice';
+import { ApiVersions } from '@signageos/sdk/dist/RestApi/apiVersions';
 
 const debug = Debug('@signageos/cli:Device:facade');
 
@@ -91,7 +92,7 @@ export async function connectDevice(organization: IOrganization, deviceUid: Stri
 			clientId: organization.oauthClientId,
 			secret: organization.oauthClientSecret,
 		},
-		version: 'v1' as 'v1',
+		version: ApiVersions.V1,
 	};
 	const computerIp = await getMachineIp();
 	const protocol: string =  "http://";
@@ -113,7 +114,7 @@ export async function disconnectDevice(organization: IOrganization, deviceUid: S
 			clientId: organization.oauthClientId,
 			secret: organization.oauthClientSecret,
 		},
-		version: 'v1' as 'v1',
+		version: ApiVersions.V1,
 	};
 	const responseOfPost = await postResource(options, DEVICE_RESOURCE, null , {"deviceUid": `${deviceUid}`});
 	return JSON.parse(await responseOfPost.text(), deserializeJSON);
