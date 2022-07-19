@@ -18,7 +18,7 @@ export const timingList = createCommandDefinition({
 	optionList: OPTION_LIST,
 	commands: [],
 	async run(options: CommandLineOptions<typeof OPTION_LIST>) {
-		debug('Timing create');
+		debug('Timing list');
 		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
 		const organization = await getOrganization(organizationUid);
 		const restApi = await createOrganizationRestApi(organization);
