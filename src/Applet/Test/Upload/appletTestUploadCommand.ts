@@ -4,6 +4,7 @@ import { createOrganizationRestApi, } from '../../../helper';
 import { getOrganization, getOrganizationUidOrDefaultOrSelect, NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION } from '../../../Organization/organizationFacade';
 import { loadTestFilesContents, validateTestFiles } from './appletTestUploadFacade';
 import {
+	APPLET_UID_OPTION,
 	getAppletUid,
 	getAppletVersion,
 } from '../../appletFacade';
@@ -15,6 +16,7 @@ import { CommandLineOptions, createCommandDefinition } from '../../../Command/co
 const OPTION_LIST = [
 	NO_DEFAULT_ORGANIZATION_OPTION,
 	ORGANIZATION_UID_OPTION,
+	APPLET_UID_OPTION,
 	{
 		name: 'yes',
 		type: Boolean,
@@ -42,10 +44,7 @@ export const appletTestUpload = createCommandDefinition({
 		const restApi = await createOrganizationRestApi(organization);
 
 		const version = await getAppletVersion(currentDirectory);
-		const appletUid = await getAppletUid(restApi);
-		if (!appletUid) {
-			throw new Error('Not selected Applet or sos.appletUid is not present in package.json');
-		}
+		const appletUid = await getAppletUid(restApi, options);
 
 		const applet = await restApi.applet.get(appletUid);
 		const appletVersion = await restApi.applet.version.get(appletUid, version);

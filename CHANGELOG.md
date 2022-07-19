@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Config API url via the config file `~/.sosrc`
 
+### Fixed
+- Parametrizing Applet UID using `--applet-uid` option
+
 ## [1.0.4] - 2022-07-18
 ### Fixed
 - Uploading single file applet with front-applet version
