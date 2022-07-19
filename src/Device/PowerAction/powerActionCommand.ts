@@ -20,7 +20,7 @@ export const powerAction = createCommandDefinition({
 	async run(options: CommandLineOptions<typeof OPTION_LIST>) {
 		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
 		const organization = await getOrganization(organizationUid);
-		const restApi = createOrganizationRestApi(organization);
+		const restApi = await createOrganizationRestApi(organization);
 		const deviceUid = await getDeviceUid(restApi, options);
 		const actionType = await getActionType(options);
 		await restApi.device.powerAction.set(deviceUid, {

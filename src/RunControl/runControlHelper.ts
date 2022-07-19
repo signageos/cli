@@ -10,6 +10,7 @@ import { getGlobalProfile } from '../Command/globalArgs';
 const RUN_CONTROL_FILENAME = '.sosrc';
 
 export interface IConfig {
+	apiUrl?: string;
 	identification?: string;
 	apiSecurityToken?: string;
 	defaultOrganizationUid?: string;
@@ -21,6 +22,7 @@ type IConfigFile = IConfig & {
 };
 
 export async function saveConfig(newConfig: IConfig) {
+	newConfig = _.omitBy(newConfig, _.isNil);
 	const runControlFilePath = getConfigFilePath();
 	let configFile: IConfigFile = {};
 	if (await fs.pathExists(runControlFilePath)) {
@@ -71,6 +73,9 @@ export async function loadConfig(): Promise<IConfig> {
 	}
 	if (parameters.defaultOrganizationUid) {
 		config.defaultOrganizationUid = parameters.defaultOrganizationUid;
+	}
+	if (!config.apiUrl) {
+		config.apiUrl = parameters.apiUrl;
 	}
 
 	// Temporary suggestion to login getting faster token

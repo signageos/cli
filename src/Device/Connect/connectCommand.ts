@@ -25,7 +25,7 @@ export const connect = createCommandDefinition({
 		const appletData = await getApplet(projectDirAbsolutePath);
 		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
 		const organization = await getOrganization(organizationUid);
-		const restApi = createOrganizationRestApi(organization);
+		const restApi = await createOrganizationRestApi(organization);
 		const deviceUid = await getDeviceUid(restApi, options);
 		const deviceData = await restApi.device.get(deviceUid);
 		await createConnectFile(deviceData.uid);

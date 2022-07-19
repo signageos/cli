@@ -39,7 +39,7 @@ export const appletTestUpload = createCommandDefinition({
 		const currentDirectory = process.cwd();
 		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
 		const organization = await getOrganization(organizationUid);
-		const restApi = createOrganizationRestApi(organization);
+		const restApi = await createOrganizationRestApi(organization);
 
 		const version = await getAppletVersion(currentDirectory);
 		const appletUid = await getAppletUid(restApi);

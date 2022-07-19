@@ -21,7 +21,7 @@ export const timingList = createCommandDefinition({
 		debug('Timing create');
 		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
 		const organization = await getOrganization(organizationUid);
-		const restApi = createOrganizationRestApi(organization);
+		const restApi = await createOrganizationRestApi(organization);
 		const deviceUid = await getDeviceUid(restApi, options);
 		const timings = await restApi.timing.getList({
 			deviceUid,

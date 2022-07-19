@@ -20,7 +20,7 @@ export const setContent = createCommandDefinition({
 	async run(options: CommandLineOptions<typeof OPTION_LIST>) {
 		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
 		const organization = await getOrganization(organizationUid);
-		const restApi = createOrganizationRestApi(organization);
+		const restApi = await createOrganizationRestApi(organization);
 		const appletUid = await getAppletUid(restApi);
 		if (!appletUid) {
 			throw new Error('Missing argument --applet-uid <string>');

@@ -47,7 +47,7 @@ export const appletTestRun = createCommandDefinition({
 		const currentDirectory = process.cwd();
 		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
 		const organization = await getOrganization(organizationUid);
-		const restApi = createOrganizationRestApi(organization);
+		const restApi = await createOrganizationRestApi(organization);
 		const deviceUid = await getDeviceUid(restApi, options);
 		const device = await restApi.device.get(deviceUid);
 
