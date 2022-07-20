@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 - Parametrizing Applet UID using `--applet-uid` option
+- Ignoring `node_modules/` from applet uploading
 
 ## [1.0.4] - 2022-07-18
 ### Fixed

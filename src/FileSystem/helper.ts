@@ -70,7 +70,7 @@ export async function listDirectoryContentRecursively(appletDirPath: string, ign
 		}
 
 		files = await glob(
-			['**/*', ...ignorePatterns],
+			['**/*', '!node_modules/', ...ignorePatterns],
 			{
 				cwd: appletDirPath,
 				absolute: true,
