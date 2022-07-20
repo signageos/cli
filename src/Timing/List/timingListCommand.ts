@@ -18,10 +18,10 @@ export const timingList = createCommandDefinition({
 	optionList: OPTION_LIST,
 	commands: [],
 	async run(options: CommandLineOptions<typeof OPTION_LIST>) {
-		debug('Timing create');
+		debug('Timing list');
 		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
 		const organization = await getOrganization(organizationUid);
-		const restApi = createOrganizationRestApi(organization);
+		const restApi = await createOrganizationRestApi(organization);
 		const deviceUid = await getDeviceUid(restApi, options);
 		const timings = await restApi.timing.getList({
 			deviceUid,

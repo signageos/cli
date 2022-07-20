@@ -2,11 +2,10 @@ import chalk from 'chalk';
 import * as prompts from 'prompts';
 import * as Debug from 'debug';
 import * as os from 'os';
-import { deserializeJSON, postResource } from '../helper';
-import { saveConfig, getConfigFilePath } from '../RunControl/runControlHelper';
+import { deserializeJSON, getApiUrl, postResource } from '../helper';
+import { saveConfig, getConfigFilePath, loadConfig } from '../RunControl/runControlHelper';
 import * as parameters from '../../config/parameters';
 import { CommandLineOptions, createCommandDefinition } from '../Command/commandDefinition';
-import { getGlobalApiUrl } from '../Command/globalArgs';
 import { ApiVersions } from '@signageos/sdk/dist/RestApi/apiVersions';
 const debug = Debug('@signageos/cli:Auth:login');
 
@@ -37,10 +36,15 @@ export const login = createCommandDefinition({
 			message: `Type your password used for ${parameters.boxHost}`,
 		});
 
+		const config = await loadConfig();
+
+		const apiUrl = getApiUrl(config);
+
 		// TODO use @signageos/test api instead
-		const { id: tokenId, securityToken: apiSecurityToken, name } = await getOrCreateApiSecurityToken(identification, password);
+		const { id: tokenId, securityToken: apiSecurityToken, name } = await getOrCreateApiSecurityToken(identification, password, apiUrl);
 
 		await saveConfig({
+			apiUrl: apiUrl !== parameters.apiUrl ? apiUrl : undefined,
 			identification: tokenId,
 			apiSecurityToken,
 		});
@@ -55,10 +59,10 @@ interface ILoginResponseBody {
 	name: string;
 }
 
-async function getOrCreateApiSecurityToken(identification: string, password: string): Promise<ILoginResponseBody> {
+async function getOrCreateApiSecurityToken(identification: string, password: string, apiUrl: string): Promise<ILoginResponseBody> {
 	const ACCOUNT_SECURITY_TOKEN_RESOURCE = 'account/security-token';
 	const options = {
-		url: getGlobalApiUrl(),
+		url: apiUrl,
 		auth: { clientId: undefined, secret: undefined },
 		version: ApiVersions.V1,
 	};

@@ -1,10 +1,9 @@
 import chalk from 'chalk';
 import * as Debug from 'debug';
 import * as prompts from 'prompts';
-import { getResource, deserializeJSON } from '../helper';
+import { getResource, deserializeJSON, getApiUrl } from '../helper';
 import { loadConfig, updateConfig } from '../RunControl/runControlHelper';
 import { CommandLineOptions } from '../Command/commandDefinition';
-import { getGlobalApiUrl } from '../Command/globalArgs';
 import { ApiVersions } from '@signageos/sdk/dist/RestApi/apiVersions';
 const debug = Debug('@signageos/cli:Organization:facade');
 
@@ -85,7 +84,7 @@ export async function getOrganizations(): Promise<IOrganization[]> {
 	const ORGANIZATION_RESOURCE = 'organization';
 	const config = await loadConfig();
 	const options = {
-		url: getGlobalApiUrl(),
+		url: getApiUrl(config),
 		auth: {
 			clientId: config.identification,
 			secret: config.apiSecurityToken,
@@ -108,7 +107,7 @@ export async function getOrganization(organizationUid: string): Promise<IOrganiz
 	const ORGANIZATION_RESOURCE = 'organization';
 	const config = await loadConfig();
 	const options = {
-		url: getGlobalApiUrl(),
+		url: getApiUrl(config),
 		auth: {
 			clientId: config.identification,
 			secret: config.apiSecurityToken,

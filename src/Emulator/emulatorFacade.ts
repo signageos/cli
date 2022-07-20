@@ -5,9 +5,8 @@ import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import AuthenitcationError from '@signageos/sdk/dist/RestApi/Error/AuthenticationError';
 import { getOrganizationUidOrDefaultOrSelect, NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION } from '../Organization/organizationFacade';
 import { CommandLineOptions } from '../Command/commandDefinition';
-import { getGlobalApiUrl } from '../Command/globalArgs';
 import { ApiVersions } from '@signageos/sdk/dist/RestApi/apiVersions';
-import { createClientVersions } from '../helper';
+import { createClientVersions, getApiUrl } from '../helper';
 
 interface IEmulatorData {
 	uid: string;
@@ -18,7 +17,7 @@ interface IEmulatorData {
 
 const createRestApi = (config: IConfig) => {
 	const options = {
-		url: getGlobalApiUrl(),
+		url: getApiUrl(config),
 		auth: {
 			clientId: config.identification ?? '',
 			secret: config.apiSecurityToken ?? '',

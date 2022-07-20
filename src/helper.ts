@@ -5,14 +5,23 @@ import { RequestInit } from "node-fetch";
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import IRestApiOptions from '@signageos/sdk/dist/RestApi/IOptions';
 import IRestApiAccountOptions from '@signageos/sdk/dist/RestApi/IOptions';
-import { loadConfig } from './RunControl/runControlHelper';
-import { getGlobalApiUrl } from './Command/globalArgs';
+import { IConfig, loadConfig } from './RunControl/runControlHelper';
 import { ApiVersions } from '@signageos/sdk/dist/RestApi/apiVersions';
 import * as parameters from '../config/parameters';
+import { getGlobalApiUrl } from './Command/globalArgs';
 
 interface ICredentials {
 	oauthClientId: string;
 	oauthClientSecret: string;
+}
+
+export async function loadApiUrl() {
+	const config = await loadConfig();
+	return getApiUrl(config);
+}
+
+export function getApiUrl(config: IConfig) {
+	return config.apiUrl || getGlobalApiUrl();
 }
 
 export function createClientVersions() {
@@ -21,11 +30,11 @@ export function createClientVersions() {
 	};
 }
 
-export function createOrganizationRestApi(
+export async function createOrganizationRestApi(
 	credentials: ICredentials,
 ) {
 	const options: IRestApiOptions = {
-		url: getGlobalApiUrl(),
+		url: await loadApiUrl(),
 		auth: {
 			clientId: credentials.oauthClientId,
 			secret: credentials.oauthClientSecret,
@@ -42,11 +51,11 @@ export function createOrganizationRestApi(
 
 export async function createFirmwareVersionRestApi() {
 	const config = await loadConfig();
-	if ( !config.identification || !config.apiSecurityToken ) {
+	if (!config.identification || !config.apiSecurityToken) {
 		throw new Error('Identification or token is missing.');
 	}
 	const options: IRestApiOptions = {
-		url: getGlobalApiUrl(),
+		url: getApiUrl(config),
 		auth: {
 			clientId: config.identification,
 			secret: config.apiSecurityToken,
