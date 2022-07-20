@@ -8,6 +8,7 @@ import {
 	ORGANIZATION_UID_OPTION,
 } from '../../../Organization/organizationFacade';
 import {
+	APPLET_UID_OPTION,
 	getAppletUid,
 	getAppletVersion,
 } from '../../appletFacade';
@@ -22,6 +23,7 @@ const OPTION_LIST = [
 	NO_DEFAULT_ORGANIZATION_OPTION,
 	DEVICE_UID_OPTION,
 	ORGANIZATION_UID_OPTION,
+	APPLET_UID_OPTION,
 	{
 		name: 'test',
 		type: String,
@@ -52,10 +54,7 @@ export const appletTestRun = createCommandDefinition({
 		const device = await restApi.device.get(deviceUid);
 
 		const version = await getAppletVersion(currentDirectory);
-		const appletUid = await getAppletUid(restApi);
-		if (!appletUid) {
-			throw new Error('Not selected Applet or sos.appletUid is not present in package.json');
-		}
+		const appletUid = await getAppletUid(restApi, options);
 
 		const applet = await restApi.applet.get(appletUid);
 		const appletVersion = await restApi.applet.version.get(appletUid, version);

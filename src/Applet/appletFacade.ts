@@ -4,6 +4,8 @@ import RestApi from "@signageos/sdk/dist/RestApi/RestApi";
 import ISdkApplet from '@signageos/sdk/dist/RestApi/Applet/IApplet';
 import * as parameters from '../../config/parameters';
 import { loadPackage } from '../FileSystem/packageConfig';
+import { CommandLineOptions } from '../Command/commandDefinition';
+import { AppletDoesNotExistError } from './appletErrors';
 
 export interface IApplet {
 	uid?: string;
@@ -12,6 +14,8 @@ export interface IApplet {
 	/** @deprecated Used only for single-file applets as backward compatibility. */
 	frontAppletVersion?: string;
 }
+
+export const APPLET_UID_OPTION = { name: 'applet-uid', type: String, description: 'Applet UID' } as const;
 
 export async function getApplet(directoryPath: string): Promise<IApplet> {
 	const packageJSONPath = path.join(directoryPath, 'package.json');
@@ -50,11 +54,12 @@ export async function getAppletVersion(directoryPath: string): Promise<string> {
 
 export async function getAppletUid(
 	restApi: RestApi,
+	options: CommandLineOptions<[typeof APPLET_UID_OPTION]>,
 ) {
 	const currentDirectory = process.cwd();
 	const currentApplet = await getApplet(currentDirectory);
 
-	let appletUid: string | undefined = currentApplet.uid;
+	let appletUid: string | undefined = options['applet-uid'] || currentApplet.uid;
 
 	if (!appletUid) {
 		const applets = await restApi.applet.list();
@@ -76,6 +81,10 @@ export async function getAppletUid(
 			appletUid = candidatesOfApplets[0].uid;
 		}
 	}
+	if (!appletUid) {
+		throw new AppletDoesNotExistError('Not selected Applet or sos.appletUid is not present in package.json or --applet-uid argument.');
+	}
+
 	return appletUid;
 }
 

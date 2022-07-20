@@ -6,6 +6,7 @@ import { getOrganization, getOrganizationUidOrDefaultOrSelect, NO_DEFAULT_ORGANI
 import {
 	getAppletUid,
 	getApplet,
+	APPLET_UID_OPTION,
 } from '../appletFacade';
 import {
 	updateSingleFileApplet,
@@ -26,12 +27,14 @@ import { listDirectoryContentRecursively, validateAllFormalities } from '../../F
 import { createProgressBar } from '../../CommandLine/progressBarFactory';
 import { saveToPackage } from '../../FileSystem/packageConfig';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
+import { AppletDoesNotExistError } from '../appletErrors';
 
 export const OPTION_LIST = [
 	APPLET_PATH_OPTION,
 	ENTRY_FILE_PATH_OPTION,
 	NO_DEFAULT_ORGANIZATION_OPTION,
 	ORGANIZATION_UID_OPTION,
+	APPLET_UID_OPTION,
 	{
 		name: 'update-package-config',
 		type: Boolean,
@@ -84,8 +87,13 @@ export const appletUpload = createCommandDefinition({
 		let overrideAppletVersionConfirmed = false;
 		let createNewAppletVersionConfirmed = false;
 
-		let appletUid = await getAppletUid(restApi);
-		if (!appletUid) {
+		let appletUid: string | undefined;
+		try {
+			appletUid = await getAppletUid(restApi, options);
+		} catch (error) {
+			if (!(error instanceof AppletDoesNotExistError)) {
+				throw error;
+			}
 			console.log(chalk.yellow(`applet uid is not present in package file, adding one.`));
 			const createdApplet = await restApi.applet.create({ name: appletName });
 			appletUid = createdApplet.uid;

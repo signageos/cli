@@ -19,6 +19,7 @@ export const multiFileOptions = {
 
 export const singleFileOptions = {
 	...defaultOptions,
+	'applet-uid': 'fakeAppletUid',
 	'applet-path': 'fakeAppletPath',
 	'organization-uid': 'fakeOrganizationUid',
 } as const;

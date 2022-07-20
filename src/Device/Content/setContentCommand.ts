@@ -1,15 +1,20 @@
 import chalk from 'chalk';
-import { getAppletUid, getAppletVersionFromApi } from '../../Applet/appletFacade';
+import { APPLET_UID_OPTION, getAppletUid, getAppletVersionFromApi } from '../../Applet/appletFacade';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
 import { createOrganizationRestApi } from '../../helper';
-import { getOrganization, getOrganizationUidOrDefaultOrSelect, NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION } from '../../Organization/organizationFacade';
-import { getDeviceUid } from '../deviceFacade';
+import {
+	getOrganization,
+	getOrganizationUidOrDefaultOrSelect,
+	NO_DEFAULT_ORGANIZATION_OPTION,
+	ORGANIZATION_UID_OPTION,
+} from '../../Organization/organizationFacade';
+import { DEVICE_UID_OPTION, getDeviceUid } from '../deviceFacade';
 
 const OPTION_LIST = [
 	NO_DEFAULT_ORGANIZATION_OPTION,
 	ORGANIZATION_UID_OPTION,
-	{ name: 'applet-uid', type: String, description: 'Uid of applet form box' },
-	{ name: 'device-uid', type: String, description: 'Uid of device from box' },
+	APPLET_UID_OPTION,
+	DEVICE_UID_OPTION,
 ] as const;
 
 export const setContent = createCommandDefinition({
@@ -21,10 +26,7 @@ export const setContent = createCommandDefinition({
 		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
 		const organization = await getOrganization(organizationUid);
 		const restApi = await createOrganizationRestApi(organization);
-		const appletUid = await getAppletUid(restApi);
-		if (!appletUid) {
-			throw new Error('Missing argument --applet-uid <string>');
-		}
+		const appletUid = await getAppletUid(restApi, options);
 		const appletVersion  = await getAppletVersionFromApi(restApi, appletUid);
 		const deviceUid = await getDeviceUid(restApi, options);
 		await restApi.timing.create({
