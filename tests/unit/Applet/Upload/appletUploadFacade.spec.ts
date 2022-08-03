@@ -6,6 +6,7 @@ import * as sinon from 'sinon';
 import { updateMultiFileApplet } from '../../../../src/Applet/Upload/appletUploadFacade';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import NotFoundError from '@signageos/sdk/dist/RestApi/Error/NotFoundError';
+import IAppletVersion from '@signageos/sdk/dist/RestApi/Applet/Version/IAppletVersion';
 
 function makeTempDir() {
 	const prefix = path.join(os.tmpdir(), 'appletUploadFacadeSpec-');
@@ -29,6 +30,13 @@ describe('Applet.Upload.appletUploadFacade', () => {
 					applet: {
 						version: {
 							update: sinon.stub().resolves(),
+							async get(uid: string, version: string) {
+								return {
+									appletUid: uid,
+									version,
+									entryFile: 'index.html',
+								} as IAppletVersion;
+							},
 							file: {
 								async list(uid: string, version: string) {
 									if (uid === 'test1' && version === '1.0.0') {
@@ -106,6 +114,13 @@ describe('Applet.Upload.appletUploadFacade', () => {
 					applet: {
 						version: {
 							update: sinon.stub().resolves(),
+							async get(uid: string, version: string) {
+								return {
+									appletUid: uid,
+									version,
+									entryFile: 'index.html',
+								} as IAppletVersion;
+							},
 							file: {
 								async list(uid: string, version: string) {
 									if (uid === 'test1' && version === '1.0.0') {
@@ -168,7 +183,7 @@ describe('Applet.Upload.appletUploadFacade', () => {
 			}
 		});
 
-		it('should update multi file applet and ignore uploading files that didn\'t change', async () => {
+		it('should not update multi file applet and ignore uploading files that didn\'t change', async () => {
 			const tmpDir = await makeTempDir();
 			try {
 				const file1 = path.join(tmpDir, 'file1.txt');
@@ -178,6 +193,13 @@ describe('Applet.Upload.appletUploadFacade', () => {
 					applet: {
 						version: {
 							update: sinon.stub().resolves(),
+							async get(uid: string, version: string) {
+								return {
+									appletUid: uid,
+									version,
+									entryFile: 'index.html',
+								} as IAppletVersion;
+							},
 							file: {
 								async list(uid: string, version: string) {
 									if (uid === 'test1' && version === '1.0.0') {
@@ -204,15 +226,7 @@ describe('Applet.Upload.appletUploadFacade', () => {
 					},
 				});
 
-				should(mockRestApi.applet.version.update.callCount).equal(1);
-				should(mockRestApi.applet.version.update.getCall(0).args).deepEqual([
-					'test1',
-					'1.0.0',
-					{
-						entryFile: 'index.html',
-					},
-				]);
-
+				should(mockRestApi.applet.version.update.callCount).equal(0);
 				should(mockRestApi.applet.version.file.update.callCount).equal(0);
 				should(mockRestApi.applet.version.file.remove.callCount).equal(0);
 			} finally {
@@ -230,6 +244,13 @@ describe('Applet.Upload.appletUploadFacade', () => {
 					applet: {
 						version: {
 							update: sinon.stub().resolves(),
+							async get(uid: string, version: string) {
+								return {
+									appletUid: uid,
+									version,
+									entryFile: 'index.html',
+								} as IAppletVersion;
+							},
 							file: {
 								async list(uid: string, version: string) {
 									if (uid === 'test1' && version === '1.0.0') {
@@ -272,6 +293,13 @@ describe('Applet.Upload.appletUploadFacade', () => {
 					applet: {
 						version: {
 							update: sinon.stub().resolves(),
+							async get(uid: string, version: string) {
+								return {
+									appletUid: uid,
+									version,
+									entryFile: 'index.html',
+								} as IAppletVersion;
+							},
 							file: {
 								async list(uid: string, version: string) {
 									if (uid === 'test1' && version === '1.0.0') {
