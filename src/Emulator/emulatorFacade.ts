@@ -3,8 +3,6 @@ import * as prompts from 'prompts';
 import { loadConfig, updateConfig, IConfig } from '../RunControl/runControlHelper';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import AuthenitcationError from '@signageos/sdk/dist/RestApi/Error/AuthenticationError';
-import { getOrganizationUidOrDefaultOrSelect, NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION } from '../Organization/organizationFacade';
-import { CommandLineOptions } from '../Command/commandDefinition';
 import { ApiVersions } from '@signageos/sdk/dist/RestApi/apiVersions';
 import { createClientVersions, getApiUrl } from '../helper';
 
@@ -28,9 +26,9 @@ const createRestApi = (config: IConfig) => {
 	return new RestApi(options, options);
 };
 
-async function getListOfEmulators(restApi: RestApi) {
+async function getListOfEmulators(restApi: RestApi, organizationUid: string) {
 	try {
-		return await restApi.emulator.list();
+		return await restApi.emulator.list({ organizationUid });
 	} catch (e) {
 		if (e instanceof AuthenitcationError) {
 			throw new Error(`Authentication error. Try to login using ${chalk.green('sos login')}`);
@@ -49,15 +47,14 @@ async function createNewEmulator(restApi: RestApi, organizationUid: string) {
 }
 
 export async function loadEmulatorOrCreateNewAndReturnUid(
-	options: CommandLineOptions<[typeof ORGANIZATION_UID_OPTION, typeof NO_DEFAULT_ORGANIZATION_OPTION]>,
+	organizationUid: string,
 ) {
 	const config = await loadConfig();
 	if (!config.identification || !config.apiSecurityToken) {
 		throw new Error(`No authenticized account found. Try to login using ${chalk.green('sos login')}`);
 	}
-	const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
 	const restApi = createRestApi(config);
-	const listOfEmulatorsResponse = await getListOfEmulators(restApi);
+	const listOfEmulatorsResponse = await getListOfEmulators(restApi, organizationUid);
 	const isSavedValidEmulator = config.emulatorUid && listOfEmulatorsResponse.some(
 		(emu: IEmulatorData) => emu.duid === config.emulatorUid,
 	);
@@ -88,7 +85,7 @@ export async function loadEmulatorOrCreateNewAndReturnUid(
 	} else {
 		console.log('No valid emulator assigned to your account found via API thus newone will be created');
 		await createNewEmulator(restApi, organizationUid);
-		const newEmulatorList = await getListOfEmulators(restApi);
+		const newEmulatorList = await getListOfEmulators(restApi, organizationUid);
 		const emulatorName = newEmulatorList[0].name;
 		emulatorUid = newEmulatorList[0].duid;
 		console.log(`New emulator ${chalk.green(emulatorName)} created and saved into .sosrc`);

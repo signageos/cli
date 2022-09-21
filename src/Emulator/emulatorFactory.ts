@@ -10,8 +10,6 @@ import * as glob from 'globby';
 import chalk from 'chalk';
 import { IEmulator } from './IEmulator';
 import { createDomain } from './createDomain';
-import { getOrganizationUidOrDefaultOrSelect, NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION } from '../Organization/organizationFacade';
-import { CommandLineOptions } from '../Command/commandDefinition';
 
 export interface ICreateEmulatorParams {
 	projectPath: string;
@@ -36,7 +34,7 @@ type IEnvVars = {
 
 export async function createEmulator(
 	params: ICreateEmulatorParams,
-	options: CommandLineOptions<[typeof ORGANIZATION_UID_OPTION, typeof NO_DEFAULT_ORGANIZATION_OPTION]>,
+	organizationUid: string,
 ): Promise<IEmulator> {
 	const { projectPath, emulatorServerPort, appletPath, entryFileRelativePath } = params;
 	const entryFileAbsolutePath = path.join(appletPath, entryFileRelativePath);
@@ -46,8 +44,6 @@ export async function createEmulator(
 	const frontDisplayDistPath = path.join(frontDisplayPath, 'dist');
 
 	const packageConfig = JSON.parse(fsExtra.readFileSync(path.join(projectPath, 'package.json')).toString());
-
-	const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
 
 	if (!organizationUid) {
 		throw new Error(`No default organization selected. Use ${chalk.green('sos organization set-default')} first.`);

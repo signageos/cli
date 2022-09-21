@@ -9,7 +9,7 @@ import {
 import { getAppletDirAbsolutePath } from './appletStartCommandHelper';
 import { loadEmulatorOrCreateNewAndReturnUid } from '../../Emulator/emulatorFacade';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
-import { NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION } from '../../Organization/organizationFacade';
+import { getOrganizationUidOrDefaultOrSelect, NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION } from '../../Organization/organizationFacade';
 
 export const OPTION_LIST = [
 	NO_DEFAULT_ORGANIZATION_OPTION,
@@ -31,12 +31,13 @@ export const appletStart = createCommandDefinition({
 		if (!options.port) {
 			throw new Error('Argument --port is required');
 		}
+		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
 		const emulatorServerPort = options.port;
 		const entryFileAbsolutePath = await getAppletEntryFileAbsolutePath(currentDirectory, options);
 		const projectDirAbsolutePath = await getProjectDirAbsolutePath(currentDirectory, options);
 		const appletDirAbsolutePath = await getAppletDirAbsolutePath(currentDirectory, options);
 		const entryFileRelativePath = await getAppletEntryFileRelativePath(entryFileAbsolutePath, appletDirAbsolutePath);
-		const emulatorUid = await loadEmulatorOrCreateNewAndReturnUid(options);
+		const emulatorUid = await loadEmulatorOrCreateNewAndReturnUid(organizationUid);
 
 		const createEmulatorParams = {
 			emulatorUid,
@@ -45,6 +46,6 @@ export const appletStart = createCommandDefinition({
 			entryFileRelativePath,
 			emulatorServerPort,
 		};
-		await createEmulator(createEmulatorParams, options);
+		await createEmulator(createEmulatorParams, organizationUid);
 	},
 });
