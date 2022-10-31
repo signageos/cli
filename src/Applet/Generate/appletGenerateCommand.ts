@@ -167,7 +167,7 @@ async function createPackageConfig(
 			prepare: "npm run clean && npm run build",
 			upload: "sos applet upload",
 			clean: "npx rimraf dist",
-			escheck: "npx es-check --module=false es5 dist/*.js",
+			escheck: "npx es-check es5 dist/*.js",
 			build: "webpack --mode production",
 			postbuild: "npm run escheck",
 			connect: "webpack --watch",
