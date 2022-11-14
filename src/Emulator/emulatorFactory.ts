@@ -63,12 +63,6 @@ export async function createEmulator(
 
 	app.use(cors());
 
-	app.get('/display.appcache', (_req: express.Request, res: express.Response) => {
-		const currentDate = new Date();
-		res.header('Last-Modified', currentDate.toString());
-		res.header('Content-type', 'text/cache-manifest; charset=UTF-8');
-		res.send(`CACHE MANIFEST\n# v1 - ${currentDate.toISOString()}\n/tmp\nNETWORK:\n*\n`);
-	});
 	app.get('/', (req: express.Request, res: express.Response) => {
 		if (!req.query.duid) {
 			res.redirect(`${req.originalUrl}${req.originalUrl.includes('?') ? '&' : '?'}duid=${params.emulatorUid}`);
