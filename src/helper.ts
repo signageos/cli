@@ -21,7 +21,11 @@ export async function loadApiUrl() {
 }
 
 export function getApiUrl(config: IConfig) {
-	return config.apiUrl || getGlobalApiUrl();
+	const apiUrl = getGlobalApiUrl() || config.apiUrl;
+	if (!apiUrl) {
+		throw new Error(`No API URL is defined. Please use --api-url or set SOS_API_URL environment variable.`);
+	}
+	return apiUrl;
 }
 
 export function createClientVersions() {
