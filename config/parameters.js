@@ -9,19 +9,20 @@ const distPath = rootPath + '/dist';
 
 dotenv.config({ path: path.join(rootPath, '.env') });
 
-if (process.env.SOS_PROFILE) {
-	console.warn(`Environment variable SOS_PROFILE found. Will use non default profile from ~/.sosrc`);
-}
-if (process.env.SOS_API_IDENTIFICATION) {
-	console.warn(`Environment variable SOS_API_IDENTIFICATION found. Will override default credentials from ~/.sosrc`);
-}
+const configurableEnvVars = [
+	'SOS_PROFILE',
+	'SOS_API_IDENTIFICATION',
+	'SOS_API_SECURITY_TOKEN',
+	'SOS_ORGANIZATION_UID',
+	'SOS_APPLET_UID',
+	'SOS_APPLET_VERSION',
+	'SOS_APPLET_NAME',
+];
 
-if (process.env.SOS_API_SECURITY_TOKEN) {
-	console.warn(`Environment variable SOS_API_SECURITY_TOKEN found. Will override default credentials from ~/.sosrc`);
-}
-
-if (process.env.SOS_ORGANIZATION_UID) {
-	console.warn(`Environment variable SOS_ORGANIZATION_UID found. Will override default credentials from ~/.sosrc`);
+for (const envVar of configurableEnvVars) {
+	if (process.env[envVar]) {
+		console.warn(`Environment variable ${envVar} found. Will override default values from ~/.sosrc`);
+	}
 }
 
 module.exports = {
