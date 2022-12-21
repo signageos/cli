@@ -1,3 +1,4 @@
+import { log } from '@signageos/sdk/dist/Console/log';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import { CommandLineOptions } from '../../Command/commandDefinition';
@@ -20,7 +21,7 @@ export async function getAppletDirAbsolutePath(
 	if (appletDirectoryPath.length > 1 && appletDirectoryPath[appletDirectoryPath.length - 1] === '/') {
 		appletDirectoryPath = appletDirectoryPath.substring(0, appletDirectoryPath.length - 1);
 	}
-	console.log(`\nUse applet directory path: ${appletDirectoryPath}`);
+	log('info', `\nUse applet directory path: ${appletDirectoryPath}`);
 
 	const appletDirectoryPathExists = await fs.pathExists(appletDirectoryPath);
 	if (!appletDirectoryPathExists) {

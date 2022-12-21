@@ -14,6 +14,7 @@ import { IApplet } from "../../Applet/appletFacade";
 import { disconnectDevice } from "../deviceFacade";
 import { IOrganization } from "../../Organization/organizationFacade";
 import { parameters } from '../../parameters';
+import { log } from "@signageos/sdk/dist/Console/log";
 const archiver = require('archiver');
 
 const CONNECT_DIRECTORY = 'signageos';
@@ -48,7 +49,7 @@ export async function serveApplet(
 	const server = http.createServer(app);
 	const deviceUlrInBox = `https://${parameters.boxHost}/device/${device.uid}`;
 	server.listen( () => {
-		console.log(`Serving applet from ${chalk.blue(chalk.bold(createDomain({useLocalIp: true, port: 8080}, server)))} on ${chalk.magenta(chalk.bold(device.name))} (${chalk.blue(chalk.bold(deviceUlrInBox))})`);
+		log('info', `Serving applet from ${chalk.blue(chalk.bold(createDomain({useLocalIp: true, port: 8080}, server)))} on ${chalk.magenta(chalk.bold(device.name))} (${chalk.blue(chalk.bold(deviceUlrInBox))})`);
 	});
 	const serverData = JSON.stringify(server.address());
 	const serverPort = JSON.parse(serverData).port;
@@ -94,7 +95,7 @@ export async function createConnectFile(deviceUid: string) {
 
 export async function stopApplication(organization: IOrganization, deviceUid: string)  {
 	await disconnectDevice(organization, deviceUid).finally(() => {
-		console.log(` ${chalk.blue(chalk.bold("Device was disconnected"))}`);
+		log('info', ` ${chalk.blue(chalk.bold("Device was disconnected"))}`);
 	});
 	await deleteUsedFiles(connectRuntimeDirPath, deviceUid);
 	process.exit(0);

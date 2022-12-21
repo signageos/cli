@@ -8,6 +8,7 @@ import {
 	getUpdateVersionMessage,
 } from '../Cli/packageVersion';
 import { ICommand, ICommandOption, OptionList } from './commandDefinition';
+import { log } from '@signageos/sdk/dist/Console/log';
 const debug = Debug('@signageos/cli:Command:processor');
 
 export async function processCommand(
@@ -37,11 +38,11 @@ export async function processCommand(
 				const newVer: boolean = await newVersionAvailable();
 
 				if (newVer) {
-					console.info(getUpdateVersionMessage());
+					log('info', getUpdateVersionMessage());
 				}
 				await currentCommand.run(currentOptions);
 			} catch (error) {
-				console.error(chalk.red(error.message));
+				log('error', error.message);
 				printUsage(currentCommand, nestedOptionList);
 				process.exit(1);
 			}
@@ -53,16 +54,14 @@ function printUsage(
 	currentCommand: ICommand<string, OptionList>,
 	optionList: ICommandOption[],
 ) {
-	console.log(chalk.bold(currentCommand.name));
-	console.log('  - ' + chalk.italic(currentCommand.description));
-	console.log();
+	log('info', chalk.bold(currentCommand.name));
+	log('info', '  - ' + chalk.italic(currentCommand.description), '');
 	for (const command of currentCommand.commands) {
-		console.log('  ' + chalk.bold(command.name));
-		console.log('    - ' + chalk.italic(command.description));
-		console.log();
+		log('info', '  ' + chalk.bold(command.name));
+		log('info', '    - ' + chalk.italic(command.description), '');
 	}
 	const usage = cliUsage({
 		optionList,
 	});
-	console.log(usage);
+	log('info', usage);
 }

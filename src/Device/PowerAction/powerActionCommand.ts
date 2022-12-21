@@ -4,6 +4,7 @@ import { createOrganizationRestApi } from "../../helper";
 import chalk from "chalk";
 import { getActionType } from "../deviceFacade";
 import { CommandLineOptions, createCommandDefinition } from "../../Command/commandDefinition";
+import { log } from "@signageos/sdk/dist/Console/log";
 
 const OPTION_LIST = [
 	NO_DEFAULT_ORGANIZATION_OPTION,
@@ -26,7 +27,7 @@ export const powerAction = createCommandDefinition({
 		await restApi.device.powerAction.set(deviceUid, {
 			devicePowerAction:  typeMap.get(actionType)!.action,
 		}).finally(() => {
-			console.log(chalk.green(`Action ${typeMap.get(actionType)!.name} was successful on device ${deviceUid}`));
+			log('info', chalk.green(`Action ${typeMap.get(actionType)!.name} was successful on device ${deviceUid}`));
 		});
 	},
 });

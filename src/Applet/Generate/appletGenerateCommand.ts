@@ -4,6 +4,7 @@ import chalk from 'chalk';
 import * as path from 'path';
 import * as prompts from 'prompts';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
+import { log } from '@signageos/sdk/dist/Console/log';
 
 const NAME_REGEXP = /^\w(\w|\d|-)*\w$/;
 const NPM_EXECUTABLE = 'npm';
@@ -148,8 +149,8 @@ export const appletGenerate = createCommandDefinition({
 			},
 		);
 		child.on('close', () => {
-			console.log(`\nApplet ${chalk.green(appletName!)} created!`);
-			console.log(`use: cd ${chalk.green(appletRootDirectoryName!)} and ${chalk.green('npm start')}\n`);
+			log('info', `\nApplet ${chalk.green(appletName!)} created!`);
+			log('info', `use: cd ${chalk.green(appletRootDirectoryName!)} and ${chalk.green('npm start')}\n`);
 		});
 	},
 });

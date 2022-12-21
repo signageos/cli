@@ -6,6 +6,7 @@ import * as _ from 'lodash';
 import chalk from 'chalk';
 import { parameters } from '../parameters';
 import { getGlobalProfile } from '../Command/globalArgs';
+import { log } from '@signageos/sdk/dist/Console/log';
 
 const RUN_CONTROL_FILENAME = '.sosrc';
 
@@ -80,10 +81,11 @@ export async function loadConfig(): Promise<IConfig> {
 
 	// Temporary suggestion to login getting faster token
 	if (config.identification && !config.identification.match(/[0-9a-f]{20,20}/)) {
-		console.warn(
-			chalk.bold.yellow(`Your authentication token is outdated. Please do the ${chalk.green('sos login')} again.`),
+		log(
+			'warning',
+			`Your authentication token is outdated. Please do the ${chalk.green('sos login')} again.`,
 		);
-		console.warn('After the log in, commands are becoming almost 10x faster.');
+		log('info', 'After the log in, commands are becoming almost 10x faster.');
 	}
 
 	return config;

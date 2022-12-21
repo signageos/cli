@@ -7,6 +7,7 @@ import { createProgressBar } from "../../CommandLine/progressBarFactory";
 import validateFileExistenceSync from "./firmwareUploadHelper";
 import RequestError from "@signageos/sdk/dist/RestApi/Error/RequestError";
 import { CommandLineOptions, createCommandDefinition } from "../../Command/commandDefinition";
+import { log } from "@signageos/sdk/dist/Console/log";
 
 const questions = [
 	{
@@ -59,13 +60,13 @@ export const firmwareUpload = createCommandDefinition({
 				const typeAnswers = await prompts(fwTypeQuestion);
 				data.type = typeAnswers.firmwareType;
 				if (!data.type) {
-					console.log(`${chalk.red('You must input firmware type')}`);
+					log('error', `You must input firmware type`);
 					return;
 				}
 			}
 
 			if (!data.applicationType || !data.version) {
-				console.log(`${chalk.red('You must input application type and version')}`);
+				log('error', `You must input application type and version`);
 				return;
 			}
 			while (true) { // ask for files
@@ -81,19 +82,19 @@ export const firmwareUpload = createCommandDefinition({
 				try {
 					validateFileExistenceSync(path);
 					pathSet.add(path);
-					console.log(`${chalk.green('File added to upload list')}`);
+					log('info', `${chalk.green('File added to upload list')}`);
 				} catch (e) {
-					console.log(`${chalk.yellow(e.message)}`);
+					log('error', e.message);
 				}
 			}
 
 			if (pathSet.size > 0) {
-				console.log('Application type: ', chalk.green(data.applicationType));
-				console.log('Version: ', chalk.green(data.version));
+				log('info', 'Application type: ', chalk.green(data.applicationType));
+				log('info', 'Version: ', chalk.green(data.version));
 				if (data.type) {
-					console.log('Firmware type: ', chalk.green(data.type));
+					log('info', 'Firmware type: ', chalk.green(data.type));
 				}
-				console.log('List of files: ', Array.from(pathSet));
+				log('info', 'List of files: ', ...Array.from(pathSet));
 
 				const confirmation = await prompts({
 					type: 'confirm',
@@ -114,7 +115,7 @@ export const firmwareUpload = createCommandDefinition({
 			data.applicationType = options['application-type'];
 			data.version = options['firmware-version'];
 			if (applicationTypesRequiringType.includes(data.applicationType) && !options['firmware-type']) {
-				console.log(`${chalk.red('You must input firmware type')}`);
+				log('error', 'You must input firmware type');
 				return;
 			}
 			data.type = options['firmware-type'];

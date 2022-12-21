@@ -1,3 +1,4 @@
+import { log } from "@signageos/sdk/dist/Console/log";
 
 const path = require('path');
 const dotenv = require('dotenv');
@@ -21,7 +22,7 @@ const configurableEnvVars = [
 
 for (const envVar of configurableEnvVars) {
 	if (process.env[envVar]) {
-		console.warn(`Environment variable ${envVar} found. Will override default values from ~/.sosrc`);
+		log('warning', `Environment variable ${envVar} found. Will override default values from ~/.sosrc`);
 	}
 }
 

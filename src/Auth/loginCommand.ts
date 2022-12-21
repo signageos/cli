@@ -7,6 +7,7 @@ import { saveConfig, getConfigFilePath, loadConfig } from '../RunControl/runCont
 import { parameters } from '../parameters';
 import { CommandLineOptions, createCommandDefinition } from '../Command/commandDefinition';
 import { ApiVersions } from '@signageos/sdk/dist/RestApi/apiVersions';
+import { log } from '@signageos/sdk/dist/Console/log';
 const debug = Debug('@signageos/cli:Auth:login');
 
 const OPTION_LIST = [
@@ -49,7 +50,7 @@ export const login = createCommandDefinition({
 			apiSecurityToken,
 		});
 
-		console.log(`User ${chalk.green(identification!)} has been logged in with token "${name}". Credentials are stored in ${chalk.blue(getConfigFilePath())}`);
+		log('info', `User ${chalk.green(identification!)} has been logged in with token "${name}". Credentials are stored in ${chalk.blue(getConfigFilePath())}`);
 	},
 });
 

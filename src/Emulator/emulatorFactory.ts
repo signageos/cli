@@ -10,6 +10,7 @@ import * as glob from 'globby';
 import chalk from 'chalk';
 import { IEmulator } from './IEmulator';
 import { createDomain } from './createDomain';
+import { log } from '@signageos/sdk/dist/Console/log';
 
 export interface ICreateEmulatorParams {
 	projectPath: string;
@@ -87,7 +88,7 @@ export async function createEmulator(
 
 	const server = http.createServer(app);
 	server.listen(emulatorServerPort, () => {
-		console.log(`Emulator is running at ${chalk.blue(chalk.bold(createDomain(serverDomainOptions, server)))}`);
+		log('info', `Emulator is running at ${chalk.blue(chalk.bold(createDomain(serverDomainOptions, server)))}`);
 	});
 
 	const appletAssets = await glob(
