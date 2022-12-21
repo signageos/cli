@@ -5,10 +5,8 @@
   "files": [
     ".env",
     "dist",
-    "config",
     "README.md",
-    "package.json",
-    "package-lock.json"
+    "package.json"
   ],
   "repository": {
     "url": "https://github.com/signageos/cli",

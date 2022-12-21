@@ -13,7 +13,7 @@ import { getAppletFileRelativePath } from "../../Applet/Upload/appletUploadFacad
 import { IApplet } from "../../Applet/appletFacade";
 import { disconnectDevice } from "../deviceFacade";
 import { IOrganization } from "../../Organization/organizationFacade";
-import * as parameters from '../../../config/parameters';
+import { parameters } from '../../parameters';
 const archiver = require('archiver');
 
 const CONNECT_DIRECTORY = 'signageos';

@@ -7,7 +7,7 @@ import IRestApiOptions from '@signageos/sdk/dist/RestApi/IOptions';
 import IRestApiAccountOptions from '@signageos/sdk/dist/RestApi/IOptions';
 import { IConfig, loadConfig } from './RunControl/runControlHelper';
 import { ApiVersions } from '@signageos/sdk/dist/RestApi/apiVersions';
-import * as parameters from '../config/parameters';
+import { parameters } from './parameters';
 import { getGlobalApiUrl } from './Command/globalArgs';
 
 interface ICredentials {

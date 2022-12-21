@@ -17,7 +17,7 @@ const configurableEnvVars = [
 	'SOS_APPLET_UID',
 	'SOS_APPLET_VERSION',
 	'SOS_APPLET_NAME',
-];
+] as const;
 
 for (const envVar of configurableEnvVars) {
 	if (process.env[envVar]) {
@@ -25,7 +25,17 @@ for (const envVar of configurableEnvVars) {
 	}
 }
 
-module.exports = {
+const apiUrl = process.env.SOS_API_URL;
+const boxHost = process.env.SOS_BOX_HOST;
+
+if (!apiUrl) {
+	throw new Error(`Environment variable SOS_API_URL is required`);
+}
+if (!boxHost) {
+	throw new Error(`Environment variable SOS_BOX_HOST is required`);
+}
+
+export const parameters = {
 	environment,
 	name: packageConfig.name,
 	version: packageConfig.version,
@@ -36,8 +46,8 @@ module.exports = {
 		distPath,
 	},
 	profile: process.env.SOS_PROFILE,
-	apiUrl: process.env.SOS_API_URL,
-	boxHost: process.env.SOS_BOX_HOST,
+	apiUrl,
+	boxHost,
 	applet: {
 		uid: process.env.SOS_APPLET_UID,
 		version: process.env.SOS_APPLET_VERSION,

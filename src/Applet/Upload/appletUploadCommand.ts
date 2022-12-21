@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import * as prompts from 'prompts';
 import { createOrganizationRestApi, } from '../../helper';
-import * as parameters from '../../../config/parameters';
+import { parameters } from '../../parameters';
 import { getOrganization, getOrganizationUidOrDefaultOrSelect, NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION } from '../../Organization/organizationFacade';
 import {
 	getAppletUid,

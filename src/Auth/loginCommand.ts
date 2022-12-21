@@ -4,7 +4,7 @@ import * as Debug from 'debug';
 import * as os from 'os';
 import { deserializeJSON, getApiUrl, postResource } from '../helper';
 import { saveConfig, getConfigFilePath, loadConfig } from '../RunControl/runControlHelper';
-import * as parameters from '../../config/parameters';
+import { parameters } from '../parameters';
 import { CommandLineOptions, createCommandDefinition } from '../Command/commandDefinition';
 import { ApiVersions } from '@signageos/sdk/dist/RestApi/apiVersions';
 const debug = Debug('@signageos/cli:Auth:login');

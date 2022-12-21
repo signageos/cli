@@ -1,4 +1,4 @@
-import * as parameters from '../../config/parameters';
+import { parameters } from '../parameters';
 
 export function getPackageName() {
 	return parameters.name;
