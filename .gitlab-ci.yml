@@ -38,6 +38,7 @@ test:general:
   except:
     - tags
   script:
+    - cp .env.amy .env
     - npm test
 
 test:lint:
@@ -82,6 +83,7 @@ publish:npm:
     - prepare
     - build
   script:
+    - cp .env.production .env
     - npm publish --ignore-scripts --tag $TAG
 
 publish:npm-public:
@@ -92,6 +94,7 @@ publish:npm-public:
     - prepare
     - build
   script:
+    - cp .env.production .env
     - export NPM_REGISTRY_URL=https://registry.npmjs.org/
     - export NPM_REGISTRY_HOST=registry.npmjs.org
     - export NPM_AUTH_TOKEN=$PUBLIC_NPM_AUTH_TOKEN
