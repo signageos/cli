@@ -41,6 +41,14 @@ test:general:
     - cp .env.amy .env
     - npm test
 
+test:integration:
+  stage: test
+  except:
+    - tags
+  script:
+    - cp .env.amy .env
+    - npm run test-integration
+
 test:lint:
   stage: test
   except:

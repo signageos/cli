@@ -1,4 +1,4 @@
 {
     "require": ["should", "ts-node/register"],
-    "spec": "tests/**/*.spec.ts"
+    "spec": "tests/unit/**/*.spec.ts"
 }
