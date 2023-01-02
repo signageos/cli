@@ -7,6 +7,7 @@ import NotFoundError from '@signageos/sdk/dist/RestApi/Error/NotFoundError';
 import { getAppletFileRelativePath, getAppletFilesDictionary } from './appletUploadFacadeHelper';
 import { computeFileMD5, getFileType } from '../../FileSystem/helper';
 import { ProgressBar } from '../../CommandLine/IProgressBar';
+import { log } from '@signageos/sdk/dist/Console/log';
 
 const debug = Debug('@signageos/cli:Applet:Upload:appletUploadFacade');
 
@@ -66,7 +67,7 @@ export const updateMultiFileApplet = async (parameters: {
 		} else {
 
 			changedFilesCounter++;
-			console.log(chalk.yellow(` Uploading ${fileAbsolutePath}`));
+			log('info', chalk.yellow(` Uploading ${fileAbsolutePath}`));
 
 		}
 
@@ -143,7 +144,7 @@ export const updateMultiFileApplet = async (parameters: {
 	}
 
 	if (changedFilesCounter === 0) {
-		console.log(`No files changed in ${chalk.yellow.bold(applet.directoryPath)}`);
+		log('info', `No files changed in ${chalk.yellow.bold(applet.directoryPath)}`);
 	}
 };
 
@@ -212,7 +213,7 @@ export const createMultiFileFileApplet = async (parameters: {
 		const filePosixPath = path.posix.normalize(fileRelativePath.replace(/\\/g, '/'));
 
 		try {
-			console.log(chalk.yellow(` Uploading ${fileAbsolutePath}`));
+			log('info', chalk.yellow(` Uploading ${fileAbsolutePath}`));
 			await restApi.applet.version.file.create(
 				applet.uid,
 				applet.version,

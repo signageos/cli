@@ -7,7 +7,7 @@ import IRestApiOptions from '@signageos/sdk/dist/RestApi/IOptions';
 import IRestApiAccountOptions from '@signageos/sdk/dist/RestApi/IOptions';
 import { IConfig, loadConfig } from './RunControl/runControlHelper';
 import { ApiVersions } from '@signageos/sdk/dist/RestApi/apiVersions';
-import * as parameters from '../config/parameters';
+import { parameters } from './parameters';
 import { getGlobalApiUrl } from './Command/globalArgs';
 
 interface ICredentials {
@@ -21,7 +21,11 @@ export async function loadApiUrl() {
 }
 
 export function getApiUrl(config: IConfig) {
-	return config.apiUrl || getGlobalApiUrl();
+	const apiUrl = getGlobalApiUrl() || config.apiUrl;
+	if (!apiUrl) {
+		throw new Error(`No API URL is defined. Please use --api-url or set SOS_API_URL environment variable.`);
+	}
+	return apiUrl;
 }
 
 export function createClientVersions() {

@@ -5,10 +5,8 @@
   "files": [
     ".env",
     "dist",
-    "config",
     "README.md",
-    "package.json",
-    "package-lock.json"
+    "package.json"
   ],
   "repository": {
     "url": "https://github.com/signageos/cli",
@@ -16,14 +14,15 @@
   },
   "scripts": {
     "build": "tsc",
-    "lint": "tslint --config node_modules/@signageos/codestyle/tslint.json {src,tests}/**/*.{ts,tsx}",
+    "lint": "tslint --config node_modules/@signageos/codestyle/tslint.json {src,tests}/**/*.ts",
     "prebuild": "rm -rf dist/*",
     "prepare": "npm run prebuild && npm run build && chmod +x dist/index.js",
-    "test": "env NODE_ENV=test mocha --file .mocharc.json",
+    "test": "env NODE_ENV=test mocha --config .mocharc.unit.json",
+    "test-integration": "env NODE_ENV=test mocha --config .mocharc.integration.json",
     "watch": "tsc --watch",
     "check": "npm run depcheck && npx --userconfig ./.npmrc @signageos/lib check-deps && npm run check-circular-deps",
     "check-circular-deps": "npx madge --circular --extensions ts ./src/",
-    "depcheck": "depcheck --specials=tslint,webpack,mocha --parsers='**/*.ts:typescript,**/*.js:es6' --detectors='requireCallExpression,importDeclaration' --ignore-dirs='dist' --ignores='@types/*,@signageos/codestyle,mocha,depcheck,webpack'"
+    "depcheck": "depcheck --config .depcheckrc.json"
   },
   "license": "MIT",
   "engines": {
@@ -73,7 +72,7 @@
   },
   "dependencies": {
     "@signageos/file": "0.1.1",
-    "@signageos/sdk": "1.15.0",
+    "@signageos/sdk": "1.17.0",
     "archiver": "5.0.2",
     "chalk": "2.4.2",
     "child-process-promise": "2.2.1",

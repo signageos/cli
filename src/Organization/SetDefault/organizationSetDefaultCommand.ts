@@ -3,6 +3,7 @@ import * as Debug from 'debug';
 import { selectOrganizationUid, getOrganization, ORGANIZATION_UID_OPTION } from '../organizationFacade';
 import { updateConfig } from '../../RunControl/runControlHelper';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
+import { log } from '@signageos/sdk/dist/Console/log';
 const debug = Debug('@signageos/cli:Organization:get');
 
 const OPTION_LIST = [
@@ -21,6 +22,6 @@ export const organizationSetDefault = createCommandDefinition({
 		await updateConfig({
 			defaultOrganizationUid,
 		});
-		console.log(`Organization ${chalk.green(`${organization.title} (${organization.name}, ${organization.uid})`)} has been set as default`);
+		log('info', `Organization ${chalk.green(`${organization.title} (${organization.name}, ${organization.uid})`)} has been set as default`);
 	},
 });

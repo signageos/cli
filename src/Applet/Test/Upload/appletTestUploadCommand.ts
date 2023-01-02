@@ -12,6 +12,7 @@ import { createProgressBar } from '../../../CommandLine/progressBarFactory';
 import { loadPackage } from '../../../FileSystem/packageConfig';
 import IAppletTestSuite from '@signageos/sdk/dist/RestApi/Applet/Version/IAppletTestSuite';
 import { CommandLineOptions, createCommandDefinition } from '../../../Command/commandDefinition';
+import { log } from '@signageos/sdk/dist/Console/log';
 
 const OPTION_LIST = [
 	NO_DEFAULT_ORGANIZATION_OPTION,
@@ -123,15 +124,15 @@ function displaySuccessMessage(
 	appletName: string,
 	appletVersion: string,
 ) {
-	console.log(`Applet ${chalk.green(appletName)} version ${chalk.green(appletVersion)} tests has been uploaded.`);
-	console.log(`To run the tests, use command ${chalk.blue(`sos applet test run`)}`);
+	log('info', `Applet ${chalk.green(appletName)} version ${chalk.green(appletVersion)} tests has been uploaded.`);
+	log('info', `To run the tests, use command ${chalk.blue(`sos applet test run`)}`);
 }
 
 function printMatchedFiles(testFiles: string[]): void {
 	if (testFiles.length > 0) {
-		console.log(chalk.yellow(`Next files are going to be checked for upload...`));
+		log('info', chalk.yellow(`Next files are going to be checked for upload...`));
 	}
-	testFiles.forEach((file: string) => console.log(file));
+	testFiles.forEach((file: string) => log('info', file));
 }
 
 type IChangedFiles = {
@@ -142,15 +143,15 @@ type IChangedFiles = {
 
 function printChangesFiles({ identifiersToCreate, identifiersToUpdate, identifiersToDelete }: IChangedFiles): void {
 	if (identifiersToCreate.length > 0) {
-		console.log(chalk.yellow(`Next files is being created...`));
-		identifiersToCreate.forEach((file: string) => console.log(file));
+		log('info', chalk.yellow(`Next files is being created...`));
+		identifiersToCreate.forEach((file: string) => log('info', file));
 	}
 	if (identifiersToUpdate.length > 0) {
-		console.log(chalk.yellow(`Next files is being updated...`));
-		identifiersToUpdate.forEach((file: string) => console.log(file));
+		log('info', chalk.yellow(`Next files is being updated...`));
+		identifiersToUpdate.forEach((file: string) => log('info', file));
 	}
 	if (identifiersToDelete.length > 0) {
-		console.log(chalk.yellow(`Next files is being deleted...`));
-		identifiersToDelete.forEach((file: string) => console.log(file));
+		log('info', chalk.yellow(`Next files is being deleted...`));
+		identifiersToDelete.forEach((file: string) => log('info', file));
 	}
 }

@@ -1,3 +1,4 @@
+import { log } from '@signageos/sdk/dist/Console/log';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import { CommandLineOptions } from '../../Command/commandDefinition';
@@ -33,7 +34,7 @@ export async function getAppletDirectoryAbsolutePath(
 	if (appletDirectoryPath.length > 1 && appletDirectoryPath[appletDirectoryPath.length - 1] === '/') {
 		appletDirectoryPath = appletDirectoryPath.substring(0, appletDirectoryPath.length - 1);
 	}
-	console.log(`\nUse applet project directory path: ${appletDirectoryPath}`);
+	log('info', `\nUse applet project directory path: ${appletDirectoryPath}`);
 
 	const appletDirectoryPathExists = await fs.pathExists(appletDirectoryPath);
 	if (!appletDirectoryPathExists) {
@@ -60,7 +61,7 @@ export async function getAppletBinaryFileAbsolutePath(
 	if (!path.isAbsolute(appletBinaryFilePath)) {
 		appletBinaryFilePath = path.join(currentDirectory, appletBinaryFilePath);
 	}
-	console.log(`\nUse applet binary file: ${appletBinaryFilePath}`);
+	log('info', `\nUse applet binary file: ${appletBinaryFilePath}`);
 
 	const appletBinaryFilePathExists = await fs.pathExists(appletBinaryFilePath);
 	if (!appletBinaryFilePathExists) {
@@ -87,7 +88,7 @@ export async function getAppletEntryFileAbsolutePath(
 	if (!path.isAbsolute(appletEntryFilePath)) {
 		appletEntryFilePath = path.join(currentDirectory, appletEntryFilePath);
 	}
-	console.log(`\nUse applet entry file: ${appletEntryFilePath}`);
+	log('info', `\nUse applet entry file: ${appletEntryFilePath}`);
 
 	const appletEntryFilePathExists = await fs.pathExists(appletEntryFilePath);
 	if (!appletEntryFilePathExists) {

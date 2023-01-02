@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import * as prompts from 'prompts';
 import { createOrganizationRestApi, } from '../../helper';
-import * as parameters from '../../../config/parameters';
+import { parameters } from '../../parameters';
 import { getOrganization, getOrganizationUidOrDefaultOrSelect, NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION } from '../../Organization/organizationFacade';
 import {
 	getAppletUid,
@@ -28,6 +28,7 @@ import { createProgressBar } from '../../CommandLine/progressBarFactory';
 import { saveToPackage } from '../../FileSystem/packageConfig';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
 import { AppletDoesNotExistError } from '../appletErrors';
+import { log } from '@signageos/sdk/dist/Console/log';
 
 export const OPTION_LIST = [
 	APPLET_PATH_OPTION,
@@ -94,7 +95,7 @@ export const appletUpload = createCommandDefinition({
 			if (!(error instanceof AppletDoesNotExistError)) {
 				throw error;
 			}
-			console.log(chalk.yellow(`applet uid is not present in package file, adding one.`));
+			log('info', chalk.yellow(`applet uid is not present in package file, adding one.`));
 			const createdApplet = await restApi.applet.create({ name: appletName });
 			appletUid = createdApplet.uid;
 			if (updatePackageConfig) {
@@ -134,7 +135,7 @@ export const appletUpload = createCommandDefinition({
 
 			if (skipConfirmation) {
 
-				console.log(chalk.yellow(`Will override existing version ${appletVersion}`));
+				log('info', chalk.yellow(`Will override existing version ${appletVersion}`));
 				overrideAppletVersionConfirmed = true;
 
 			} else {
@@ -150,7 +151,7 @@ export const appletUpload = createCommandDefinition({
 
 			if (skipConfirmation) {
 
-				console.log(chalk.yellow(`Will create new version ${appletVersion}`));
+				log('info', chalk.yellow(`Will create new version ${appletVersion}`));
 				createNewAppletVersionConfirmed = true;
 
 			} else {
@@ -229,13 +230,14 @@ function displaySuccessMessage(
 	appletVersion: string,
 	boxHost: string,
 ) {
-	console.log(`Applet ${chalk.green(appletName)} version ${chalk.green(appletVersion)} has been uploaded.`);
+	log('info', `Applet ${chalk.green(appletName)} version ${chalk.green(appletVersion)} has been uploaded.`);
 	const appletBoxUri = `https://${boxHost}/applet/${appletUid}/${appletVersion}/build`;
-	console.log(`To build specific applications (Tizen, WebOS, SSSP, BrightSign, RPi, Android etc.) go to ${chalk.blue(appletBoxUri)}`);
+	log('info', `To build specific applications (Tizen, WebOS, SSSP, BrightSign, RPi, Android etc.) go to ${chalk.blue(appletBoxUri)}`);
 }
 
 function displaySingleFileAppletDeprecationNote() {
-	console.log(
+	log(
+		'warning',
 		`${chalk.red(`Applets with only applet-path file are ${chalk.bold(`deprecated`)}.`)} Please find more information at our website.`,
 	);
 }
@@ -246,7 +248,7 @@ function displaySingleFileAppletDeprecationNote() {
  */
 function printUploadFiles(appletFiles: string[]): void {
 	if (appletFiles.length > 0) {
-		console.log(chalk.yellow(`Next files will be uploaded ...`));
+		log('info', chalk.yellow(`Next files will be uploaded ...`));
 	}
-	appletFiles.forEach((file: string) => console.log(file));
+	appletFiles.forEach((file: string) => log('info', file));
 }

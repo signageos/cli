@@ -1,0 +1,22 @@
+{
+	"specials": [ "mocha" ],
+	"parsers": {
+		"**/*.ts": "typescript",
+		"**/*.js": "es6"
+	},
+	"detectors": [
+		"importDeclaration",
+		"requireCallExpression"
+	],
+	"ignore-dirs": [
+		"dist"
+	],
+	"ignores": [
+		"@types/*",
+		"@signageos/codestyle",
+		"mocha",
+		"depcheck",
+		"tslint",
+		"webpack"
+	]
+}

@@ -5,6 +5,7 @@ import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import AuthenitcationError from '@signageos/sdk/dist/RestApi/Error/AuthenticationError';
 import { ApiVersions } from '@signageos/sdk/dist/RestApi/apiVersions';
 import { createClientVersions, getApiUrl } from '../helper';
+import { log } from '@signageos/sdk/dist/Console/log';
 
 interface IEmulatorData {
 	uid: string;
@@ -62,14 +63,14 @@ export async function loadEmulatorOrCreateNewAndReturnUid(
 	if (isSavedValidEmulator) {
 		return config.emulatorUid as string;
 	} else if (config.emulatorUid) {
-		console.log(chalk.yellow('Field emulatorUid in sos config links to non existent emulator'));
+		log('warning', chalk.yellow('Field emulatorUid in sos config links to non existent emulator'));
 	}
 	let emulatorUid: string = '';
-	console.log('Looking for valid emulator assigned to your account via API...');
+	log('info', 'Looking for valid emulator assigned to your account via API...');
 	if (listOfEmulatorsResponse.length === 1) {
 		const emulatorName = listOfEmulatorsResponse[0].name;
 		emulatorUid = listOfEmulatorsResponse[0].duid;
-		console.log(`One valid emulator ${chalk.green(emulatorName)} fetched and saved into .sosrc`);
+		log('info', `One valid emulator ${chalk.green(emulatorName)} fetched and saved into .sosrc`);
 
 	} else if (listOfEmulatorsResponse.length > 1) {
 		const selectedEmulator = await prompts({
@@ -83,12 +84,12 @@ export async function loadEmulatorOrCreateNewAndReturnUid(
 		});
 		emulatorUid = selectedEmulator.duid;
 	} else {
-		console.log('No valid emulator assigned to your account found via API thus newone will be created');
+		log('warning', 'No valid emulator assigned to your account found via API thus newone will be created');
 		await createNewEmulator(restApi, organizationUid);
 		const newEmulatorList = await getListOfEmulators(restApi, organizationUid);
 		const emulatorName = newEmulatorList[0].name;
 		emulatorUid = newEmulatorList[0].duid;
-		console.log(`New emulator ${chalk.green(emulatorName)} created and saved into .sosrc`);
+		log('info', `New emulator ${chalk.green(emulatorName)} created and saved into .sosrc`);
 	}
 	await updateConfig({ emulatorUid });
 	return emulatorUid;

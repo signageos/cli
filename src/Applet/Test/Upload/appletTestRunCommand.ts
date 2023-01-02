@@ -18,6 +18,7 @@ import { validateTestIdentifiers } from './appletTestRunFacade';
 import wait from '../../../Timer/wait';
 import IDeviceAppletTest from '@signageos/sdk/dist/RestApi/Device/AppletTest/IDeviceAppletTest';
 import { CommandLineOptions, createCommandDefinition } from '../../../Command/commandDefinition';
+import { log } from '@signageos/sdk/dist/Console/log';
 
 const OPTION_LIST = [
 	NO_DEFAULT_ORGANIZATION_OPTION,
@@ -123,8 +124,8 @@ function displaySuccessMessage(
 	appletVersion: string,
 	deviceAppletTest: IDeviceAppletTest,
 ) {
-	console.log(`Applet ${chalk.green(appletName)} version ${chalk.green(appletVersion)} tests ${chalk.green('succeeded')}.`);
-	deviceAppletTest.successfulTests.forEach((file: string) => console.log(chalk.green('✓ ' + file)));
+	log('info', `Applet ${chalk.green(appletName)} version ${chalk.green(appletVersion)} tests ${chalk.green('succeeded')}.`);
+	deviceAppletTest.successfulTests.forEach((file: string) => log('info', chalk.green('✓ ' + file)));
 }
 
 function displayFailureMessage(
@@ -132,14 +133,14 @@ function displayFailureMessage(
 	appletVersion: string,
 	deviceAppletTest: IDeviceAppletTest,
 ) {
-	console.log(`Applet ${chalk.green(appletName)} version ${chalk.green(appletVersion)} tests ${chalk.red('failed')}.`);
-	deviceAppletTest.failedTests.forEach((file: string) => console.log(chalk.red('× ' + file)));
-	deviceAppletTest.successfulTests.forEach((file: string) => console.log(chalk.green('✓ ' + file)));
+	log('info', `Applet ${chalk.green(appletName)} version ${chalk.green(appletVersion)} tests ${chalk.red('failed')}.`);
+	deviceAppletTest.failedTests.forEach((file: string) => log('info', chalk.red('× ' + file)));
+	deviceAppletTest.successfulTests.forEach((file: string) => log('info', chalk.green('✓ ' + file)));
 }
 
 function printRunTests(identifiers: string[]): void {
 	if (identifiers.length > 0) {
-		console.log(chalk.yellow(`Next test files are going to be run...`));
+		log('info', chalk.yellow(`Next test files are going to be run...`));
 	}
-	identifiers.forEach((file: string) => console.log(file));
+	identifiers.forEach((file: string) => log('info', file));
 }

@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as prompts from 'prompts';
 import RestApi from "@signageos/sdk/dist/RestApi/RestApi";
 import ISdkApplet from '@signageos/sdk/dist/RestApi/Applet/IApplet';
-import * as parameters from '../../config/parameters';
+import { parameters } from '../parameters';
 import { loadPackage } from '../FileSystem/packageConfig';
 import { CommandLineOptions } from '../Command/commandDefinition';
 import { AppletDoesNotExistError } from './appletErrors';

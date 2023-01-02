@@ -1,3 +1,4 @@
+import { log } from '@signageos/sdk/dist/Console/log';
 import chalk from 'chalk';
 import { APPLET_UID_OPTION, getAppletUid, getAppletVersionFromApi } from '../../Applet/appletFacade';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
@@ -44,6 +45,6 @@ export const setContent = createCommandDefinition({
 				data: "1000",
 			},
 		});
-		console.log(chalk.green(`Applet ${appletUid} was set on device ${deviceUid}`));
+		log('info', chalk.green(`Applet ${appletUid} was set on device ${deviceUid}`));
 	},
 });

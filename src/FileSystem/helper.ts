@@ -6,6 +6,7 @@ import chalk from 'chalk';
 import * as Debug from 'debug';
 import { computeMD5 } from '../Stream/helper';
 import { loadPackage } from './packageConfig';
+import { log } from '@signageos/sdk/dist/Console/log';
 const debug = Debug('@signageos/cli:FileSystem:helper');
 
 const parseIgnoreFile: (input: Buffer) => string[] = require('parse-gitignore');
@@ -58,9 +59,9 @@ export async function listDirectoryContentRecursively(appletDirPath: string, ign
 		}
 
 		if (usedIgnoreFilePath) {
-			console.log(`Use ignore file: ${chalk.green.bold(usedIgnoreFilePath)}.`);
+			log('info', `Use ignore file: ${chalk.green.bold(usedIgnoreFilePath)}.`);
 		} else {
-			console.log(`No ignore file found in ${chalk.yellow.bold(ignoreFileDirPath)}.`);
+			log('info', `No ignore file found in ${chalk.yellow.bold(ignoreFileDirPath)}.`);
 		}
 
 		if (usedIgnoreFilePath) {

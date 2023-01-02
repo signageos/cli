@@ -38,7 +38,16 @@ test:general:
   except:
     - tags
   script:
+    - cp .env.amy .env
     - npm test
+
+test:integration:
+  stage: test
+  except:
+    - tags
+  script:
+    - cp .env.amy .env
+    - npm run test-integration
 
 test:lint:
   stage: test
@@ -61,7 +70,6 @@ test:check:
   stage: test
   except:
     - tags
-  allow_failure: true
   script:
     - npm run check
 
@@ -82,6 +90,7 @@ publish:npm:
     - prepare
     - build
   script:
+    - cp .env.production .env
     - npm publish --ignore-scripts --tag $TAG
 
 publish:npm-public:
@@ -92,6 +101,7 @@ publish:npm-public:
     - prepare
     - build
   script:
+    - cp .env.production .env
     - export NPM_REGISTRY_URL=https://registry.npmjs.org/
     - export NPM_REGISTRY_HOST=registry.npmjs.org
     - export NPM_AUTH_TOKEN=$PUBLIC_NPM_AUTH_TOKEN

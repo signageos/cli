@@ -1,3 +1,4 @@
+import { log } from "@signageos/sdk/dist/Console/log";
 
 const path = require('path');
 const dotenv = require('dotenv');
@@ -9,22 +10,33 @@ const distPath = rootPath + '/dist';
 
 dotenv.config({ path: path.join(rootPath, '.env') });
 
-if (process.env.SOS_PROFILE) {
-	console.warn(`Environment variable SOS_PROFILE found. Will use non default profile from ~/.sosrc`);
-}
-if (process.env.SOS_API_IDENTIFICATION) {
-	console.warn(`Environment variable SOS_API_IDENTIFICATION found. Will override default credentials from ~/.sosrc`);
+const configurableEnvVars = [
+	'SOS_PROFILE',
+	'SOS_API_IDENTIFICATION',
+	'SOS_API_SECURITY_TOKEN',
+	'SOS_ORGANIZATION_UID',
+	'SOS_APPLET_UID',
+	'SOS_APPLET_VERSION',
+	'SOS_APPLET_NAME',
+] as const;
+
+for (const envVar of configurableEnvVars) {
+	if (process.env[envVar]) {
+		log('warning', `Environment variable ${envVar} found. Will override default values from ~/.sosrc`);
+	}
 }
 
-if (process.env.SOS_API_SECURITY_TOKEN) {
-	console.warn(`Environment variable SOS_API_SECURITY_TOKEN found. Will override default credentials from ~/.sosrc`);
+const apiUrl = process.env.SOS_API_URL;
+const boxHost = process.env.SOS_BOX_HOST;
+
+if (!apiUrl) {
+	throw new Error(`Environment variable SOS_API_URL is required`);
+}
+if (!boxHost) {
+	throw new Error(`Environment variable SOS_BOX_HOST is required`);
 }
 
-if (process.env.SOS_ORGANIZATION_UID) {
-	console.warn(`Environment variable SOS_ORGANIZATION_UID found. Will override default credentials from ~/.sosrc`);
-}
-
-module.exports = {
+export const parameters = {
 	environment,
 	name: packageConfig.name,
 	version: packageConfig.version,
@@ -35,8 +47,8 @@ module.exports = {
 		distPath,
 	},
 	profile: process.env.SOS_PROFILE,
-	apiUrl: process.env.SOS_API_URL,
-	boxHost: process.env.SOS_BOX_HOST,
+	apiUrl,
+	boxHost,
 	applet: {
 		uid: process.env.SOS_APPLET_UID,
 		version: process.env.SOS_APPLET_VERSION,

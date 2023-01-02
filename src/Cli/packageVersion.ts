@@ -3,9 +3,10 @@ import * as semver from 'semver';
 import { exec } from 'child-process-promise';
 import { getPackageVersion, getPackageName } from './helper';
 import { getCachedValue, updateCacheValue } from '../Cache/tmpCache';
+import { log } from '@signageos/sdk/dist/Console/log';
 
 export async function printVersion() {
-	console.log(getPackageVersion());
+	log('info', getPackageVersion());
 	await printUpdateMessage();
 }
 
@@ -13,13 +14,13 @@ export async function printUpdateMessage() {
 	const packageName = getPackageName();
 	const installedVersion = getPackageVersion();
 
-	console.log('Checking updates...');
+	log('info', 'Checking updates...');
 
 	const latestVersion = await getLatestVersion(packageName);
 	const updateMessage = await getUpdateMessage(packageName, installedVersion, latestVersion);
 
 	if (updateMessage) {
-		console.log(updateMessage);
+		log('info', updateMessage);
 	}
 }
 
