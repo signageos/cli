@@ -70,7 +70,6 @@ test:check:
   stage: test
   except:
     - tags
-  allow_failure: true
   script:
     - npm run check
 
