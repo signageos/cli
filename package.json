@@ -21,7 +21,7 @@
     "test-integration": "env NODE_ENV=test mocha --config .mocharc.integration.json",
     "watch": "tsc --watch",
     "check": "npm run depcheck && npx --userconfig ./.npmrc @signageos/lib check-deps && npm run check-circular-deps",
-    "check-circular-deps": "npx madge --circular --extensions ts ./src/",
+    "check-circular-deps": "npx madge@5 --circular --extensions ts ./src/",
     "depcheck": "depcheck --config .depcheckrc.json"
   },
   "license": "MIT",
