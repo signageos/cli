@@ -9,7 +9,6 @@ import * as fsExtra from 'fs-extra';
 import * as glob from 'globby';
 import chalk from 'chalk';
 import { IEmulator } from './IEmulator';
-import { createDomain } from './createDomain';
 import { log } from '@signageos/sdk/dist/Console/log';
 
 export interface ICreateEmulatorParams {
@@ -40,7 +39,6 @@ export async function createEmulator(
 	const { projectPath, emulatorServerPort, appletPath, entryFileRelativePath } = params;
 	const entryFileAbsolutePath = path.join(appletPath, entryFileRelativePath);
 
-	const serverDomainOptions = { useLocalIp: true, port: emulatorServerPort };
 	const frontDisplayPath = path.dirname(require.resolve('@signageos/front-display/package.json', { paths: [projectPath]}));
 	const frontDisplayDistPath = path.join(frontDisplayPath, 'dist');
 
@@ -88,7 +86,8 @@ export async function createEmulator(
 
 	const server = http.createServer(app);
 	server.listen(emulatorServerPort, () => {
-		log('info', `Emulator is running at ${chalk.blue(chalk.bold(createDomain(serverDomainOptions, server)))}`);
+		const emulatorUrl = `http://localhost:${emulatorServerPort}`;
+		log('info', `Emulator is running at ${chalk.blue(chalk.bold(emulatorUrl))}`);
 	});
 
 	const appletAssets = await glob(
