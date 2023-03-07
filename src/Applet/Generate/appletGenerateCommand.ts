@@ -192,6 +192,9 @@ ${imports.join(';\n')}
 exports = module.exports = {
 	entry: ${JSON.stringify('./src/' + entryFileName)},
 	target: ${JSON.stringify(['web', 'es5'])},
+	infrastructureLogging: {
+		level: 'warn',
+	},
 	output: {
 		filename: 'index.js',
 	},
