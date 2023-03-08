@@ -7,13 +7,13 @@ import * as cors from "cors";
 import * as ini from 'ini';
 import * as path from 'path';
 import chalk from "chalk";
-import { createDomain } from "../../Emulator/createDomain";
 import { listDirectoryContentRecursively } from "../../FileSystem/helper";
 import { getAppletFileRelativePath } from "../../Applet/Upload/appletUploadFacadeHelper";
 import { disconnectDevice } from "../deviceFacade";
 import { IOrganization } from "../../Organization/organizationFacade";
 import { parameters } from '../../parameters';
 import { log } from "@signageos/sdk/dist/Console/log";
+import { getMachineIp } from "../../Helper/localMachineHelper";
 const archiver = require('archiver');
 
 const CONNECT_DIRECTORY = 'signageos';
@@ -29,10 +29,12 @@ export interface DeviceInfo {
 }
 
 export async function serveApplet(
-		projectDirectory: string,
-		appletUid: string,
-		appletVersion: string,
-		device: DeviceInfo,
+	projectDirectory: string,
+	appletUid: string,
+	appletVersion: string,
+	device: DeviceInfo,
+	serverPort: number | undefined,
+	serverPublicUrl: string | undefined,
 ) {
 	await createAppletZip(projectDirectory, device.uid);
 	const app = express();
@@ -45,13 +47,17 @@ export async function serveApplet(
 	app.use(zipAddress, express.static(path.join(connectRuntimeDirPath, device.uid, 'package.zip' + `${device.uid}`)));
 	const server = http.createServer(app);
 	const deviceUlrInBox = `https://${parameters.boxHost}/device/${device.uid}`;
-	server.listen( () => {
-		log('info', `Serving applet from ${chalk.blue(chalk.bold(createDomain({useLocalIp: true, port: 8080}, server)))} on ${chalk.magenta(chalk.bold(device.name))} (${chalk.blue(chalk.bold(deviceUlrInBox))})`);
+	const serverRemoteAddr = getMachineIp();
+	const serverAddress = server.address();
+	const finalServerPort = serverPort ?? (serverAddress && typeof serverAddress === 'object' ? serverAddress.port : 8080);
+	const finalServerPublicUrl = serverPublicUrl ?? `http://${serverRemoteAddr}:${finalServerPort}`;
+	server.listen(finalServerPort, () => {
+		log('info', `Serving applet from ${chalk.blue(chalk.bold(finalServerPublicUrl))} on ${chalk.magenta(chalk.bold(device.name))} (${chalk.blue(chalk.bold(deviceUlrInBox))})`);
 	});
-	const serverData = JSON.stringify(server.address());
-	const serverPort = JSON.parse(serverData).port;
 	return {
-		serverPort,
+		serverPort: finalServerPort,
+		serverRemoteAddr,
+		serverPublicUrl: finalServerPublicUrl,
 		stop() {
 			server.close();
 		},

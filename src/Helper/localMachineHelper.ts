@@ -1,6 +1,6 @@
 import { networkInterfaces } from "os";
 
-export async function getMachineIp() {
+export function getMachineIp(): string {
 	const nets = networkInterfaces(), machineIps = Object.create(null);
 	for (const name of Object.keys(nets)) {
 		for (const net of nets[name]) {

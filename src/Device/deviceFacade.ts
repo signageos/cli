@@ -5,7 +5,6 @@ import { IOrganization } from '../Organization/organizationFacade';
 import { DevicePowerAction } from '@signageos/sdk/dist/RestApi/Device/PowerAction/IPowerAction';
 import RestApi from "@signageos/sdk/dist/RestApi/RestApi";
 import { CommandLineOptions } from '../Command/commandDefinition';
-import { getMachineIp } from '../Helper/localMachineHelper';
 import IDeviceReadOnly from '@signageos/sdk/dist/RestApi/Device/IDevice';
 import { ApiVersions } from '@signageos/sdk/dist/RestApi/apiVersions';
 import { loadConfig } from '../RunControl/runControlHelper';
@@ -88,7 +87,7 @@ export async function connectDevice(
 	deviceUid: String,
 	appletUid: string,
 	appletVersion: string,
-	serverPort: string,
+	serverPublicUrl: string,
 ) {
 	const config = await loadConfig();
 	const DEVICE_RESOURCE = `/device/${deviceUid}/connect`;
@@ -100,13 +99,11 @@ export async function connectDevice(
 		},
 		version: ApiVersions.V1,
 	};
-	const computerIp = await getMachineIp();
-	const protocol: string =  "http://";
 	const body = {
-			deviceUid: deviceUid,
-			appletUid:  appletUid,
-			remoteIp: protocol.concat(computerIp + `:${serverPort}`),
-			appletVersion: appletVersion,
+		deviceUid: deviceUid,
+		appletUid:  appletUid,
+		remoteIp: serverPublicUrl,
+		appletVersion: appletVersion,
 	};
 	const responseOfPost = await postResource(options, DEVICE_RESOURCE, null , body);
 	return JSON.parse(await responseOfPost.text(), deserializeJSON);
