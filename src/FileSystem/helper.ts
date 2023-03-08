@@ -12,7 +12,8 @@ const debug = Debug('@signageos/cli:FileSystem:helper');
 const parseIgnoreFile: (input: Buffer) => string[] = require('parse-gitignore');
 
 const DEFAULT_IGNORE_FILE = '.sosignore';
-const IGNORE_FILES = [DEFAULT_IGNORE_FILE, '.npmignore', '.gitignore'];
+const GIT_IGNORE_FILE = '.gitignore';
+const IGNORE_FILES = [DEFAULT_IGNORE_FILE, '.npmignore', GIT_IGNORE_FILE];
 const DEFAULT_FILE_TYPE = 'application/octet-stream';
 
 export async function computeFileMD5(filePath: string) {
@@ -68,6 +69,11 @@ export async function listDirectoryContentRecursively(appletDirPath: string, ign
 			const usedIgnoreFileBuffer = await fs.readFile(usedIgnoreFilePath);
 			const ignoreFilePatterns = parseIgnoreFile(usedIgnoreFileBuffer);
 			ignoreFilePatterns.forEach((pattern: string) => ignorePatterns.push(`!${pattern}`));
+
+			if (usedIgnoreFilePath.endsWith(GIT_IGNORE_FILE)) {
+				// .git folder is not included in .gitignore file because it's automatically ignored
+				ignorePatterns.push('!.git');
+			}
 		}
 
 		files = await glob(
