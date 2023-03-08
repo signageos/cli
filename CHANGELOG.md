@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Fixed
 - Console output of `npm start` of generated applet shows correct URL of emulator
+- The `--entry-file` can be now ommited when the `package.json` has the `main` property set
+- The `sos device connect` is looking for the applet in server by `name` instead of required `uid` in `package.json` `sos.appletUid` property
+- The `.git` folder is ignored automatically when the `.gitignore` file is used
 
 ## [1.1.5] - 2023-01-02
 ### Fixed
