@@ -56,12 +56,13 @@ import {
 	getAppletBinaryFileAbsolutePath,
 	getAppletEntryFileAbsolutePath,
 	getAppletEntryFileRelativePath,
-	DEFAULT_APPLET_BINARY_FILE_PATH,
-	DEFAULT_APPLET_ENTRY_FILE_PATH,
-	DEFAULT_APPLET_DIR_PATH,
 } from '../../../../src/Applet/Upload/appletUploadCommandHelper';
 import { generalOptions } from '../../helperMock';
 rewireMock.disable();
+
+const DEFAULT_APPLET_DIR_PATH = '.';
+const DEFAULT_APPLET_ENTRY_FILE_PATH = 'dist/index.html';
+const DEFAULT_APPLET_BINARY_FILE_PATH = 'dist/index.html';
 
 describe('unit.appletUploadCommandHelper', () => {
 

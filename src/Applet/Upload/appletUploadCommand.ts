@@ -16,7 +16,6 @@ import {
 } from './appletUploadFacade';
 import {
 	APPLET_PATH_OPTION,
-	DEFAULT_APPLET_ENTRY_FILE_PATH,
 	ENTRY_FILE_PATH_OPTION,
 	getAppletBinaryFileAbsolutePath,
 	getAppletDirectoryAbsolutePath,
@@ -114,10 +113,7 @@ export const appletUpload = createCommandDefinition({
 		if (!isSingleFileApplet) {
 
 			try {
-				await validateAllFormalities(
-					appletDirectoryPath!,
-					options[ENTRY_FILE_PATH_OPTION.name] || DEFAULT_APPLET_ENTRY_FILE_PATH,
-				);
+				await validateAllFormalities(appletDirectoryPath!, appletEntryFilePath!);
 			} catch (error) {
 				throw error;
 			}
