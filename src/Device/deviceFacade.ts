@@ -4,7 +4,6 @@ import { deserializeJSON, getApiUrl, postResource } from '../helper';
 import { IOrganization } from '../Organization/organizationFacade';
 import { DevicePowerAction } from '@signageos/sdk/dist/RestApi/Device/PowerAction/IPowerAction';
 import RestApi from "@signageos/sdk/dist/RestApi/RestApi";
-import { IApplet } from "../Applet/appletFacade";
 import { CommandLineOptions } from '../Command/commandDefinition';
 import { getMachineIp } from '../Helper/localMachineHelper';
 import IDeviceReadOnly from '@signageos/sdk/dist/RestApi/Device/IDevice';
@@ -84,7 +83,13 @@ export async function getActionType(options: CommandLineOptions<[typeof POWER_AC
 	return action;
 }
 
-export async function connectDevice(organization: IOrganization, deviceUid: String, applet: Partial<IApplet>, serverPort: string) {
+export async function connectDevice(
+	organization: IOrganization,
+	deviceUid: String,
+	appletUid: string,
+	appletVersion: string,
+	serverPort: string,
+) {
 	const config = await loadConfig();
 	const DEVICE_RESOURCE = `/device/${deviceUid}/connect`;
 	const options = {
@@ -99,9 +104,9 @@ export async function connectDevice(organization: IOrganization, deviceUid: Stri
 	const protocol: string =  "http://";
 	const body = {
 			deviceUid: deviceUid,
-			appletUid:  applet.uid,
+			appletUid:  appletUid,
 			remoteIp: protocol.concat(computerIp + `:${serverPort}`),
-			appletVersion: applet.version,
+			appletVersion: appletVersion,
 	};
 	const responseOfPost = await postResource(options, DEVICE_RESOURCE, null , body);
 	return JSON.parse(await responseOfPost.text(), deserializeJSON);

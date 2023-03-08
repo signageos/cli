@@ -99,7 +99,7 @@ export async function validateAllFormalities(appletDir: string, entryFile: strin
 		throw new Error(`Cannot find package.json file on path ${absolutePkgPath}`);
 	}
 
-	if (pkgJson.main !== entryFile) {
+	if (!pkgJson.main || path.join(appletDir, pkgJson.main) !== entryFile) {
 		throw new Error(`${pkgJson.main} from package.json file doesn't match with entry file: ${entryFile}`);
 	}
 

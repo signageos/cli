@@ -10,7 +10,6 @@ import chalk from "chalk";
 import { createDomain } from "../../Emulator/createDomain";
 import { listDirectoryContentRecursively } from "../../FileSystem/helper";
 import { getAppletFileRelativePath } from "../../Applet/Upload/appletUploadFacadeHelper";
-import { IApplet } from "../../Applet/appletFacade";
 import { disconnectDevice } from "../deviceFacade";
 import { IOrganization } from "../../Organization/organizationFacade";
 import { parameters } from '../../parameters';
@@ -31,15 +30,13 @@ export interface DeviceInfo {
 
 export async function serveApplet(
 		projectDirectory: string,
-		appletData: Partial<IApplet>,
+		appletUid: string,
+		appletVersion: string,
 		device: DeviceInfo,
 ) {
 	await createAppletZip(projectDirectory, device.uid);
 	const app = express();
-	if (!appletData.uid) {
-		throw new Error(`Missing appletUid in package.json. Make sure to first upload the applet to box via ${chalk.blue(chalk.bold("sos applet upload"))}`);
-	}
-	const zipAddress = `/applet/${appletData.uid}/${appletData.version}-:appletVersionPostfix/.package.zip`;
+	const zipAddress = `/applet/${appletUid}/${appletVersion}-:appletVersionPostfix/.package.zip`;
 	app.use(cors());
 	app.use((_req, res, next) => {
 		res.header('Cache-control', 'no-cache');
