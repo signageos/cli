@@ -1,11 +1,12 @@
 import chalk from 'chalk';
 import * as prompts from 'prompts';
-import { loadConfig, updateConfig, IConfig } from '../RunControl/runControlHelper';
+import { loadConfig, updateConfig } from '../RunControl/runControlHelper';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import AuthenitcationError from '@signageos/sdk/dist/RestApi/Error/AuthenticationError';
 import { ApiVersions } from '@signageos/sdk/dist/RestApi/apiVersions';
 import { createClientVersions, getApiUrl } from '../helper';
 import { log } from '@signageos/sdk/dist/Console/log';
+import { IConfig } from '@signageos/sdk/dist/SosHelper/sosControlHelper';
 
 interface IEmulatorData {
 	uid: string;
