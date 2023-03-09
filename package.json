@@ -72,7 +72,7 @@
   },
   "dependencies": {
     "@signageos/file": "0.1.1",
-    "@signageos/sdk": "1.17.0",
+    "@signageos/sdk": "1.19.0",
     "archiver": "5.0.2",
     "chalk": "2.4.2",
     "child-process-promise": "2.2.1",
