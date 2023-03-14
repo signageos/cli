@@ -22,12 +22,18 @@ export const typeMap = new Map<string, ActionData>(
 	[
 		['reboot', {name: 'Reboot Device', action: DevicePowerAction.SystemReboot}],
 		['displayOn', {name: 'Display ON', action: DevicePowerAction.DisplayPowerOn}],
-		['display0ff', {name: 'Display OFF', action: DevicePowerAction.DisplayPowerOff}],
+		['displayOff', {name: 'Display OFF', action: DevicePowerAction.DisplayPowerOff}],
 		['restart', {name: 'Restart Device', action: DevicePowerAction.AppRestart}],
 		['disable', {name: 'Applet Disable', action: DevicePowerAction.AppletDisable}],
 		['enable', {name: 'Applet Enable', action: DevicePowerAction.AppletEnable}],
 		['reload', {name: 'Applet Reload', action: DevicePowerAction.AppletReload}],
 		['refresh', {name: 'Applet Refresh', action: DevicePowerAction.AppletRefresh}],
+	],
+);
+export const typeMapCompat = new Map<string, ActionData>(
+	[
+		...(typeMap.entries()),
+		['display0ff', typeMap.get('displayOff')!],
 	],
 );
 

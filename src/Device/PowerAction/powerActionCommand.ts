@@ -1,5 +1,5 @@
 import { getOrganization, getOrganizationUidOrDefaultOrSelect, NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION } from "../../Organization/organizationFacade";
-import { DEVICE_UID_OPTION, getDeviceUid, POWER_ACTION_TYPE_OPTION, typeMap } from "../deviceFacade";
+import { DEVICE_UID_OPTION, getDeviceUid, POWER_ACTION_TYPE_OPTION, typeMapCompat } from "../deviceFacade";
 import { createOrganizationRestApi } from "../../helper";
 import chalk from "chalk";
 import { getActionType } from "../deviceFacade";
@@ -25,9 +25,10 @@ export const powerAction = createCommandDefinition({
 		const deviceUid = await getDeviceUid(restApi, options);
 		const actionType = await getActionType(options);
 		await restApi.device.powerAction.set(deviceUid, {
-			devicePowerAction:  typeMap.get(actionType)!.action,
+			devicePowerAction:  typeMapCompat.get(actionType)!.action,
 		}).finally(() => {
-			log('info', chalk.green(`Action ${typeMap.get(actionType)!.name} was successful on device ${deviceUid}`));
+			const actionName = typeMapCompat.get(actionType)!.name;
+			log('info', chalk.green(`Action ${actionName} was successful on device ${deviceUid}`));
 		});
 	},
 });
