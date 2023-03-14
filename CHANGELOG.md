@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Fixed
 - Console output of `npm start` of generated applet shows correct URL of emulator
+- Spelling in device power-action type `displayOff`
 
 ## [1.1.5] - 2023-01-02
 ### Fixed
