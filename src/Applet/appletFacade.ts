@@ -1,5 +1,6 @@
 import * as path from 'path';
 import * as prompts from 'prompts';
+import chalk from 'chalk';
 import RestApi from "@signageos/sdk/dist/RestApi/RestApi";
 import ISdkApplet from '@signageos/sdk/dist/RestApi/Applet/IApplet';
 import { parameters } from '../parameters';
@@ -82,7 +83,7 @@ export async function getAppletUid(
 		}
 	}
 	if (!appletUid) {
-		throw new AppletDoesNotExistError('Not selected Applet or sos.appletUid is not present in package.json or --applet-uid argument.');
+		throw new AppletDoesNotExistError(`Applet does not exist. Please use ${chalk.green('sos applet upload')} first or specify --applet-uid argument.`);
 	}
 
 	return appletUid;
