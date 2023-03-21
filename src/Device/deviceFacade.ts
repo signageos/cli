@@ -82,33 +82,6 @@ export async function getActionType(options: CommandLineOptions<[typeof POWER_AC
 	return action;
 }
 
-export async function connectDevice(
-	organization: IOrganization,
-	deviceUid: String,
-	appletUid: string,
-	appletVersion: string,
-	serverPublicUrl: string,
-) {
-	const config = await loadConfig();
-	const DEVICE_RESOURCE = `/device/${deviceUid}/connect`;
-	const options = {
-		url: getApiUrl(config),
-		auth: {
-			clientId: organization.oauthClientId,
-			secret: organization.oauthClientSecret,
-		},
-		version: ApiVersions.V1,
-	};
-	const body = {
-		deviceUid: deviceUid,
-		appletUid:  appletUid,
-		remoteIp: serverPublicUrl,
-		appletVersion: appletVersion,
-	};
-	const responseOfPost = await postResource(options, DEVICE_RESOURCE, null , body);
-	return JSON.parse(await responseOfPost.text(), deserializeJSON);
-}
-
 export async function disconnectDevice(organization: IOrganization, deviceUid: String) {
 	const config = await loadConfig();
 	const DEVICE_RESOURCE = `/device/${deviceUid}/disconnect`;
