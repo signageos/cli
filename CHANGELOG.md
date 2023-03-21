@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Allow customize `--server-port` and `--server-public-url` for `sos device connect` command
 
+### Deprecated
+- Remove support of experimental version of webpack-plugin v0.2. Use version v1+ instead
+
 ## [1.1.5] - 2023-01-02
 ### Fixed
 - Respect argument `--api-url` as priority over `SOS_API_URL` environment variable and default value
