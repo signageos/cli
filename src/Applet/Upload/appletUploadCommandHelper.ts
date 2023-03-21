@@ -2,7 +2,7 @@ import { log } from '@signageos/sdk/dist/Console/log';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import { CommandLineOptions } from '../../Command/commandDefinition';
-import { loadPackage } from '../../FileSystem/packageConfig';
+import { loadPackage } from '@signageos/sdk/dist/FileSystem/packageConfig';
 
 export const ENTRY_FILE_PATH_OPTION = {
 	name: 'entry-file-path',

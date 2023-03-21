@@ -24,7 +24,7 @@ import {
 } from './appletUploadCommandHelper';
 import { listDirectoryContentRecursively, validateAllFormalities } from '../../FileSystem/helper';
 import { createProgressBar } from '../../CommandLine/progressBarFactory';
-import { saveToPackage } from '../../FileSystem/packageConfig';
+import { saveToPackage } from '@signageos/sdk/dist/FileSystem/packageConfig';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
 import { AppletDoesNotExistError } from '../appletErrors';
 import { log } from '@signageos/sdk/dist/Console/log';

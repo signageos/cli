@@ -5,7 +5,7 @@ import * as glob from 'globby';
 import chalk from 'chalk';
 import * as Debug from 'debug';
 import { computeMD5 } from '../Stream/helper';
-import { loadPackage } from './packageConfig';
+import { loadPackage } from '@signageos/sdk/dist/FileSystem/packageConfig';
 import { log } from '@signageos/sdk/dist/Console/log';
 const debug = Debug('@signageos/cli:FileSystem:helper');
 
