@@ -107,6 +107,17 @@ sos applet upload --applet-path=dist/index.html
 | --applet-path *(optional)*     | Path of project directory     | ${PWD}                 |
 | --entry-file-path *(optional)* | Path of applet entry file     | ${PWD}/dist/index.html |
 
+#### Applet Build
+```bash
+sos applet build
+# Build applet locally. The result is a zip file in the /tmp/signageos directory.
+```
+
+| Argument                       | Description                   | Default value          |
+|--------------------------------|-------------------------------|------------------------|
+| --applet-uid *(required)*       | Applet UID                   | STDIN          |
+| --organization-uid *(required)* | Organization UID             | STDIN          |
+
 #### Applet Start
 ```bash
 sos applet start
