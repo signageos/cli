@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 - Allow customize `--server-port` and `--server-public-url` for `sos device connect` command
+- New `sos applet build` command that will build current applet as a `.package.zip` file (same that is built and used on device when uploading applet)
 
 ### Deprecated
 - Remove support of experimental version of webpack-plugin v0.2. Use version v1+ instead
