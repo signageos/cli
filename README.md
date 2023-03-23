@@ -134,6 +134,7 @@ sos applet start
 | --server-public-url *(optional)* | Public url of local machine server. Is useful when the local machine is behind a reverse proxy. | http://{CURRENT_REMOTE_ADDR}:{RANDOM_PORT} |
 | --server-port *(optional)* | The custom server port for local machine server. | {RANDOM_PORT} |
 | --hot-reload *(optional)* | Enable hot reload and build of applet | false |
+| --force *(optional)* | Force start applet server of hot reload even if it is already running on a different port. Kill the running server first. | false |
 
 #### Applet Tests Upload
 ```bash

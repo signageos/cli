@@ -5,14 +5,7 @@ import { createOrganizationRestApi } from "../../helper";
 import { CommandLineOptions, createCommandDefinition } from "../../Command/commandDefinition";
 import { createDevelopment } from "@signageos/sdk";
 import wait from "../../Timer/wait";
-import { log } from "@signageos/sdk/dist/Console/log";
-import { SERVER_PORT_OPTION, SERVER_PUBLIC_URL_OPTION } from "../../Applet/appletServerHelper";
-
-const FORCE_OPTION = {
-	name: 'force',
-	type: Boolean,
-	description: 'Force start applet server even if it is already running on a different port. Kill the running server first.',
-} as const;
+import { killAppletServerIfRunningAndForceOption, SERVER_FORCE_OPTION, SERVER_PORT_OPTION, SERVER_PUBLIC_URL_OPTION } from "../../Applet/appletServerHelper";
 
 const OPTION_LIST = [
 	NO_DEFAULT_ORGANIZATION_OPTION,
@@ -21,7 +14,7 @@ const OPTION_LIST = [
 	APPLET_UID_OPTION,
 	SERVER_PUBLIC_URL_OPTION,
 	SERVER_PORT_OPTION,
-	FORCE_OPTION,
+	SERVER_FORCE_OPTION,
 ] as const;
 
 export const connect = createCommandDefinition({
@@ -44,16 +37,8 @@ export const connect = createCommandDefinition({
 
 		const appletPort = options[SERVER_PORT_OPTION.name];
 		const appletPublicUrl = options[SERVER_PUBLIC_URL_OPTION.name];
-		const force = options[FORCE_OPTION.name];
 
-		const runningAppletPort = await dev.applet.serve.getRunningPort(appletUid, appletVersion);
-		if (runningAppletPort && runningAppletPort !== appletPort) {
-			if (!force) {
-				log('warning', `Applet server is already running on port ${runningAppletPort}. Use --force to kill the running server and start a new one.`);
-			} else {
-				await dev.applet.serve.killRunningServer(appletUid, appletVersion);
-			}
-		}
+		await killAppletServerIfRunningAndForceOption(dev, options, appletUid, appletVersion, appletPort);
 
 		const server = await dev.applet.serve.serve({
 			appletUid,

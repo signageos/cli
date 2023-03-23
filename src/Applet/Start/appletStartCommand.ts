@@ -13,7 +13,7 @@ import { getOrganizationUidOrDefaultOrSelect, NO_DEFAULT_ORGANIZATION_OPTION, OR
 import { createDevelopment } from '@signageos/sdk/dist';
 import { AppletHotReload } from '@signageos/sdk/dist/Development/Applet/AppletHotReload';
 import wait from '../../Timer/wait';
-import { SERVER_PORT_OPTION, SERVER_PUBLIC_URL_OPTION } from '../appletServerHelper';
+import { killAppletServerIfRunningAndForceOption, SERVER_FORCE_OPTION, SERVER_PORT_OPTION, SERVER_PUBLIC_URL_OPTION } from '../appletServerHelper';
 import { log } from '@signageos/sdk/dist/Console/log';
 
 const DEFAULT_PORT = 8090;
@@ -40,6 +40,7 @@ export const OPTION_LIST = [
 	HOT_RELOAD_OPTION,
 	SERVER_PORT_OPTION,
 	SERVER_PUBLIC_URL_OPTION,
+	SERVER_FORCE_OPTION,
 ] as const;
 
 export const appletStart = createCommandDefinition({
@@ -71,6 +72,8 @@ export const appletStart = createCommandDefinition({
 		} catch (e) {
 			log('warning', chalk.yellow('Applet is not uploaded yet. It cannot be developed on real device.'));
 		}
+
+		await killAppletServerIfRunningAndForceOption(dev, options, appletUid, appletVersion, appletPort);
 
 		let appletHotReload: AppletHotReload | undefined;
 
