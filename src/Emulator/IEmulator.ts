@@ -1,4 +1,4 @@
 
 export interface IEmulator {
-	stop(): void;
+	stop(): Promise<void>;
 }

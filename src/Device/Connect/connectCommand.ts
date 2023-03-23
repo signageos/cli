@@ -6,18 +6,7 @@ import { CommandLineOptions, createCommandDefinition } from "../../Command/comma
 import { createDevelopment } from "@signageos/sdk";
 import wait from "../../Timer/wait";
 import { log } from "@signageos/sdk/dist/Console/log";
-
-const SERVER_PUBLIC_URL_OPTION = {
-	name: 'server-public-url',
-	type: String,
-	description: 'Public url of local machine server. Is useful when the local machine is behind a reverse proxy.',
-} as const;
-
-const SERVER_PORT_OPTION = {
-	name: 'server-port',
-	type: Number,
-	description: 'The custom server port for local machine server. Default is detected from currently running applet server.',
-} as const;
+import { SERVER_PORT_OPTION, SERVER_PUBLIC_URL_OPTION } from "../../Applet/appletServerHelper";
 
 const FORCE_OPTION = {
 	name: 'force',

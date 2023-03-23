@@ -123,15 +123,17 @@ sos applet build
 sos applet start
 ```
 - It's meant to be used with applets not created using the cli
-- Doesn't have a hot reload at the moment
 - Default values work for applet created using the cli
 
 | Argument                       | Description                           | Default value          |
 |--------------------------------|---------------------------------------|------------------------|
+| --organization-uid *(required)* | Organization UID                     | STDIN                  |
 | --port *(optional)*            | Port where the applet will run        | 8090                   |
-| --applet-dir *(optional)*      | Root path of built applet             | ${PWD}/dist            |
-| --project-dir *(optional)*     | Root path of applet project directory | ${PWD}                 |
+| --applet-path *(optional)*     | Root path of applet project           | ${PWD}/dist            |
 | --entry-file-path *(optional)* | Path of built applet entry file       | ${PWD}/dist/index.html |
+| --server-public-url *(optional)* | Public url of local machine server. Is useful when the local machine is behind a reverse proxy. | http://{CURRENT_REMOTE_ADDR}:{RANDOM_PORT} |
+| --server-port *(optional)* | The custom server port for local machine server. | {RANDOM_PORT} |
+| --hot-reload *(optional)* | Enable hot reload and build of applet | false |
 
 #### Applet Tests Upload
 ```bash
