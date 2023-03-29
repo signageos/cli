@@ -38,7 +38,18 @@ export async function validateAllFormalities(appletPath: string, entryFileAbsolu
 		throw new Error(`${packageConfig.main} from package.json file doesn't match with entry file: ${entryFileAbsolutePath}`);
 	}
 
-	if (!appletFilePaths.includes(mainFileAbsolutePath)) {
+	if (!isPathIncluded(appletFilePaths, mainFileAbsolutePath)) {
 		throw new Error(`${packageConfig.main} is not a part of tracking files`);
 	}
+}
+
+/**
+ * This is the platform/OS idependent way to check if a file is included in a list of files.
+ * So there can be backslashes and slashes on Windows and only slashes on Linux/UNIX.
+ * This function will ignore differences in slashes. It will only check if the file is included no matter what slashes are used.
+ */
+export function isPathIncluded(filePaths: string[], filePath: string) {
+	const sanitizedFilePath = filePath.replace(/\\/g, '/');
+	const sanitizedFilePaths = filePaths.map((filePathItem) => filePathItem.replace(/\\/g, '/'));
+	return sanitizedFilePaths.includes(sanitizedFilePath);
 }

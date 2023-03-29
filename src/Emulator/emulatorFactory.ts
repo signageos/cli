@@ -10,6 +10,7 @@ import chalk from 'chalk';
 import { IEmulator } from './IEmulator';
 import { log } from '@signageos/sdk/dist/Console/log';
 import { Development } from '@signageos/sdk/dist/Development/Development';
+import { isPathIncluded } from '../FileSystem/helper';
 
 export interface ICreateEmulatorParams {
 	appletUid: string | undefined;
@@ -99,7 +100,7 @@ export async function createEmulator(
 			appletPath,
 		});
 
-		if (!appletFilePaths.includes(absoluteFilePath)) {
+		if (!isPathIncluded(appletFilePaths, absoluteFilePath)) {
 			res.status(404).send(`File "${relativeFilePath}" was not found`);
 			return;
 		}
