@@ -58,7 +58,7 @@
     "@types/sinon": "7.5.0",
     "@types/webpack": "4.41.7",
     "depcheck": "1.4.3",
-    "mocha": "8.4.0",
+    "mocha": "10.2.0",
     "rewiremock": "3.13.9",
     "should": "13.2.3",
     "sinon": "9.2.0",
