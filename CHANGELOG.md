@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.2.0] - 2023-03-29
 ### Fixed
 - Console output of `npm start` of generated applet shows correct URL of emulator
 - The `--entry-file` can be now ommited when the `package.json` has the `main` property set
