@@ -4,9 +4,7 @@ import { deserializeJSON, getApiUrl, postResource } from '../helper';
 import { IOrganization } from '../Organization/organizationFacade';
 import { DevicePowerAction } from '@signageos/sdk/dist/RestApi/Device/PowerAction/IPowerAction';
 import RestApi from "@signageos/sdk/dist/RestApi/RestApi";
-import { IApplet } from "../Applet/appletFacade";
 import { CommandLineOptions } from '../Command/commandDefinition';
-import { getMachineIp } from '../Helper/localMachineHelper';
 import IDeviceReadOnly from '@signageos/sdk/dist/RestApi/Device/IDevice';
 import { ApiVersions } from '@signageos/sdk/dist/RestApi/apiVersions';
 import { loadConfig } from '../RunControl/runControlHelper';
@@ -82,29 +80,6 @@ export async function getActionType(options: CommandLineOptions<[typeof POWER_AC
 	}
 
 	return action;
-}
-
-export async function connectDevice(organization: IOrganization, deviceUid: String, applet: Partial<IApplet>, serverPort: string) {
-	const config = await loadConfig();
-	const DEVICE_RESOURCE = `/device/${deviceUid}/connect`;
-	const options = {
-		url: getApiUrl(config),
-		auth: {
-			clientId: organization.oauthClientId,
-			secret: organization.oauthClientSecret,
-		},
-		version: ApiVersions.V1,
-	};
-	const computerIp = await getMachineIp();
-	const protocol: string =  "http://";
-	const body = {
-			deviceUid: deviceUid,
-			appletUid:  applet.uid,
-			remoteIp: protocol.concat(computerIp + `:${serverPort}`),
-			appletVersion: applet.version,
-	};
-	const responseOfPost = await postResource(options, DEVICE_RESOURCE, null , body);
-	return JSON.parse(await responseOfPost.text(), deserializeJSON);
 }
 
 export async function disconnectDevice(organization: IOrganization, deviceUid: String) {

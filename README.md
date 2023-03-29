@@ -245,6 +245,8 @@ sos device connect
 | --device-uid *(required)*      | Uid of device from box'               |  STDIN           |
 | --applet-dir *(required)*      | Directory of the applet project       | ${PWD}|
 | --update-package-config *(optional)*      | Update package.json value `sos.appletUid` config when applet doesn't exists and is created       | false |
+| --server-public-url *(optional)* | Public url of local machine server. Is useful when the local machine is behind a reverse proxy. | http://{CURRENT_REMOTE_ADDR}:{RANDOM_PORT} |
+| --server-port *(optional)* | The custom server port for local machine server. | {RANDOM_PORT} |
 
 ## Contribution
 Clone the repository and install dev dependencies

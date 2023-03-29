@@ -16,19 +16,19 @@ import {
 } from './appletUploadFacade';
 import {
 	APPLET_PATH_OPTION,
-	DEFAULT_APPLET_ENTRY_FILE_PATH,
 	ENTRY_FILE_PATH_OPTION,
 	getAppletBinaryFileAbsolutePath,
 	getAppletDirectoryAbsolutePath,
 	getAppletEntryFileAbsolutePath,
 	getAppletEntryFileRelativePath,
 } from './appletUploadCommandHelper';
-import { listDirectoryContentRecursively, validateAllFormalities } from '../../FileSystem/helper';
+import { validateAllFormalities } from '../../FileSystem/helper';
 import { createProgressBar } from '../../CommandLine/progressBarFactory';
-import { saveToPackage } from '../../FileSystem/packageConfig';
+import { saveToPackage } from '@signageos/sdk/dist/FileSystem/packageConfig';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
 import { AppletDoesNotExistError } from '../appletErrors';
 import { log } from '@signageos/sdk/dist/Console/log';
+import { dev } from '@signageos/sdk';
 
 export const OPTION_LIST = [
 	APPLET_PATH_OPTION,
@@ -112,16 +112,11 @@ export const appletUpload = createCommandDefinition({
 		const appletFiles: string[] = [];
 
 		if (!isSingleFileApplet) {
-
-			try {
-				await validateAllFormalities(
-					appletDirectoryPath!,
-					options[ENTRY_FILE_PATH_OPTION.name] || DEFAULT_APPLET_ENTRY_FILE_PATH,
-				);
-			} catch (error) {
-				throw error;
-			}
-			appletFiles.push(...(await listDirectoryContentRecursively(appletDirectoryPath!, currentDirectory)));
+			const appletFilePaths = await dev.applet.files.listAppletFiles({
+				appletPath: appletDirectoryPath!,
+			});
+			await validateAllFormalities(appletDirectoryPath!, appletEntryFilePath!, appletFilePaths);
+			appletFiles.push(...appletFilePaths);
 		}
 
 		if (allowVerbose) {

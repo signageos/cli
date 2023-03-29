@@ -3,11 +3,12 @@ import * as prompts from 'prompts';
 import * as Debug from 'debug';
 import * as os from 'os';
 import { deserializeJSON, getApiUrl, postResource } from '../helper';
-import { saveConfig, getConfigFilePath, loadConfig } from '../RunControl/runControlHelper';
+import { saveConfig, loadConfig } from '../RunControl/runControlHelper';
 import { parameters } from '../parameters';
 import { CommandLineOptions, createCommandDefinition } from '../Command/commandDefinition';
 import { ApiVersions } from '@signageos/sdk/dist/RestApi/apiVersions';
 import { log } from '@signageos/sdk/dist/Console/log';
+import { getConfigFilePath } from '@signageos/sdk/dist/SosHelper/sosControlHelper';
 const debug = Debug('@signageos/cli:Auth:login');
 
 const OPTION_LIST = [

@@ -36,7 +36,7 @@ export const appletStart = createCommandDefinition({
 		const entryFileAbsolutePath = await getAppletEntryFileAbsolutePath(currentDirectory, options);
 		const projectDirAbsolutePath = await getProjectDirAbsolutePath(currentDirectory, options);
 		const appletDirAbsolutePath = await getAppletDirAbsolutePath(currentDirectory, options);
-		const entryFileRelativePath = await getAppletEntryFileRelativePath(entryFileAbsolutePath, appletDirAbsolutePath);
+		const entryFileRelativePath = getAppletEntryFileRelativePath(entryFileAbsolutePath, appletDirAbsolutePath);
 		const emulatorUid = await loadEmulatorOrCreateNewAndReturnUid(organizationUid);
 
 		const createEmulatorParams = {

@@ -2,6 +2,7 @@ import { log } from '@signageos/sdk/dist/Console/log';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import { CommandLineOptions } from '../../Command/commandDefinition';
+import { loadPackage } from '@signageos/sdk/dist/FileSystem/packageConfig';
 
 export const ENTRY_FILE_PATH_OPTION = {
 	name: 'entry-file-path',
@@ -15,9 +16,9 @@ export const APPLET_PATH_OPTION = {
 	description: 'Path to the applet file or the project folder depending on the entry file. Relative to the command or absolute.',
 } as const;
 
-export const DEFAULT_APPLET_DIR_PATH = '.';
-export const DEFAULT_APPLET_ENTRY_FILE_PATH = 'dist/index.html';
-export const DEFAULT_APPLET_BINARY_FILE_PATH = 'dist/index.html';
+const DEFAULT_APPLET_DIR_PATH = '.';
+const DEFAULT_APPLET_ENTRY_FILE_PATH = 'dist/index.html';
+const DEFAULT_APPLET_BINARY_FILE_PATH = 'dist/index.html';
 
 export async function getAppletDirectoryAbsolutePath(
 	currentDirectory: string,
@@ -81,6 +82,11 @@ export async function getAppletEntryFileAbsolutePath(
 	options: CommandLineOptions<[typeof ENTRY_FILE_PATH_OPTION]>,
 ): Promise<string> {
 	let appletEntryFilePath: string | undefined = options['entry-file-path'];
+
+	if (!appletEntryFilePath) {
+		const packageConfig = await loadPackage(currentDirectory);
+		appletEntryFilePath = packageConfig?.main;
+	}
 
 	if (!appletEntryFilePath) {
 		appletEntryFilePath = DEFAULT_APPLET_ENTRY_FILE_PATH;

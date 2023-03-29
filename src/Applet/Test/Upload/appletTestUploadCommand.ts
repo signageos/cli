@@ -9,7 +9,7 @@ import {
 	getAppletVersion,
 } from '../../appletFacade';
 import { createProgressBar } from '../../../CommandLine/progressBarFactory';
-import { loadPackage } from '../../../FileSystem/packageConfig';
+import { loadPackage } from '@signageos/sdk/dist/FileSystem/packageConfig';
 import IAppletTestSuite from '@signageos/sdk/dist/RestApi/Applet/Version/IAppletTestSuite';
 import { CommandLineOptions, createCommandDefinition } from '../../../Command/commandDefinition';
 import { log } from '@signageos/sdk/dist/Console/log';

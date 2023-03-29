@@ -5,8 +5,6 @@ const dotenv = require('dotenv');
 const packageConfig = require('../package.json');
 const environment = process.env.NODE_ENV || 'dev';
 const rootPath = path.normalize(__dirname + '/..');
-const testsPath = rootPath + '/tests';
-const distPath = rootPath + '/dist';
 
 dotenv.config({ path: path.join(rootPath, '.env') });
 
@@ -40,12 +38,6 @@ export const parameters = {
 	environment,
 	name: packageConfig.name,
 	version: packageConfig.version,
-	configPath: __dirname,
-	paths: {
-		rootPath,
-		testsPath,
-		distPath,
-	},
 	profile: process.env.SOS_PROFILE,
 	apiUrl,
 	boxHost,
@@ -54,9 +46,4 @@ export const parameters = {
 		version: process.env.SOS_APPLET_VERSION,
 		name: process.env.SOS_APPLET_NAME,
 	},
-	accountAuth: {
-		tokenId: process.env.SOS_API_IDENTIFICATION,
-		token: process.env.SOS_API_SECURITY_TOKEN,
-	},
-	defaultOrganizationUid: process.env.SOS_ORGANIZATION_UID,
 };

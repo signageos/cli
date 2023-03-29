@@ -1,18 +1,11 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import file from '@signageos/file';
-import * as glob from 'globby';
-import chalk from 'chalk';
 import * as Debug from 'debug';
 import { computeMD5 } from '../Stream/helper';
-import { loadPackage } from './packageConfig';
-import { log } from '@signageos/sdk/dist/Console/log';
+import { loadPackage } from '@signageos/sdk/dist/FileSystem/packageConfig';
 const debug = Debug('@signageos/cli:FileSystem:helper');
 
-const parseIgnoreFile: (input: Buffer) => string[] = require('parse-gitignore');
-
-const DEFAULT_IGNORE_FILE = '.sosignore';
-const IGNORE_FILES = [DEFAULT_IGNORE_FILE, '.npmignore', '.gitignore'];
 const DEFAULT_FILE_TYPE = 'application/octet-stream';
 
 export async function computeFileMD5(filePath: string) {
@@ -28,105 +21,24 @@ export async function getFileType(filePath: string) {
 	return fileResult?.mimeType ? fileResult.mimeType : DEFAULT_FILE_TYPE;
 }
 
-/**
- * @note file existence is validated the very beginning of upload
- */
-export async function listDirectoryContentRecursively(appletDirPath: string, ignoreFileDirPath: string): Promise<string[]> {
-	const pkgJson = await loadPackage(appletDirPath) ?? {};
-	let files: string[] = [];
-
-	if (pkgJson.files && Array.isArray(pkgJson.files)) {
-		const filesSet: Set<string> = prepareFilesToInclude();
-		const paths = await getAllPaths(appletDirPath, pkgJson.files);
-		paths.forEach((p: string) => filesSet.add(p));
-		files = [...filesSet].map((f: string) => path.join(appletDirPath, f));
-
-	} else {
-
-		const ignorePatterns: string[] = [];
-		let usedIgnoreFilePath: undefined | string = undefined;
-
-		for (let index = 0; index < IGNORE_FILES.length; index++) {
-			const ignoreFileName = IGNORE_FILES[index];
-
-			const ignoreFilePath = path.join(ignoreFileDirPath, ignoreFileName);
-			const ignoreFileExists = await fs.pathExists(ignoreFilePath);
-
-			if (ignoreFileExists) {
-				usedIgnoreFilePath = ignoreFilePath;
-				break;
-			}
-		}
-
-		if (usedIgnoreFilePath) {
-			log('info', `Use ignore file: ${chalk.green.bold(usedIgnoreFilePath)}.`);
-		} else {
-			log('info', `No ignore file found in ${chalk.yellow.bold(ignoreFileDirPath)}.`);
-		}
-
-		if (usedIgnoreFilePath) {
-			const usedIgnoreFileBuffer = await fs.readFile(usedIgnoreFilePath);
-			const ignoreFilePatterns = parseIgnoreFile(usedIgnoreFileBuffer);
-			ignoreFilePatterns.forEach((pattern: string) => ignorePatterns.push(`!${pattern}`));
-		}
-
-		files = await glob(
-			['**/*', '!node_modules/', ...ignorePatterns],
-			{
-				cwd: appletDirPath,
-				absolute: true,
-				dot: true,
-			},
-		);
-	}
-	debug('listed files', files);
-
-	return files;
-}
-
-function prepareFilesToInclude(): Set<string> {
-	const alwaysInclude = [
-		'package.json',
-	];
-
-	return new Set<string> (alwaysInclude);
-}
-
-export async function validateAllFormalities(appletDir: string, entryFile: string): Promise<void> {
-	const pkgJson = await loadPackage(appletDir);
-	if (!pkgJson) {
-		const absolutePkgPath = path.join(appletDir, 'package.json');
-		throw new Error(`Cannot find package.json file on path ${absolutePkgPath}`);
+export async function validateAllFormalities(appletPath: string, entryFileAbsolutePath: string, appletFilePaths: string[]): Promise<void> {
+	const packageConfig = await loadPackage(appletPath);
+	if (!packageConfig) {
+		throw new Error(`Cannot find package.json file in path ${appletPath}`);
 	}
 
-	if (pkgJson.main !== entryFile) {
-		throw new Error(`${pkgJson.main} from package.json file doesn't match with entry file: ${entryFile}`);
+	if (!packageConfig.main) {
+		const expectedMain = entryFileAbsolutePath.slice(appletPath.length + 1);
+		throw new Error(`The package.json is missing "main", but should to be "${expectedMain}"`);
 	}
 
-	if (Array.isArray(pkgJson.files)) {
-		const paths: string[] = await getAllPaths(appletDir, pkgJson.files);
+	const mainFileAbsolutePath = path.join(appletPath, packageConfig.main);
 
-		if (! paths.includes(pkgJson.main)) {
-			throw new Error(`${pkgJson.main} is not a part of tracking files`);
-		}
+	if (mainFileAbsolutePath !== entryFileAbsolutePath) {
+		throw new Error(`${packageConfig.main} from package.json file doesn't match with entry file: ${entryFileAbsolutePath}`);
 	}
 
-}
-
-/**
- * @note glob patterns are also supported
- * @param appletDir directory of applet
- * @param files is a list of tracked files
- * @returns all matched results, which are included in `files`
- */
-export async function getAllPaths(appletDir: string, files: string[]): Promise<string[]> {
-	const paths: string[] = await glob(
-		files,
-		{
-			cwd: appletDir,
-			dot: true,
-		},
-	);
-
-	return paths;
+	if (!appletFilePaths.includes(mainFileAbsolutePath)) {
+		throw new Error(`${packageConfig.main} is not a part of tracking files`);
+	}
 }
