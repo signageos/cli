@@ -4,20 +4,8 @@ import { APPLET_UID_OPTION, getAppletUid, getAppletVersion } from "../../Applet/
 import { createOrganizationRestApi } from "../../helper";
 import { CommandLineOptions, createCommandDefinition } from "../../Command/commandDefinition";
 import { createDevelopment } from "@signageos/sdk";
-import { getMachineRemoteAddr } from '@signageos/sdk/dist/Utils/network';
 import wait from "../../Timer/wait";
-
-const SERVER_PUBLIC_URL_OPTION = {
-	name: 'server-public-url',
-	type: String,
-	description: 'Public url of local machine server. Is useful when the local machine is behind a reverse proxy.',
-} as const;
-
-const SERVER_PORT_OPTION = {
-	name: 'server-port',
-	type: Number,
-	description: 'The custom server port for local machine server. Default is detected from currently running applet server.',
-} as const;
+import { killAppletServerIfRunningAndForceOption, SERVER_FORCE_OPTION, SERVER_PORT_OPTION, SERVER_PUBLIC_URL_OPTION } from "../../Applet/appletServerHelper";
 
 const OPTION_LIST = [
 	NO_DEFAULT_ORGANIZATION_OPTION,
@@ -26,6 +14,7 @@ const OPTION_LIST = [
 	APPLET_UID_OPTION,
 	SERVER_PUBLIC_URL_OPTION,
 	SERVER_PORT_OPTION,
+	SERVER_FORCE_OPTION,
 ] as const;
 
 export const connect = createCommandDefinition({
@@ -46,13 +35,21 @@ export const connect = createCommandDefinition({
 		const appletVersion = await getAppletVersion(currentDirectory);
 		const deviceUid = await getDeviceUid(restApi, options);
 
-		const appletPort = options[SERVER_PORT_OPTION.name] ?? await dev.applet.serve.getRunningPort(appletUid, appletVersion);
-		const appletPublicUrl = options[SERVER_PUBLIC_URL_OPTION.name] ?? `http://${getMachineRemoteAddr()}:${appletPort}`;
+		const appletPort = options[SERVER_PORT_OPTION.name];
+		const appletPublicUrl = options[SERVER_PUBLIC_URL_OPTION.name];
 
+		await killAppletServerIfRunningAndForceOption(dev, options, appletUid, appletVersion, appletPort);
+
+		const server = await dev.applet.serve.serve({
+			appletUid,
+			appletVersion,
+			port: appletPort,
+			publicUrl: appletPublicUrl,
+		});
 		const connection = await dev.deviceConnect.connect(deviceUid, {
 			appletUid,
 			appletVersion,
-			appletPublicUrl,
+			appletPublicUrl: server.publicUrl,
 		});
 
 		const stopServer = async () => {

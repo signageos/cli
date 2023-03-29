@@ -107,20 +107,34 @@ sos applet upload --applet-path=dist/index.html
 | --applet-path *(optional)*     | Path of project directory     | ${PWD}                 |
 | --entry-file-path *(optional)* | Path of applet entry file     | ${PWD}/dist/index.html |
 
+#### Applet Build
+```bash
+sos applet build
+# Build applet locally. The result is a zip file in the /tmp/signageos directory.
+```
+
+| Argument                       | Description                   | Default value          |
+|--------------------------------|-------------------------------|------------------------|
+| --applet-uid *(required)*       | Applet UID                   | STDIN          |
+| --organization-uid *(required)* | Organization UID             | STDIN          |
+
 #### Applet Start
 ```bash
 sos applet start
 ```
 - It's meant to be used with applets not created using the cli
-- Doesn't have a hot reload at the moment
 - Default values work for applet created using the cli
 
 | Argument                       | Description                           | Default value          |
 |--------------------------------|---------------------------------------|------------------------|
+| --organization-uid *(required)* | Organization UID                     | STDIN                  |
 | --port *(optional)*            | Port where the applet will run        | 8090                   |
-| --applet-dir *(optional)*      | Root path of built applet             | ${PWD}/dist            |
-| --project-dir *(optional)*     | Root path of applet project directory | ${PWD}                 |
+| --applet-path *(optional)*     | Root path of applet project           | ${PWD}/dist            |
 | --entry-file-path *(optional)* | Path of built applet entry file       | ${PWD}/dist/index.html |
+| --server-public-url *(optional)* | Public url of local machine server. Is useful when the local machine is behind a reverse proxy. | http://{CURRENT_REMOTE_ADDR}:{RANDOM_PORT} |
+| --server-port *(optional)* | The custom server port for local machine server. | {RANDOM_PORT} |
+| --hot-reload *(optional)* | Enable hot reload and build of applet | false |
+| --force *(optional)* | Force start applet server of hot reload even if it is already running on a different port. Kill the running server first. | false |
 
 #### Applet Tests Upload
 ```bash
@@ -237,16 +251,17 @@ sos device set-content
 sos device connect
 # You will be provided with setting parameters
 # You should build and upload applet to box before connecting applet to device 
-# This upload all files in actual directory as multifile applet
+# The applet has to be at least uploaded once with the specific version
 ```
 | Argument                       | Description                           | Default value          |
 |--------------------------------|---------------------------------------|------------------------|
-| --ip *(required)*              | Ip address of computer in local network | Automatically get from networkInterface|
 | --device-uid *(required)*      | Uid of device from box'               |  STDIN           |
-| --applet-dir *(required)*      | Directory of the applet project       | ${PWD}|
+| --applet-uid *(required)*      | Applet UID                            | STDIN |
+| --organization-uid *(required)* | Organization UID             | STDIN          |
 | --update-package-config *(optional)*      | Update package.json value `sos.appletUid` config when applet doesn't exists and is created       | false |
 | --server-public-url *(optional)* | Public url of local machine server. Is useful when the local machine is behind a reverse proxy. | http://{CURRENT_REMOTE_ADDR}:{RANDOM_PORT} |
 | --server-port *(optional)* | The custom server port for local machine server. | {RANDOM_PORT} |
+| --force *(optional)* | Force start applet server even if it is already running on a different port. Kill the running server first. | false |
 
 ## Contribution
 Clone the repository and install dev dependencies

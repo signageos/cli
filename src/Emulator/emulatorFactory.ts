@@ -6,13 +6,15 @@ import * as cors from 'cors';
 import * as serveStatic from 'serve-static';
 import * as mime from 'mime';
 import * as fsExtra from 'fs-extra';
-import * as glob from 'globby';
 import chalk from 'chalk';
 import { IEmulator } from './IEmulator';
 import { log } from '@signageos/sdk/dist/Console/log';
+import { Development } from '@signageos/sdk/dist/Development/Development';
+import { isPathIncluded } from '../FileSystem/helper';
 
 export interface ICreateEmulatorParams {
-	projectPath: string;
+	appletUid: string | undefined;
+	appletVersion: string | undefined;
 	appletPath: string;
 	entryFileRelativePath: string;
 	emulatorServerPort: number;
@@ -35,22 +37,21 @@ type IEnvVars = {
 export async function createEmulator(
 	params: ICreateEmulatorParams,
 	organizationUid: string,
+	dev: Development,
 ): Promise<IEmulator> {
-	const { projectPath, emulatorServerPort, appletPath, entryFileRelativePath } = params;
+	const { appletUid, appletVersion, emulatorServerPort, appletPath, entryFileRelativePath } = params;
 	const entryFileAbsolutePath = path.join(appletPath, entryFileRelativePath);
 
-	const frontDisplayPath = path.dirname(require.resolve('@signageos/front-display/package.json', { paths: [projectPath]}));
+	const frontDisplayPath = path.dirname(require.resolve('@signageos/front-display/package.json', { paths: [appletPath]}));
 	const frontDisplayDistPath = path.join(frontDisplayPath, 'dist');
-
-	const packageConfig = JSON.parse(fsExtra.readFileSync(path.join(projectPath, 'package.json')).toString());
 
 	if (!organizationUid) {
 		throw new Error(`No default organization selected. Use ${chalk.green('sos organization set-default')} first.`);
 	}
 
 	const envVars: IEnvVars = {
-		uid: packageConfig.sos?.appletUid || '__default_timing__',
-		version: packageConfig.version,
+		uid: appletUid || '__default_timing__',
+		version: appletVersion || '0.0.0',
 		organizationUid,
 		binaryFilePath: `${APPLET_DIRECTORY_PATH}/${entryFileRelativePath}`,
 		checksum: DUMMY_CHECKSUM,
@@ -90,40 +91,38 @@ export async function createEmulator(
 		log('info', `Emulator is running at ${chalk.blue(chalk.bold(emulatorUrl))}`);
 	});
 
-	const appletAssets = await glob(
-		['**/*'],
-		{
-			cwd: appletPath,
-			absolute: true,
-			dot: true,
-		},
-	);
-
-	const entryFileExists = appletAssets.includes(entryFileAbsolutePath.replace(/\\/g, '/'));
-	if (!entryFileExists) {
-		throw new Error(`Applet has to have ${chalk.green(entryFileRelativePath)} in applet directory.`);
-	}
-
-	app.use(APPLET_DIRECTORY_PATH, (req: express.Request, res: express.Response, next: () => void) => {
+	app.use(APPLET_DIRECTORY_PATH, async (req: express.Request, res: express.Response) => {
 		const fileUrl = url.parse(req.url);
-		const relativeFilePath = fileUrl.pathname ? fileUrl.pathname.substr(1) : '';
-		const assetPath = appletAssets.find((asset: string) => {
-			return asset.substring(appletPath.length + 1) === relativeFilePath;
+		const relativeFilePath = fileUrl.pathname ? fileUrl.pathname.substring(1) : '';
+		const absoluteFilePath = path.join(appletPath, relativeFilePath);
+
+		const appletFilePaths = await dev.applet.files.listAppletFiles({
+			appletPath,
 		});
 
-		if (assetPath) {
-			const contentType = mime.getType(relativeFilePath) || 'application/octet-stream';
-			res.setHeader('Content-Type', contentType);
-			const readStream = fsExtra.createReadStream(assetPath);
-			readStream.pipe(res);
-		} else {
-			next();
+		if (!isPathIncluded(appletFilePaths, absoluteFilePath)) {
+			res.status(404).send(`File "${relativeFilePath}" was not found`);
+			return;
 		}
+
+		if (relativeFilePath === entryFileRelativePath) {
+			// Propagate Hot reload of whole emulator
+			const prependFileContent = '<script>window.onunload = function () { window.parent.location.reload(); }</script>';
+			res.setHeader('Content-Type', 'text/html');
+			const entryFileContent = await fsExtra.readFile(entryFileAbsolutePath, 'utf8');
+			res.send(prependFileContent + entryFileContent);
+			return;
+		}
+
+		const contentType = mime.getType(absoluteFilePath) || 'application/octet-stream';
+		res.setHeader('Content-Type', contentType);
+		const readStream = fsExtra.createReadStream(absoluteFilePath);
+		readStream.pipe(res);
 	});
 
 	return {
-		stop() {
-			server.close();
+		async stop() {
+			await new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
 		},
 	};
 }

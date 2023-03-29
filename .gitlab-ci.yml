@@ -37,6 +37,8 @@ test:general:
   stage: test
   except:
     - tags
+  needs:
+    - prepare
   script:
     - cp .env.amy .env
     - npm test
@@ -45,6 +47,8 @@ test:integration:
   stage: test
   except:
     - tags
+  needs:
+    - prepare
   script:
     - cp .env.amy .env
     - npm run test-integration
@@ -53,6 +57,8 @@ test:lint:
   stage: test
   except:
     - tags
+  needs:
+    - prepare
   script:
     - if [ `find test -name '*\.ts' -type f -print0 | xargs -0 grep "\.only" | wc -l` -gt 0 ]; then echo "You forgot the .only in tests" && exit 1; fi
     - npm run lint
@@ -62,6 +68,8 @@ test:changelog:
   stage: test
   except:
     - tags
+  needs:
+    - prepare
   allow_failure: true
   script:
     - ci-test-changelog
@@ -70,12 +78,16 @@ test:check:
   stage: test
   except:
     - tags
+  needs:
+    - prepare
   script:
     - npm run check
 
 build:
   stage: build
   dependencies:
+    - prepare
+  needs:
     - prepare
   script:
     - npm run prepare --production
@@ -89,6 +101,9 @@ publish:npm:
   dependencies:
     - prepare
     - build
+  needs:
+    - prepare
+    - build
   script:
     - cp .env.production .env
     - npm publish --ignore-scripts --tag $TAG
@@ -98,6 +113,9 @@ publish:npm-public:
   only:
     - tags
   dependencies:
+    - prepare
+    - build
+  needs:
     - prepare
     - build
   script:
@@ -113,6 +131,13 @@ release:tag:
   stage: release
   only:
     - master
+  needs:
+    - prepare
+    - build
+    - test:general
+    - test:lint
+    - test:check
+    - test:changelog
   when: manual
   allow_failure: false
   before_script: []
@@ -124,5 +149,7 @@ release:notes:
   stage: release
   only:
     - tags
+  needs:
+    - publish:npm
   script:
     - ci-release-notes
