@@ -37,7 +37,7 @@
     "access": "public"
   },
   "devDependencies": {
-    "@signageos/codestyle": "0.0.21",
+    "@signageos/codestyle": "0.0.23",
     "@types/chalk": "2.2.0",
     "@types/child-process-promise": "2.2.1",
     "@types/cli-progress": "3.7.0",
