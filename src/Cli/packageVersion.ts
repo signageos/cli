@@ -37,7 +37,8 @@ export async function getLatestVersion(packageName: string) {
 
 export async function getUpdateMessage(packageName: string, installedVersion: string, latestVersion?: string) {
 	const NEW_VERSION_AVAILABLE_MESSAGE = ``
-		+ chalk.bold.yellow(`New version of signageOS CLI Tool is available.\n`)
+		+ chalk.bold.yellow(`New version of signageOS CLI (v${latestVersion}) Tool is available.\n`)
+		+ `See changelog: https://github.com/signageos/cli/blob/master/CHANGELOG.md \n`
 		+ `${chalk.bold(`Update your tool using`)} npm i ${packageName}@latest -g`;
 	const INSTALLED_UP_TO_DATE_MESSAGE = chalk.bold.green(`Your tool is up to date.`);
 
