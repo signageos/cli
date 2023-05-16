@@ -13,7 +13,7 @@
     "type": "git"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "npx check-engine@latest && tsc",
     "lint": "tslint --config node_modules/@signageos/codestyle/tslint.json {src,tests}/**/*.ts",
     "prebuild": "rm -rf dist/*",
     "prepare": "npm run prebuild && npm run build && chmod +x dist/index.js",
@@ -26,8 +26,8 @@
   },
   "license": "MIT",
   "engines": {
-    "node": ">=12.0.0",
-    "npm": ">=6.0.0"
+    "node": "12",
+    "npm": "6"
   },
   "bin": {
     "sos": "./dist/index.js"
