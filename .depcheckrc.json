@@ -18,6 +18,8 @@
 		"depcheck",
 		"tslint",
 		"webpack",
-		"prettier"
+		"prettier",
+		"c8",
+		"@istanbuljs/nyc-config-typescript"
 	]
 }

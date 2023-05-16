@@ -14,6 +14,7 @@ tsconfig.json
 # Test
 .mocharc.integration.json
 .mocharc.unit.json
+.c8rc
 
 # Other
 .depcheckrc.json

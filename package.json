@@ -19,6 +19,7 @@
     "prepare": "npm run prebuild && npm run build && chmod +x dist/index.js",
     "test": "env NODE_ENV=test mocha --config .mocharc.unit.json",
     "test-integration": "env NODE_ENV=test mocha --config .mocharc.integration.json",
+    "test:coverage": "c8 npm run test",
     "watch": "tsc --watch",
     "check": "npm run depcheck && npx --userconfig ./.npmrc @signageos/lib check-deps && npm run check-circular-deps",
     "check-circular-deps": "npx madge@5 --circular --extensions ts ./src/",
@@ -39,6 +40,7 @@
     "access": "public"
   },
   "devDependencies": {
+    "@istanbuljs/nyc-config-typescript": "1.0.2",
     "@signageos/codestyle": "0.0.21",
     "@types/chalk": "2.2.0",
     "@types/child-process-promise": "2.2.1",
@@ -59,6 +61,7 @@
     "@types/should": "13.0.0",
     "@types/sinon": "7.5.0",
     "@types/webpack": "4.41.7",
+    "c8": "7.13.0",
     "depcheck": "1.4.3",
     "mocha": "8.4.0",
     "prettier": "2.8.8",
