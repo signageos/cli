@@ -1,8 +1,8 @@
 import * as should from 'should';
-import { execSosCommand } from "./testTools";
+import { execSosCommand } from './testTools';
 
 describe('globalArgs', function () {
-
+	// Works only after login
 	it('should accept use SOS_API_URL default env variable from .env file', async function () {
 		const result = await execSosCommand(['organization', 'list']);
 		const organizationList = JSON.parse(result.stdout);
