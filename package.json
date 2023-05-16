@@ -23,7 +23,8 @@
     "check": "npm run depcheck && npx --userconfig ./.npmrc @signageos/lib check-deps && npm run check-circular-deps",
     "check-circular-deps": "npx madge@5 --circular --extensions ts ./src/",
     "depcheck": "depcheck --config .depcheckrc.json",
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "prettier:format": "prettier \"(src|tests|tools)/**/*.+(ts|js)\" --write"
   },
   "license": "MIT",
   "engines": {
@@ -60,6 +61,7 @@
     "@types/webpack": "4.41.7",
     "depcheck": "1.4.3",
     "mocha": "8.4.0",
+    "prettier": "2.8.8",
     "rewiremock": "3.13.9",
     "should": "13.2.3",
     "sinon": "9.2.0",

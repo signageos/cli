@@ -1,5 +1,5 @@
 {
-	"specials": [ "mocha" ],
+	"specials": ["mocha"],
 	"parsers": {
 		"**/*.ts": "typescript",
 		"**/*.js": "es6"
@@ -17,6 +17,7 @@
 		"mocha",
 		"depcheck",
 		"tslint",
-		"webpack"
+		"webpack",
+		"prettier"
 	]
 }
