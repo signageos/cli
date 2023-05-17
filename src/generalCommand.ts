@@ -1,5 +1,3 @@
-import { parameters } from './parameters';
-
 export const VERSION_OPTION = {
 	name: 'version',
 	alias: 'v',
@@ -10,7 +8,6 @@ export const API_URL_OPTION = {
 	name: 'api-url',
 	alias: 'u',
 	type: String,
-	defaultValue: parameters.apiUrl,
 	description: 'API URL to be used for REST requests',
 } as const;
 export const COMMAND_OPTION = {
@@ -32,7 +29,6 @@ export const PROFILE_OPTION = {
 	name: 'profile',
 	type: String,
 	description: 'signageOS Profile to be used for authentication and other values from ~/.sosrc config file.',
-	defaultValue: parameters.profile,
 } as const;
 
 export const GENERAL_OPTION_LIST = [
