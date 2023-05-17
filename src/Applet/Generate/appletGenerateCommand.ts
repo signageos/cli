@@ -19,6 +19,7 @@ const OPTION_LIST = [
 	{ name: 'applet-version', type: String, description: `Applet initial version. Use semantic version`, defaultValue: '0.0.0' },
 	{ name: 'target-dir', type: String, description: 'Directory where will be the applet generated to' },
 	{ name: 'npm-registry', type: String, description: `NPM registry URL. If you have your private npm registry` },
+	{ name: 'typescript', type: Boolean, description: `Generate applet with TypeScript source code instead of pure JS` },
 ] as const;
 
 export const appletGenerate = createCommandDefinition({
@@ -28,6 +29,7 @@ export const appletGenerate = createCommandDefinition({
 	commands: [],
 	async run(options: CommandLineOptions<typeof OPTION_LIST>) {
 		const currentDirectory = process.cwd();
+		const typescript: boolean = options.typescript ?? false;
 		let appletName: string | undefined = options.name;
 		if (!appletName) {
 			const response = await prompts({
@@ -46,7 +48,7 @@ export const appletGenerate = createCommandDefinition({
 		const appletRootDirectory = options['target-dir'] || path.join(currentDirectory, appletName);
 		const appletRootDirectoryName = options['target-dir'] || appletName;
 
-		let entryFileName = 'index.js';
+		let entryFileName = 'index';
 		const dependencies = [
 			'@signageos/front-applet@latest',
 			'@signageos/front-display@latest',
@@ -87,8 +89,19 @@ export const appletGenerate = createCommandDefinition({
 
 		const generateFiles: IFile[] = [];
 
-		// TODO typescript support
-		{
+		if (typescript) {
+			dependencies.push('ts-loader@9', 'typescript');
+			fileExtensions.unshift('.ts', '.tsx');
+			rules.push(`{ test: /\\.tsx?$/, loader: 'ts-loader' }`);
+			generateFiles.push({
+				path: path.join(appletRootDirectory, 'src', 'index.ts'),
+				content: createIndexTs(),
+			});
+			generateFiles.push({
+				path: path.join(appletRootDirectory, 'tsconfig.json'),
+				content: createTsConfig(),
+			});
+		} else {
 			generateFiles.push({
 				path: path.join(appletRootDirectory, 'src', 'index.js'),
 				content: createIndexJs(),
@@ -229,6 +242,8 @@ const createIndexHtml = (
 </html>
 `;
 
+const createIndexTs = () => createIndexJs(); // There is currently no differences
+
 const createIndexJs = () => `
 require('./index.css');
 
@@ -240,6 +255,15 @@ sos.onReady().then(async function () {
 	console.log('sOS is ready');
 	contentElement.innerHTML = 'sOS is ready';
 });
+`;
+
+const createTsConfig = () => `{
+	"compilerOptions": {
+		"esModuleInterop": true,
+		"downlevelIteration": true
+	},
+	"include": ["src/**/*.ts"]
+}
 `;
 
 const createIndexCss = () => `

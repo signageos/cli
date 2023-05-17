@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - New version announcement has a link to the changelog
 - Command for Applet Generate will produce correct RegExp in `webpack.config.js` with proper escaping of dots using backslashes
 
+### Added
+- New argument for commands Applet Generate `--typescript` that will produce the sample code written in TypeScript rather than JavaScript
+
 ## [1.2.1] - 2023-04-01
 ### Fixed
 - `sos applet start --hot-reload` Reload devices when no one has connected yet

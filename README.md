@@ -60,7 +60,7 @@ sos applet --help
 
 #### Applet Generation
 ```bash
-sos applet generate --name my-sample-applet
+sos applet generate --name my-sample-applet --typescript
 cd my-sample-applet
 # Develop your applet with watching changes
 npm start
@@ -73,6 +73,7 @@ npm run build
 | --version *(optional)*       | Initial version                      | 0.0.0          |
 | --target-dir *(optional)*    | Generate applet project to directory | ${PWD}/${name} |
 | --npm-registry *(optional)*  | NPM registry URL (for private npm)   |                |
+| --typescript *(optional)*    | Generate applet with TypeScript source code instead of pure JS   | false |
 
 > ! Windows users note:
 > There are unresolved issue with NPX tool on Windows clients when your username contains spaces (e.g.: `John Doe`).
