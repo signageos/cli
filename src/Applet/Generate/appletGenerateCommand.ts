@@ -182,7 +182,7 @@ async function createPackageConfig(
 			upload: "sos applet upload",
 			clean: "npx rimraf dist",
 			escheck: "npx es-check es5 dist/*.js",
-			build: "webpack --mode production",
+			build: "webpack --mode production && npm run escheck",
 			postbuild: "npm run escheck",
 			connect: "webpack --watch",
 		},
