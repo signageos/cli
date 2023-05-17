@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Fixed
 - New version announcement has a link to the changelog
+- Command for Applet Generate will produce correct RegExp in `webpack.config.js` with proper escaping of dots using backslashes
 
 ## [1.2.1] - 2023-04-01
 ### Fixed

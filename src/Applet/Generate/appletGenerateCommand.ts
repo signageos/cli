@@ -68,11 +68,11 @@ export const appletGenerate = createCommandDefinition({
 		];
 		const rules: string[] = [
 `			{
-				test: /^(.(?!\.module\.css))*\.css$/,
+				test: /^(.(?!\\.module\\.css))*\\.css$/,
 				use: ['style-loader', 'css-loader'],
 			}`,
 `			{
-				test: /\.jsx?$/,
+				test: /\\.jsx?$/,
 				loader: 'babel-loader',
 				options: { presets: [require.resolve('@babel/preset-env')] },
 				enforce: 'post',
