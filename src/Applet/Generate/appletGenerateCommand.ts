@@ -6,6 +6,11 @@ import * as prompts from 'prompts';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
 import { log } from '@signageos/sdk/dist/Console/log';
 
+enum Language {
+	JavaScript = 'javascript',
+	TypeScript = 'typescript',
+}
+
 const NAME_REGEXP = /^\w(\w|\d|-)*\w$/;
 const NPM_EXECUTABLE = 'npm';
 
@@ -19,7 +24,7 @@ const OPTION_LIST = [
 	{ name: 'applet-version', type: String, description: `Applet initial version. Use semantic version`, defaultValue: '0.0.0' },
 	{ name: 'target-dir', type: String, description: 'Directory where will be the applet generated to' },
 	{ name: 'npm-registry', type: String, description: `NPM registry URL. If you have your private npm registry` },
-	{ name: 'typescript', type: Boolean, description: `Generate applet with TypeScript source code instead of pure JS` },
+	{ name: 'language', type: String, description: `Generate applet with "typescript" or "javascript" source code` },
 ] as const;
 
 export const appletGenerate = createCommandDefinition({
@@ -29,7 +34,6 @@ export const appletGenerate = createCommandDefinition({
 	commands: [],
 	async run(options: CommandLineOptions<typeof OPTION_LIST>) {
 		const currentDirectory = process.cwd();
-		const typescript: boolean = options.typescript ?? false;
 		let appletName: string | undefined = options.name;
 		if (!appletName) {
 			const response = await prompts({
@@ -44,6 +48,24 @@ export const appletGenerate = createCommandDefinition({
 		}
 		if (!NAME_REGEXP.test(appletName)) {
 			throw new Error(`Name has to match RegExp: ${NAME_REGEXP.toString()}`);
+		}
+
+		let language: Language | undefined = options.language as Language | undefined;
+		if (language === undefined) {
+			const response = await prompts({
+				type: 'select',
+				name: 'language',
+				message: `Select language of generated applet`,
+				choices: [
+					{ title: Language.TypeScript, value: Language.TypeScript },
+					{ title: Language.JavaScript, value: Language.JavaScript },
+				],
+			});
+			language = response.language;
+		}
+		const supportedLanguages = Object.values(Language);
+		if (!language || !supportedLanguages.includes(language)) {
+			throw new Error(`Missing or incorrect argument --language <${supportedLanguages.join('|')}>`);
 		}
 		const appletRootDirectory = options['target-dir'] || path.join(currentDirectory, appletName);
 		const appletRootDirectoryName = options['target-dir'] || appletName;
@@ -89,7 +111,7 @@ export const appletGenerate = createCommandDefinition({
 
 		const generateFiles: IFile[] = [];
 
-		if (typescript) {
+		if (language === Language.TypeScript) {
 			dependencies.push('ts-loader@9', 'typescript');
 			fileExtensions.unshift('.ts', '.tsx');
 			rules.push(`{ test: /\\.tsx?$/, loader: 'ts-loader' }`);

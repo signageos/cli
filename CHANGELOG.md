@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Use `apiUrl` config from `~/.sosrc` file if specified for all commands (rather than default value `https://api.signageos.io`)
 
 ### Added
-- New argument for commands Applet Generate `--typescript` that will produce the sample code written in TypeScript rather than JavaScript
+- New argument for commands Applet Generate `--language=typescript` that will produce the sample code written in TypeScript rather than JavaScript. Default is `--language=javascript`.
 
 ## [1.2.1] - 2023-04-01
 ### Fixed
