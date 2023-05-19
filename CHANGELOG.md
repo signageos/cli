@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Fixed
 - New version announcement has a link to the changelog
+- Command for Applet Generate will produce correct RegExp in `webpack.config.js` with proper escaping of dots using backslashes
+- ES check for ES5 output applet code is done after every build (to prevent problems in real devices)
+- Use `apiUrl` config from `~/.sosrc` file if specified for all commands (rather than default value `https://api.signageos.io`)
+
+### Added
+- New argument for commands Applet Generate `--language=typescript` that will produce the sample code written in TypeScript rather than JavaScript. Default is `--language=javascript`.
 
 ## [1.2.1] - 2023-04-01
 ### Fixed

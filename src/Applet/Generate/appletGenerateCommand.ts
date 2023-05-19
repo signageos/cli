@@ -6,6 +6,11 @@ import * as prompts from 'prompts';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
 import { log } from '@signageos/sdk/dist/Console/log';
 
+enum Language {
+	JavaScript = 'javascript',
+	TypeScript = 'typescript',
+}
+
 const NAME_REGEXP = /^\w(\w|\d|-)*\w$/;
 const NPM_EXECUTABLE = 'npm';
 
@@ -19,6 +24,7 @@ const OPTION_LIST = [
 	{ name: 'applet-version', type: String, description: `Applet initial version. Use semantic version`, defaultValue: '0.0.0' },
 	{ name: 'target-dir', type: String, description: 'Directory where will be the applet generated to' },
 	{ name: 'npm-registry', type: String, description: `NPM registry URL. If you have your private npm registry` },
+	{ name: 'language', type: String, description: `Generate applet with "typescript" or "javascript" source code` },
 ] as const;
 
 export const appletGenerate = createCommandDefinition({
@@ -43,10 +49,28 @@ export const appletGenerate = createCommandDefinition({
 		if (!NAME_REGEXP.test(appletName)) {
 			throw new Error(`Name has to match RegExp: ${NAME_REGEXP.toString()}`);
 		}
+
+		let language: Language | undefined = options.language as Language | undefined;
+		if (language === undefined) {
+			const response = await prompts({
+				type: 'select',
+				name: 'language',
+				message: `Select language of generated applet`,
+				choices: [
+					{ title: Language.TypeScript, value: Language.TypeScript },
+					{ title: Language.JavaScript, value: Language.JavaScript },
+				],
+			});
+			language = response.language;
+		}
+		const supportedLanguages = Object.values(Language);
+		if (!language || !supportedLanguages.includes(language)) {
+			throw new Error(`Missing or incorrect argument --language <${supportedLanguages.join('|')}>`);
+		}
 		const appletRootDirectory = options['target-dir'] || path.join(currentDirectory, appletName);
 		const appletRootDirectoryName = options['target-dir'] || appletName;
 
-		let entryFileName = 'index.js';
+		let entryFileName = 'index';
 		const dependencies = [
 			'@signageos/front-applet@latest',
 			'@signageos/front-display@latest',
@@ -68,11 +92,11 @@ export const appletGenerate = createCommandDefinition({
 		];
 		const rules: string[] = [
 `			{
-				test: /^(.(?!\.module\.css))*\.css$/,
+				test: /^(.(?!\\.module\\.css))*\\.css$/,
 				use: ['style-loader', 'css-loader'],
 			}`,
 `			{
-				test: /\.jsx?$/,
+				test: /\\.jsx?$/,
 				loader: 'babel-loader',
 				options: { presets: [require.resolve('@babel/preset-env')] },
 				enforce: 'post',
@@ -87,8 +111,19 @@ export const appletGenerate = createCommandDefinition({
 
 		const generateFiles: IFile[] = [];
 
-		// TODO typescript support
-		{
+		if (language === Language.TypeScript) {
+			dependencies.push('ts-loader@9', 'typescript');
+			fileExtensions.unshift('.ts', '.tsx');
+			rules.push(`{ test: /\\.tsx?$/, loader: 'ts-loader' }`);
+			generateFiles.push({
+				path: path.join(appletRootDirectory, 'src', 'index.ts'),
+				content: createIndexTs(),
+			});
+			generateFiles.push({
+				path: path.join(appletRootDirectory, 'tsconfig.json'),
+				content: createTsConfig(),
+			});
+		} else {
 			generateFiles.push({
 				path: path.join(appletRootDirectory, 'src', 'index.js'),
 				content: createIndexJs(),
@@ -169,7 +204,7 @@ async function createPackageConfig(
 			upload: "sos applet upload",
 			clean: "npx rimraf dist",
 			escheck: "npx es-check es5 dist/*.js",
-			build: "webpack --mode production",
+			build: "webpack --mode production && npm run escheck",
 			postbuild: "npm run escheck",
 			connect: "webpack --watch",
 		},
@@ -229,6 +264,8 @@ const createIndexHtml = (
 </html>
 `;
 
+const createIndexTs = () => createIndexJs(); // There is currently no differences
+
 const createIndexJs = () => `
 require('./index.css');
 
@@ -240,6 +277,15 @@ sos.onReady().then(async function () {
 	console.log('sOS is ready');
 	contentElement.innerHTML = 'sOS is ready';
 });
+`;
+
+const createTsConfig = () => `{
+	"compilerOptions": {
+		"esModuleInterop": true,
+		"downlevelIteration": true
+	},
+	"include": ["src/**/*.ts"]
+}
 `;
 
 const createIndexCss = () => `
