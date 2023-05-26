@@ -1,0 +1,20 @@
+# General
+dist/*
+node_modules/*
+package.json
+package-lock.json
+tsconfig.json
+
+# IDE
+.idea
+.vscode
+
+.prettierignore
+
+# Test
+.mocharc.integration.json
+.mocharc.unit.json
+.c8rc
+
+# Other
+.depcheckrc.json

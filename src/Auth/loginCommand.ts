@@ -2,18 +2,32 @@ import chalk from 'chalk';
 import * as prompts from 'prompts';
 import * as Debug from 'debug';
 import * as os from 'os';
+import { ApiVersions } from '@signageos/sdk/dist/RestApi/apiVersions';
+import { log } from '@signageos/sdk/dist/Console/log';
+import { getConfigFilePath } from '@signageos/sdk/dist/SosHelper/sosControlHelper';
 import { deserializeJSON, getApiUrl, postResource } from '../helper';
 import { saveConfig, loadConfig } from '../RunControl/runControlHelper';
 import { parameters } from '../parameters';
 import { CommandLineOptions, createCommandDefinition } from '../Command/commandDefinition';
-import { ApiVersions } from '@signageos/sdk/dist/RestApi/apiVersions';
-import { log } from '@signageos/sdk/dist/Console/log';
-import { getConfigFilePath } from '@signageos/sdk/dist/SosHelper/sosControlHelper';
+
 const debug = Debug('@signageos/cli:Auth:login');
 
-const OPTION_LIST = [
-	{ name: 'username', type: String, description: `Username or e-mail used for ${parameters.boxHost}` },
-] as const;
+const OPTION_LIST = [{ name: 'username', type: String, description: `Username or e-mail used for ${parameters.boxHost}` }] as const;
+
+/**
+ * Gets secret flag --auth0-enabled from command line options
+ * { _unknown: [ '--auth0-enabled' ], command: [ 'login' ] }
+ */
+export const getIsAuth0Enabled = (options: any) => {
+	let isAuth0Enabled = false;
+	// tslint:disable-next-line no-string-literal
+	if (options['_unknown']?.includes('--auth0-enabled')) {
+		isAuth0Enabled = true;
+	}
+
+	return isAuth0Enabled;
+};
+
 export const login = createCommandDefinition({
 	name: 'login',
 	description: 'Login account using username & password',
@@ -29,6 +43,7 @@ export const login = createCommandDefinition({
 			});
 			identification = response.username;
 		}
+
 		if (!identification) {
 			throw new Error('Missing argument --username <string>');
 		}
@@ -41,9 +56,13 @@ export const login = createCommandDefinition({
 		const config = await loadConfig();
 
 		const apiUrl = getApiUrl(config);
+		const isAuth0Enabled = getIsAuth0Enabled(options);
 
-		// TODO use @signageos/test api instead
-		const { id: tokenId, securityToken: apiSecurityToken, name } = await getOrCreateApiSecurityToken(identification, password, apiUrl);
+		const {
+			id: tokenId,
+			securityToken: apiSecurityToken,
+			name,
+		} = await getOrCreateApiSecurityToken({ identification, password, apiUrl, isAuth0Enabled });
 
 		await saveConfig({
 			apiUrl: apiUrl !== parameters.apiUrl ? apiUrl : undefined,
@@ -51,7 +70,12 @@ export const login = createCommandDefinition({
 			apiSecurityToken,
 		});
 
-		log('info', `User ${chalk.green(identification!)} has been logged in with token "${name}". Credentials are stored in ${chalk.blue(getConfigFilePath())}`);
+		log(
+			'info',
+			`User ${chalk.green(identification!)} has been logged in with token "${name}". Credentials are stored in ${chalk.blue(
+				getConfigFilePath(),
+			)}`,
+		);
 	},
 });
 
@@ -61,7 +85,17 @@ interface ILoginResponseBody {
 	name: string;
 }
 
-async function getOrCreateApiSecurityToken(identification: string, password: string, apiUrl: string): Promise<ILoginResponseBody> {
+async function getOrCreateApiSecurityToken({
+	identification,
+	password,
+	apiUrl,
+	isAuth0Enabled,
+}: {
+	identification: string;
+	password: string;
+	apiUrl: string;
+	isAuth0Enabled?: boolean;
+}): Promise<ILoginResponseBody> {
 	const ACCOUNT_SECURITY_TOKEN_RESOURCE = 'account/security-token';
 	const options = {
 		url: apiUrl,
@@ -73,10 +107,13 @@ async function getOrCreateApiSecurityToken(identification: string, password: str
 		identification,
 		password,
 		name: tokenName,
+		isAuth0AuthenticationEnabled: isAuth0Enabled,
 	};
 	const responseOfPost = await postResource(options, ACCOUNT_SECURITY_TOKEN_RESOURCE, query);
 	const bodyOfPost = JSON.parse(await responseOfPost.text(), deserializeJSON);
+
 	debug('POST security-token response', bodyOfPost);
+
 	if (responseOfPost.status === 201) {
 		return bodyOfPost;
 	} else if (responseOfPost.status === 403) {
