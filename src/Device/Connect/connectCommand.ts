@@ -32,11 +32,15 @@ export const connect = createCommandDefinition({
 		});
 
 		const appletUid = await getAppletUid(restApi, options);
+		console.log("🚀 ~ file: connectCommand.ts:35 ~ appletUid:", appletUid)
 		const appletVersion = await getAppletVersion(currentDirectory);
+		console.log("🚀 ~ file: connectCommand.ts:37 ~ appletVersion:", appletVersion)
 		const deviceUid = await getDeviceUid(restApi, options);
 
 		const appletPort = options[SERVER_PORT_OPTION.name];
+		console.log("🚀 ~ file: connectCommand.ts:41 ~ appletPort:", appletPort);
 		const appletPublicUrl = options[SERVER_PUBLIC_URL_OPTION.name];
+		console.log("🚀 ~ file: connectCommand.ts:40 ~ appletPublicUrl:", appletPublicUrl);
 
 		await killAppletServerIfRunningAndForceOption(dev, options, appletUid, appletVersion, appletPort);
 
@@ -46,6 +50,7 @@ export const connect = createCommandDefinition({
 			port: appletPort,
 			publicUrl: appletPublicUrl,
 		});
+		console.log("🚀 ~ file: connectCommand.ts:53 ~ server:", server);
 		const connection = await dev.deviceConnect.connect(deviceUid, {
 			appletUid,
 			appletVersion,

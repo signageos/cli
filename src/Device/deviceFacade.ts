@@ -10,6 +10,7 @@ import { ApiVersions } from '@signageos/sdk/dist/RestApi/apiVersions';
 import { loadConfig } from '../RunControl/runControlHelper';
 
 const debug = Debug('@signageos/cli:Device:facade');
+Debug.enable('@signageos/sdk:Development:Applet:Serve:');
 
 export interface ActionData {
 	name: string;
