@@ -14,6 +14,7 @@ const debug = Debug('@signageos/cli:Auth:login');
 
 const OPTION_LIST = [{ name: 'username', type: String, description: `Username or e-mail used for ${parameters.boxHost}` }] as const;
 
+// TODO: Remove this after auth0 is enabled by default
 /**
  * Gets secret flag --auth0-enabled from command line options
  * { _unknown: [ '--auth0-enabled' ], command: [ 'login' ] }

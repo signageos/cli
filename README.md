@@ -29,6 +29,9 @@ npm run test-integration
 | --profile *(optional)*     | Profile used for separation of credentials and other configurations set in the `~/.sosrc` file | ${SOS_PROFILE}         |
 
 ### Login
+#### Requirements
+- Active account. It can be obtained by manual sign-up in [https://box.signageos.io](https://box.signageos.io)
+
 ```bash
 sos login
 ```
