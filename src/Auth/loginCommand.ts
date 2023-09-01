@@ -14,19 +14,34 @@ const debug = Debug('@signageos/cli:Auth:login');
 
 const OPTION_LIST = [{ name: 'username', type: String, description: `Username or e-mail used for ${parameters.boxHost}` }] as const;
 
-// TODO: Remove this after auth0 is enabled by default
 /**
- * Gets secret flag --auth0-enabled from command line options
+ * To explicitly enable auth0 authentication add flag --auth0-enabled to command line options
  * { _unknown: [ '--auth0-enabled' ], command: [ 'login' ] }
+ *
+ * To explicitly enable legacy authentication add flag --legacy-enabled to command line options
+ * { _unknown: [ '--legacy-enabled' ], command: [ 'login' ] }
+ *
+ * Only one from auth0 and legacy authentication can be active at the moment
  */
-export const getIsAuth0Enabled = (options: any) => {
+export const getIsAuth0OrLegacyEnabled = (options: any) => {
 	let isAuth0Enabled = false;
+	let isLegacyEnabled = false;
+
 	// tslint:disable-next-line no-string-literal
 	if (options['_unknown']?.includes('--auth0-enabled')) {
 		isAuth0Enabled = true;
 	}
 
-	return isAuth0Enabled;
+	// tslint:disable-next-line no-string-literal
+	if (options['_unknown']?.includes('--legacy-enabled')) {
+		isLegacyEnabled = true;
+	}
+
+	if (isAuth0Enabled && isLegacyEnabled) {
+		throw new Error('Only one override from auth0 and legacy authentication options can be active at the moment.');
+	}
+
+	return { isAuth0Enabled, isLegacyEnabled};
 };
 
 export const login = createCommandDefinition({
@@ -57,13 +72,19 @@ export const login = createCommandDefinition({
 		const config = await loadConfig();
 
 		const apiUrl = getApiUrl(config);
-		const isAuth0Enabled = getIsAuth0Enabled(options);
+		const { isAuth0Enabled, isLegacyEnabled } = getIsAuth0OrLegacyEnabled(options);
 
 		const {
 			id: tokenId,
 			securityToken: apiSecurityToken,
 			name,
-		} = await getOrCreateApiSecurityToken({ identification, password, apiUrl, isAuth0Enabled });
+		} = await getOrCreateApiSecurityToken({
+			identification,
+			password,
+			apiUrl,
+			isAuth0Enabled,
+			isLegacyEnabled,
+		});
 
 		await saveConfig({
 			apiUrl: apiUrl !== parameters.apiUrl ? apiUrl : undefined,
@@ -91,11 +112,13 @@ async function getOrCreateApiSecurityToken({
 	password,
 	apiUrl,
 	isAuth0Enabled,
+	isLegacyEnabled,
 }: {
 	identification: string;
 	password: string;
 	apiUrl: string;
 	isAuth0Enabled?: boolean;
+	isLegacyEnabled?: boolean;
 }): Promise<ILoginResponseBody> {
 	const ACCOUNT_SECURITY_TOKEN_RESOURCE = 'account/security-token';
 	const options = {
@@ -109,6 +132,7 @@ async function getOrCreateApiSecurityToken({
 		password,
 		name: tokenName,
 		isAuth0AuthenticationEnabled: isAuth0Enabled,
+		isLegacyAuthenticationEnabled: isLegacyEnabled,
 	};
 	const responseOfPost = await postResource(options, ACCOUNT_SECURITY_TOKEN_RESOURCE, query);
 	const bodyOfPost = JSON.parse(await responseOfPost.text(), deserializeJSON);
