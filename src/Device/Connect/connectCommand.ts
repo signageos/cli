@@ -56,6 +56,7 @@ export const connect = createCommandDefinition({
 			appletVersion,
 			appletPublicUrl: server.publicUrl,
 		});
+		console.log("🚀 ~ file: connectCommand.ts:59 ~ connection:", connection);
 
 		const stopServer = async () => {
 			await connection.disconnect();

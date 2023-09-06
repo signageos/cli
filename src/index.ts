@@ -9,6 +9,10 @@ import { firmware } from './Firmware/firmwareCommand';
 import { device } from './Device/deviceCommand';
 import { GENERAL_OPTION_LIST } from './generalCommand';
 import { createCommandDefinition } from './Command/commandDefinition';
+import * as Debug from 'debug';
+
+Debug.enable('@signageos/*');
+
 
 const index = createCommandDefinition({
 	name: 'sos',

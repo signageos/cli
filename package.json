@@ -69,7 +69,7 @@
   },
   "dependencies": {
     "@signageos/file": "0.1.1",
-    "@signageos/sdk": "1.21.0-patrik-tmp.1062",
+    "@signageos/sdk": "1.21.0-patrik-tmp.1078",
     "chalk": "2.4.2",
     "child-process-promise": "2.2.1",
     "cli-progress": "3.8.2",
