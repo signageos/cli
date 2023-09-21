@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Added
 - Update readme
+- Auth0 compatibility
 
 ## [1.3.1] - 2023-08-29
 

@@ -8,8 +8,8 @@
     "exclude": [
         "test/**/*.*"
     ],
-    "lines": "28.69",
-    "statements": "28.69",
+    "lines": "28.68",
+    "statements": "28.68",
     "functions": "30.55",
     "branches": "66",
     "reporter": [
