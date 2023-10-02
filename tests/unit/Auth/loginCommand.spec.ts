@@ -15,16 +15,16 @@ describe('Auth.loginCommand', () => {
 			should(isLegacyEnabled).be.true();
 		});
 
-		it('should return false if --auth0-enabled is NOT present', () => {
+		it('should return undefined (server default) if --auth0-enabled is NOT present', () => {
 			const { isAuth0Enabled } = getIsAuth0OrLegacyEnabled({});
 
-			should(isAuth0Enabled).be.false();
+			should(isAuth0Enabled).be.undefined();
 		});
 
-		it('should return false if --legacy-enabled is NOT present', () => {
+		it('should return undefined (server default) if --legacy-enabled is NOT present', () => {
 			const { isLegacyEnabled } = getIsAuth0OrLegacyEnabled({});
 
-			should(isLegacyEnabled).be.false();
+			should(isLegacyEnabled).be.undefined();
 		});
 
 		it('should fail if both --auth0-enabled and --legacy-enabled are present', () => {

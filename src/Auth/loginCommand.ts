@@ -24,24 +24,26 @@ const OPTION_LIST = [{ name: 'username', type: String, description: `Username or
  * Only one from auth0 and legacy authentication can be active at the moment
  */
 export const getIsAuth0OrLegacyEnabled = (options: any) => {
-	let isAuth0Enabled = false;
-	let isLegacyEnabled = false;
+	const queryParams: {
+		isAuth0Enabled?: boolean;
+		isLegacyEnabled?: boolean;
+	} = {};
 
 	// tslint:disable-next-line no-string-literal
 	if (options['_unknown']?.includes('--auth0-enabled')) {
-		isAuth0Enabled = true;
+		queryParams.isAuth0Enabled = true;
 	}
 
 	// tslint:disable-next-line no-string-literal
 	if (options['_unknown']?.includes('--legacy-enabled')) {
-		isLegacyEnabled = true;
+		queryParams.isLegacyEnabled = true;
 	}
 
-	if (isAuth0Enabled && isLegacyEnabled) {
+	if (queryParams.isAuth0Enabled !== undefined && queryParams.isLegacyEnabled !== undefined) {
 		throw new Error('Only one override from auth0 and legacy authentication options can be active at the moment.');
 	}
 
-	return { isAuth0Enabled, isLegacyEnabled};
+	return queryParams;
 };
 
 export const login = createCommandDefinition({
@@ -72,7 +74,7 @@ export const login = createCommandDefinition({
 		const config = await loadConfig();
 
 		const apiUrl = getApiUrl(config);
-		const { isAuth0Enabled, isLegacyEnabled } = getIsAuth0OrLegacyEnabled(options);
+		const authQueryParams = getIsAuth0OrLegacyEnabled(options);
 
 		const {
 			id: tokenId,
@@ -82,8 +84,7 @@ export const login = createCommandDefinition({
 			identification,
 			password,
 			apiUrl,
-			isAuth0Enabled,
-			isLegacyEnabled,
+			...authQueryParams,
 		});
 
 		await saveConfig({
@@ -131,8 +132,8 @@ async function getOrCreateApiSecurityToken({
 		identification,
 		password,
 		name: tokenName,
-		isAuth0AuthenticationEnabled: isAuth0Enabled,
-		isLegacyAuthenticationEnabled: isLegacyEnabled,
+		...isAuth0Enabled !== undefined ? { isAuth0AuthenticationEnabled: isAuth0Enabled } : {},
+		...isLegacyEnabled !== undefined ? { isLegacyAuthenticationEnabled: isLegacyEnabled } : {},
 	};
 	const responseOfPost = await postResource(options, ACCOUNT_SECURITY_TOKEN_RESOURCE, query);
 	const bodyOfPost = JSON.parse(await responseOfPost.text(), deserializeJSON);
