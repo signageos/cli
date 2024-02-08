@@ -1,6 +1,6 @@
 {
   "name": "@signageos/cli",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "main": "./dist/index.js",
   "files": [
     ".env",
@@ -71,7 +71,7 @@
   },
   "dependencies": {
     "@signageos/file": "0.1.1",
-    "@signageos/sdk": "1.19.1",
+    "@signageos/sdk": "1.21.2",
     "chalk": "2.4.2",
     "child-process-promise": "2.2.1",
     "cli-progress": "3.8.2",
