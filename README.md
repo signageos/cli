@@ -229,10 +229,10 @@ sos device power-action
 | --type *(required)*             | Type of power-action         | STDIN          |
 
 ##### Device Power action types
-| Argument                        | Description                  | 
+| Argument                        | Description                  |
 |---------------------------------|------------------------------|
 | reload       | Applet Reload                                   |
-| displayOn    | Display power On                                | 
+| displayOn    | Display power On                                |
 | displayOff   | Display power Of                                |
 | restart      | Application restart                             |
 | disable      | Applet disable                                  |
@@ -254,7 +254,7 @@ sos device set-content
 ```bash
 sos device connect
 # You will be provided with setting parameters
-# You should build and upload applet to box before connecting applet to device 
+# You should build and upload applet to box before connecting applet to device
 # The applet has to be at least uploaded once with the specific version
 ```
 | Argument                       | Description                           | Default value          |
@@ -266,6 +266,22 @@ sos device connect
 | --server-public-url *(optional)* | Public url of local machine server. Is useful when the local machine is behind a reverse proxy. | http://{CURRENT_REMOTE_ADDR}:{RANDOM_PORT} |
 | --server-port *(optional)* | The custom server port for local machine server. | {RANDOM_PORT} |
 | --force *(optional)* | Force start applet server even if it is already running on a different port. Kill the running server first. | false |
+
+## Debugging
+
+To enable debugging for the `@signageos/cli:Applet:Upload:appletUploadFacade` module, use:
+
+```
+DEBUG=@signageos/cli:Applet:Upload:appletUploadFacade sos applet upload
+```
+
+If you want to enable debugging for all modules under `@signageos`, use the asterisk as a wildcard:
+
+```
+DEBUG=@signageos/* sos applet upload
+```
+
+You can use `export DEBUG=@signageos/*`, though.
 
 ## Contribution
 Clone the repository and install dev dependencies
