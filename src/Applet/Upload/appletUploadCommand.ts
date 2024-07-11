@@ -91,6 +91,9 @@ export const appletUpload = createCommandDefinition({
 		let appletUid: string | undefined;
 		try {
 			appletUid = await getAppletUid(restApi, options);
+			if (updatePackageConfig) {
+				await saveToPackage(currentDirectory, {sos: {appletUid}});
+			}
 		} catch (error) {
 			if (!(error instanceof AppletDoesNotExistError)) {
 				throw error;
@@ -98,9 +101,7 @@ export const appletUpload = createCommandDefinition({
 			log('info', chalk.yellow(`applet uid is not present in package file, adding one.`));
 			const createdApplet = await restApi.applet.create({ name: appletName });
 			appletUid = createdApplet.uid;
-			if (updatePackageConfig) {
-				await saveToPackage(currentDirectory, { sos: { appletUid } });
-			}
+			await saveToPackage(currentDirectory, { sos: { appletUid } });
 		}
 
 		const applet = await restApi.applet.get(appletUid);
