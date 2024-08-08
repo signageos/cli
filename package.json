@@ -29,15 +29,15 @@
   },
   "license": "MIT",
   "engines": {
-    "node": "12",
-    "npm": "6"
+    "node": "20",
+    "npm": "10"
   },
   "bin": {
     "sos": "./dist/index.js"
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "1.0.2",
-    "@signageos/codestyle": "0.0.23",
+    "@signageos/codestyle": "0.3.0",
     "@types/chalk": "2.2.0",
     "@types/child-process-promise": "2.2.1",
     "@types/cli-progress": "3.7.0",

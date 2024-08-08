@@ -11,6 +11,11 @@ enum Language {
 	TypeScript = 'typescript',
 }
 
+enum Bundler {
+	Webpack = 'webpack',
+	Esbuild = 'esbuild',
+}
+
 const NAME_REGEXP = /^\w(\w|\d|-)*\w$/;
 const NPM_EXECUTABLE = 'npm';
 
@@ -25,7 +30,50 @@ const OPTION_LIST = [
 	{ name: 'target-dir', type: String, description: 'Directory where will be the applet generated to' },
 	{ name: 'npm-registry', type: String, description: `NPM registry URL. If you have your private npm registry` },
 	{ name: 'language', type: String, description: `Generate applet with "typescript" or "javascript" source code` },
+	{ name: 'bundler', type: String, description: `Generate applet with "webpack" (default) or "esbuild" bundler`, defaultValue: 'webpack' },
 ] as const;
+
+const COMMON_DEPENDENCIES = [
+	'@signageos/front-applet@latest',
+	'@signageos/front-display@latest',
+	];
+
+const WEBPACK_DEPENDENCIES = [
+	'@signageos/webpack-plugin@latest',
+	'@babel/core@7',
+	'@babel/preset-env@7',
+	'babel-loader@8',
+	'css-loader@6',
+	'html-webpack-plugin@5',
+	'style-loader@3',
+	'webpack@5',
+	'webpack-dev-server@4',
+	'webpack-cli@4',
+	];
+
+const ESBUILD_DEPENDENCIES = [
+	'@signageos/lib@latest',
+	'esbuild@latest',
+	'es-check@latest',
+	];
+
+const COMMON_SCRIPTS = {
+	prepare: "npm run clean && npm run build",
+	upload: "sos applet upload",
+	clean: "npx rimraf dist",
+	escheck: "es-check --module es5 dist/*.js",
+	postbuild: "npm run escheck",
+};
+
+const WEBPACK_SCRIPTS = {
+	start: "webpack serve --mode development",
+	build: "webpack --mode production && npm run escheck",
+	connect: "webpack --watch",
+};
+
+const ESBUILD_SCRIPTS = {
+	build: "node ./esbuild.config.mjs",
+};
 
 export const appletGenerate = createCommandDefinition({
 	name: 'generate',
@@ -67,54 +115,68 @@ export const appletGenerate = createCommandDefinition({
 		if (!language || !supportedLanguages.includes(language)) {
 			throw new Error(`Missing or incorrect argument --language <${supportedLanguages.join('|')}>`);
 		}
+		let bundler: Bundler | undefined = options.bundler?.toLowerCase() as Bundler | undefined;
+		if (bundler === undefined) {
+			bundler = Bundler.Webpack;
+		}
 		const appletRootDirectory = options['target-dir'] || path.join(currentDirectory, appletName);
 		const appletRootDirectoryName = options['target-dir'] || appletName;
 
-		let entryFileName = 'index';
-		const dependencies = [
-			'@signageos/front-applet@latest',
-			'@signageos/front-display@latest',
-			'@signageos/webpack-plugin@latest',
-			'@babel/core@7',
-			'@babel/preset-env@7',
-			'babel-loader@8',
-			'css-loader@6',
-			'html-webpack-plugin@5',
-			'style-loader@3',
-			'webpack@5',
-			'webpack-dev-server@4',
-			'webpack-cli@4',
-		];
-		const fileExtensions: string[] = ['.js'];
-		const imports: string[] = [
-			`const HtmlWebpackPlugin = require('html-webpack-plugin')`,
-			`const SignageOSPlugin = require('@signageos/webpack-plugin')`,
-		];
-		const rules: string[] = [
-`			{
+		const dependencies = [...COMMON_DEPENDENCIES, ...(bundler === 'esbuild' ? ESBUILD_DEPENDENCIES : WEBPACK_DEPENDENCIES)];
+
+		const webpackConfigParams = {
+			entryFileName: 'index',
+			fileExtensions: ['.js'],
+			imports: [
+				`const HtmlWebpackPlugin = require('html-webpack-plugin')`,
+				`const SignageOSPlugin = require('@signageos/webpack-plugin')`,
+			],
+			rules: [
+				`			{
 				test: /^(.(?!\\.module\\.css))*\\.css$/,
 				use: ['style-loader', 'css-loader'],
 			}`,
-`			{
+				`			{
 				test: /\\.jsx?$/,
 				loader: 'babel-loader',
 				options: { presets: [require.resolve('@babel/preset-env')] },
 				enforce: 'post',
 			}`,
-		];
-		const plugins: string[] = [
-`			new HtmlWebpackPlugin({
+			],
+			plugins: [
+				`			new HtmlWebpackPlugin({
 				template: 'public/index.html',
 			})`,
-`			new SignageOSPlugin()`,
-		];
+				`			new SignageOSPlugin()`,
+			],
+		};
+
+		const bundlerConfig = {
+			[Bundler.Webpack]: {
+				path: path.join(appletRootDirectory, 'webpack.config.js'),
+				content: createWebpackConfig(
+					webpackConfigParams.entryFileName,
+					webpackConfigParams.fileExtensions,
+					webpackConfigParams.imports,
+					webpackConfigParams.rules,
+					webpackConfigParams.plugins,
+				),
+			},
+			[Bundler.Esbuild]: {
+				path: path.join(appletRootDirectory, 'esbuild.config.mjs'),
+				content: createEsbuildConfig(),
+			},
+		};
 
 		const generateFiles: IFile[] = [];
 
 		if (language === Language.TypeScript) {
 			dependencies.push('ts-loader@9', 'typescript');
-			fileExtensions.unshift('.ts', '.tsx');
-			rules.push(`{ test: /\\.tsx?$/, loader: 'ts-loader' }`);
+
+			if ( bundler === Bundler.Webpack ) {
+				webpackConfigParams.fileExtensions.unshift('.ts', '.tsx');
+				webpackConfigParams.rules.push(`{ test: /\\.tsx?$/, loader: 'ts-loader' }`);
+			}
 			generateFiles.push({
 				path: path.join(appletRootDirectory, 'src', 'index.ts'),
 				content: createIndexTs(),
@@ -147,18 +209,9 @@ export const appletGenerate = createCommandDefinition({
 		}
 		generateFiles.push({
 			path: path.join(appletRootDirectory, 'package.json'),
-			content: JSON.stringify(await createPackageConfig(appletName, options['applet-version']), undefined, 2) + '\n',
+			content: JSON.stringify(await createPackageConfig(appletName, options['applet-version'], bundler), undefined, 2) + '\n',
 		});
-		generateFiles.push({
-			path: path.join(appletRootDirectory, 'webpack.config.js'),
-			content: createWebpackConfig(
-				entryFileName,
-				fileExtensions,
-				imports,
-				rules,
-				plugins,
-			),
-		});
+		generateFiles.push(bundlerConfig[bundler]);
 		generateFiles.push({
 			path: path.join(appletRootDirectory, 'public', 'index.html'),
 			content: createIndexHtml(appletName),
@@ -193,21 +246,13 @@ export const appletGenerate = createCommandDefinition({
 async function createPackageConfig(
 	name: string,
 	version: string,
+	bundler: Bundler,
 ) {
 	return {
 		name,
 		version,
 		main: 'dist/index.html',
-		scripts: {
-			start: "webpack serve --mode development",
-			prepare: "npm run clean && npm run build",
-			upload: "sos applet upload",
-			clean: "npx rimraf dist",
-			escheck: "npx es-check es5 dist/*.js",
-			build: "webpack --mode production && npm run escheck",
-			postbuild: "npm run escheck",
-			connect: "webpack --watch",
-		},
+		scripts: { ...COMMON_SCRIPTS, ...(bundler === 'esbuild' ? ESBUILD_SCRIPTS : WEBPACK_SCRIPTS) },
 		files: ['dist'],
 		description: "signageOS applet",
 		repository: { },
@@ -245,6 +290,44 @@ ${rules.join(',\n')}
 ${plugins.join(',\n')}
 	],
 };
+`;
+
+const createEsbuildConfig = () => `
+import { Bundler } from '@signageos/lib/dist/ESBuild/Bundler.js';
+import { stopwatch } from '@signageos/lib/dist/ESBuild/utils/stopwatch.js';
+import { context } from 'esbuild';
+
+const bundler = new Bundler({
+	outdir: './dist',
+	parameters: {},
+	argv: process.argv,
+});
+
+await stopwatch('Building the applet', [
+	async () => {
+		await stopwatch('Bundling', async () => {
+			await bundler.writeIndexFile('./public/index.html');
+			const ctx = await context({
+				entryPoints: ['./src/index.ts'],
+				outdir: './dist',
+				platform: 'browser',
+				bundle: true,
+				minify: true,
+			});
+			await bundler.build(ctx);
+		});
+		await stopwatch('Transpiling to ES5', [
+			bundler.transpileToES5({
+				minify: true,
+				env: {
+					targets: {
+						chrome: '28',
+					},
+				},
+			}),
+		]);
+	},
+]);
 `;
 
 const createIndexHtml = (

@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Added
+- A bundler flag to the `applet generate` command to enable bundler selection for the generated applet - the options are `webpack` and `esbuild`, defaulting to `webpack`
+### Fixed
+- Updated `Node.js` version to 20 and `npm` version to 10
+
 ## [1.4.3] - 2024-08-19
 ### Fixed
 - Reverted the change of the `--update-package-config` argument. It is updated in `package.json` only when the argument is specified
