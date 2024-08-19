@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Fixed
+- Reverted the change of the `--update-package-config` argument. It is updated in `package.json` only when the argument is specified
+
 ## [1.4.2] - 2024-07-11
 ### Fixed
 - Applet UID is now always inserted in the `package.json` file during the applet upload process if not found or the `--update-package-config` argument is specified
