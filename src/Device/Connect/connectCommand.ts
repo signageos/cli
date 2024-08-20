@@ -1,11 +1,21 @@
-import { DEVICE_UID_OPTION, getDeviceUid } from "../deviceFacade";
-import { getOrganization, getOrganizationUidOrDefaultOrSelect, NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION } from "../../Organization/organizationFacade";
-import { APPLET_UID_OPTION, getAppletUid, getAppletVersion } from "../../Applet/appletFacade";
-import { createOrganizationRestApi } from "../../helper";
-import { CommandLineOptions, createCommandDefinition } from "../../Command/commandDefinition";
-import { createDevelopment } from "@signageos/sdk";
-import wait from "../../Timer/wait";
-import { killAppletServerIfRunningAndForceOption, SERVER_FORCE_OPTION, SERVER_PORT_OPTION, SERVER_PUBLIC_URL_OPTION } from "../../Applet/appletServerHelper";
+import { DEVICE_UID_OPTION, getDeviceUid } from '../deviceFacade';
+import {
+	getOrganization,
+	getOrganizationUidOrDefaultOrSelect,
+	NO_DEFAULT_ORGANIZATION_OPTION,
+	ORGANIZATION_UID_OPTION,
+} from '../../Organization/organizationFacade';
+import { APPLET_UID_OPTION, getAppletUid, getAppletVersion } from '../../Applet/appletFacade';
+import { createOrganizationRestApi } from '../../helper';
+import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
+import { createDevelopment } from '@signageos/sdk';
+import wait from '../../Timer/wait';
+import {
+	killAppletServerIfRunningAndForceOption,
+	SERVER_FORCE_OPTION,
+	SERVER_PORT_OPTION,
+	SERVER_PUBLIC_URL_OPTION,
+} from '../../Applet/appletServerHelper';
 
 const OPTION_LIST = [
 	NO_DEFAULT_ORGANIZATION_OPTION,

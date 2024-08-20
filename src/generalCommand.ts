@@ -31,10 +31,4 @@ export const PROFILE_OPTION = {
 	description: 'signageOS Profile to be used for authentication and other values from ~/.sosrc config file.',
 } as const;
 
-export const GENERAL_OPTION_LIST = [
-	COMMAND_OPTION,
-	HELP_OPTION,
-	API_URL_OPTION,
-	VERSION_OPTION,
-	PROFILE_OPTION,
-] as const;
+export const GENERAL_OPTION_LIST = [COMMAND_OPTION, HELP_OPTION, API_URL_OPTION, VERSION_OPTION, PROFILE_OPTION] as const;

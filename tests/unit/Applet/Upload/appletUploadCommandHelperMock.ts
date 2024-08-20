@@ -1,7 +1,5 @@
 import * as sinon from 'sinon';
-import {
-	ENTRY_FILE_PATH_OPTION,
-} from '../../../../src/Applet/Upload/appletUploadCommandHelper';
+import { ENTRY_FILE_PATH_OPTION } from '../../../../src/Applet/Upload/appletUploadCommandHelper';
 
 export default {
 	ENTRY_FILE_PATH_OPTION,

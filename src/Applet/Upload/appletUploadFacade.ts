@@ -23,14 +23,10 @@ export async function updateSingleFileApplet(parameters: {
 }) {
 	const { restApi, applet } = parameters;
 	const appletBinary = fs.createReadStream(applet.binaryFilePath, { encoding: 'utf8' });
-	await restApi.applet.version.update(
-		applet.uid,
-		applet.version,
-		{
-			binary: appletBinary,
-			frontAppletVersion: applet.frontAppletVersion,
-		},
-	);
+	await restApi.applet.version.update(applet.uid, applet.version, {
+		binary: appletBinary,
+		frontAppletVersion: applet.frontAppletVersion,
+	});
 }
 
 export const updateMultiFileApplet = async (parameters: {
@@ -65,14 +61,12 @@ export const updateMultiFileApplet = async (parameters: {
 		if (fileHash === currentFileHash && fileType === currentFileType) {
 			continue;
 		} else {
-
 			changedFilesCounter++;
 			log('info', chalk.yellow(` Uploading ${fileAbsolutePath}`));
-
 		}
 
 		if (progressBar) {
-			progressBar.init({size: fileSize, name: fileRelativePath});
+			progressBar.init({ size: fileSize, name: fileRelativePath });
 		}
 
 		const fileStream = fs.createReadStream(fileAbsolutePath);
@@ -96,14 +90,12 @@ export const updateMultiFileApplet = async (parameters: {
 				},
 				{ build: false },
 			);
-
 		} catch (error) {
 			if (fileSize === 0) {
 				throw new Error(`Empty files are temporarily disallowed ${fileAbsolutePath}`);
 			}
 			throw error;
 		}
-
 	}
 
 	for (const fileRelativePath in currentAppletFiles) {
@@ -130,13 +122,9 @@ export const updateMultiFileApplet = async (parameters: {
 	const appletEntryFilePosixPath = path.posix.normalize(applet.entryFilePath.replace(/\\/g, '/'));
 	if (changedFilesCounter > 0 || appletVersion.entryFile !== appletEntryFilePosixPath) {
 		// The update applet version has to be the last after upload all files to trigger applet version build
-		await restApi.applet.version.update(
-			applet.uid,
-			applet.version,
-			{
-				entryFile: appletEntryFilePosixPath,
-			},
-		);
+		await restApi.applet.version.update(applet.uid, applet.version, {
+			entryFile: appletEntryFilePosixPath,
+		});
 	}
 
 	if (progressBar) {
@@ -160,14 +148,11 @@ export const createSingleFileApplet = async (parameters: {
 }) => {
 	const { restApi, applet } = parameters;
 	const appletBinary = fs.createReadStream(applet.binaryFilePath, { encoding: 'utf8' });
-	await restApi.applet.version.create(
-		applet.uid,
-		{
-			binary: appletBinary,
-			version: applet.version,
-			frontAppletVersion: applet.frontAppletVersion,
-		},
-	);
+	await restApi.applet.version.create(applet.uid, {
+		binary: appletBinary,
+		version: applet.version,
+		frontAppletVersion: applet.frontAppletVersion,
+	});
 };
 
 export const createMultiFileFileApplet = async (parameters: {
@@ -183,13 +168,10 @@ export const createMultiFileFileApplet = async (parameters: {
 }) => {
 	const { restApi, applet, progressBar } = parameters;
 	const appletEntryFilePosixPath = path.posix.normalize(applet.entryFilePath.replace(/\\/g, '/'));
-	await restApi.applet.version.create(
-		applet.uid,
-		{
-			version: applet.version,
-			entryFile: appletEntryFilePosixPath,
-		},
-	);
+	await restApi.applet.version.create(applet.uid, {
+		version: applet.version,
+		entryFile: appletEntryFilePosixPath,
+	});
 
 	for (let index = 0; index < applet.files.length; index++) {
 		const fileAbsolutePath = applet.files[index];
@@ -199,7 +181,7 @@ export const createMultiFileFileApplet = async (parameters: {
 		const fileSize = (await fs.stat(fileAbsolutePath)).size;
 
 		if (progressBar) {
-			progressBar.init({size: fileSize, name: fileRelativePath});
+			progressBar.init({ size: fileSize, name: fileRelativePath });
 		}
 
 		const fileStream = fs.createReadStream(fileAbsolutePath);
@@ -227,24 +209,18 @@ export const createMultiFileFileApplet = async (parameters: {
 				},
 				{ build: false },
 			);
-
 		} catch (error) {
 			if (fileSize === 0) {
 				throw new Error(`Empty files are temporarily disallowed ${fileAbsolutePath}`);
 			}
 			throw error;
 		}
-
 	}
 
 	// The extra update applet version which has to be after upload all files to trigger applet version build
-	await restApi.applet.version.update(
-		applet.uid,
-		applet.version,
-		{
-			entryFile: appletEntryFilePosixPath,
-		},
-	);
+	await restApi.applet.version.update(applet.uid, applet.version, {
+		entryFile: appletEntryFilePosixPath,
+	});
 
 	if (progressBar) {
 		progressBar.end();

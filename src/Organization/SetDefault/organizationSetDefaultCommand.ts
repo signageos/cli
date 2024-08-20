@@ -6,9 +6,7 @@ import { CommandLineOptions, createCommandDefinition } from '../../Command/comma
 import { log } from '@signageos/sdk/dist/Console/log';
 const debug = Debug('@signageos/cli:Organization:get');
 
-const OPTION_LIST = [
-	ORGANIZATION_UID_OPTION,
-] as const;
+const OPTION_LIST = [ORGANIZATION_UID_OPTION] as const;
 
 export const organizationSetDefault = createCommandDefinition({
 	name: 'set-default',

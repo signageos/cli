@@ -13,7 +13,7 @@ stages:
 
 cache:
   untracked: true
-  key: "$CI_PROJECT_ID"
+  key: '$CI_PROJECT_ID'
   paths:
     - node_modules/
 
@@ -74,7 +74,8 @@ test:lint:
   needs:
     - prepare
   script:
-    - if [ `find test -name '*\.ts' -type f -print0 | xargs -0 grep "\.only" | wc -l` -gt 0 ]; then echo "You forgot the .only in tests" && exit 1; fi
+    - if [ `find test -name '*\.ts' -type f -print0 | xargs -0 grep "\.only" | wc -l` -gt 0 ]; then echo "You forgot the .only in tests" &&
+      exit 1; fi
     - npm run lint
 
 test:changelog:

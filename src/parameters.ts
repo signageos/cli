@@ -1,4 +1,4 @@
-import { log } from "@signageos/sdk/dist/Console/log";
+import { log } from '@signageos/sdk/dist/Console/log';
 
 const path = require('path');
 const dotenv = require('dotenv');

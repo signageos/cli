@@ -3,7 +3,7 @@ import * as prompts from 'prompts';
 import { deserializeJSON, getApiUrl, postResource } from '../helper';
 import { IOrganization } from '../Organization/organizationFacade';
 import { DevicePowerAction } from '@signageos/sdk/dist/RestApi/Device/PowerAction/IPowerAction';
-import RestApi from "@signageos/sdk/dist/RestApi/RestApi";
+import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import { CommandLineOptions } from '../Command/commandDefinition';
 import IDeviceReadOnly from '@signageos/sdk/dist/RestApi/Device/IDevice';
 import { ApiVersions } from '@signageos/sdk/dist/RestApi/apiVersions';
@@ -16,26 +16,21 @@ export interface ActionData {
 	action: DevicePowerAction;
 }
 
-export const typeMap = new Map<string, ActionData>(
-	[
-		['reboot', {name: 'Reboot Device', action: DevicePowerAction.SystemReboot}],
-		['displayOn', {name: 'Display ON', action: DevicePowerAction.DisplayPowerOn}],
-		['display0ff', {name: 'Display OFF', action: DevicePowerAction.DisplayPowerOff}],
-		['restart', {name: 'Restart Device', action: DevicePowerAction.AppRestart}],
-		['disable', {name: 'Applet Disable', action: DevicePowerAction.AppletDisable}],
-		['enable', {name: 'Applet Enable', action: DevicePowerAction.AppletEnable}],
-		['reload', {name: 'Applet Reload', action: DevicePowerAction.AppletReload}],
-		['refresh', {name: 'Applet Refresh', action: DevicePowerAction.AppletRefresh}],
-	],
-);
+export const typeMap = new Map<string, ActionData>([
+	['reboot', { name: 'Reboot Device', action: DevicePowerAction.SystemReboot }],
+	['displayOn', { name: 'Display ON', action: DevicePowerAction.DisplayPowerOn }],
+	['display0ff', { name: 'Display OFF', action: DevicePowerAction.DisplayPowerOff }],
+	['restart', { name: 'Restart Device', action: DevicePowerAction.AppRestart }],
+	['disable', { name: 'Applet Disable', action: DevicePowerAction.AppletDisable }],
+	['enable', { name: 'Applet Enable', action: DevicePowerAction.AppletEnable }],
+	['reload', { name: 'Applet Reload', action: DevicePowerAction.AppletReload }],
+	['refresh', { name: 'Applet Refresh', action: DevicePowerAction.AppletRefresh }],
+]);
 
 export const DEVICE_UID_OPTION = { name: 'device-uid', type: String, description: 'Device UID' } as const;
 export const POWER_ACTION_TYPE_OPTION = { name: 'type', type: String, description: `Type of device power action` } as const;
 
-export async function getDeviceUid(
-	restApi: RestApi,
-	options: CommandLineOptions<[typeof DEVICE_UID_OPTION]>,
-) {
+export async function getDeviceUid(restApi: RestApi, options: CommandLineOptions<[typeof DEVICE_UID_OPTION]>) {
 	let deviceUid: string | undefined = options['device-uid'];
 	if (!deviceUid) {
 		const devices = await restApi.device.list();
@@ -57,7 +52,7 @@ export async function getDeviceUid(
 	return deviceUid;
 }
 
-export async function getActionType(options: CommandLineOptions<[typeof POWER_ACTION_TYPE_OPTION]>)  {
+export async function getActionType(options: CommandLineOptions<[typeof POWER_ACTION_TYPE_OPTION]>) {
 	let action: string | undefined = options.type;
 
 	if (!action) {
@@ -93,6 +88,6 @@ export async function disconnectDevice(organization: IOrganization, deviceUid: S
 		},
 		version: ApiVersions.V1,
 	};
-	const responseOfPost = await postResource(options, DEVICE_RESOURCE, null , {"deviceUid": `${deviceUid}`});
+	const responseOfPost = await postResource(options, DEVICE_RESOURCE, null, { deviceUid: `${deviceUid}` });
 	return JSON.parse(await responseOfPost.text(), deserializeJSON);
 }

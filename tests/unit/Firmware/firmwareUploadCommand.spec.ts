@@ -23,10 +23,10 @@ describe('unit.firmwareUploadCommand', () => {
 		await firmwareUploadMock.run({
 			...generalOptions,
 			'firmware-type': undefined,
-			'force': undefined,
+			force: undefined,
 			'application-type': 'webos',
 			'firmware-version': '1.1.1',
-			'src': ['/valid.apk'],
+			src: ['/valid.apk'],
 		});
 		should(firmwareUploadFacadeMock.uploadFirmwareVersion.calledOnce).be.true();
 	});
@@ -35,10 +35,10 @@ describe('unit.firmwareUploadCommand', () => {
 			await firmwareUploadMock.run({
 				...generalOptions,
 				'firmware-type': undefined,
-				'force': undefined,
+				force: undefined,
 				'application-type': 'webos',
 				'firmware-version': '1.1.1',
-				'src': ['/what evers'],
+				src: ['/what evers'],
 			});
 			should(false).true();
 		} catch (e) {

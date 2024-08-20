@@ -12,12 +12,12 @@ export function createProgressBar() {
 	let currentName: string = 'preparing';
 
 	return {
-		init({ size, name }: { size: number, name: string }) {
+		init({ size, name }: { size: number; name: string }) {
 			currentName = name;
 			progressBar.start(size, current, { name });
 		},
 
-		update({ add, name }: { add: number, name?: string }) {
+		update({ add, name }: { add: number; name?: string }) {
 			current += add;
 			currentName = name || currentName;
 			progressBar.update(current + add, { name: currentName });

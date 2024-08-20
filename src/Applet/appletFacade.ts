@@ -1,7 +1,7 @@
 import * as path from 'path';
 import * as prompts from 'prompts';
 import chalk from 'chalk';
-import RestApi from "@signageos/sdk/dist/RestApi/RestApi";
+import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import ISdkApplet from '@signageos/sdk/dist/RestApi/Applet/IApplet';
 import { parameters } from '../parameters';
 import { loadPackage } from '@signageos/sdk/dist/FileSystem/packageConfig';
@@ -28,10 +28,11 @@ export async function getApplet(directoryPath: string): Promise<IApplet> {
 	const appletUid = parameters.applet.uid ?? packageJSONObject.sos?.appletUid;
 	const appletVersion = parameters.applet.version ?? packageJSONObject.version;
 	const appletName = parameters.applet.name ?? packageJSONObject.name;
-	const frontAppletVersion = packageJSONObject.sos?.dependencies?.['@signageos/front-applet']
-		?? packageJSONObject.dependencies?.['@signageos/front-applet']
-		?? packageJSONObject.devDependencies?.['@signageos/front-applet']
-		?? '';
+	const frontAppletVersion =
+		packageJSONObject.sos?.dependencies?.['@signageos/front-applet'] ??
+		packageJSONObject.dependencies?.['@signageos/front-applet'] ??
+		packageJSONObject.devDependencies?.['@signageos/front-applet'] ??
+		'';
 
 	if (!appletVersion) {
 		throw new Error(`No "version" key found in: ${packageJSONPath} nor SOS_APPLET_VERSION environment variable specified`);
@@ -53,10 +54,7 @@ export async function getAppletVersion(directoryPath: string): Promise<string> {
 	return applet.version;
 }
 
-export async function getAppletUid(
-	restApi: RestApi,
-	options: CommandLineOptions<[typeof APPLET_UID_OPTION]>,
-) {
+export async function getAppletUid(restApi: RestApi, options: CommandLineOptions<[typeof APPLET_UID_OPTION]>) {
 	const currentDirectory = process.cwd();
 	const currentApplet = await getApplet(currentDirectory);
 
@@ -83,16 +81,15 @@ export async function getAppletUid(
 		}
 	}
 	if (!appletUid) {
-		throw new AppletDoesNotExistError(`Applet does not exist. Please use ${chalk.green('sos applet upload')} first or specify --applet-uid argument.`);
+		throw new AppletDoesNotExistError(
+			`Applet does not exist. Please use ${chalk.green('sos applet upload')} first or specify --applet-uid argument.`,
+		);
 	}
 
 	return appletUid;
 }
 
-export async function getAppletVersionFromApi(
-		restApi: RestApi,
-		appletUid: string,
-) {
+export async function getAppletVersionFromApi(restApi: RestApi, appletUid: string) {
 	let appletVersion: string;
 
 	const appletVersions = await restApi.applet.version.list(appletUid);

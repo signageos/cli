@@ -6,12 +6,10 @@ interface Question {
 }
 
 export const promptsMockFactory = (questionAndAnswers: Question[]) => {
-	return sinon.fake(({ name }: {
-		name: string;
-	}) => {
+	return sinon.fake(({ name }: { name: string }) => {
 		const question = questionAndAnswers.find(({ questionName }: Question) => questionName === name);
 		if (question) {
-			return Promise.resolve({ [name] : question.answer});
+			return Promise.resolve({ [name]: question.answer });
 		} else {
 			return Promise.resolve({});
 		}

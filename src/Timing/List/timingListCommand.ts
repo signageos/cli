@@ -1,16 +1,17 @@
 import chalk from 'chalk';
 import * as Debug from 'debug';
-import { getOrganization, getOrganizationUidOrDefaultOrSelect, NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION } from '../../Organization/organizationFacade';
+import {
+	getOrganization,
+	getOrganizationUidOrDefaultOrSelect,
+	NO_DEFAULT_ORGANIZATION_OPTION,
+	ORGANIZATION_UID_OPTION,
+} from '../../Organization/organizationFacade';
 import { getDeviceUid, DEVICE_UID_OPTION } from '../../Device/deviceFacade';
 import { createOrganizationRestApi } from '../../helper';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
 const debug = Debug('@signageos/cli:Timing:list');
 
-const OPTION_LIST = [
-	NO_DEFAULT_ORGANIZATION_OPTION,
-	ORGANIZATION_UID_OPTION,
-	DEVICE_UID_OPTION,
-] as const;
+const OPTION_LIST = [NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION, DEVICE_UID_OPTION] as const;
 
 export const timingList = createCommandDefinition({
 	name: 'list',

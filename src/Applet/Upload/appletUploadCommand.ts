@@ -1,19 +1,15 @@
 import chalk from 'chalk';
 import * as prompts from 'prompts';
-import { createOrganizationRestApi, } from '../../helper';
+import { createOrganizationRestApi } from '../../helper';
 import { parameters } from '../../parameters';
-import { getOrganization, getOrganizationUidOrDefaultOrSelect, NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION } from '../../Organization/organizationFacade';
 import {
-	getAppletUid,
-	getApplet,
-	APPLET_UID_OPTION,
-} from '../appletFacade';
-import {
-	updateSingleFileApplet,
-	updateMultiFileApplet,
-	createSingleFileApplet,
-	createMultiFileFileApplet,
-} from './appletUploadFacade';
+	getOrganization,
+	getOrganizationUidOrDefaultOrSelect,
+	NO_DEFAULT_ORGANIZATION_OPTION,
+	ORGANIZATION_UID_OPTION,
+} from '../../Organization/organizationFacade';
+import { getAppletUid, getApplet, APPLET_UID_OPTION } from '../appletFacade';
+import { updateSingleFileApplet, updateMultiFileApplet, createSingleFileApplet, createMultiFileFileApplet } from './appletUploadFacade';
 import {
 	APPLET_PATH_OPTION,
 	ENTRY_FILE_PATH_OPTION,
@@ -39,8 +35,9 @@ export const OPTION_LIST = [
 	{
 		name: 'update-package-config',
 		type: Boolean,
-		description: `Force updating package.json with sos.appletUid value of created applet.`
-			+ `It's useful when appletUid is passed using SOS_APPLET_UID environment variable.`,
+		description:
+			`Force updating package.json with sos.appletUid value of created applet.` +
+			`It's useful when appletUid is passed using SOS_APPLET_UID environment variable.`,
 	},
 	{
 		name: 'yes',
@@ -106,7 +103,7 @@ export const appletUpload = createCommandDefinition({
 
 		const applet = await restApi.applet.get(appletUid);
 
-		await restApi.applet.version.get(appletUid, appletVersion).catch(() => appletVersionExists = false);
+		await restApi.applet.version.get(appletUid, appletVersion).catch(() => (appletVersionExists = false));
 
 		const verbose = 'verbose';
 		const allowVerbose = options[verbose] as boolean | undefined;
@@ -128,30 +125,23 @@ export const appletUpload = createCommandDefinition({
 		const skipConfirmation = options[yes] as boolean | undefined;
 
 		if (appletVersionExists) {
-
 			if (skipConfirmation) {
-
 				log('info', chalk.yellow(`Will override existing version ${appletVersion}`));
 				overrideAppletVersionConfirmed = true;
-
 			} else {
-				const response: prompts.Answers<"override"> = await prompts({
+				const response: prompts.Answers<'override'> = await prompts({
 					type: 'confirm',
 					name: 'override',
 					message: `Do you want to override applet version ${appletVersion}?`,
 				});
 				overrideAppletVersionConfirmed = response.override;
 			}
-
 		} else {
-
 			if (skipConfirmation) {
-
 				log('info', chalk.yellow(`Will create new version ${appletVersion}`));
 				createNewAppletVersionConfirmed = true;
-
 			} else {
-				const response: prompts.Answers<"newVersion"> = await prompts({
+				const response: prompts.Answers<'newVersion'> = await prompts({
 					type: 'confirm',
 					name: 'newVersion',
 					message: `Do you want to create new applet version ${appletVersion}?`,
@@ -220,12 +210,7 @@ export const appletUpload = createCommandDefinition({
 	},
 });
 
-function displaySuccessMessage(
-	appletUid: string,
-	appletName: string,
-	appletVersion: string,
-	boxHost: string,
-) {
+function displaySuccessMessage(appletUid: string, appletName: string, appletVersion: string, boxHost: string) {
 	log('info', `Applet ${chalk.green(appletName)} version ${chalk.green(appletVersion)} has been uploaded.`);
 	const appletBoxUri = `https://${boxHost}/applet/${appletUid}/${appletVersion}/build`;
 	log('info', `To build specific applications (Tizen, WebOS, SSSP, BrightSign, RPi, Android etc.) go to ${chalk.blue(appletBoxUri)}`);

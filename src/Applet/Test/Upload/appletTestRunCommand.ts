@@ -1,17 +1,13 @@
 import chalk from 'chalk';
 import * as prompts from 'prompts';
-import { createOrganizationRestApi, } from '../../../helper';
+import { createOrganizationRestApi } from '../../../helper';
 import {
 	getOrganization,
 	getOrganizationUidOrDefaultOrSelect,
 	NO_DEFAULT_ORGANIZATION_OPTION,
 	ORGANIZATION_UID_OPTION,
 } from '../../../Organization/organizationFacade';
-import {
-	APPLET_UID_OPTION,
-	getAppletUid,
-	getAppletVersion,
-} from '../../appletFacade';
+import { APPLET_UID_OPTION, getAppletUid, getAppletVersion } from '../../appletFacade';
 import { createProgressBar } from '../../../CommandLine/progressBarFactory';
 import { DEVICE_UID_OPTION, getDeviceUid } from '../../../Device/deviceFacade';
 import { validateTestIdentifiers } from './appletTestRunFacade';
@@ -69,11 +65,11 @@ export const appletTestRun = createCommandDefinition({
 		printRunTests(tests);
 
 		if (!skipConfirmation) {
-			const response: prompts.Answers<"continue"> = await prompts({
+			const response: prompts.Answers<'continue'> = await prompts({
 				type: 'confirm',
 				name: 'continue',
-				message: `Do you want to start testing ${chalk.green(applet.name)} `
-				+ `and version ${chalk.green(version)} on device ${device.name}?`,
+				message:
+					`Do you want to start testing ${chalk.green(applet.name)} ` + `and version ${chalk.green(version)} on device ${device.name}?`,
 			});
 			if (!response.continue) {
 				throw new Error(`Applet tests canceled`);
@@ -96,11 +92,14 @@ export const appletTestRun = createCommandDefinition({
 				const lastCountFinished = (deviceAppletTest?.successfulTests.length ?? 0) + (deviceAppletTest?.failedTests.length ?? 0);
 				deviceAppletTest = await restApi.device.appletTest.get(device.uid, applet.uid, appletVersion.version);
 				const nextCountFinished = (deviceAppletTest?.successfulTests.length ?? 0) + (deviceAppletTest?.failedTests.length ?? 0);
-				const progressName = RUNNING_TEST_TITLE + ' ' + [
-					...deviceAppletTest.failedTests.map((t) => chalk.red(t)),
-					...deviceAppletTest.successfulTests.map((t) => chalk.green(t)),
-					...deviceAppletTest.pendingTests.map((t) => chalk.gray(t)),
-				].join(',');
+				const progressName =
+					RUNNING_TEST_TITLE +
+					' ' +
+					[
+						...deviceAppletTest.failedTests.map((t) => chalk.red(t)),
+						...deviceAppletTest.successfulTests.map((t) => chalk.green(t)),
+						...deviceAppletTest.pendingTests.map((t) => chalk.gray(t)),
+					].join(',');
 				progressBar.update({
 					add: nextCountFinished - lastCountFinished,
 					name: progressName,
@@ -119,20 +118,12 @@ export const appletTestRun = createCommandDefinition({
 	},
 });
 
-function displaySuccessMessage(
-	appletName: string,
-	appletVersion: string,
-	deviceAppletTest: IDeviceAppletTest,
-) {
+function displaySuccessMessage(appletName: string, appletVersion: string, deviceAppletTest: IDeviceAppletTest) {
 	log('info', `Applet ${chalk.green(appletName)} version ${chalk.green(appletVersion)} tests ${chalk.green('succeeded')}.`);
 	deviceAppletTest.successfulTests.forEach((file: string) => log('info', chalk.green('✓ ' + file)));
 }
 
-function displayFailureMessage(
-	appletName: string,
-	appletVersion: string,
-	deviceAppletTest: IDeviceAppletTest,
-) {
+function displayFailureMessage(appletName: string, appletVersion: string, deviceAppletTest: IDeviceAppletTest) {
 	log('info', `Applet ${chalk.green(appletName)} version ${chalk.green(appletVersion)} tests ${chalk.red('failed')}.`);
 	deviceAppletTest.failedTests.forEach((file: string) => log('info', chalk.red('× ' + file)));
 	deviceAppletTest.successfulTests.forEach((file: string) => log('info', chalk.green('✓ ' + file)));

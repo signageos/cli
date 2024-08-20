@@ -1,13 +1,13 @@
-import { createFirmwareVersionRestApi } from "../../helper";
-import * as prompts from "prompts";
+import { createFirmwareVersionRestApi } from '../../helper';
+import * as prompts from 'prompts';
 import chalk from 'chalk';
-import { IFirmwareVersionCreatable } from "@signageos/sdk/dist/RestApi/Firmware/Version/IFirmwareVersion";
-import { uploadFirmwareVersion } from "./firmwareUploadFacade";
-import { createProgressBar } from "../../CommandLine/progressBarFactory";
-import validateFileExistenceSync from "./firmwareUploadHelper";
-import RequestError from "@signageos/sdk/dist/RestApi/Error/RequestError";
-import { CommandLineOptions, createCommandDefinition } from "../../Command/commandDefinition";
-import { log } from "@signageos/sdk/dist/Console/log";
+import { IFirmwareVersionCreatable } from '@signageos/sdk/dist/RestApi/Firmware/Version/IFirmwareVersion';
+import { uploadFirmwareVersion } from './firmwareUploadFacade';
+import { createProgressBar } from '../../CommandLine/progressBarFactory';
+import validateFileExistenceSync from './firmwareUploadHelper';
+import RequestError from '@signageos/sdk/dist/RestApi/Error/RequestError';
+import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
+import { log } from '@signageos/sdk/dist/Console/log';
 
 const questions = [
 	{
@@ -31,10 +31,10 @@ const fwTypeQuestion = [
 const applicationTypesRequiringType = ['linux', 'android'];
 
 const OPTION_LIST = [
-	{ name: 'application-type', alias: 'a', type: String, },
-	{ name: 'firmware-version', alias: 'f', type: String, },
-	{ name: 'firmware-type', type: String, },
-	{ name: 'src', type: String, multiple: true, },
+	{ name: 'application-type', alias: 'a', type: String },
+	{ name: 'firmware-version', alias: 'f', type: String },
+	{ name: 'firmware-type', type: String },
+	{ name: 'src', type: String, multiple: true },
 	{ name: 'force', type: Boolean, description: 'When firmware cannot be uploaded due to invalid firmware "type", do it anyways.' },
 ] as const;
 
@@ -69,13 +69,15 @@ export const firmwareUpload = createCommandDefinition({
 				log('error', `You must input application type and version`);
 				return;
 			}
-			while (true) { // ask for files
+			while (true) {
+				// ask for files
 				const answer = await prompts({
 					type: 'text',
 					name: 'fileFsPath',
 					message: 'Absolute path to the file, type `stop` to stop.',
 				});
-				if (answer.fileFsPath === undefined || answer.fileFsPath === 'stop') { // EOF or stop
+				if (answer.fileFsPath === undefined || answer.fileFsPath === 'stop') {
+					// EOF or stop
 					break;
 				}
 				const path = answer.fileFsPath;
@@ -105,7 +107,8 @@ export const firmwareUpload = createCommandDefinition({
 					throw new Error(`You must confirm your action.`);
 				}
 			}
-		} else { // data is given cli args
+		} else {
+			// data is given cli args
 			if (!options['application-type']) {
 				throw new Error('Argument --application-type is required');
 			}
@@ -127,34 +130,32 @@ export const firmwareUpload = createCommandDefinition({
 		}
 
 		try {
-			await uploadFirmwareVersion(
-				{
-					restApi,
-					firmware: data,
-					pathArr: Array.from(pathSet),
-					progressBar: createProgressBar(),
-				},
-			);
+			await uploadFirmwareVersion({
+				restApi,
+				firmware: data,
+				pathArr: Array.from(pathSet),
+				progressBar: createProgressBar(),
+			});
 		} catch (error) {
 			if (error instanceof RequestError && error.errorName === 'INVALID_TYPE_TO_FIRMWARE_VERSION_UPLOAD') {
-				const promptOverride = () => prompts({
-					type: 'confirm',
-					name: 'confirmed',
-					message: `A firmware "type=${data.type}" field is not valid because doesn't exist any device with this type `
-						+ `thus firmware version not to be uploaded. `
-						+ `If you are sure that "type=${data.type}" you've specified is valid, `
-						+ `you can override it confirming this question or using --force flag.`,
-				});
-				if (options.force || !optionsProvided && (await promptOverride()).confirmed) {
-					await uploadFirmwareVersion(
-						{
-							restApi,
-							firmware: data,
-							pathArr: Array.from(pathSet),
-							progressBar: createProgressBar(),
-							force: true,
-						},
-					);
+				const promptOverride = () =>
+					prompts({
+						type: 'confirm',
+						name: 'confirmed',
+						message:
+							`A firmware "type=${data.type}" field is not valid because doesn't exist any device with this type ` +
+							`thus firmware version not to be uploaded. ` +
+							`If you are sure that "type=${data.type}" you've specified is valid, ` +
+							`you can override it confirming this question or using --force flag.`,
+					});
+				if (options.force || (!optionsProvided && (await promptOverride()).confirmed)) {
+					await uploadFirmwareVersion({
+						restApi,
+						firmware: data,
+						pathArr: Array.from(pathSet),
+						progressBar: createProgressBar(),
+						force: true,
+					});
 				}
 			} else {
 				throw error;

@@ -6,9 +6,9 @@ registries:
     token: ${{secrets.NPM_AUTH_TOKEN}}
     replaces-base: true
 updates:
- - package-ecosystem: "npm"
-   directory: "/"
-   schedule:
-      interval: "weekly"
-   registries:
-     - codeartifact
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    registries:
+      - codeartifact

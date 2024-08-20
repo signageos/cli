@@ -1,10 +1,8 @@
-
-import fetch from 'node-fetch';
+import fetch, { RequestInit } from 'node-fetch';
 import { stringify } from 'querystring';
-import { RequestInit } from "node-fetch";
+// import { RequestInit } from 'node-fetch';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import IRestApiOptions from '@signageos/sdk/dist/RestApi/IOptions';
-import IRestApiAccountOptions from '@signageos/sdk/dist/RestApi/IOptions';
 import { loadConfig } from './RunControl/runControlHelper';
 import { ApiVersions } from '@signageos/sdk/dist/RestApi/apiVersions';
 import { parameters } from './parameters';
@@ -35,9 +33,7 @@ export function createClientVersions() {
 	};
 }
 
-export async function createOrganizationRestApi(
-	credentials: ICredentials,
-) {
+export async function createOrganizationRestApi(credentials: ICredentials) {
 	const options: IRestApiOptions = {
 		url: await loadApiUrl(),
 		auth: {
@@ -47,7 +43,7 @@ export async function createOrganizationRestApi(
 		version: ApiVersions.V1,
 		clientVersions: createClientVersions(),
 	};
-	const accountOptions: IRestApiAccountOptions = {
+	const accountOptions: IRestApiOptions = {
 		...options,
 	};
 
@@ -68,7 +64,7 @@ export async function createFirmwareVersionRestApi() {
 		version: ApiVersions.V1,
 		clientVersions: createClientVersions(),
 	};
-	const accountOptions: IRestApiAccountOptions = {
+	const accountOptions: IRestApiOptions = {
 		...options,
 	};
 
@@ -92,7 +88,7 @@ export function createOptions(method: 'POST' | 'GET' | 'PUT' | 'DELETE', options
 		headers: {
 			'Content-Type': 'application/json',
 			[AUTH_HEADER]: options.auth.clientId + ':' + options.auth.secret,
-			...options.headers || {},
+			...(options.headers || {}),
 		},
 		method,
 		body: typeof data !== 'undefined' ? JSON.stringify(data) : undefined,
@@ -100,8 +96,7 @@ export function createOptions(method: 'POST' | 'GET' | 'PUT' | 'DELETE', options
 }
 
 export function createUri(options: IOptions, resource: string, queryParams?: any) {
-	return [options.url, options.version, resource].join('/')
-		+ (typeof queryParams !== 'undefined' ? '?' + stringify(queryParams) : '');
+	return [options.url, options.version, resource].join('/') + (typeof queryParams !== 'undefined' ? '?' + stringify(queryParams) : '');
 }
 
 export function getResource(options: IOptions, path: string, query?: any) {

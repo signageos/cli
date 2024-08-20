@@ -10,18 +10,10 @@ import helperMock, { restApiWithNonExistingAppletVersion } from '../../helperMoc
 import { promptsMockFactory } from '../../promptsMock';
 import { singleFileOptions, multiFileOptions, noUserOptions } from './appletUploadCommandOptionsMock';
 
-const promptsMockOverrideTrue = promptsMockFactory([
-	{ questionName: 'override', answer: true},
-]);
-const promptsMockOverrideFalse = promptsMockFactory([
-	{ questionName: 'override', answer: false},
-]);
-const promptsMockConfirmTrue = promptsMockFactory([
-	{ questionName: 'newVersion', answer: true},
-]);
-const promptsMockConfirmFalse = promptsMockFactory([
-	{ questionName: 'newVersion', answer: false},
-]);
+const promptsMockOverrideTrue = promptsMockFactory([{ questionName: 'override', answer: true }]);
+const promptsMockOverrideFalse = promptsMockFactory([{ questionName: 'override', answer: false }]);
+const promptsMockConfirmTrue = promptsMockFactory([{ questionName: 'newVersion', answer: true }]);
+const promptsMockConfirmFalse = promptsMockFactory([{ questionName: 'newVersion', answer: false }]);
 
 rewireMock('../appletFacade').with(appletFacadeMock);
 rewireMock('./appletUploadFacade').with(appletUploadFacadeMock);
@@ -34,19 +26,20 @@ rewireMock('prompts').with(promptsMockOverrideTrue);
 import { appletUpload as singleFileAppletUploadOverrideTrue } from '../../../../src/Applet/Upload/appletUploadCommand';
 rewireMock('../../helper').with(helperMock);
 rewireMock('prompts').with(promptsMockOverrideFalse);
+// eslint-disable-next-line no-duplicate-imports
 import { appletUpload as singleFileAppletUploadOverrideFalse } from '../../../../src/Applet/Upload/appletUploadCommand';
 rewireMock('../../helper').with(restApiWithNonExistingAppletVersion);
 rewireMock('prompts').with(promptsMockConfirmTrue);
+// eslint-disable-next-line no-duplicate-imports
 import { appletUpload as singleFileAppletUploadConfirmTrue } from '../../../../src/Applet/Upload/appletUploadCommand';
 rewireMock('../../helper').with(restApiWithNonExistingAppletVersion);
 rewireMock('prompts').with(promptsMockConfirmFalse);
+// eslint-disable-next-line no-duplicate-imports
 import { appletUpload as singleFileAppletUploadConfirmFalse } from '../../../../src/Applet/Upload/appletUploadCommand';
 rewireMock.disable();
 
 describe('unit.appletUploadCommand', () => {
-
 	describe('single file applet', () => {
-
 		it('should update with override', async () => {
 			await singleFileAppletUploadOverrideTrue.run(singleFileOptions);
 			should(appletUploadFacadeMock.updateSingleFileApplet.calledOnce).true();
@@ -105,7 +98,6 @@ describe('unit.appletUploadCommand', () => {
 	});
 
 	describe('multi file applet', () => {
-
 		const testOptions = [
 			{
 				name: 'noUserOptions',
@@ -117,7 +109,7 @@ describe('unit.appletUploadCommand', () => {
 			},
 		];
 
-		testOptions.forEach(({ name, value }: { name: string, value: any }) => {
+		testOptions.forEach(({ name, value }: { name: string; value: any }) => {
 			it(`should update with override - ${name}`, async () => {
 				await singleFileAppletUploadOverrideTrue.run(value);
 				should(appletUploadFacadeMock.updateMultiFileApplet.calledOnce).true();

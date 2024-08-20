@@ -15,9 +15,11 @@ export function getAppletFileRelativePath(fileAbsolutePath: string, directoryAbs
 
 	const isFileInAppletDir = fileAbsolutePathNormalized.startsWith(directoryAbsolutePathNormalized);
 	if (!isFileInAppletDir) {
-		throw new Error(`All project files must be in the project directory.` +
-		`\nFile path: ${fileAbsolutePathNormalized}` +
-		`\nApplet directory path: ${directoryAbsolutePathNormalized}`);
+		throw new Error(
+			`All project files must be in the project directory.` +
+				`\nFile path: ${fileAbsolutePathNormalized}` +
+				`\nApplet directory path: ${directoryAbsolutePathNormalized}`,
+		);
 	}
 
 	const fileRelativePath = fileAbsolutePathNormalized.substring(directoryAbsolutePathNormalized.length + 1);
@@ -29,13 +31,10 @@ export async function getAppletFilesDictionary(
 	restApi: RestApi,
 	appletUid: string,
 	appletVersion: string,
-): Promise<{[fileRelativePath: string]: IAppletVersionFile}> {
-	const filesDictionary: {[fileRelativePath: string]: IAppletVersionFile} = {};
+): Promise<{ [fileRelativePath: string]: IAppletVersionFile }> {
+	const filesDictionary: { [fileRelativePath: string]: IAppletVersionFile } = {};
 
-	const currentAppletFiles = await restApi.applet.version.file.list(
-		appletUid,
-		appletVersion,
-	);
+	const currentAppletFiles = await restApi.applet.version.file.list(appletUid, appletVersion);
 
 	currentAppletFiles.forEach((file: IAppletVersionFile) => {
 		filesDictionary[file.path] = file;

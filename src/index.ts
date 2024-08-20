@@ -14,14 +14,7 @@ const index = createCommandDefinition({
 	name: 'sos',
 	description: 'signageOS',
 	optionList: GENERAL_OPTION_LIST,
-	commands: [
-		applet,
-		login,
-		organization,
-		timing,
-		firmware,
-		device,
-	],
+	commands: [applet, login, organization, timing, firmware, device],
 	async run() {
 		throw new Error('Unknown command');
 	},

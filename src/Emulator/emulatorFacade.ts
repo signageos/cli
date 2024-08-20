@@ -48,18 +48,14 @@ async function createNewEmulator(restApi: RestApi, organizationUid: string) {
 	}
 }
 
-export async function loadEmulatorOrCreateNewAndReturnUid(
-	organizationUid: string,
-) {
+export async function loadEmulatorOrCreateNewAndReturnUid(organizationUid: string) {
 	const config = await loadConfig();
 	if (!config.identification || !config.apiSecurityToken) {
 		throw new Error(`No authenticized account found. Try to login using ${chalk.green('sos login')}`);
 	}
 	const restApi = createRestApi(config);
 	const listOfEmulatorsResponse = await getListOfEmulators(restApi, organizationUid);
-	const isSavedValidEmulator = config.emulatorUid && listOfEmulatorsResponse.some(
-		(emu: IEmulatorData) => emu.duid === config.emulatorUid,
-	);
+	const isSavedValidEmulator = config.emulatorUid && listOfEmulatorsResponse.some((emu: IEmulatorData) => emu.duid === config.emulatorUid);
 
 	if (isSavedValidEmulator) {
 		return config.emulatorUid as string;
@@ -72,7 +68,6 @@ export async function loadEmulatorOrCreateNewAndReturnUid(
 		const emulatorName = listOfEmulatorsResponse[0].name;
 		emulatorUid = listOfEmulatorsResponse[0].duid;
 		log('info', `One valid emulator ${chalk.green(emulatorName)} fetched and saved into .sosrc`);
-
 	} else if (listOfEmulatorsResponse.length > 1) {
 		const selectedEmulator = await prompts({
 			type: 'select',

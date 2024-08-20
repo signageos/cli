@@ -2,11 +2,7 @@ import * as Debug from 'debug';
 import chalk from 'chalk';
 import * as cliUsage from 'command-line-usage';
 import * as cliArgs from 'command-line-args';
-import {
-	printVersion,
-	newVersionAvailable,
-	getUpdateVersionMessage,
-} from '../Cli/packageVersion';
+import { printVersion, newVersionAvailable, getUpdateVersionMessage } from '../Cli/packageVersion';
 import { ICommand, ICommandOption, OptionList } from './commandDefinition';
 import { log } from '@signageos/sdk/dist/Console/log';
 const debug = Debug('@signageos/cli:Command:processor');
@@ -26,14 +22,11 @@ export async function processCommand(
 	if (subCommand) {
 		await processCommand(subCommand, nestedOptionList, commandIndex + 1);
 	} else {
-
 		if (currentOptions.help) {
 			printUsage(currentCommand, nestedOptionList);
-		} else
-		if (currentOptions.version) {
+		} else if (currentOptions.version) {
 			await printVersion();
 		} else {
-
 			try {
 				const newVer: boolean = await newVersionAvailable();
 
@@ -50,10 +43,7 @@ export async function processCommand(
 	}
 }
 
-function printUsage(
-	currentCommand: ICommand<string, OptionList>,
-	optionList: ICommandOption[],
-) {
+function printUsage(currentCommand: ICommand<string, OptionList>, optionList: ICommandOption[]) {
 	log('info', chalk.bold(currentCommand.name));
 	log('info', '  - ' + chalk.italic(currentCommand.description), '');
 	for (const command of currentCommand.commands) {

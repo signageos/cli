@@ -1,9 +1,9 @@
 import * as path from 'path';
-import RestApi from "@signageos/sdk/dist/RestApi/RestApi";
-import { ProgressBar } from "../../CommandLine/IProgressBar";
-import { IFirmwareVersionCreatable } from "@signageos/sdk/dist/RestApi/Firmware/Version/IFirmwareVersion";
+import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
+import { ProgressBar } from '../../CommandLine/IProgressBar';
+import { IFirmwareVersionCreatable } from '@signageos/sdk/dist/RestApi/Firmware/Version/IFirmwareVersion';
 import * as fs from 'fs-extra';
-import { computeMD5 } from "../../Stream/helper";
+import { computeMD5 } from '../../Stream/helper';
 
 export async function uploadFirmwareVersion(parameters: {
 	restApi: RestApi;
@@ -14,10 +14,12 @@ export async function uploadFirmwareVersion(parameters: {
 }): Promise<void> {
 	const { restApi, firmware, pathArr, progressBar } = parameters;
 
-	const sizes = await Promise.all(pathArr.map(async (filePath: string) => {
-		const stat = await fs.stat(filePath);
-		return stat.size;
-	}));
+	const sizes = await Promise.all(
+		pathArr.map(async (filePath: string) => {
+			const stat = await fs.stat(filePath);
+			return stat.size;
+		}),
+	);
 	const totalSize = sizes.reduce((sum: number, size) => sum + size, 0);
 
 	if (progressBar) {
