@@ -16,10 +16,11 @@
 		"@signageos/codestyle",
 		"mocha",
 		"depcheck",
-		"tslint",
 		"webpack",
 		"prettier",
 		"c8",
-		"@istanbuljs/nyc-config-typescript"
+		"@istanbuljs/nyc-config-typescript",
+		"husky",
+		"lint-staged"
 	]
 }

@@ -18,7 +18,8 @@
             "node_modules/@types/"
         ],
         "lib": ["dom", "es5", "scripthost", "esnext"],
-        "downlevelIteration": true
+        "downlevelIteration": true,
+        "skipLibCheck": true
     },
     "include": [
         "src/**/*.ts"

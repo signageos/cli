@@ -1,0 +1,6 @@
+# This file describes which commits should be ignore in the git blame
+# To make this file work run:
+# `git config blame.ignoreRevsFile .git-blame-ignore-revs`
+
+# Prettier update 20. 08. 2024
+7d328ebcdaae7f00020e0baadf7da34f5f766ad8
