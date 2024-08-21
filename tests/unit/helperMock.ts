@@ -3,18 +3,22 @@ import IApplet from '@signageos/sdk/dist/RestApi/Applet/IApplet';
 import Applet from '@signageos/sdk/dist/RestApi/Applet/Applet';
 
 const appletApi = {
-	create: sinon.fake(() => Promise.resolve({
-		name: 'fakeAppletName',
-		uid: 'fakeAppletUid',
-		createdAt: new Date(2011, 1, 1, 1, 1),
-	} as Applet)),
-	get: sinon.fake(() => Promise.resolve({
-		name: 'fakeAppletName',
-		uid: 'fakeAppletUid',
-		createdAt: new Date(2011, 1, 1, 1, 1),
-	} as IApplet)),
+	create: sinon.fake(() =>
+		Promise.resolve({
+			name: 'fakeAppletName',
+			uid: 'fakeAppletUid',
+			createdAt: new Date(2011, 1, 1, 1, 1),
+		} as Applet),
+	),
+	get: sinon.fake(() =>
+		Promise.resolve({
+			name: 'fakeAppletName',
+			uid: 'fakeAppletUid',
+			createdAt: new Date(2011, 1, 1, 1, 1),
+		} as IApplet),
+	),
 	version: {
-		get: sinon.fake(() => Promise.resolve({ })),
+		get: sinon.fake(() => Promise.resolve({})),
 	},
 };
 
@@ -40,8 +44,8 @@ export const restApiWithNonExistingAppletVersion = {
 
 export const generalOptions = {
 	'api-url': undefined,
-	'command': undefined,
-	'help': undefined,
-	'version': undefined,
-	'profile': undefined,
+	command: undefined,
+	help: undefined,
+	version: undefined,
+	profile: undefined,
 } as const;

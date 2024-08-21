@@ -1,6 +1,6 @@
-import { log } from "@signageos/sdk/dist/Console/log";
-import { Development } from "@signageos/sdk/dist/Development/Development";
-import { CommandLineOptions } from "../Command/commandDefinition";
+import { log } from '@signageos/sdk/dist/Console/log';
+import { Development } from '@signageos/sdk/dist/Development/Development';
+import { CommandLineOptions } from '../Command/commandDefinition';
 
 export const SERVER_PUBLIC_URL_OPTION = {
 	name: 'server-public-url',
@@ -36,10 +36,12 @@ export async function killAppletServerIfRunningAndForceOption(
 	const runningAppletPort = await dev.applet.serve.getRunningPort(appletUid, appletVersion);
 	if (runningAppletPort && runningAppletPort !== appletPort) {
 		if (!force) {
-			log('warning', `Applet server is already running on port ${runningAppletPort}. Use --force to kill the running server and start a new one.`);
+			log(
+				'warning',
+				`Applet server is already running on port ${runningAppletPort}. Use --force to kill the running server and start a new one.`,
+			);
 		} else {
 			await dev.applet.serve.killRunningServer(appletUid, appletVersion);
 		}
 	}
-
 }

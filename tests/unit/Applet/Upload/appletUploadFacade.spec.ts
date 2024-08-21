@@ -14,9 +14,7 @@ function makeTempDir() {
 }
 
 describe('Applet.Upload.appletUploadFacade', () => {
-
 	describe('updateMultiFileApplet', async () => {
-
 		it('should update multi file applet, upload new files and remove old files', async () => {
 			const tmpDir = await makeTempDir();
 			try {
@@ -40,10 +38,7 @@ describe('Applet.Upload.appletUploadFacade', () => {
 							file: {
 								async list(uid: string, version: string) {
 									if (uid === 'test1' && version === '1.0.0') {
-										return [
-											{ path: 'oldFile1.txt' },
-											{ path: 'oldFile2.txt' },
-										];
+										return [{ path: 'oldFile1.txt' }, { path: 'oldFile2.txt' }];
 									}
 								},
 								update: sinon.stub().resolves(),
@@ -183,7 +178,7 @@ describe('Applet.Upload.appletUploadFacade', () => {
 			}
 		});
 
-		it('should not update multi file applet and ignore uploading files that didn\'t change', async () => {
+		it("should not update multi file applet and ignore uploading files that didn't change", async () => {
 			const tmpDir = await makeTempDir();
 			try {
 				const file1 = path.join(tmpDir, 'file1.txt');
@@ -203,9 +198,7 @@ describe('Applet.Upload.appletUploadFacade', () => {
 							file: {
 								async list(uid: string, version: string) {
 									if (uid === 'test1' && version === '1.0.0') {
-										return [
-											{ path: 'file1.txt', hash: '1vwgbAV9J16slyAIMpq/vA==', type: 'text/plain' },
-										];
+										return [{ path: 'file1.txt', hash: '1vwgbAV9J16slyAIMpq/vA==', type: 'text/plain' }];
 									}
 								},
 								update: sinon.stub().resolves(),
@@ -254,9 +247,7 @@ describe('Applet.Upload.appletUploadFacade', () => {
 							file: {
 								async list(uid: string, version: string) {
 									if (uid === 'test1' && version === '1.0.0') {
-										return [
-											{ path: 'oldFile1.txt', hash: '1vwgbAV9J16slyAIMpq/vA==', type: 'text/plain' },
-										];
+										return [{ path: 'oldFile1.txt', hash: '1vwgbAV9J16slyAIMpq/vA==', type: 'text/plain' }];
 									}
 								},
 								update: sinon.stub().resolves(),
@@ -303,9 +294,7 @@ describe('Applet.Upload.appletUploadFacade', () => {
 							file: {
 								async list(uid: string, version: string) {
 									if (uid === 'test1' && version === '1.0.0') {
-										return [
-											{ path: 'oldFile1.txt', hash: '1vwgbAV9J16slyAIMpq/vA==', type: 'text/plain' },
-										];
+										return [{ path: 'oldFile1.txt', hash: '1vwgbAV9J16slyAIMpq/vA==', type: 'text/plain' }];
 									}
 								},
 								update: sinon.stub().resolves(),

@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Fixed
+- Removed tslint
+- Added eslint and eslint-plugin-prettier to harmonize the codestyle checking with company standards
+
 ## [1.5.0] - 2024-08-20
 ### Added
 - A bundler flag to the `applet generate` command to enable bundler selection for the generated applet - the options are `webpack` and `esbuild`, defaulting to `webpack`

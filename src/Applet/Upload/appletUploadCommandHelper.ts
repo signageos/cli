@@ -122,9 +122,11 @@ export function getAppletEntryFileRelativePath(entryFileAbsolutePath: string, ap
 
 	const isEntryFileInAppletDir = entryFileAbsolutePathNormalized.startsWith(appletDirectoryAbsolutePathNormalized);
 	if (!isEntryFileInAppletDir) {
-		throw new Error(`Applet entry file must be in the applet directory.` +
-		`\nEntry file path: ${entryFileAbsolutePathNormalized}` +
-		`\nApplet directory path: ${appletDirectoryAbsolutePathNormalized}`);
+		throw new Error(
+			`Applet entry file must be in the applet directory.` +
+				`\nEntry file path: ${entryFileAbsolutePathNormalized}` +
+				`\nApplet directory path: ${appletDirectoryAbsolutePathNormalized}`,
+		);
 	}
 
 	const entryFileRelativePath = entryFileAbsolutePathNormalized.substring(appletDirectoryAbsolutePathNormalized.length + 1);

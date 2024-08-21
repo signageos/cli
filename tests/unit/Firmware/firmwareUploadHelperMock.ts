@@ -1,4 +1,3 @@
-
 export default function validateFileExistenceSync(path: string): void {
 	switch (path) {
 		case '/valid.apk':

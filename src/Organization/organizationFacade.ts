@@ -23,10 +23,7 @@ export const NO_DEFAULT_ORGANIZATION_OPTION = {
 	description: 'Prevent using the defaultOrganizationUid from ~/.sosrc which were set using command sos organization set-default',
 } as const;
 
-export const ORGANIZATION_OPTIONS = [
-	ORGANIZATION_UID_OPTION,
-	NO_DEFAULT_ORGANIZATION_OPTION,
-];
+export const ORGANIZATION_OPTIONS = [ORGANIZATION_UID_OPTION, NO_DEFAULT_ORGANIZATION_OPTION];
 
 export async function getOrganizationUidOrDefaultOrSelect(
 	options: CommandLineOptions<[typeof ORGANIZATION_UID_OPTION, typeof NO_DEFAULT_ORGANIZATION_OPTION]>,

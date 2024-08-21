@@ -11,12 +11,7 @@ import {
 } from '../../Organization/organizationFacade';
 import { DEVICE_UID_OPTION, getDeviceUid } from '../deviceFacade';
 
-const OPTION_LIST = [
-	NO_DEFAULT_ORGANIZATION_OPTION,
-	ORGANIZATION_UID_OPTION,
-	APPLET_UID_OPTION,
-	DEVICE_UID_OPTION,
-] as const;
+const OPTION_LIST = [NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION, APPLET_UID_OPTION, DEVICE_UID_OPTION] as const;
 
 export const setContent = createCommandDefinition({
 	name: 'set-content',
@@ -28,21 +23,21 @@ export const setContent = createCommandDefinition({
 		const organization = await getOrganization(organizationUid);
 		const restApi = await createOrganizationRestApi(organization);
 		const appletUid = await getAppletUid(restApi, options);
-		const appletVersion  = await getAppletVersionFromApi(restApi, appletUid);
+		const appletVersion = await getAppletVersionFromApi(restApi, appletUid);
 		const deviceUid = await getDeviceUid(restApi, options);
 		await restApi.timing.create({
-			deviceUid : deviceUid,
+			deviceUid: deviceUid,
 			appletUid: appletUid,
 			appletVersion: appletVersion,
 			startsAt: new Date(),
 			endsAt: new Date(),
 			position: 1,
 			configuration: {
-				identification: "Deploy from CLI ",
+				identification: 'Deploy from CLI ',
 			},
 			finishEvent: {
 				type: 'DURATION',
-				data: "1000",
+				data: '1000',
 			},
 		});
 		log('info', chalk.green(`Applet ${appletUid} was set on device ${deviceUid}`));

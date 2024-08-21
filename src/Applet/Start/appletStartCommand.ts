@@ -9,11 +9,20 @@ import {
 } from '../Upload/appletUploadCommandHelper';
 import { loadEmulatorOrCreateNewAndReturnUid } from '../../Emulator/emulatorFacade';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
-import { getOrganizationUidOrDefaultOrSelect, NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION } from '../../Organization/organizationFacade';
+import {
+	getOrganizationUidOrDefaultOrSelect,
+	NO_DEFAULT_ORGANIZATION_OPTION,
+	ORGANIZATION_UID_OPTION,
+} from '../../Organization/organizationFacade';
 import { createDevelopment } from '@signageos/sdk/dist';
 import { AppletHotReload } from '@signageos/sdk/dist/Development/Applet/AppletHotReload';
 import wait from '../../Timer/wait';
-import { killAppletServerIfRunningAndForceOption, SERVER_FORCE_OPTION, SERVER_PORT_OPTION, SERVER_PUBLIC_URL_OPTION } from '../appletServerHelper';
+import {
+	killAppletServerIfRunningAndForceOption,
+	SERVER_FORCE_OPTION,
+	SERVER_PORT_OPTION,
+	SERVER_PUBLIC_URL_OPTION,
+} from '../appletServerHelper';
 import { log } from '@signageos/sdk/dist/Console/log';
 
 const DEFAULT_PORT = 8090;

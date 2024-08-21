@@ -1,6 +1,11 @@
-import chalk from "chalk";
+import chalk from 'chalk';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
-import { getOrganization, getOrganizationUidOrDefaultOrSelect, NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION } from '../../Organization/organizationFacade';
+import {
+	getOrganization,
+	getOrganizationUidOrDefaultOrSelect,
+	NO_DEFAULT_ORGANIZATION_OPTION,
+	ORGANIZATION_UID_OPTION,
+} from '../../Organization/organizationFacade';
 import { createOrganizationRestApi } from '../../helper';
 import { createDevelopment } from '@signageos/sdk/dist';
 import { APPLET_UID_OPTION, getAppletUid, getAppletVersion } from '../appletFacade';
@@ -9,11 +14,7 @@ import * as Debug from 'debug';
 
 const debug = Debug('@signageos/cli:Applet:Build:appletBuildCommand');
 
-export const OPTION_LIST = [
-	NO_DEFAULT_ORGANIZATION_OPTION,
-	ORGANIZATION_UID_OPTION,
-	APPLET_UID_OPTION,
-] as const;
+export const OPTION_LIST = [NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION, APPLET_UID_OPTION] as const;
 
 export const appletBuild = createCommandDefinition({
 	name: 'build',
@@ -38,7 +39,10 @@ export const appletBuild = createCommandDefinition({
 			appletPath: currentDirectory,
 		});
 
-		log('info', `Applet ${chalk.green(appletUid)}@${chalk.green(appletVersion)} was built successfully into "${chalk.green(build.packageArchivePath)}".`);
+		log(
+			'info',
+			`Applet ${chalk.green(appletUid)}@${chalk.green(appletVersion)} was built successfully into "${chalk.green(build.packageArchivePath)}".`,
+		);
 		debug('Applet build result:', build);
 	},
 });

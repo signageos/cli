@@ -1,4 +1,3 @@
-
 import * as http from 'http';
 import * as url from 'url';
 import * as ip from 'internal-ip';
@@ -16,9 +15,7 @@ interface IOptions {
 
 export function createDomain(options: IOptions, server?: http.Server) {
 	const protocol = options.https ? 'https' : 'http';
-	const hostname = options.useLocalIp
-		? ip.v4.sync() || 'localhost'
-		: options.host || 'localhost';
+	const hostname = options.useLocalIp ? ip.v4.sync() || 'localhost' : options.host || 'localhost';
 
 	const serverAddress = server?.address();
 	// eslint-disable-next-line no-nested-ternary
@@ -26,9 +23,7 @@ export function createDomain(options: IOptions, server?: http.Server) {
 	// use explicitly defined public url
 	// (prefix with protocol if not explicitly given)
 	if (options.public) {
-		return /^[a-zA-Z]+:\/\//.test(options.public)
-			? `${options.public}`
-			: `${protocol}://${options.public}`;
+		return /^[a-zA-Z]+:\/\//.test(options.public) ? `${options.public}` : `${protocol}://${options.public}`;
 	}
 	// the formatted domain (url without path) of the webpack server
 	return url.format({

@@ -29,13 +29,11 @@ export const getIsAuth0OrLegacyEnabled = (options: any) => {
 		isLegacyEnabled?: boolean;
 	} = {};
 
-	// tslint:disable-next-line no-string-literal
-	if (options['_unknown']?.includes('--auth0-enabled')) {
+	if (options._unknown?.includes('--auth0-enabled')) {
 		queryParams.isAuth0Enabled = true;
 	}
 
-	// tslint:disable-next-line no-string-literal
-	if (options['_unknown']?.includes('--legacy-enabled')) {
+	if (options._unknown?.includes('--legacy-enabled')) {
 		queryParams.isLegacyEnabled = true;
 	}
 
@@ -132,8 +130,8 @@ async function getOrCreateApiSecurityToken({
 		identification,
 		password,
 		name: tokenName,
-		...isAuth0Enabled !== undefined ? { isAuth0AuthenticationEnabled: isAuth0Enabled } : {},
-		...isLegacyEnabled !== undefined ? { isLegacyAuthenticationEnabled: isLegacyEnabled } : {},
+		...(isAuth0Enabled !== undefined ? { isAuth0AuthenticationEnabled: isAuth0Enabled } : {}),
+		...(isLegacyEnabled !== undefined ? { isLegacyAuthenticationEnabled: isLegacyEnabled } : {}),
 	};
 	const responseOfPost = await postResource(options, ACCOUNT_SECURITY_TOKEN_RESOURCE, query);
 	const bodyOfPost = JSON.parse(await responseOfPost.text(), deserializeJSON);

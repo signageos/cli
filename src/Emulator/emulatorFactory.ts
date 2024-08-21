@@ -34,15 +34,11 @@ type IEnvVars = {
 	checksum: string;
 };
 
-export async function createEmulator(
-	params: ICreateEmulatorParams,
-	organizationUid: string,
-	dev: Development,
-): Promise<IEmulator> {
+export async function createEmulator(params: ICreateEmulatorParams, organizationUid: string, dev: Development): Promise<IEmulator> {
 	const { appletUid, appletVersion, emulatorServerPort, appletPath, entryFileRelativePath } = params;
 	const entryFileAbsolutePath = path.join(appletPath, entryFileRelativePath);
 
-	const frontDisplayPath = path.dirname(require.resolve('@signageos/front-display/package.json', { paths: [appletPath]}));
+	const frontDisplayPath = path.dirname(require.resolve('@signageos/front-display/package.json', { paths: [appletPath] }));
 	const frontDisplayDistPath = path.join(frontDisplayPath, 'dist');
 
 	if (!organizationUid) {
@@ -78,8 +74,7 @@ export async function createEmulator(
 					window.__SOS_BUNDLED_APPLET.frontAppletBinaryFile = ${JSON.stringify(envVars.frontAppletBinaryFile)};
 					window.__SOS_AUTO_VERIFICATION = {};
 					window.__SOS_AUTO_VERIFICATION.organizationUid = ${JSON.stringify(envVars.organizationUid)};
-				</script>`
-				+ fsExtra.readFileSync(path.join(frontDisplayDistPath, 'index.html')).toString(),
+				</script>` + fsExtra.readFileSync(path.join(frontDisplayDistPath, 'index.html')).toString(),
 			);
 		}
 	});
@@ -122,7 +117,7 @@ export async function createEmulator(
 
 	return {
 		async stop() {
-			await new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+			await new Promise<void>((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())));
 		},
 	};
 }

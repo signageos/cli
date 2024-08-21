@@ -1,4 +1,4 @@
-import IAppletTestSuite from "@signageos/sdk/dist/RestApi/Applet/Version/IAppletTestSuite";
+import IAppletTestSuite from '@signageos/sdk/dist/RestApi/Applet/Version/IAppletTestSuite';
 
 export function validateTestIdentifiers(identifiers: string[], suites: IAppletTestSuite[]) {
 	const existingIdentifiers = suites.map((suite) => suite.identifier);

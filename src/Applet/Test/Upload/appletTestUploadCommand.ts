@@ -1,13 +1,14 @@
 import chalk from 'chalk';
 import * as prompts from 'prompts';
-import { createOrganizationRestApi, } from '../../../helper';
-import { getOrganization, getOrganizationUidOrDefaultOrSelect, NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION } from '../../../Organization/organizationFacade';
-import { loadTestFilesContents, validateTestFiles } from './appletTestUploadFacade';
+import { createOrganizationRestApi } from '../../../helper';
 import {
-	APPLET_UID_OPTION,
-	getAppletUid,
-	getAppletVersion,
-} from '../../appletFacade';
+	getOrganization,
+	getOrganizationUidOrDefaultOrSelect,
+	NO_DEFAULT_ORGANIZATION_OPTION,
+	ORGANIZATION_UID_OPTION,
+} from '../../../Organization/organizationFacade';
+import { loadTestFilesContents, validateTestFiles } from './appletTestUploadFacade';
+import { APPLET_UID_OPTION, getAppletUid, getAppletVersion } from '../../appletFacade';
 import { createProgressBar } from '../../../CommandLine/progressBarFactory';
 import { loadPackage } from '@signageos/sdk/dist/FileSystem/packageConfig';
 import IAppletTestSuite from '@signageos/sdk/dist/RestApi/Applet/Version/IAppletTestSuite';
@@ -69,18 +70,19 @@ export const appletTestUpload = createCommandDefinition({
 		const testFilesContents = await loadTestFilesContents(currentDirectory, testFiles);
 
 		const identifiersToCreate = testFiles.filter((testFile) => testSuitesMap[testFile] === undefined);
-		const identifiersToUpdate = testFiles
-		.filter((testFile) => !identifiersToCreate.includes(testFile) && testSuitesMap[testFile]?.binary !== testFilesContents[testFile]);
+		const identifiersToUpdate = testFiles.filter(
+			(testFile) => !identifiersToCreate.includes(testFile) && testSuitesMap[testFile]?.binary !== testFilesContents[testFile],
+		);
 		const identifiersToDelete = Object.keys(testSuitesMap).filter((identifier) => !testFiles.includes(identifier));
 
 		printChangesFiles({ identifiersToCreate, identifiersToUpdate, identifiersToDelete });
 
 		if (!skipConfirmation) {
-			const response: prompts.Answers<"continue"> = await prompts({
+			const response: prompts.Answers<'continue'> = await prompts({
 				type: 'confirm',
 				name: 'continue',
-				message: `Do you want to do applet version test changes for applet ${chalk.green(applet.name)} `
-				+ `and version ${chalk.green(version)}?`,
+				message:
+					`Do you want to do applet version test changes for applet ${chalk.green(applet.name)} ` + `and version ${chalk.green(version)}?`,
 			});
 			if (!response.continue) {
 				throw new Error(`Uploading applet tests canceled`);
@@ -120,10 +122,7 @@ export const appletTestUpload = createCommandDefinition({
 	},
 });
 
-function displaySuccessMessage(
-	appletName: string,
-	appletVersion: string,
-) {
+function displaySuccessMessage(appletName: string, appletVersion: string) {
 	log('info', `Applet ${chalk.green(appletName)} version ${chalk.green(appletVersion)} tests has been uploaded.`);
 	log('info', `To run the tests, use command ${chalk.blue(`sos applet test run`)}`);
 }

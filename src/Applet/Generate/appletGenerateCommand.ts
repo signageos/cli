@@ -33,10 +33,7 @@ const OPTION_LIST = [
 	{ name: 'bundler', type: String, description: `Generate applet with "webpack" (default) or "esbuild" bundler`, defaultValue: 'webpack' },
 ] as const;
 
-const COMMON_DEPENDENCIES = [
-	'@signageos/front-applet@latest',
-	'@signageos/front-display@latest',
-	];
+const COMMON_DEPENDENCIES = ['@signageos/front-applet@latest', '@signageos/front-display@latest'];
 
 const WEBPACK_DEPENDENCIES = [
 	'@signageos/webpack-plugin@latest',
@@ -49,30 +46,26 @@ const WEBPACK_DEPENDENCIES = [
 	'webpack@5',
 	'webpack-dev-server@4',
 	'webpack-cli@4',
-	];
+];
 
-const ESBUILD_DEPENDENCIES = [
-	'@signageos/lib@latest',
-	'esbuild@latest',
-	'es-check@latest',
-	];
+const ESBUILD_DEPENDENCIES = ['@signageos/lib@latest', 'esbuild@latest', 'es-check@latest'];
 
 const COMMON_SCRIPTS = {
-	prepare: "npm run clean && npm run build",
-	upload: "sos applet upload",
-	clean: "npx rimraf dist",
-	escheck: "es-check --module es5 dist/*.js",
-	postbuild: "npm run escheck",
+	prepare: 'npm run clean && npm run build',
+	upload: 'sos applet upload',
+	clean: 'npx rimraf dist',
+	escheck: 'es-check --module es5 dist/*.js',
+	postbuild: 'npm run escheck',
 };
 
 const WEBPACK_SCRIPTS = {
-	start: "webpack serve --mode development",
-	build: "webpack --mode production && npm run escheck",
-	connect: "webpack --watch",
+	start: 'webpack serve --mode development',
+	build: 'webpack --mode production && npm run escheck',
+	connect: 'webpack --watch',
 };
 
 const ESBUILD_SCRIPTS = {
-	build: "node ./esbuild.config.mjs",
+	build: 'node ./esbuild.config.mjs',
 };
 
 export const appletGenerate = createCommandDefinition({
@@ -127,10 +120,7 @@ export const appletGenerate = createCommandDefinition({
 		const webpackConfigParams = {
 			entryFileName: 'index',
 			fileExtensions: ['.js'],
-			imports: [
-				`const HtmlWebpackPlugin = require('html-webpack-plugin')`,
-				`const SignageOSPlugin = require('@signageos/webpack-plugin')`,
-			],
+			imports: [`const HtmlWebpackPlugin = require('html-webpack-plugin')`, `const SignageOSPlugin = require('@signageos/webpack-plugin')`],
 			rules: [
 				`			{
 				test: /^(.(?!\\.module\\.css))*\\.css$/,
@@ -173,7 +163,7 @@ export const appletGenerate = createCommandDefinition({
 		if (language === Language.TypeScript) {
 			dependencies.push('ts-loader@9', 'typescript');
 
-			if ( bundler === Bundler.Webpack ) {
+			if (bundler === Bundler.Webpack) {
 				webpackConfigParams.fileExtensions.unshift('.ts', '.tsx');
 				webpackConfigParams.rules.push(`{ test: /\\.tsx?$/, loader: 'ts-loader' }`);
 			}
@@ -228,14 +218,10 @@ export const appletGenerate = createCommandDefinition({
 		}
 
 		process.chdir(appletRootDirectory);
-		const child = child_process.spawn(
-			NPM_EXECUTABLE,
-			['install', '--save-dev', ...dependencies],
-			{
-				stdio: 'inherit',
-				shell: true,
-			},
-		);
+		const child = child_process.spawn(NPM_EXECUTABLE, ['install', '--save-dev', ...dependencies], {
+			stdio: 'inherit',
+			shell: true,
+		});
 		child.on('close', () => {
 			log('info', `\nApplet ${chalk.green(appletName!)} created!`);
 			log('info', `use: cd ${chalk.green(appletRootDirectoryName!)} and ${chalk.green('npm start')}\n`);
@@ -243,30 +229,20 @@ export const appletGenerate = createCommandDefinition({
 	},
 });
 
-async function createPackageConfig(
-	name: string,
-	version: string,
-	bundler: Bundler,
-) {
+async function createPackageConfig(name: string, version: string, bundler: Bundler) {
 	return {
 		name,
 		version,
 		main: 'dist/index.html',
 		scripts: { ...COMMON_SCRIPTS, ...(bundler === 'esbuild' ? ESBUILD_SCRIPTS : WEBPACK_SCRIPTS) },
 		files: ['dist'],
-		description: "signageOS applet",
-		repository: { },
-		license: "UNLICENSED",
+		description: 'signageOS applet',
+		repository: {},
+		license: 'UNLICENSED',
 	};
 }
 
-const createWebpackConfig = (
-	entryFileName: string,
-	fileExtensions: string[],
-	imports: string[],
-	rules: string[],
-	plugins: string[],
-) => `
+const createWebpackConfig = (entryFileName: string, fileExtensions: string[], imports: string[], rules: string[], plugins: string[]) => `
 ${imports.join(';\n')}
 
 exports = module.exports = {
@@ -330,9 +306,7 @@ await stopwatch('Building the applet', [
 ]);
 `;
 
-const createIndexHtml = (
-	title: string,
-) => `<!DOCTYPE html>
+const createIndexHtml = (title: string) => `<!DOCTYPE html>
 <html lang="en">
 <head>
 	<meta charset="utf-8" />

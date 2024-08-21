@@ -1,10 +1,10 @@
-import { generalOptions } from "../../helperMock";
+import { generalOptions } from '../../helperMock';
 
 const defaultOptions = {
 	...generalOptions,
 	'update-package-config': undefined,
-	'yes': undefined,
-	'verbose': undefined,
+	yes: undefined,
+	verbose: undefined,
 	'no-default-organization': undefined,
 	'entry-file-path': undefined,
 	'applet-path': undefined,

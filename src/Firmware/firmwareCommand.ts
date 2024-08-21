@@ -5,9 +5,7 @@ export const firmware = createCommandDefinition({
 	name: 'firmware',
 	description: 'firmware management',
 	optionList: [],
-	commands: [
-		firmwareUpload,
-	],
+	commands: [firmwareUpload],
 	async run() {
 		throw new Error('Unknown command');
 	},
