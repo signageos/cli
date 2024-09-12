@@ -25,6 +25,7 @@ import { CommandLineOptions, createCommandDefinition } from '../../Command/comma
 import { AppletDoesNotExistError } from '../appletErrors';
 import { log } from '@signageos/sdk/dist/Console/log';
 import { dev } from '@signageos/sdk';
+import GatewayError from '@signageos/sdk/dist/RestApi/Error/GatewayError';
 
 export const OPTION_LIST = [
 	APPLET_PATH_OPTION,
@@ -150,62 +151,71 @@ export const appletUpload = createCommandDefinition({
 			}
 		}
 
-		if (overrideAppletVersionConfirmed) {
-			if (isSingleFileApplet) {
-				await updateSingleFileApplet({
-					restApi,
-					applet: {
-						uid: appletUid,
-						version: appletVersion,
-						binaryFilePath: appletBinaryFilePath!,
-						frontAppletVersion,
-					},
-				});
-			} else {
-				const appletEntryFileRelativePath = getAppletEntryFileRelativePath(appletEntryFilePath!, appletDirectoryPath!);
-				const progressBar = createProgressBar();
-				await updateMultiFileApplet({
-					restApi,
-					applet: {
-						uid: appletUid,
-						version: appletVersion,
-						entryFilePath: appletEntryFileRelativePath,
-						directoryPath: appletDirectoryPath!,
-						files: appletFiles,
-					},
-					progressBar: progressBar,
-				});
-			}
-			displaySuccessMessage(applet.uid, applet.name!, appletVersion, parameters.boxHost);
-		} else if (createNewAppletVersionConfirmed) {
-			if (isSingleFileApplet) {
-				await createSingleFileApplet({
-					restApi,
-					applet: {
-						uid: appletUid,
-						version: appletVersion,
-						binaryFilePath: appletBinaryFilePath!,
-						frontAppletVersion,
-					},
-				});
-			} else {
-				const appletEntryFileRelativePath = getAppletEntryFileRelativePath(appletEntryFilePath!, appletDirectoryPath!);
-				const progressBar = createProgressBar();
-				await createMultiFileFileApplet({
-					restApi,
-					applet: {
-						uid: appletUid,
-						version: appletVersion,
-						entryFilePath: appletEntryFileRelativePath,
-						directoryPath: appletDirectoryPath!,
-						files: appletFiles,
-					},
-					progressBar,
-				});
-			}
-			displaySuccessMessage(applet.uid, applet.name!, appletVersion, parameters.boxHost);
-		} else {
+		if (!overrideAppletVersionConfirmed && !createNewAppletVersionConfirmed) {
 			throw new Error('Applet version upload was canceled.');
+		}
+
+		try {
+			if (overrideAppletVersionConfirmed) {
+				if (isSingleFileApplet) {
+					await updateSingleFileApplet({
+						restApi,
+						applet: {
+							uid: appletUid,
+							version: appletVersion,
+							binaryFilePath: appletBinaryFilePath!,
+							frontAppletVersion,
+						},
+					});
+				} else {
+					const appletEntryFileRelativePath = getAppletEntryFileRelativePath(appletEntryFilePath!, appletDirectoryPath!);
+					const progressBar = createProgressBar();
+					await updateMultiFileApplet({
+						restApi,
+						applet: {
+							uid: appletUid,
+							version: appletVersion,
+							entryFilePath: appletEntryFileRelativePath,
+							directoryPath: appletDirectoryPath!,
+							files: appletFiles,
+						},
+						progressBar: progressBar,
+					});
+				}
+				displaySuccessMessage(applet.uid, applet.name!, appletVersion, parameters.boxHost);
+			} else if (createNewAppletVersionConfirmed) {
+				if (isSingleFileApplet) {
+					await createSingleFileApplet({
+						restApi,
+						applet: {
+							uid: appletUid,
+							version: appletVersion,
+							binaryFilePath: appletBinaryFilePath!,
+							frontAppletVersion,
+						},
+					});
+				} else {
+					const appletEntryFileRelativePath = getAppletEntryFileRelativePath(appletEntryFilePath!, appletDirectoryPath!);
+					const progressBar = createProgressBar();
+					await createMultiFileFileApplet({
+						restApi,
+						applet: {
+							uid: appletUid,
+							version: appletVersion,
+							entryFilePath: appletEntryFileRelativePath,
+							directoryPath: appletDirectoryPath!,
+							files: appletFiles,
+						},
+						progressBar,
+					});
+				}
+				displaySuccessMessage(applet.uid, applet.name!, appletVersion, parameters.boxHost);
+			}
+		} catch (error) {
+			if (error instanceof GatewayError) {
+				throw new Error('The service is currently busy, please try again later.');
+			}
+			throw error;
 		}
 	},
 });
