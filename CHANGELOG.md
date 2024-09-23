@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Fixed
 - Improved the error message when an applet upload fails
+- Stop running applet server on device disconnect
 
 ## [1.5.1] - 2024-08-21
 ### Fixed
@@ -117,7 +118,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.0.0] - 2022-04-06
 ### Added
 - The appletUid does not have to be hardcoded inside package.json and is auto-detected from current organization based on name
-- Support for profiles inside the ~/.sosrc file using ini `[profile xxx]` sections and SOS_PROFILE env. var. or `--profile` argument 
+- Support for profiles inside the ~/.sosrc file using ini `[profile xxx]` sections and SOS_PROFILE env. var. or `--profile` argument
 
 ### Fixed
 - When default organization is not set it asks for saving it to the current ~/.sosrc file
@@ -186,7 +187,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [0.8.1] - 2020-09-24
 ### Fixed
-- applet upload won't fail with error "Request failed with status code 404. Body: Could not delete the file" 
+- applet upload won't fail with error "Request failed with status code 404. Body: Could not delete the file"
 
 ## [0.8.0] - 2020-08-27
 ### Added

@@ -64,6 +64,7 @@ export const connect = createCommandDefinition({
 
 		const stopServer = async () => {
 			await connection.disconnect();
+			await server.stop();
 			process.exit();
 		};
 		process.on('SIGINT', stopServer);
