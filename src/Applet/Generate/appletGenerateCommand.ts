@@ -141,6 +141,11 @@ export const appletGenerate = createCommandDefinition({
 			],
 		};
 
+		if (language === Language.TypeScript) {
+			webpackConfigParams.fileExtensions.unshift('.ts', '.tsx');
+			webpackConfigParams.rules.push(`{ test: /\\.tsx?$/, loader: 'ts-loader' }`);
+		}
+
 		const bundlerConfig = {
 			[Bundler.Webpack]: {
 				path: path.join(appletRootDirectory, 'webpack.config.js'),
@@ -163,10 +168,6 @@ export const appletGenerate = createCommandDefinition({
 		if (language === Language.TypeScript) {
 			dependencies.push('ts-loader@9', 'typescript');
 
-			if (bundler === Bundler.Webpack) {
-				webpackConfigParams.fileExtensions.unshift('.ts', '.tsx');
-				webpackConfigParams.rules.push(`{ test: /\\.tsx?$/, loader: 'ts-loader' }`);
-			}
 			generateFiles.push({
 				path: path.join(appletRootDirectory, 'src', 'index.ts'),
 				content: createIndexTs(),
