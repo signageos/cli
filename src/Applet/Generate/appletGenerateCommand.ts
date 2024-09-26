@@ -115,7 +115,7 @@ export const appletGenerate = createCommandDefinition({
 		const appletRootDirectory = options['target-dir'] || path.join(currentDirectory, appletName);
 		const appletRootDirectoryName = options['target-dir'] || appletName;
 
-		const dependencies = [...COMMON_DEPENDENCIES, ...(bundler === 'esbuild' ? ESBUILD_DEPENDENCIES : WEBPACK_DEPENDENCIES)];
+		const dependencies = [...COMMON_DEPENDENCIES, ...(bundler === Bundler.Esbuild ? ESBUILD_DEPENDENCIES : WEBPACK_DEPENDENCIES)];
 
 		const webpackConfigParams = {
 			entryFileName: 'index',
@@ -234,7 +234,7 @@ async function createPackageConfig(name: string, version: string, bundler: Bundl
 		name,
 		version,
 		main: 'dist/index.html',
-		scripts: { ...COMMON_SCRIPTS, ...(bundler === 'esbuild' ? ESBUILD_SCRIPTS : WEBPACK_SCRIPTS) },
+		scripts: { ...COMMON_SCRIPTS, ...(bundler === Bundler.Esbuild ? ESBUILD_SCRIPTS : WEBPACK_SCRIPTS) },
 		files: ['dist'],
 		description: 'signageOS applet',
 		repository: {},
