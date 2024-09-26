@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Upgrade underlying SDK
+
 ### Fixed
 - Improved the error message when an applet upload fails
 - Stop running applet server on device disconnect
