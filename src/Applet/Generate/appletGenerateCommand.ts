@@ -115,7 +115,7 @@ export const appletGenerate = createCommandDefinition({
 		const appletRootDirectory = options['target-dir'] || path.join(currentDirectory, appletName);
 		const appletRootDirectoryName = options['target-dir'] || appletName;
 
-		const dependencies = [...COMMON_DEPENDENCIES, ...(bundler === 'esbuild' ? ESBUILD_DEPENDENCIES : WEBPACK_DEPENDENCIES)];
+		const dependencies = [...COMMON_DEPENDENCIES, ...(bundler === Bundler.Esbuild ? ESBUILD_DEPENDENCIES : WEBPACK_DEPENDENCIES)];
 
 		const webpackConfigParams = {
 			entryFileName: 'index',
@@ -141,6 +141,11 @@ export const appletGenerate = createCommandDefinition({
 			],
 		};
 
+		if (language === Language.TypeScript) {
+			webpackConfigParams.fileExtensions.unshift('.ts', '.tsx');
+			webpackConfigParams.rules.push(`{ test: /\\.tsx?$/, loader: 'ts-loader' }`);
+		}
+
 		const bundlerConfig = {
 			[Bundler.Webpack]: {
 				path: path.join(appletRootDirectory, 'webpack.config.js'),
@@ -163,10 +168,6 @@ export const appletGenerate = createCommandDefinition({
 		if (language === Language.TypeScript) {
 			dependencies.push('ts-loader@9', 'typescript');
 
-			if (bundler === Bundler.Webpack) {
-				webpackConfigParams.fileExtensions.unshift('.ts', '.tsx');
-				webpackConfigParams.rules.push(`{ test: /\\.tsx?$/, loader: 'ts-loader' }`);
-			}
 			generateFiles.push({
 				path: path.join(appletRootDirectory, 'src', 'index.ts'),
 				content: createIndexTs(),
@@ -234,7 +235,7 @@ async function createPackageConfig(name: string, version: string, bundler: Bundl
 		name,
 		version,
 		main: 'dist/index.html',
-		scripts: { ...COMMON_SCRIPTS, ...(bundler === 'esbuild' ? ESBUILD_SCRIPTS : WEBPACK_SCRIPTS) },
+		scripts: { ...COMMON_SCRIPTS, ...(bundler === Bundler.Esbuild ? ESBUILD_SCRIPTS : WEBPACK_SCRIPTS) },
 		files: ['dist'],
 		description: 'signageOS applet',
 		repository: {},
