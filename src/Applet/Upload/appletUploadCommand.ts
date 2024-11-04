@@ -26,6 +26,8 @@ import { AppletDoesNotExistError } from '../appletErrors';
 import { log } from '@signageos/sdk/dist/Console/log';
 import { dev } from '@signageos/sdk';
 import GatewayError from '@signageos/sdk/dist/RestApi/Error/GatewayError';
+import IAppletVersion from '@signageos/sdk/dist/RestApi/Applet/Version/IAppletVersion';
+import NotFoundError from '@signageos/sdk/dist/RestApi/Error/NotFoundError';
 
 export const OPTION_LIST = [
 	APPLET_PATH_OPTION,
@@ -82,7 +84,6 @@ export const appletUpload = createCommandDefinition({
 			appletEntryFilePath = await getAppletEntryFileAbsolutePath(currentDirectory, options);
 		}
 
-		let appletVersionExists = true;
 		let overrideAppletVersionConfirmed = false;
 		let createNewAppletVersionConfirmed = false;
 
@@ -104,7 +105,15 @@ export const appletUpload = createCommandDefinition({
 
 		const applet = await restApi.applet.get(appletUid);
 
-		await restApi.applet.version.get(appletUid, appletVersion).catch(() => (appletVersionExists = false));
+		let specificAppletVersion: IAppletVersion | undefined;
+
+		try {
+			specificAppletVersion = await restApi.applet.version.get(appletUid, appletVersion);
+		} catch (e) {
+			if (!(e instanceof NotFoundError)) {
+				throw e;
+			}
+		}
 
 		const verbose = 'verbose';
 		const allowVerbose = options[verbose] as boolean | undefined;
@@ -125,7 +134,21 @@ export const appletUpload = createCommandDefinition({
 		const yes = 'yes';
 		const skipConfirmation = options[yes] as boolean | undefined;
 
-		if (appletVersionExists) {
+		if (specificAppletVersion) {
+			if (specificAppletVersion.publishedSince) {
+				log('info', chalk.yellow(`Applet version ${appletVersion} is already published.`));
+				throw new Error(
+					`Applet version ${appletVersion} is set as Published and cannot be overridden. Upload your code under a new/different version. The version number can be changed in the package.json`,
+				);
+			}
+
+			if (specificAppletVersion.deprecatedSince) {
+				log('info', chalk.yellow(`Applet version ${appletVersion} is already deprecated.`));
+				throw new Error(
+					`Applet version ${appletVersion} is set as Deprecated and cannot be overridden. Upload your code under a new/different version. The version number can be changed in the package.json`,
+				);
+			}
+
 			if (skipConfirmation) {
 				log('info', chalk.yellow(`Will override existing version ${appletVersion}`));
 				overrideAppletVersionConfirmed = true;

@@ -1,6 +1,7 @@
 import * as sinon from 'sinon';
 import IApplet from '@signageos/sdk/dist/RestApi/Applet/IApplet';
 import Applet from '@signageos/sdk/dist/RestApi/Applet/Applet';
+import NotFoundError from '@signageos/sdk/dist/RestApi/Error/NotFoundError';
 
 const appletApi = {
 	create: sinon.fake(() =>
@@ -30,13 +31,17 @@ export default {
 	createOrganizationRestApi: sinon.fake(() => restApi),
 };
 
+const notFoundError = new NotFoundError(404, {
+	message: 'fakeNotFoundErrorMessage',
+});
+
 export const restApiWithNonExistingAppletVersion = {
 	createOrganizationRestApi: sinon.fake(() => ({
 		...restApi,
 		applet: {
 			...appletApi,
 			version: {
-				get: sinon.fake(() => Promise.reject()),
+				get: sinon.fake(() => Promise.reject(notFoundError)),
 			},
 		},
 	})),
