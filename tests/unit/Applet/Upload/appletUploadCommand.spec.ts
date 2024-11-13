@@ -95,6 +95,23 @@ describe('unit.appletUploadCommand', () => {
 			should(appletUploadCommandHelperMock.getAppletDirectoryAbsolutePath.notCalled).true();
 			should(appletUploadCommandHelperMock.getAppletEntryFileAbsolutePath.notCalled).true();
 		});
+
+		it('should fail if applet version was already published', async () => {
+			try {
+				await singleFileAppletUploadOverrideFalse.run(singleFileOptions);
+			} catch (error) {
+				should(error.message).deepEqual('Applet version upload was canceled.');
+			}
+
+			should(appletUploadFacadeMock.updateSingleFileApplet.notCalled).true();
+			should(appletUploadFacadeMock.updateMultiFileApplet.notCalled).true();
+			should(appletUploadFacadeMock.createSingleFileApplet.notCalled).true();
+			should(appletUploadFacadeMock.createMultiFileFileApplet.notCalled).true();
+
+			should(appletUploadCommandHelperMock.getAppletBinaryFileAbsolutePath.calledOnce).true();
+			should(appletUploadCommandHelperMock.getAppletDirectoryAbsolutePath.notCalled).true();
+			should(appletUploadCommandHelperMock.getAppletEntryFileAbsolutePath.notCalled).true();
+		});
 	});
 
 	describe('multi file applet', () => {
