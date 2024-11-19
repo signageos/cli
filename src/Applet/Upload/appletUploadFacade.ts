@@ -168,52 +168,57 @@ export const createMultiFileFileApplet = async (parameters: {
 }) => {
 	const { restApi, applet, progressBar } = parameters;
 	const appletEntryFilePosixPath = path.posix.normalize(applet.entryFilePath.replace(/\\/g, '/'));
-	await restApi.applet.version.create(applet.uid, {
-		version: applet.version,
-		entryFile: appletEntryFilePosixPath,
-	});
 
-	for (let index = 0; index < applet.files.length; index++) {
-		const fileAbsolutePath = applet.files[index];
-		const fileRelativePath = getAppletFileRelativePath(fileAbsolutePath, applet.directoryPath);
-		const fileHash = await computeFileMD5(fileAbsolutePath);
-		const fileType = await getFileType(fileAbsolutePath);
-		const fileSize = (await fs.stat(fileAbsolutePath)).size;
-
-		if (progressBar) {
-			progressBar.init({ size: fileSize, name: fileRelativePath });
-		}
-
-		const fileStream = fs.createReadStream(fileAbsolutePath);
-		fileStream.pause();
-		fileStream.on('data', (chunk: Buffer) => {
-			if (progressBar) {
-				progressBar.update({ add: chunk.length });
-			}
+	try {
+		await restApi.applet.version.create(applet.uid, {
+			version: applet.version,
+			entryFile: appletEntryFilePosixPath,
 		});
 
-		const filePosixPath = path.posix.normalize(fileRelativePath.replace(/\\/g, '/'));
+		await Promise.all(
+			applet.files.map(async (fileAbsolutePath) => {
+				const fileRelativePath = getAppletFileRelativePath(fileAbsolutePath, applet.directoryPath);
+				const fileHash = await computeFileMD5(fileAbsolutePath);
+				const fileType = await getFileType(fileAbsolutePath);
+				const fileSize = (await fs.stat(fileAbsolutePath)).size;
 
-		try {
-			log('info', chalk.yellow(` Uploading ${fileAbsolutePath}`));
-			await restApi.applet.version.file.create(
-				applet.uid,
-				applet.version,
-				{
-					name: path.basename(filePosixPath),
-					path: filePosixPath,
-					type: fileType,
-					hash: fileHash,
-					content: fileStream,
-					size: fileSize,
-				},
-				{ build: false },
-			);
-		} catch (error) {
-			if (fileSize === 0) {
-				throw new Error(`Empty files are temporarily disallowed ${fileAbsolutePath}`);
-			}
-			throw error;
+				if (fileSize === 0) {
+					throw new Error(`Empty files are temporarily disallowed ${fileAbsolutePath}`);
+				}
+
+				if (progressBar) {
+					progressBar.init({ size: fileSize, name: fileRelativePath });
+				}
+
+				const fileStream = fs.createReadStream(fileAbsolutePath);
+				fileStream.pause();
+				fileStream.on('data', (chunk: Buffer) => {
+					if (progressBar) {
+						progressBar.update({ add: chunk.length });
+					}
+				});
+
+				const filePosixPath = path.posix.normalize(fileRelativePath.replace(/\\/g, '/'));
+
+				log('info', chalk.yellow(` Uploading ${fileAbsolutePath}`));
+				return restApi.applet.version.file.create(
+					applet.uid,
+					applet.version,
+					{
+						name: path.basename(filePosixPath),
+						path: filePosixPath,
+						type: fileType,
+						hash: fileHash,
+						content: fileStream,
+						size: fileSize,
+					},
+					{ build: false },
+				);
+			}),
+		);
+	} finally {
+		if (progressBar) {
+			progressBar.end();
 		}
 	}
 
@@ -221,8 +226,4 @@ export const createMultiFileFileApplet = async (parameters: {
 	await restApi.applet.version.update(applet.uid, applet.version, {
 		entryFile: appletEntryFilePosixPath,
 	});
-
-	if (progressBar) {
-		progressBar.end();
-	}
 };
