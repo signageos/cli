@@ -61,7 +61,8 @@ const COMMON_SCRIPTS = {
 const WEBPACK_SCRIPTS = {
 	start: 'webpack serve --mode development',
 	build: 'webpack --mode production && npm run escheck',
-	connect: 'webpack --watch',
+	connect: 'echo "Deprecated command \"npm run connect\". Use \"npm run watch\" instead." && npm run watch',
+	watch: 'webpack --watch',
 };
 
 const ESBUILD_SCRIPTS = {
