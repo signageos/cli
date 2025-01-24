@@ -66,6 +66,7 @@ const WEBPACK_SCRIPTS = {
 };
 
 const ESBUILD_SCRIPTS = {
+	// TODO add start and watch
 	build: 'node ./esbuild.config.mjs',
 };
 
@@ -270,6 +271,7 @@ ${plugins.join(',\n')}
 };
 `;
 
+// TODO fix esbuild config because it doesn't work. @signageos/lib/dist/ESBuild/Bundler.js and @signageos/lib/dist/ESBuild/utils/stopwatch.js are not public
 const createEsbuildConfig = () => `
 import { Bundler } from '@signageos/lib/dist/ESBuild/Bundler.js';
 import { stopwatch } from '@signageos/lib/dist/ESBuild/utils/stopwatch.js';
