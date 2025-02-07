@@ -10,7 +10,7 @@ import chalk from 'chalk';
 import { IEmulator } from './IEmulator';
 import { log } from '@signageos/sdk/dist/Console/log';
 import { Development } from '@signageos/sdk/dist/Development/Development';
-import { isPathIncluded } from '../FileSystem/helper';
+import { isPathIncluded } from '../Lib/fileSystem';
 
 export interface ICreateEmulatorParams {
 	appletUid: string | undefined;

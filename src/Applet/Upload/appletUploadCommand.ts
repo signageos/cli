@@ -18,7 +18,7 @@ import {
 	getAppletEntryFileAbsolutePath,
 	getAppletEntryFileRelativePath,
 } from './appletUploadCommandHelper';
-import { validateAllFormalities } from '../../FileSystem/helper';
+import { validateAllFormalities } from '../../Lib/fileSystem';
 import { createProgressBar } from '../../CommandLine/progressBarFactory';
 import { saveToPackage } from '@signageos/sdk/dist/FileSystem/packageConfig';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
