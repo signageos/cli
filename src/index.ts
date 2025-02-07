@@ -9,12 +9,13 @@ import { firmware } from './Firmware/firmwareCommand';
 import { device } from './Device/deviceCommand';
 import { GENERAL_OPTION_LIST } from './generalCommand';
 import { createCommandDefinition } from './Command/commandDefinition';
+import { customScript } from './CustomScript/customScriptCommand';
 
 const index = createCommandDefinition({
 	name: 'sos',
 	description: 'signageOS',
 	optionList: GENERAL_OPTION_LIST,
-	commands: [applet, login, organization, timing, firmware, device],
+	commands: [applet, login, organization, timing, firmware, device, customScript],
 	async run() {
 		throw new Error('Unknown command');
 	},
