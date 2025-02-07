@@ -1,18 +1,12 @@
-import * as fs from 'fs-extra';
 import * as path from 'path';
 import file from '@signageos/file';
+import { createHash, HexBase64Latin1Encoding } from 'crypto';
+import * as fs from 'fs-extra';
 import * as Debug from 'debug';
-import { computeMD5 } from '../Stream/helper';
 import { loadPackage } from '@signageos/sdk/dist/FileSystem/packageConfig';
 const debug = Debug('@signageos/cli:FileSystem:helper');
 
 const DEFAULT_FILE_TYPE = 'application/octet-stream';
-
-export async function computeFileMD5(filePath: string) {
-	const fileStream = fs.createReadStream(filePath);
-
-	return await computeMD5(fileStream);
-}
 
 export async function getFileType(filePath: string) {
 	const fileResult = await file(filePath, { mimeType: true });
@@ -52,4 +46,15 @@ export function isPathIncluded(filePaths: string[], filePath: string) {
 	const sanitizedFilePath = filePath.replace(/\\/g, '/');
 	const sanitizedFilePaths = filePaths.map((filePathItem) => filePathItem.replace(/\\/g, '/'));
 	return sanitizedFilePaths.includes(sanitizedFilePath);
+}
+
+export async function getFileMD5Checksum(filePath: string, encoding: HexBase64Latin1Encoding) {
+	const hash = createHash('md5');
+	const stream = fs.createReadStream(filePath);
+
+	return new Promise<string>((resolve, reject) => {
+		stream.on('data', (data) => hash.update(data));
+		stream.on('end', () => resolve(hash.digest(encoding)));
+		stream.on('error', reject);
+	});
 }
