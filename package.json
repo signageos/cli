@@ -1,6 +1,6 @@
 {
   "name": "@signageos/cli",
-  "version": "1.6.3",
+  "version": "1.6.4",
   "main": "./dist/index.js",
   "files": [
     ".env",
