@@ -63,19 +63,21 @@ export async function createEmulator(params: ICreateEmulatorParams, organization
 		if (!req.query.duid) {
 			res.redirect(`${req.originalUrl}${req.originalUrl.includes('?') ? '&' : '?'}duid=${params.emulatorUid}`);
 		} else {
-			res.send(
-				`<script>
-					window.__SOS_BUNDLED_APPLET = {};
-					window.__SOS_BUNDLED_APPLET.binaryFile = location.origin + ${JSON.stringify(envVars.binaryFilePath)};
-					window.__SOS_BUNDLED_APPLET.uid = ${JSON.stringify(envVars.uid)};
-					window.__SOS_BUNDLED_APPLET.version = ${JSON.stringify(envVars.version)};
-					window.__SOS_BUNDLED_APPLET.checksum = ${JSON.stringify(envVars.checksum)};
-					window.__SOS_BUNDLED_APPLET.frontAppletVersion = ${JSON.stringify(envVars.frontAppletVersion)};
-					window.__SOS_BUNDLED_APPLET.frontAppletBinaryFile = ${JSON.stringify(envVars.frontAppletBinaryFile)};
-					window.__SOS_AUTO_VERIFICATION = {};
-					window.__SOS_AUTO_VERIFICATION.organizationUid = ${JSON.stringify(envVars.organizationUid)};
-				</script>` + fsExtra.readFileSync(path.join(frontDisplayDistPath, 'index.html')).toString(),
-			);
+			const page = fsExtra.readFileSync(path.join(frontDisplayDistPath, 'index.html')).toString();
+			const script = `
+<script>
+	window.__SOS_BUNDLED_APPLET = {};
+	window.__SOS_BUNDLED_APPLET.binaryFile = location.origin + ${JSON.stringify(envVars.binaryFilePath)};
+	window.__SOS_BUNDLED_APPLET.uid = ${JSON.stringify(envVars.uid)};
+	window.__SOS_BUNDLED_APPLET.version = ${JSON.stringify(envVars.version)};
+	window.__SOS_BUNDLED_APPLET.checksum = ${JSON.stringify(envVars.checksum)};
+	window.__SOS_BUNDLED_APPLET.frontAppletVersion = ${JSON.stringify(envVars.frontAppletVersion)};
+	window.__SOS_BUNDLED_APPLET.frontAppletBinaryFile = ${JSON.stringify(envVars.frontAppletBinaryFile)};
+	window.__SOS_AUTO_VERIFICATION = {};
+	window.__SOS_AUTO_VERIFICATION.organizationUid = ${JSON.stringify(envVars.organizationUid)};
+</script>`;
+
+			res.send(page.replace('</head>', `${script}</head>`));
 		}
 	});
 	app.use(serveStatic(frontDisplayDistPath));
@@ -102,10 +104,10 @@ export async function createEmulator(params: ICreateEmulatorParams, organization
 
 		if (relativeFilePath === entryFileRelativePath) {
 			// Propagate Hot reload of whole emulator
-			const prependFileContent = '<script>window.onunload = function () { window.parent.location.reload(); }</script>';
+			const prependFileContent = '<script>window.onbeforeunload = function () { window.parent.location.reload(); }</script>';
 			res.setHeader('Content-Type', 'text/html');
-			const entryFileContent = await fsExtra.readFile(entryFileAbsolutePath, 'utf8');
-			res.send(prependFileContent + entryFileContent);
+			const page = await fsExtra.readFile(entryFileAbsolutePath, 'utf8');
+			res.send(page.replace('</head>', `${prependFileContent}</head>`));
 			return;
 		}
 
