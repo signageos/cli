@@ -165,6 +165,7 @@ release:notes:
   only:
     - tags
   needs:
+    - prepare
     - publish:npm
   script:
     - ci-release-notes
