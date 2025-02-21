@@ -16,6 +16,17 @@ import {
 	SERVER_PORT_OPTION,
 	SERVER_PUBLIC_URL_OPTION,
 } from '../../Applet/appletServerHelper';
+import Debug from 'debug';
+
+const debug = Debug('@signageos/cli:Device:Connect:connectCommand');
+
+export const USE_FORWARD_SERVER_OPTION = {
+	name: 'use-forward-server',
+	type: Boolean,
+	description:
+		'Use forward server to connect to the device instead of the local network (LAN).' +
+		" It's useful when the device is not in the same network as the local machine.",
+} as const;
 
 const OPTION_LIST = [
 	NO_DEFAULT_ORGANIZATION_OPTION,
@@ -25,6 +36,7 @@ const OPTION_LIST = [
 	SERVER_PUBLIC_URL_OPTION,
 	SERVER_PORT_OPTION,
 	SERVER_FORCE_OPTION,
+	USE_FORWARD_SERVER_OPTION,
 ] as const;
 
 export const connect = createCommandDefinition({
@@ -47,6 +59,7 @@ export const connect = createCommandDefinition({
 
 		const appletPort = options[SERVER_PORT_OPTION.name];
 		const appletPublicUrl = options[SERVER_PUBLIC_URL_OPTION.name];
+		const useForwardServer = options[USE_FORWARD_SERVER_OPTION.name];
 
 		await killAppletServerIfRunningAndForceOption(dev, options, appletUid, appletVersion, appletPort);
 
@@ -56,10 +69,12 @@ export const connect = createCommandDefinition({
 			port: appletPort,
 			publicUrl: appletPublicUrl,
 		});
+		debug('Server is running', server);
+		const finalAppletPublicUrl = useForwardServer ? server.publicUrl : `http://${server.remoteAddr}:${server.port}`;
 		const connection = await dev.deviceConnect.connect(deviceUid, {
 			appletUid,
 			appletVersion,
-			appletPublicUrl: server.publicUrl,
+			appletPublicUrl: finalAppletPublicUrl,
 		});
 
 		const stopServer = async () => {

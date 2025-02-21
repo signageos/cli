@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Insert script tag in applet and emulator with live reload properly to prevent browser to parse html in quirks mode
 
+### Added
+- New option for `sos device connect` command `--use-forward-server` to proxy traffic from local machine to the device through the forward server. This is useful when the device is not directly accessible from the local machine.
+
+### Deprecated
+- Applet Generate command renamed the script `npm run connect` with `npm run watch` instead because it's more descriptive
+
 ## [1.6.4] - 2025-02-17
 ### Fixed
 - Upgrade underlying SDK

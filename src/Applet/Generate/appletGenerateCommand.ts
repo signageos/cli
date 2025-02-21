@@ -61,10 +61,12 @@ const COMMON_SCRIPTS = {
 const WEBPACK_SCRIPTS = {
 	start: 'webpack serve --mode development',
 	build: 'webpack --mode production && npm run escheck',
-	connect: 'webpack --watch',
+	connect: 'echo "Deprecated command \"npm run connect\". Use \"npm run watch\" instead." && npm run watch',
+	watch: 'webpack --watch',
 };
 
 const ESBUILD_SCRIPTS = {
+	// TODO add start and watch
 	build: 'node ./esbuild.config.mjs',
 };
 
@@ -269,6 +271,7 @@ ${plugins.join(',\n')}
 };
 `;
 
+// TODO fix esbuild config because it doesn't work. @signageos/lib/dist/ESBuild/Bundler.js and @signageos/lib/dist/ESBuild/utils/stopwatch.js are not public
 const createEsbuildConfig = () => `
 import { Bundler } from '@signageos/lib/dist/ESBuild/Bundler.js';
 import { stopwatch } from '@signageos/lib/dist/ESBuild/utils/stopwatch.js';

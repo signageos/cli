@@ -264,7 +264,8 @@ sos device connect
 | --applet-uid *(required)*      | Applet UID                            | STDIN |
 | --organization-uid *(required)* | Organization UID             | STDIN          |
 | --update-package-config *(optional)*      | Update package.json value `sos.appletUid` config when applet doesn't exists and is created       | false |
-| --server-public-url *(optional)* | Public url of local machine server. Is useful when the local machine is behind a reverse proxy. | http://{CURRENT_REMOTE_ADDR}:{RANDOM_PORT} |
+| --server-public-url *(optional)* | Public url of local machine server. Is useful when the local machine is behind a reverse proxy. | http://{CURRENT_REMOTE_ADDR}:{RANDOM_PORT} or https://forward.signageos.io/{random-hash} |
+| --use-forward-server *(optional)* | Use forward server to connect to the device instead of the local network (LAN) (https://forward.signageos.io/{random-hash}). It's useful when the device is not in the same network as the local machine. | false |
 | --server-port *(optional)* | The custom server port for local machine server. | {RANDOM_PORT} |
 | --force *(optional)* | Force start applet server even if it is already running on a different port. Kill the running server first. | false |
 
