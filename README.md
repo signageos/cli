@@ -137,6 +137,8 @@ sos applet start
 | --server-port *(optional)* | The custom server port for local machine server. | {RANDOM_PORT} |
 | --hot-reload *(optional)* | Enable hot reload and build of applet | false |
 | --force *(optional)* | Force start applet server of hot reload even if it is already running on a different port. Kill the running server first. | false |
+| --detach *(optional)* | Run the applet HTTP server in the background (detached proccess) | false |
+| --forward-server-url *(optional)* | Custom forward server URL for `sos device connect` command. | https://forward.signageos.io |
 
 #### Applet Tests Upload
 ```bash
