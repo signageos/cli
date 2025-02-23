@@ -22,8 +22,11 @@ import {
 	SERVER_FORCE_OPTION,
 	SERVER_PORT_OPTION,
 	SERVER_PUBLIC_URL_OPTION,
+	DETACH_PROCESS_OPTION,
+	FORWARD_SERVER_URL_OPTION,
 } from '../appletServerHelper';
 import { log } from '@signageos/sdk/dist/Console/log';
+import { parameters } from '../../parameters';
 
 const DEFAULT_PORT = 8090;
 const PORT_OPTION = {
@@ -50,6 +53,8 @@ export const OPTION_LIST = [
 	SERVER_PORT_OPTION,
 	SERVER_PUBLIC_URL_OPTION,
 	SERVER_FORCE_OPTION,
+	DETACH_PROCESS_OPTION,
+	FORWARD_SERVER_URL_OPTION,
 ] as const;
 
 export const appletStart = createCommandDefinition({
@@ -73,6 +78,8 @@ export const appletStart = createCommandDefinition({
 		const hotReloadEnabled = options[HOT_RELOAD_OPTION.name];
 		const appletPort = options[SERVER_PORT_OPTION.name];
 		const appletPublicUrl = options[SERVER_PUBLIC_URL_OPTION.name];
+		const detachProcess = options[DETACH_PROCESS_OPTION.name];
+		const forwardServerUrl = options[FORWARD_SERVER_URL_OPTION.name] ?? parameters.forwardServerUrl;
 
 		let appletUid: string | undefined;
 		let appletVersion: string | undefined;
@@ -91,6 +98,8 @@ export const appletStart = createCommandDefinition({
 				appletPath: appletPath,
 				port: appletPort,
 				publicUrl: appletPublicUrl,
+				detachProcess,
+				forwardServerUrl,
 			});
 		}
 
