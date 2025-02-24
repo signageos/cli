@@ -24,6 +24,7 @@ import {
 	SERVER_PUBLIC_URL_OPTION,
 	DETACH_PROCESS_OPTION,
 	FORWARD_SERVER_URL_OPTION,
+	HOT_RELOAD_OPTION,
 } from '../appletServerHelper';
 import { log } from '@signageos/sdk/dist/Console/log';
 import { parameters } from '../../parameters';
@@ -34,13 +35,6 @@ const PORT_OPTION = {
 	type: Number,
 	description: `Port where will the applet run`,
 	defaultValue: DEFAULT_PORT,
-} as const;
-
-const HOT_RELOAD_OPTION = {
-	name: 'hot-reload',
-	type: Boolean,
-	description: `Enable hot reload and build of applet`,
-	defaultValue: false,
 } as const;
 
 export const OPTION_LIST = [

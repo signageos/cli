@@ -11,12 +11,17 @@ import { CommandLineOptions, createCommandDefinition } from '../../Command/comma
 import { createDevelopment } from '@signageos/sdk';
 import wait from '../../Timer/wait';
 import {
+	DETACH_PROCESS_OPTION,
+	FORWARD_SERVER_URL_OPTION,
+	HOT_RELOAD_OPTION,
 	killAppletServerIfRunningAndForceOption,
 	SERVER_FORCE_OPTION,
 	SERVER_PORT_OPTION,
 	SERVER_PUBLIC_URL_OPTION,
 } from '../../Applet/appletServerHelper';
 import Debug from 'debug';
+import { APPLET_PATH_OPTION, getAppletDirectoryAbsolutePath } from '../../Applet/Upload/appletUploadCommandHelper';
+import { parameters } from '../../parameters';
 
 const debug = Debug('@signageos/cli:Device:Connect:connectCommand');
 
@@ -37,6 +42,10 @@ const OPTION_LIST = [
 	SERVER_PORT_OPTION,
 	SERVER_FORCE_OPTION,
 	USE_FORWARD_SERVER_OPTION,
+	DETACH_PROCESS_OPTION,
+	FORWARD_SERVER_URL_OPTION,
+	HOT_RELOAD_OPTION,
+	APPLET_PATH_OPTION,
 ] as const;
 
 export const connect = createCommandDefinition({
@@ -60,16 +69,36 @@ export const connect = createCommandDefinition({
 		const appletPort = options[SERVER_PORT_OPTION.name];
 		const appletPublicUrl = options[SERVER_PUBLIC_URL_OPTION.name];
 		const useForwardServer = options[USE_FORWARD_SERVER_OPTION.name];
+		const hotReload = options[HOT_RELOAD_OPTION.name];
 
 		await killAppletServerIfRunningAndForceOption(dev, options, appletUid, appletVersion, appletPort);
 
-		const server = await dev.applet.serve.serve({
-			appletUid,
-			appletVersion,
-			port: appletPort,
-			publicUrl: appletPublicUrl,
-		});
-		debug('Server is running', server);
+		let stoppable: { stop(): Promise<void> };
+		let server: { remoteAddr: string; port: number; publicUrl: string };
+		if (hotReload) {
+			const appletPath = await getAppletDirectoryAbsolutePath(currentDirectory, options);
+			const detachProcess = options[DETACH_PROCESS_OPTION.name];
+			const forwardServerUrl = options[FORWARD_SERVER_URL_OPTION.name] ?? parameters.forwardServerUrl;
+			const appletHotReload = await dev.applet.startHotReload({
+				appletPath,
+				port: appletPort,
+				publicUrl: appletPublicUrl,
+				detachProcess,
+				forwardServerUrl,
+			});
+			stoppable = appletHotReload;
+			server = appletHotReload.server;
+		} else {
+			const appletServer = await dev.applet.serve.serve({
+				appletUid,
+				appletVersion,
+				port: appletPort,
+				publicUrl: appletPublicUrl,
+			});
+			stoppable = appletServer;
+			server = appletServer;
+		}
+		debug('Server is running', stoppable);
 		const finalAppletPublicUrl = useForwardServer ? server.publicUrl : `http://${server.remoteAddr}:${server.port}`;
 		const connection = await dev.deviceConnect.connect(deviceUid, {
 			appletUid,
@@ -79,7 +108,7 @@ export const connect = createCommandDefinition({
 
 		const stopServer = async () => {
 			await connection.disconnect();
-			await server.stop();
+			await stoppable.stop();
 			process.exit();
 		};
 		process.on('SIGINT', stopServer);
