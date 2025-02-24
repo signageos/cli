@@ -36,6 +36,13 @@ export const FORWARD_SERVER_URL_OPTION = {
 	defaultValue: parameters.forwardServerUrl,
 } as const;
 
+export const HOT_RELOAD_OPTION = {
+	name: 'hot-reload',
+	type: Boolean,
+	description: `Enable hot reload and build of applet`,
+	defaultValue: false,
+} as const;
+
 export async function killAppletServerIfRunningAndForceOption(
 	dev: Development,
 	options: CommandLineOptions<[typeof SERVER_FORCE_OPTION]>,
