@@ -15,10 +15,7 @@ and [gitbash](https://gitforwindows.org/), run it in [windows terminal](https://
 ## Test
 ```bash
 cp .env.amy .env
-# Unit tests
 npm test
-# Integration tests (against AMY environment)
-npm run test-integration
 ```
 
 ## API reference
