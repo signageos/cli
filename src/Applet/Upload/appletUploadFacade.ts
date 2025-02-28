@@ -5,7 +5,7 @@ import * as Debug from 'debug';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import NotFoundError from '@signageos/sdk/dist/RestApi/Error/NotFoundError';
 import { getAppletFileRelativePath, getAppletFilesDictionary } from './appletUploadFacadeHelper';
-import { computeFileMD5, getFileType } from '../../FileSystem/helper';
+import { getFileType, getFileMD5Checksum } from '../../Lib/fileSystem';
 import { ProgressBar } from '../../CommandLine/IProgressBar';
 import { log } from '@signageos/sdk/dist/Console/log';
 
@@ -49,7 +49,7 @@ export const updateMultiFileApplet = async (parameters: {
 		const fileRelativePath = getAppletFileRelativePath(fileAbsolutePath, applet.directoryPath);
 		const fileRelativePosixPath = path.posix.normalize(fileRelativePath.replace(/\\/g, '/'));
 		const fileSize = (await fs.stat(fileAbsolutePath)).size;
-		const fileHash = await computeFileMD5(fileAbsolutePath);
+		const fileHash = await getFileMD5Checksum(fileAbsolutePath);
 		const fileType = await getFileType(fileAbsolutePath); // not correctly detected here
 		const currentFileHash = currentAppletFiles[fileRelativePosixPath] ? currentAppletFiles[fileRelativePosixPath].hash : undefined;
 		const currentFileType = currentAppletFiles[fileRelativePosixPath] ? currentAppletFiles[fileRelativePosixPath].type : undefined;
@@ -178,7 +178,7 @@ export const createMultiFileFileApplet = async (parameters: {
 		await Promise.all(
 			applet.files.map(async (fileAbsolutePath) => {
 				const fileRelativePath = getAppletFileRelativePath(fileAbsolutePath, applet.directoryPath);
-				const fileHash = await computeFileMD5(fileAbsolutePath);
+				const fileHash = await getFileMD5Checksum(fileAbsolutePath);
 				const fileType = await getFileType(fileAbsolutePath);
 				const fileSize = (await fs.stat(fileAbsolutePath)).size;
 

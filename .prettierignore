@@ -12,8 +12,7 @@ tsconfig.json
 .prettierignore
 
 # Test
-.mocharc.integration.json
-.mocharc.unit.json
+.mocharc.json
 .c8rc
 
 # Other
