@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Added
+- Command `sos applet start` starts the http server within the same process (not detached) as a default behavior (better management of the process)
+
+### Fixed
+- Faster and more reliable hot-reload of applet code in the emulator
+
 ## [1.8.0] - 2025-02-28
 ### Added
 - New command `sos custom-script upload` to upload code for Custom Scripts to signageOS.

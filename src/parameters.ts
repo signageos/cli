@@ -41,6 +41,7 @@ export const parameters = {
 	profile: process.env.SOS_PROFILE,
 	apiUrl,
 	boxHost,
+	forwardServerUrl: process.env.SOS_FORWARD_SERVER_URL,
 	applet: {
 		uid: process.env.SOS_APPLET_UID,
 		version: process.env.SOS_APPLET_VERSION,

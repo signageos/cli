@@ -104,7 +104,8 @@ export async function createEmulator(params: ICreateEmulatorParams, organization
 
 		if (relativeFilePath === entryFileRelativePath) {
 			// Propagate Hot reload of whole emulator
-			const prependFileContent = '<script>window.onbeforeunload = function () { window.parent.location.reload(); }</script>';
+			const prependFileContent =
+				'<script>window.onbeforeunload = function () { window.parent.postMessage({ type: "hug.applet_refresh" }, "*") }</script>';
 			res.setHeader('Content-Type', 'text/html');
 			const page = await fsExtra.readFile(entryFileAbsolutePath, 'utf8');
 			res.send(page.replace('</head>', `${prependFileContent}</head>`));
