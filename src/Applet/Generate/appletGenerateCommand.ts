@@ -385,8 +385,52 @@ sos.onReady().then(async function () {
 
 const createTsConfig = () => `{
 	"compilerOptions": {
+		/* Sensible defaults for most projects */
+		"module": "nodenext",
+		"moduleResolution": "nodenext",
+		"target": "es6",
 		"esModuleInterop": true,
-		"downlevelIteration": true
+		"skipLibCheck": true,
+		"resolveJsonModule": true,
+		"moduleDetection": "force",
+		"isolatedModules": true,
+		"forceConsistentCasingInFileNames": true,
+
+		/* Applet specific */
+		"downlevelIteration": true,
+	
+		/* Type checking */
+		"strict": true,
+		"noUncheckedIndexedAccess": true,
+		"noUnusedParameters": true,
+		"noUnusedLocals": true,
+		
+		/* Features */
+		// "lib": ["es2022"], // overriden by target
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
+		"jsx": "react",
+
+		/* Typecheck javascript */
+		"allowJs": true,
+		"checkJs": true
+
+		/* Compilation with tsc */
+		// "moduleResolution": "nodenext",
+		// "declaration": true,
+		// "outDir": "dist",
+		// "sourceMap": true,
+
+		/* Compilation with a bundler */
+		// "module": "preserve", // ts 5.4+
+		// "moduleResolution": "bundler", // ts 5.0+
+		// "target": "esnext",
+		// "declaration": true,
+
+		/* Only typechecking */
+		// "module": "preserve", // ts 5.4+
+		// "moduleResolution": "bundler" // ts 5.0+
+		// "noEmit": true
 	},
 	"include": ["src/**/*.ts"]
 }
