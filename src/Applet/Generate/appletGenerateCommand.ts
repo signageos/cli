@@ -54,7 +54,7 @@ const COMMON_SCRIPTS = {
 	prepare: 'npm run clean && npm run build',
 	upload: 'sos applet upload',
 	clean: 'npx rimraf dist',
-	escheck: 'es-check --module es5 dist/*.js',
+	escheck: 'npx es-check --module es5 dist/*.js',
 	postbuild: 'npm run escheck',
 };
 
