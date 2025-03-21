@@ -16,6 +16,11 @@ enum Bundler {
 	Esbuild = 'esbuild',
 }
 
+enum GitOptions {
+	No = 'no',
+	Yes = 'yes',
+}
+
 const NAME_REGEXP = /^\w(\w|\d|-)*\w$/;
 const NPM_EXECUTABLE = 'npm';
 
@@ -31,6 +36,7 @@ const OPTION_LIST = [
 	{ name: 'npm-registry', type: String, description: `NPM registry URL. If you have your private npm registry` },
 	{ name: 'language', type: String, description: `Generate applet with "typescript" or "javascript" source code` },
 	{ name: 'bundler', type: String, description: `Generate applet with "webpack" (default) or "esbuild" bundler`, defaultValue: 'webpack' },
+	{ name: 'git', type: String, description: `Init applet as git repository` },
 ] as const;
 
 const COMMON_DEPENDENCIES = ['@signageos/front-applet@latest', '@signageos/front-display@latest'];
@@ -77,6 +83,8 @@ export const appletGenerate = createCommandDefinition({
 	commands: [],
 	async run(options: CommandLineOptions<typeof OPTION_LIST>) {
 		const currentDirectory = process.cwd();
+
+		// Applet Name
 		let appletName: string | undefined = options.name;
 		if (!appletName) {
 			const response = await prompts({
@@ -93,6 +101,7 @@ export const appletGenerate = createCommandDefinition({
 			throw new Error(`Name has to match RegExp: ${NAME_REGEXP.toString()}`);
 		}
 
+		// Language select
 		let language: Language | undefined = options.language as Language | undefined;
 		if (language === undefined) {
 			const response = await prompts({
@@ -110,6 +119,27 @@ export const appletGenerate = createCommandDefinition({
 		if (!language || !supportedLanguages.includes(language)) {
 			throw new Error(`Missing or incorrect argument --language <${supportedLanguages.join('|')}>`);
 		}
+
+		// Git support select
+		let git: GitOptions | undefined = options.git as GitOptions | undefined;
+		if (git === undefined) {
+			const response = await prompts({
+				type: 'select',
+				name: 'git',
+				message: `Init applet as git repository`,
+				choices: [
+					{ title: GitOptions.No, value: GitOptions.No },
+					{ title: GitOptions.Yes, value: GitOptions.Yes },
+				],
+			});
+			git = response.git;
+		}
+		const supportedGitOptions = Object.values(GitOptions);
+		if (!git || !supportedGitOptions.includes(git)) {
+			throw new Error(`Missing or incorrect argument --git <${supportedGitOptions.join('|')}>`);
+		}
+
+		// Bundler select
 		let bundler: Bundler | undefined = options.bundler?.toLowerCase() as Bundler | undefined;
 		if (bundler === undefined) {
 			bundler = Bundler.Webpack;
@@ -117,6 +147,7 @@ export const appletGenerate = createCommandDefinition({
 		const appletRootDirectory = options['target-dir'] || path.join(currentDirectory, appletName);
 		const appletRootDirectoryName = options['target-dir'] || appletName;
 
+		// Merge dependencies
 		const dependencies = [...COMMON_DEPENDENCIES, ...(bundler === Bundler.Esbuild ? ESBUILD_DEPENDENCIES : WEBPACK_DEPENDENCIES)];
 
 		const webpackConfigParams = {
@@ -184,6 +215,15 @@ export const appletGenerate = createCommandDefinition({
 				content: createIndexJs(),
 			});
 		}
+
+		if (git === GitOptions.Yes) {
+			generateFiles.push({
+				path: path.join(appletRootDirectory, '.gitignore'),
+				content: 'node_modules/\n./dist',
+			});
+			initGitRepository(appletRootDirectory);
+		}
+
 		// TODO sass support
 		{
 			generateFiles.push({
@@ -225,6 +265,7 @@ export const appletGenerate = createCommandDefinition({
 			stdio: 'inherit',
 			shell: true,
 		});
+
 		child.on('close', () => {
 			log('info', `\nApplet ${chalk.green(appletName!)} created!`);
 			log('info', `use: cd ${chalk.green(appletRootDirectoryName!)} and ${chalk.green('npm start')}\n`);
@@ -360,3 +401,22 @@ const createNpmRunControl = (registryUrl: string) => `
 registry=${registryUrl}
 always-auth=true
 `;
+
+const initGitRepository = (directoryPath: string): void => {
+	const absolutePath = path.resolve(directoryPath);
+	executeChildProcess(`git init "${absolutePath}"`, 'Git repository initialization failed');
+};
+
+const executeChildProcess = (command: string, errorMessage: string): void => {
+	child_process.exec(command, (error, stdout, stderr) => {
+		if (error) {
+			console.error(`${errorMessage}: ${error.message}`);
+			return;
+		}
+		if (stderr) {
+			console.error(`Git commit stderr: ${stderr}`);
+			return;
+		}
+		console.log(stdout);
+	});
+};
