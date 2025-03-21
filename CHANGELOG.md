@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Changed
 - Updated `tsconfig.js` rules to match current framework features
+- Updated `package.json` minimal supported node{npm engine versions
 
 ## [1.10.0] - 2025-03-24
 ### Added
