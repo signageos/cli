@@ -122,7 +122,9 @@ export const appletGenerate = createCommandDefinition({
 
 		// Git support select
 		let git: GitOptions | undefined = options.git as GitOptions | undefined;
-		if (git === undefined) {
+		let gitFound = await executeChildProcess('git --version', 'Git not found on this machine', false);
+		// Skip prompt if git was not found
+		if (git === undefined && gitFound.includes('git version')) {
 			const response = await prompts({
 				type: 'select',
 				name: 'git',
@@ -216,7 +218,7 @@ export const appletGenerate = createCommandDefinition({
 			});
 		}
 
-		if (git === GitOptions.Yes) {
+		if (git === GitOptions.Yes && gitFound) {
 			generateFiles.push({
 				path: path.join(appletRootDirectory, '.gitignore'),
 				content: 'node_modules/\n./dist',
@@ -404,19 +406,24 @@ always-auth=true
 
 const initGitRepository = (directoryPath: string): void => {
 	const absolutePath = path.resolve(directoryPath);
-	executeChildProcess(`git init "${absolutePath}"`, 'Git repository initialization failed');
+	executeChildProcess(`git init "${absolutePath}"`, 'Git repository initialization failed', true);
 };
 
-const executeChildProcess = (command: string, errorMessage: string): void => {
-	child_process.exec(command, (error, stdout, stderr) => {
-		if (error) {
+const executeChildProcess = (command: string, errorMessage: string, verbose: boolean): Promise<string> => {
+	return new Promise((resolve, reject) => {
+		child_process.exec(command, (error, stdout, stderr) => {
+		  if (error) {
 			console.error(`${errorMessage}: ${error.message}`);
-			return;
-		}
-		if (stderr) {
+			reject(error.message);
+		  } else if (stderr) {
 			console.error(`Git commit stderr: ${stderr}`);
-			return;
-		}
-		console.log(stdout);
-	});
+			reject(stderr);
+		  } else {
+			if (verbose) {
+				console.log(stdout);
+			}
+			resolve(stdout);
+		  }
+		});
+	  });
 };
