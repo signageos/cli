@@ -36,7 +36,7 @@ const OPTION_LIST = [
 	{ name: 'npm-registry', type: String, description: `NPM registry URL. If you have your private npm registry` },
 	{ name: 'language', type: String, description: `Generate applet with "typescript" or "javascript" source code` },
 	{ name: 'bundler', type: String, description: `Generate applet with "webpack" (default) or "esbuild" bundler`, defaultValue: 'webpack' },
-	{ name: 'git', type: String, description: `Init applet as git repository` },
+	{ name: 'git', type: String, description: `Init applet as git repository "no" (default) or "yes"` },
 ] as const;
 
 const COMMON_DEPENDENCIES = ['@signageos/front-applet@latest', '@signageos/front-display@latest'];
@@ -412,18 +412,18 @@ const initGitRepository = (directoryPath: string): void => {
 const executeChildProcess = (command: string, errorMessage: string, verbose: boolean): Promise<string> => {
 	return new Promise((resolve, reject) => {
 		child_process.exec(command, (error, stdout, stderr) => {
-		  if (error) {
-			console.error(`${errorMessage}: ${error.message}`);
-			reject(error.message);
-		  } else if (stderr) {
-			console.error(`Git commit stderr: ${stderr}`);
-			reject(stderr);
-		  } else {
-			if (verbose) {
-				console.log(stdout);
+			if (error) {
+				console.error(`${errorMessage}: ${error.message}`);
+				reject(error.message);
+			} else if (stderr) {
+				console.error(`Git commit stderr: ${stderr}`);
+				reject(stderr);
+			} else {
+				if (verbose) {
+					console.log(stdout);
+				}
+				resolve(stdout);
 			}
-			resolve(stdout);
-		  }
 		});
-	  });
+	});
 };
