@@ -3,6 +3,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import { CommandLineOptions } from '../../Command/commandDefinition';
 import { loadPackage } from '@signageos/sdk/dist/FileSystem/packageConfig';
+import chalk from 'chalk';
 
 export const ENTRY_FILE_PATH_OPTION = {
 	name: 'entry-file-path',
@@ -98,7 +99,7 @@ export async function getAppletEntryFileAbsolutePath(
 
 	const appletEntryFilePathExists = await fs.pathExists(appletEntryFilePath);
 	if (!appletEntryFilePathExists) {
-		throw new Error(`Applet entry file not found: ${appletEntryFilePath} , did you forget to build your applet?`);
+		throw new Error(`Applet entry file not found: ${appletEntryFilePath}\nDid you forget to build your applet by ${chalk.green('sos applet build')}?`);
 	}
 
 	const isFile = (await fs.stat(appletEntryFilePath)).isFile();
