@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - New feature to init generated applet as git repository (through wizard or `--git yes`) when `git` command is present on machine
 
+### Fixed
+- Updated required node engine definition
+- Fixed error message when applet is not built
+
 ## [1.9.1] - 2025-03-20
 ### Fixed
 - Fixed `escheck` npm command by adding npx
