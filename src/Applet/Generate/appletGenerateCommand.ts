@@ -408,7 +408,6 @@ const createTsConfig = () => `{
 		"noUnusedLocals": true,
 		
 		/* Features */
-		// "lib": ["es2022"], // overriden by target
 		"experimentalDecorators": true,
 		"emitDecoratorMetadata": true,
 		"jsx": "react",
@@ -416,23 +415,6 @@ const createTsConfig = () => `{
 		/* Typecheck javascript */
 		"allowJs": true,
 		"checkJs": true
-
-		/* Compilation with tsc */
-		// "moduleResolution": "nodenext",
-		// "declaration": true,
-		// "outDir": "dist",
-		// "sourceMap": true,
-
-		/* Compilation with a bundler */
-		// "module": "preserve", // ts 5.4+
-		// "moduleResolution": "bundler", // ts 5.0+
-		// "target": "esnext",
-		// "declaration": true,
-
-		/* Only typechecking */
-		// "module": "preserve", // ts 5.4+
-		// "moduleResolution": "bundler" // ts 5.0+
-		// "noEmit": true
 	},
 	"include": ["src/**/*.ts"]
 }
@@ -462,7 +444,7 @@ const executeChildProcess = (command: string, errorMessage: string, verbose: boo
 				console.error(`${errorMessage}: ${error.message}`);
 				reject(error.message);
 			} else if (stderr) {
-				console.error(`Git commit stderr: ${stderr}`);
+				console.error(`Operation failed: ${stderr}`);
 				reject(stderr);
 			} else {
 				if (verbose) {
