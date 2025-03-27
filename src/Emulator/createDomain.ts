@@ -15,7 +15,7 @@ interface IOptions {
 
 export function createDomain(options: IOptions, server?: http.Server) {
 	const protocol = options.https ? 'https' : 'http';
-	const hostname = options.useLocalIp ? ip.v4.sync() || 'localhost' : options.host || 'localhost';
+	const hostname = options.useLocalIp ? (ip as any).v4.sync() || 'localhost' : options.host || 'localhost';
 
 	const serverAddress = server?.address();
 	// eslint-disable-next-line no-nested-ternary
