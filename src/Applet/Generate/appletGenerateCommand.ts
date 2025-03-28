@@ -122,9 +122,11 @@ export const appletGenerate = createCommandDefinition({
 
 		// Git support select
 		let git: GitOptions | undefined = options.git as GitOptions | undefined;
-		let gitFound = await executeChildProcess('git --version', 'Git not found on this machine', false);
+		let gitFound = await executeChildProcess('git --version', false).catch((err: string) => {
+			console.error(`Git not found on this machine: ${err}`);
+		});
 		// Skip prompt if git was not found
-		if (git === undefined && gitFound.includes('git version')) {
+		if (git === undefined && gitFound?.includes('git version')) {
 			const response = await prompts({
 				type: 'select',
 				name: 'git',
@@ -378,15 +380,43 @@ import sos from '@signageos/front-applet';
 // Wait on sos data are ready (https://docs.signageos.io/api/js/content/latest/js-applet-basics#onready)
 sos.onReady().then(async function () {
 	const contentElement = document.getElementById('root');
-	console.log('sOS is ready');
-	contentElement.innerHTML = 'sOS is ready';
+	if (contentElement) {
+		console.log('sOS is ready');
+		contentElement.innerHTML = 'sOS is ready';
+	}
 });
 `;
 
 const createTsConfig = () => `{
 	"compilerOptions": {
+		/* Sensible defaults for most projects */
+		"module": "nodenext",
+		"moduleResolution": "nodenext",
+		"target": "es6",
 		"esModuleInterop": true,
-		"downlevelIteration": true
+		"skipLibCheck": true,
+		"resolveJsonModule": true,
+		"moduleDetection": "force",
+		"isolatedModules": true,
+		"forceConsistentCasingInFileNames": true,
+
+		/* Applet specific */
+		"downlevelIteration": true,
+	
+		/* Type checking */
+		"strict": true,
+		"noUncheckedIndexedAccess": true,
+		"noUnusedParameters": true,
+		"noUnusedLocals": true,
+		
+		/* Features */
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
+		"jsx": "react",
+
+		/* Typecheck javascript */
+		"allowJs": true,
+		"checkJs": true
 	},
 	"include": ["src/**/*.ts"]
 }
@@ -406,17 +436,17 @@ always-auth=true
 
 const initGitRepository = (directoryPath: string): void => {
 	const absolutePath = path.resolve(directoryPath);
-	executeChildProcess(`git init "${absolutePath}"`, 'Git repository initialization failed', true);
+	executeChildProcess(`git init "${absolutePath}"`, true).catch((err: string) => {
+		console.error(`Git repository initialization failed: ${err}`);
+	});
 };
 
-const executeChildProcess = (command: string, errorMessage: string, verbose: boolean): Promise<string> => {
+const executeChildProcess = (command: string, verbose: boolean): Promise<string> => {
 	return new Promise((resolve, reject) => {
 		child_process.exec(command, (error, stdout, stderr) => {
 			if (error) {
-				console.error(`${errorMessage}: ${error.message}`);
 				reject(error.message);
 			} else if (stderr) {
-				console.error(`Git commit stderr: ${stderr}`);
 				reject(stderr);
 			} else {
 				if (verbose) {

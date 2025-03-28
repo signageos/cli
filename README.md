@@ -75,6 +75,7 @@ npm run build
 | --npm-registry *(optional)* | NPM registry URL (for private npm)                            |                |
 | --language *(optional)*     | Generate applet with "typescript" or "javascript" source code | STDIN          |
 | --bundler *(optional)*      | Generate applet with "webpack" or "esbuild" bundler           | webpack        |
+| --git *(optional)*          | Initialize applet as git repository "yes" or "no"             | no             |
 
 > ! Windows users note:
 > There are unresolved issue with NPX tool on Windows clients when your username contains spaces (e.g.: `John Doe`).

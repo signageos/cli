@@ -21,4 +21,6 @@ const index = createCommandDefinition({
 	},
 });
 
-processCommand(index);
+processCommand(index).catch((err) => {
+	throw new Error('Unknown error:', err);
+});
