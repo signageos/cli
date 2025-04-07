@@ -13,7 +13,7 @@ enum Language {
 
 enum Bundler {
 	Webpack = 'webpack',
-	Esbuild = 'esbuild',
+	Rspack = 'rspack',
 }
 
 enum GitOptions {
@@ -35,47 +35,85 @@ const OPTION_LIST = [
 	{ name: 'target-dir', type: String, description: 'Directory where will be the applet generated to' },
 	{ name: 'npm-registry', type: String, description: `NPM registry URL. If you have your private npm registry` },
 	{ name: 'language', type: String, description: `Generate applet with "typescript" or "javascript" source code` },
-	{ name: 'bundler', type: String, description: `Generate applet with "webpack" (default) or "esbuild" bundler`, defaultValue: 'webpack' },
+	{ name: 'bundler', type: String, description: `Generate applet with "webpack" (default) or "rspack"` },
 	{ name: 'git', type: String, description: `Init applet as git repository "no" (default) or "yes"` },
 ] as const;
 
-const COMMON_DEPENDENCIES = ['@signageos/front-applet@latest', '@signageos/front-display@latest'];
+const DEPENDENCIES = {
+	common: [
+		'@signageos/front-applet@latest',
+		'@signageos/front-display@14',
+		'@signageos/webpack-plugin@latest',
+		'es-check@8',
 
-const WEBPACK_DEPENDENCIES = [
-	'@signageos/webpack-plugin@latest',
-	'@babel/core@7',
-	'@babel/preset-env@7',
-	'babel-loader@8',
-	'css-loader@6',
-	'html-webpack-plugin@5',
-	'style-loader@3',
-	'webpack@5',
-	'webpack-dev-server@4',
-	'webpack-cli@4',
-];
-
-const ESBUILD_DEPENDENCIES = ['@signageos/lib@latest', 'esbuild@latest', 'es-check@latest'];
-
-const COMMON_SCRIPTS = {
-	prepare: 'npm run clean && npm run build',
-	upload: 'sos applet upload',
-	clean: 'npx rimraf dist',
-	escheck: 'npx es-check --module es5 dist/*.js',
-	postbuild: 'npm run escheck',
+		/* required for transpilation to ES5 */
+		'@babel/core@7',
+		'@babel/preset-env@7',
+		'babel-loader@8',
+		'css-loader@6',
+		'style-loader@3',
+		'core-js@3',
+	],
+	webpack: ['webpack@5', 'webpack-cli@4', 'webpack-dev-server@4', 'html-webpack-plugin@5'],
+	rspack: ['@rspack/core@latest', '@rspack/cli@latest'],
 };
 
-const WEBPACK_SCRIPTS = {
-	start: 'webpack serve --mode development',
-	build: 'webpack --mode production && npm run escheck',
-	connect: 'echo "Deprecated command \"npm run connect\". Use \"npm run watch\" instead." && npm run watch',
-	watch: 'webpack --watch',
+const RUNSCRIPTS = {
+	common: {
+		prepare: 'npm run clean && npm run build',
+		upload: 'sos applet upload',
+		clean: 'npx rimraf dist',
+		escheck: 'npx es-check --module es5 dist/**/*.js',
+		postbuild: 'npm run escheck',
+	},
+	webpack: {
+		start: 'webpack serve --mode development',
+		build: 'webpack --mode production',
+		connect: 'echo "Deprecated command \"npm run connect\". Use \"npm run watch\" instead." && npm run watch',
+		watch: 'webpack --watch',
+	},
+	rspack: {
+		start: 'rspack serve',
+		build: 'rspack build',
+	},
 };
 
-const ESBUILD_SCRIPTS = {
-	// TODO add start and watch
-	build: 'node ./esbuild.config.mjs',
+/**
+ * Import a file as a string
+ * @param relativePath
+ * @returns	string
+ * @throws Will throw an error if the file does not exist
+ */
+const importFileAsString = (relativePath: string): string => {
+	return fs.readFileSync(path.resolve(__dirname, relativePath), 'utf-8');
 };
 
+/**
+ * Command definition for generating a new applet.
+ * This command facilitates the creation of a basic applet sample with configurable options such as
+ * language, bundler, git initialization, and npm registry. It generates the necessary files and
+ * installs dependencies based on the selected options.
+ * @param {Object} options - The options for generating the applet
+ * @param {string} options.name - The name of the applet
+ * @param {string} options.appletVersion - The version of the applet
+ * @param {string} options.targetDir - The target directory for the applet
+ * @param {string} options.npmRegistry - The npm registry URL
+ * @param {string} options.language - The language of the applet (typescript or javascript)
+ * @param {string} options.bundler - The bundler to use (webpack or rspack)
+ * @param {string} options.git - Whether to initialize a git repository (yes or no)
+ * @param {string} options.gitFound - Whether git is found on the machine
+ * @returns {Promise<void>} - A promise that resolves when the applet is generated
+ * @example
+ * appletGenerate.run({
+ *   name: 'my-applet',
+ *   appletVersion: '1.0.0',
+ *   targetDir: './output',
+ *   npmRegistry: 'https://registry.npmjs.org/',
+ *   language: 'typescript',
+ *   bundler: 'webpack',
+ *   git: 'yes',
+ * });
+ */
 export const appletGenerate = createCommandDefinition({
 	name: 'generate',
 	description: 'Generate basic applet sample',
@@ -84,7 +122,7 @@ export const appletGenerate = createCommandDefinition({
 	async run(options: CommandLineOptions<typeof OPTION_LIST>) {
 		const currentDirectory = process.cwd();
 
-		// Applet Name
+		// PROMPT: Applet Name
 		let appletName: string | undefined = options.name;
 		if (!appletName) {
 			const response = await prompts({
@@ -98,10 +136,10 @@ export const appletGenerate = createCommandDefinition({
 			throw new Error(`Missing argument --name <string>`);
 		}
 		if (!NAME_REGEXP.test(appletName)) {
-			throw new Error(`Name has to match RegExp: ${NAME_REGEXP.toString()}`);
+			throw new Error(`Name has to start and end with a character (a-zA-Z0-9_)\nRegExp: ${NAME_REGEXP.toString()}`);
 		}
 
-		// Language select
+		// PROMPT: Language select
 		let language: Language | undefined = options.language as Language | undefined;
 		if (language === undefined) {
 			const response = await prompts({
@@ -115,17 +153,14 @@ export const appletGenerate = createCommandDefinition({
 			});
 			language = response.language;
 		}
-		const supportedLanguages = Object.values(Language);
-		if (!language || !supportedLanguages.includes(language)) {
-			throw new Error(`Missing or incorrect argument --language <${supportedLanguages.join('|')}>`);
-		}
+		checkSupport('language', language, Object.values(Language));
 
-		// Git support select
+		// PROMPT: Git support select
 		let git: GitOptions | undefined = options.git as GitOptions | undefined;
 		let gitFound = await executeChildProcess('git --version', false).catch((err: string) => {
 			console.error(`Git not found on this machine: ${err}`);
 		});
-		// Skip prompt if git was not found
+		// PROMPT: Skip prompt if git was not found
 		if (git === undefined && gitFound?.includes('git version')) {
 			const response = await prompts({
 				type: 'select',
@@ -138,73 +173,57 @@ export const appletGenerate = createCommandDefinition({
 			});
 			git = response.git;
 		}
-		const supportedGitOptions = Object.values(GitOptions);
-		if (!git || !supportedGitOptions.includes(git)) {
-			throw new Error(`Missing or incorrect argument --git <${supportedGitOptions.join('|')}>`);
-		}
+		checkSupport('git', git, Object.values(GitOptions));
 
-		// Bundler select
+		// PROMPT: Bundler select
 		let bundler: Bundler | undefined = options.bundler?.toLowerCase() as Bundler | undefined;
 		if (bundler === undefined) {
-			bundler = Bundler.Webpack;
+			const response = await prompts({
+				type: 'select',
+				name: 'bundler',
+				message: `Select bundler of generated applet`,
+				choices: [
+					{ title: Bundler.Webpack, value: Bundler.Webpack },
+					{ title: Bundler.Rspack, value: Bundler.Rspack },
+				],
+			});
+			bundler = response.bundler;
 		}
+		checkSupport('bundler', bundler, Object.values(Bundler));
+
 		const appletRootDirectory = options['target-dir'] || path.join(currentDirectory, appletName);
 		const appletRootDirectoryName = options['target-dir'] || appletName;
 
 		// Merge dependencies
-		const dependencies = [...COMMON_DEPENDENCIES, ...(bundler === Bundler.Esbuild ? ESBUILD_DEPENDENCIES : WEBPACK_DEPENDENCIES)];
-
-		const webpackConfigParams = {
-			entryFileName: 'index',
-			fileExtensions: ['.js'],
-			imports: [`const HtmlWebpackPlugin = require('html-webpack-plugin')`, `const SignageOSPlugin = require('@signageos/webpack-plugin')`],
-			rules: [
-				`			{
-				test: /^(.(?!\\.module\\.css))*\\.css$/,
-				use: ['style-loader', 'css-loader'],
-			}`,
-				`			{
-				test: /\\.jsx?$/,
-				loader: 'babel-loader',
-				options: { presets: [require.resolve('@babel/preset-env')] },
-				enforce: 'post',
-			}`,
-			],
-			plugins: [
-				`			new HtmlWebpackPlugin({
-				template: 'public/index.html',
-			})`,
-				`			new SignageOSPlugin()`,
-			],
-		};
-
-		if (language === Language.TypeScript) {
-			webpackConfigParams.fileExtensions.unshift('.ts', '.tsx');
-			webpackConfigParams.rules.push(`{ test: /\\.tsx?$/, loader: 'ts-loader' }`);
+		const mergedDeps = [...DEPENDENCIES.common];
+		switch (bundler) {
+			case Bundler.Webpack:
+				mergedDeps.push(...DEPENDENCIES.webpack);
+				break;
+			case Bundler.Rspack:
+				mergedDeps.push(...DEPENDENCIES.rspack);
+				break;
+			default:
+				throw new Error(`Bundler ${bundler} is not supported`);
 		}
 
+		// Configure bundler
 		const bundlerConfig = {
 			[Bundler.Webpack]: {
 				path: path.join(appletRootDirectory, 'webpack.config.js'),
-				content: createWebpackConfig(
-					webpackConfigParams.entryFileName,
-					webpackConfigParams.fileExtensions,
-					webpackConfigParams.imports,
-					webpackConfigParams.rules,
-					webpackConfigParams.plugins,
-				),
+				content: createWebpackConfig(),
 			},
-			[Bundler.Esbuild]: {
-				path: path.join(appletRootDirectory, 'esbuild.config.mjs'),
-				content: createEsbuildConfig(),
+			[Bundler.Rspack]: {
+				path: path.join(appletRootDirectory, 'rspack.config.mjs'),
+				content: createRspackConfig(),
 			},
 		};
 
+		// Create index files
 		const generateFiles: IFile[] = [];
 
+		// TypeScript or JavaScript
 		if (language === Language.TypeScript) {
-			dependencies.push('ts-loader@9', 'typescript');
-
 			generateFiles.push({
 				path: path.join(appletRootDirectory, 'src', 'index.ts'),
 				content: createIndexTs(),
@@ -213,6 +232,8 @@ export const appletGenerate = createCommandDefinition({
 				path: path.join(appletRootDirectory, 'tsconfig.json'),
 				content: createTsConfig(),
 			});
+			// Extend dependencies for Typescript
+			mergedDeps.push('ts-loader@9', 'typescript@5', '@babel/preset-typescript@7', 'ts-node@10');
 		} else {
 			generateFiles.push({
 				path: path.join(appletRootDirectory, 'src', 'index.js'),
@@ -220,6 +241,7 @@ export const appletGenerate = createCommandDefinition({
 			});
 		}
 
+		// Initialise git repository
 		if (git === GitOptions.Yes && gitFound) {
 			generateFiles.push({
 				path: path.join(appletRootDirectory, '.gitignore'),
@@ -228,6 +250,7 @@ export const appletGenerate = createCommandDefinition({
 			initGitRepository(appletRootDirectory);
 		}
 
+		// Create styles
 		// TODO sass support
 		{
 			generateFiles.push({
@@ -235,6 +258,7 @@ export const appletGenerate = createCommandDefinition({
 				content: createIndexCss(),
 			});
 		}
+		// Create custom npm registry config
 		if (options['npm-registry']) {
 			generateFiles.push({
 				path: path.join(appletRootDirectory, '.npmrc'),
@@ -244,6 +268,8 @@ export const appletGenerate = createCommandDefinition({
 		if (!options['applet-version']) {
 			throw new Error('Argument --applet-version is required');
 		}
+
+		// Add files to project
 		generateFiles.push({
 			path: path.join(appletRootDirectory, 'package.json'),
 			content: JSON.stringify(await createPackageConfig(appletName, options['applet-version'], bundler), undefined, 2) + '\n',
@@ -264,8 +290,10 @@ export const appletGenerate = createCommandDefinition({
 			await fs.writeFile(generateFile.path, generateFile.content);
 		}
 
+		// Install dependencies
+		console.log('Installing dependencies:\n', mergedDeps);
 		process.chdir(appletRootDirectory);
-		const child = child_process.spawn(NPM_EXECUTABLE, ['install', '--save-dev', ...dependencies], {
+		const child = child_process.spawn(NPM_EXECUTABLE, ['install', '--save-dev', ...mergedDeps], {
 			stdio: 'inherit',
 			shell: true,
 		});
@@ -277,163 +305,53 @@ export const appletGenerate = createCommandDefinition({
 	},
 });
 
-async function createPackageConfig(name: string, version: string, bundler: Bundler) {
+/**
+ * Create package.json config
+ */
+const createPackageConfig = async (name: string, version: string, bundler: Bundler) => {
+	let scriptDef = { ...RUNSCRIPTS.common };
+	switch (bundler) {
+		case Bundler.Webpack:
+			scriptDef = { scriptDef, ...RUNSCRIPTS.webpack };
+			break;
+		case Bundler.Rspack:
+			scriptDef = { scriptDef, ...RUNSCRIPTS.rspack };
+			break;
+		default:
+			throw new Error(`Bundler ${bundler} is not supported`);
+	}
+
 	return {
 		name,
 		version,
 		main: 'dist/index.html',
-		scripts: { ...COMMON_SCRIPTS, ...(bundler === Bundler.Esbuild ? ESBUILD_SCRIPTS : WEBPACK_SCRIPTS) },
+		scripts: scriptDef,
 		files: ['dist'],
 		description: 'signageOS applet',
 		repository: {},
 		license: 'UNLICENSED',
 	};
-}
-
-const createWebpackConfig = (entryFileName: string, fileExtensions: string[], imports: string[], rules: string[], plugins: string[]) => `
-${imports.join(';\n')}
-
-exports = module.exports = {
-	entry: ${JSON.stringify('./src/' + entryFileName)},
-	target: ${JSON.stringify(['web', 'es5'])},
-	infrastructureLogging: {
-		level: 'warn',
-	},
-	output: {
-		filename: 'index.js',
-	},
-	resolve: {
-		extensions: ${JSON.stringify(fileExtensions)},
-	},
-	module: {
-		rules: [
-${rules.join(',\n')}
-		],
-	},
-	plugins: [
-${plugins.join(',\n')}
-	],
 };
-`;
 
-// TODO fix esbuild config because it doesn't work. @signageos/lib/dist/ESBuild/Bundler.js and @signageos/lib/dist/ESBuild/utils/stopwatch.js are not public
-const createEsbuildConfig = () => `
-import { Bundler } from '@signageos/lib/dist/ESBuild/Bundler.js';
-import { stopwatch } from '@signageos/lib/dist/ESBuild/utils/stopwatch.js';
-import { context } from 'esbuild';
-
-const bundler = new Bundler({
-	outdir: './dist',
-	parameters: {},
-	argv: process.argv,
-});
-
-await stopwatch('Building the applet', [
-	async () => {
-		await stopwatch('Bundling', async () => {
-			await bundler.writeIndexFile('./public/index.html');
-			const ctx = await context({
-				entryPoints: ['./src/index.ts'],
-				outdir: './dist',
-				platform: 'browser',
-				bundle: true,
-				minify: true,
-			});
-			await bundler.build(ctx);
-		});
-		await stopwatch('Transpiling to ES5', [
-			bundler.transpileToES5({
-				minify: true,
-				env: {
-					targets: {
-						chrome: '28',
-					},
-				},
-			}),
-		]);
-	},
-]);
-`;
-
-const createIndexHtml = (title: string) => `<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-	<meta name="theme-color" content="#000000" />
-	<title>${title}</title>
-</head>
-<body>
-	<h1>Hello ${title}</h1>
-	<div id="root"></div>
-</body>
-</html>
-`;
-
+const createWebpackConfig = () => importFileAsString('./Templates/webpack.config.js.template');
+const createRspackConfig = () => importFileAsString('./Templates/rspack.config.mjs.template');
+const createIndexHtml = (title: string): string => {
+	return importFileAsString('./Templates/index.html.template').replaceAll('${title}', title);
+};
+const createIndexCss = () => importFileAsString('./Templates/index.css.template');
+const createIndexJs = () => importFileAsString('./Templates/index.js.template');
 const createIndexTs = () => createIndexJs(); // There is currently no differences
-
-const createIndexJs = () => `
-require('./index.css');
-
-import sos from '@signageos/front-applet';
-
-// Wait on sos data are ready (https://docs.signageos.io/api/js/content/latest/js-applet-basics#onready)
-sos.onReady().then(async function () {
-	const contentElement = document.getElementById('root');
-	if (contentElement) {
-		console.log('sOS is ready');
-		contentElement.innerHTML = 'sOS is ready';
-	}
-});
-`;
-
-const createTsConfig = () => `{
-	"compilerOptions": {
-		/* Sensible defaults for most projects */
-		"module": "nodenext",
-		"moduleResolution": "nodenext",
-		"target": "es6",
-		"esModuleInterop": true,
-		"skipLibCheck": true,
-		"resolveJsonModule": true,
-		"moduleDetection": "force",
-		"isolatedModules": true,
-		"forceConsistentCasingInFileNames": true,
-
-		/* Applet specific */
-		"downlevelIteration": true,
-	
-		/* Type checking */
-		"strict": true,
-		"noUncheckedIndexedAccess": true,
-		"noUnusedParameters": true,
-		"noUnusedLocals": true,
-		
-		/* Features */
-		"experimentalDecorators": true,
-		"emitDecoratorMetadata": true,
-		"jsx": "react",
-
-		/* Typecheck javascript */
-		"allowJs": true,
-		"checkJs": true
-	},
-	"include": ["src/**/*.ts"]
-}
-`;
-
-const createIndexCss = () => `
-body {
-	background-color: wheat;
-	text-align: center;
-}
-`;
+const createTsConfig = () => importFileAsString('./Templates/tsconfig.js.template');
 
 const createNpmRunControl = (registryUrl: string) => `
 registry=${registryUrl}
 always-auth=true
 `;
 
+/**
+ * Initialize a git repository in the specified directory
+ * @param directoryPath - The path to the directory where the git repository should be initialized
+ */
 const initGitRepository = (directoryPath: string): void => {
 	const absolutePath = path.resolve(directoryPath);
 	executeChildProcess(`git init "${absolutePath}"`, true).catch((err: string) => {
@@ -441,6 +359,12 @@ const initGitRepository = (directoryPath: string): void => {
 	});
 };
 
+/**
+ * Execute a child process command
+ * @param command
+ * @param verbose
+ * @returns Promise<string>
+ */
 const executeChildProcess = (command: string, verbose: boolean): Promise<string> => {
 	return new Promise((resolve, reject) => {
 		child_process.exec(command, (error, stdout, stderr) => {
@@ -456,4 +380,18 @@ const executeChildProcess = (command: string, verbose: boolean): Promise<string>
 			}
 		});
 	});
+};
+
+/**
+ * Check if the value is present and is one of the supported options
+ * @param propName - The name of the property to check
+ * @param value - The value to check
+ * @param options - The supported options
+ * @throws Will throw an error if the value is not present or not one of the supported options
+ */
+const checkSupport = (propName: string, value: any, options: Object) => {
+	const values = Object.values(options);
+	if (!value || !values.includes(value)) {
+		throw new Error(`Missing or incorrect argument --${propName} <${values.join('|')}>`);
+	}
 };
