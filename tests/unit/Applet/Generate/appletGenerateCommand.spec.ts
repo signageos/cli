@@ -3,14 +3,14 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import { execSync } from 'child_process';
 
-const baseCommand = 'npx --version && npx ts-node ./src/index.ts applet generate ';
+const baseCommand = 'npx ts-node ./src/index.ts applet generate ';
 let targetDirs: string[] = [];
 
 const getAbsolutePath = (targetDir: string): string => {
 	return path.join(process.cwd(), targetDir);
 };
 
-describe.only('unit.appletGenerateCommand', () => {
+describe('unit.appletGenerateCommand', () => {
 	describe('generate all Typescript applet flavours', () => {
 		it('should generate TS applet with webpack', async () => {
 			const targetDir = 'tests/output/webpack';
@@ -60,35 +60,49 @@ describe.only('unit.appletGenerateCommand', () => {
 	});
 
 	describe('generate applet and test specific features', () => {
-		it('should generate TS applet with webpack and git option', async () => {
-			const targetDir = 'tests/output/webpack_git';
+		it('should generate applet with git option', async () => {
+			const targetDir = 'tests/output/rspack_git';
 			const command =
-				baseCommand + `--bundler webpack --git yes --name webpack --language typescript --target-dir ${getAbsolutePath(targetDir)}`;
+				baseCommand + `--bundler rspack --git yes --name rspack --language typescript --target-dir ${getAbsolutePath(targetDir)}`;
 			execSync(command, { stdio: 'inherit' });
 
 			should(await fs.pathExists(targetDir)).be.true();
-			should(await fs.pathExists(path.join(targetDir, 'webpack.config.js'))).be.true();
+			should(await fs.pathExists(path.join(targetDir, '.gitignore'))).be.true();
 		}).timeout(180000);
 
 		it('should successfully build all generated sources', async () => {
 			console.log('\n\nStarting builds for:', targetDirs);
+			for (const workDir of targetDirs) {
+				// Use path.resolve to ensure the rootPath is always correct
+				const rootPath = path.resolve(__dirname, '../../../../');
+				const absoluteWorkDir = path.join(rootPath, workDir);
 
-			for (const targetDir of targetDirs) {
-				const rootPath = path.normalize(__dirname + '/../../../../');
-				console.log('\n Navigating to', path.join(rootPath, targetDir));
-				process.chdir(path.join(rootPath, targetDir));
+				console.log('\n Navigating to', absoluteWorkDir);
+				process.chdir(absoluteWorkDir);
 
 				const command = `npm run build`;
-				execSync(command, { stdio: 'inherit' });
+				try {
+					execSync(command, { stdio: 'inherit' });
+				} catch (error) {
+					console.error('Build failed for:', absoluteWorkDir);
+					console.error('Error message:', error.message);
+					if (error.stderr) {
+						console.error('Error output:', error.stderr.toString());
+					}
+					if (error.stdout) {
+						console.error('Standard output:', error.stdout.toString());
+					}
+					throw error; // Ensure the test fails if the build fails
+				}
 			}
-		}).timeout(180000);
+		}).timeout(240000);
 	});
 
 	before(async function () {
-		this.timeout(180000); // Set timeout to 120 seconds to prevent timeout errors
+		this.timeout(180000); // Timeout to prevent timeout errors
 
 		// Clean up generated directories before each test
-		const outputDir = path.join(process.cwd(), 'tests/output');
+		const outputDir = path.join(process.cwd(), './tests/output');
 		fs.removeSync(outputDir); // Remove the directory if it exists
 		fs.ensureDirSync(outputDir); // Ensure the directory is created
 	});

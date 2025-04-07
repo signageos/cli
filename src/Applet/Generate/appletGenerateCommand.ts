@@ -101,7 +101,6 @@ const importFileAsString = (relativePath: string): string => {
  * @param {string} options.language - The language of the applet (typescript or javascript)
  * @param {string} options.bundler - The bundler to use (webpack or rspack)
  * @param {string} options.git - Whether to initialize a git repository (yes or no)
- * @param {string} options.gitFound - Whether git is found on the machine
  * @returns {Promise<void>} - A promise that resolves when the applet is generated
  * @example
  * appletGenerate.run({
@@ -157,11 +156,12 @@ export const appletGenerate = createCommandDefinition({
 
 		// PROMPT: Git support select
 		let git: GitOptions | undefined = options.git as GitOptions | undefined;
-		let gitFound = await executeChildProcess('git --version', false).catch((err: string) => {
+		let gitFound = await executeChildProcess('which git', true).catch((err: string) => {
 			console.error(`Git not found on this machine: ${err}`);
 		});
+
 		// PROMPT: Skip prompt if git was not found
-		if (git === undefined && gitFound?.includes('git version')) {
+		if (git === undefined && gitFound?.includes('/git')) {
 			const response = await prompts({
 				type: 'select',
 				name: 'git',
@@ -241,15 +241,6 @@ export const appletGenerate = createCommandDefinition({
 			});
 		}
 
-		// Initialise git repository
-		if (git === GitOptions.Yes && gitFound) {
-			generateFiles.push({
-				path: path.join(appletRootDirectory, '.gitignore'),
-				content: 'node_modules/\n./dist',
-			});
-			initGitRepository(appletRootDirectory);
-		}
-
 		// Create styles
 		// TODO sass support
 		{
@@ -284,7 +275,17 @@ export const appletGenerate = createCommandDefinition({
 			content: 'node_modules/\n',
 		});
 
+		// Create project files
 		await fs.mkdir(appletRootDirectory);
+
+		// Initialise git repository
+		if (git === GitOptions.Yes && gitFound) {
+			generateFiles.push({
+				path: path.join(appletRootDirectory, '.gitignore'),
+				content: 'node_modules/\n./dist',
+			});
+			initGitRepository(appletRootDirectory);
+		}
 		for (const generateFile of generateFiles) {
 			await fs.ensureDir(path.dirname(generateFile.path));
 			await fs.writeFile(generateFile.path, generateFile.content);
@@ -312,10 +313,10 @@ const createPackageConfig = async (name: string, version: string, bundler: Bundl
 	let scriptDef = { ...RUNSCRIPTS.common };
 	switch (bundler) {
 		case Bundler.Webpack:
-			scriptDef = { scriptDef, ...RUNSCRIPTS.webpack };
+			scriptDef = { ...scriptDef, ...RUNSCRIPTS.webpack };
 			break;
 		case Bundler.Rspack:
-			scriptDef = { scriptDef, ...RUNSCRIPTS.rspack };
+			scriptDef = { ...scriptDef, ...RUNSCRIPTS.rspack };
 			break;
 		default:
 			throw new Error(`Bundler ${bundler} is not supported`);
@@ -354,7 +355,7 @@ always-auth=true
  */
 const initGitRepository = (directoryPath: string): void => {
 	const absolutePath = path.resolve(directoryPath);
-	executeChildProcess(`git init "${absolutePath}"`, true).catch((err: string) => {
+	executeChildProcess(`git init "${absolutePath}"`, false).catch((err: string) => {
 		console.error(`Git repository initialization failed: ${err}`);
 	});
 };
