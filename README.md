@@ -74,7 +74,7 @@ npm run build
 | --target-dir *(optional)*   | Generate applet project to directory                          | ${PWD}/${name} |
 | --npm-registry *(optional)* | NPM registry URL (for private npm)                            |                |
 | --language *(optional)*     | Generate applet with "typescript" or "javascript" source code | STDIN          |
-| --bundler *(optional)*      | Generate applet with "webpack" or "esbuild" bundler           | webpack        |
+| --bundler *(optional)*      | Generate applet with "webpack" or "rspack"                    | webpack        |
 | --git *(optional)*          | Initialize applet as git repository "yes" or "no"             | no             |
 
 > ! Windows users note:
