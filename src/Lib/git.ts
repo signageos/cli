@@ -3,8 +3,8 @@ import { executeChildProcess } from './childProcess';
 
 export async function machineHasGit() {
 	try {
-		const result = await executeChildProcess('which git', true);
-		return result.includes('/git');
+		const result = await executeChildProcess('git --version', true);
+		return result.includes('git version');
 	} catch (error) {
 		return false;
 	}
