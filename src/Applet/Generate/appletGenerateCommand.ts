@@ -3,8 +3,9 @@ import * as child_process from 'child_process';
 import chalk from 'chalk';
 import * as path from 'path';
 import * as prompts from 'prompts';
-import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
 import { log } from '@signageos/sdk/dist/Console/log';
+import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
+import { initGitRepository, machineHasGit } from '../../Lib/git';
 
 enum Language {
 	JavaScript = 'javascript',
@@ -156,12 +157,14 @@ export const appletGenerate = createCommandDefinition({
 
 		// PROMPT: Git support select
 		let git: GitOptions | undefined = options.git as GitOptions | undefined;
-		let gitFound = await executeChildProcess('which git', true).catch((err: string) => {
-			console.error(`Git not found on this machine: ${err}`);
-		});
+
+		let gitFound = await machineHasGit();
+		if (!gitFound) {
+			console.error(`Git not found on this machine`);
+		}
 
 		// PROMPT: Skip prompt if git was not found
-		if (git === undefined && gitFound?.includes('/git')) {
+		if (git === undefined && gitFound) {
 			const response = await prompts({
 				type: 'select',
 				name: 'git',
@@ -284,7 +287,12 @@ export const appletGenerate = createCommandDefinition({
 				path: path.join(appletRootDirectory, '.gitignore'),
 				content: 'node_modules/\n./dist',
 			});
-			initGitRepository(appletRootDirectory);
+
+			try {
+				await initGitRepository(appletRootDirectory);
+			} catch (error) {
+				console.error(`Git repository initialization failed: ${error}`);
+			}
 		}
 		for (const generateFile of generateFiles) {
 			await fs.ensureDir(path.dirname(generateFile.path));
@@ -348,40 +356,6 @@ const createNpmRunControl = (registryUrl: string) => `
 registry=${registryUrl}
 always-auth=true
 `;
-
-/**
- * Initialize a git repository in the specified directory
- * @param directoryPath - The path to the directory where the git repository should be initialized
- */
-const initGitRepository = (directoryPath: string): void => {
-	const absolutePath = path.resolve(directoryPath);
-	executeChildProcess(`git init "${absolutePath}"`, false).catch((err: string) => {
-		console.error(`Git repository initialization failed: ${err}`);
-	});
-};
-
-/**
- * Execute a child process command
- * @param command
- * @param verbose
- * @returns Promise<string>
- */
-const executeChildProcess = (command: string, verbose: boolean): Promise<string> => {
-	return new Promise((resolve, reject) => {
-		child_process.exec(command, (error, stdout, stderr) => {
-			if (error) {
-				reject(error.message);
-			} else if (stderr) {
-				reject(stderr);
-			} else {
-				if (verbose) {
-					console.log(stdout);
-				}
-				resolve(stdout);
-			}
-		});
-	});
-};
 
 /**
  * Check if the value is present and is one of the supported options
