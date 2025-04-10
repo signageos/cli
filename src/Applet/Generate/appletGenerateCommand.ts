@@ -37,7 +37,7 @@ const OPTION_LIST = [
 	{ name: 'npm-registry', type: String, description: `NPM registry URL. If you have your private npm registry` },
 	{ name: 'language', type: String, description: `Generate applet with "typescript" or "javascript" source code` },
 	{ name: 'bundler', type: String, description: `Generate applet with "webpack" (default) or "rspack"` },
-	{ name: 'git', type: String, description: `Init applet as git repository "no" (default) or "yes"` },
+	{ name: 'git', type: String, description: `Init applet as git repository "no" (default) or "yes"`, defaultValue: 'no' },
 ] as const;
 
 const DEPENDENCIES = {
