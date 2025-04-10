@@ -12,7 +12,7 @@ async function copyTemplates() {
 		// Copy all contents from the source directory to the destination directory
 		await fs.copy(SOURCE_DIR, DEST_DIR);
 
-		console.log(`Tempaltes copied successfully!`);
+		console.log(`Templates copied successfully!`);
 	} catch (err) {
 		console.error('Error copying templates:', err);
 		process.exit(1);

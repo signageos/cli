@@ -9,9 +9,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - New command `sos custom-script generate` to generate local repository with Custom Script boilerplate
 
 ### Fixed
-- Argument --git is now optional
-- Git detection on windows
-- Include applet generator template files
+- Fixed issue on `sos applet generate` when optional `--git` property was required
+- Fixed issue on `sos applet generate` with Git support detection on Windows 
+- Fixed missing template files for `sos applet generate` command
 
 ## [2.1.0] - 2025-04-08
 ### Added
