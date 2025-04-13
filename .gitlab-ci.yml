@@ -36,11 +36,6 @@ prepare:
       - ./VERSION
       - ./PRERELEASE
 
-# Define base rules that were previously referenced
-.base: &base
-  rules:
-    - when: always
-
 .windows_before_script: &windows_before_script
   before_script:
     - $VERSION = Get-Content VERSION | Out-String
