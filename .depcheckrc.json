@@ -21,6 +21,10 @@
 		"c8",
 		"@istanbuljs/nyc-config-typescript",
 		"husky",
-		"lint-staged"
+		"lint-staged",
+		"cross-env",
+		"@typescript-eslint/eslint-plugin",
+		"@typescript-eslint/parser",
+		"eslint-plugin-unused-imports"
 	]
 }
