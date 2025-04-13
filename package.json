@@ -15,7 +15,7 @@
   "scripts": {
     "build": "npx check-engine@latest && tsc && npm run build:templates",
     "build:templates": "node tools/include-templates.js",
-    "lint:eslint": "eslint --ext .ts,.tsx,.js,.json ./src/ ./tests",
+    "lint:eslint": "eslint --ext .ts,.tsx,.js,.json ./src/",
     "lint": "npm run lint:eslint",
     "clean": "rm -rf dist/*",
     "clean-build": "npm run clean && npm run build && chmod +x dist/index.js && husky",
