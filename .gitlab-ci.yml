@@ -36,6 +36,72 @@ prepare:
       - ./VERSION
       - ./PRERELEASE
 
+.windows_before_script: &windows_before_script
+  before_script:
+    - $VERSION = Get-Content VERSION | Out-String
+    - $VERSION = $VERSION.Trim()
+    # Download the correct x64 installer
+    - Invoke-WebRequest -Uri "https://nodejs.org/dist/v20.19.0/node-v20.19.0-x64.msi" -OutFile "node-x64.msi"
+    # Install Node.js with proper arguments format
+    - Start-Process msiexec.exe -Wait -ArgumentList "/i","node-x64.msi","/norestart","ADDLOCAL=ALL" # "/quiet",
+    # Update PATH and create a fresh PowerShell session to recognize the new PATH
+    - $env:PATH = "C:\Program Files\nodejs;$env:PATH"
+    # Output current versions to verify installation
+    - node --version
+    - npm --version
+    - npm ci --cache npm-cache --prefer-offline --ignore-scripts
+    - npm i @signageos/lib --ignore-scripts --cache npm-cache --prefer-offline
+    - npm i @signageos/file --cache npm-cache --prefer-offline
+    - npx --userconfig ./.npmrc @signageos/lib@latest version-upgrade $VERSION
+
+windows-prepare:
+  image: $CI_REGISTRY/signageos/docker:master
+  stage: prepare
+  before_script: []
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: never
+    - when: always
+  script:
+    - export NPM_AWS_DOMAIN='signageos'
+    - export NPM_AWS_DOMAIN_OWNER=524256255273
+    - export NPM_AWS_NAME='private'
+    - export NPM_AWS_HOST=signageos-${NPM_AWS_DOMAIN_OWNER}.d.codeartifact.eu-central-1.amazonaws.com/npm/${NPM_AWS_NAME}
+    - export NPM_AWS_URL="https://${NPM_AWS_HOST}/"
+    - export NPM_AWS_TOKEN=$(aws codeartifact get-authorization-token --domain ${NPM_AWS_DOMAIN} --domain-owner ${NPM_AWS_DOMAIN_OWNER} --query authorizationToken --output text)
+    - echo "NPM_REGISTRY_HOST=$NPM_AWS_HOST" >> build.env
+    - echo "NPM_REGISTRY_URL=$NPM_AWS_URL" >> build.env
+    - echo "NPM_AUTH_TOKEN=$NPM_AWS_TOKEN" >> build.env
+    - ci-prepare
+  artifacts:
+    when: on_success
+    paths:
+      - ./VERSION
+      - ./PRERELEASE
+    reports:
+      dotenv:
+       - build.env
+
+test:general:windows:
+  <<: *windows_before_script
+  image: docker:24.0.9-windowsservercore-1809
+  needs:
+    - windows-prepare
+  allow_failure: true
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: never
+    - when: manual
+  stage: test
+  tags:
+    - windows
+  script:
+    - Copy-Item .env.amy .env
+    - npm install
+    - $env:NPM_REGISTRY_URL = "https://registry.npmjs.org/"
+    - $env:NPM_REGISTRY_HOST = "registry.npmjs.org"
+    - npm run test:windows
+
 test:general:
   stage: test
   except:
