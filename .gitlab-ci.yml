@@ -59,7 +59,9 @@ windows-prepare:
   stage: prepare
   before_script: []
   rules:
-    - when: always
+  - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    when: never
+  - when: always
   script:
     - export NPM_AWS_DOMAIN='signageos'
     - export NPM_AWS_DOMAIN_OWNER=524256255273
@@ -86,6 +88,8 @@ test:general:windows:
   needs:
     - windows-prepare
   rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: never
     - when: manual
   stage: test
   tags:
