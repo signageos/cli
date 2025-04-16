@@ -131,6 +131,15 @@ export const appletGenerate = createCommandDefinition({
 	commands: [],
 	async run(options: CommandLineOptions<typeof OPTION_LIST>) {
 		const currentDirectory = process.cwd();
+
+		// Detect if the command has been called with optional parameters
+		const excludedKeys = ['command', 'applet-version'];
+		const argumentsFound =
+			Object.entries(options)
+				.filter(([key, _value]) => !excludedKeys.includes(key))
+				.map(([key, value]) => ({ [key]: value })).length > 0;
+		console.log('sOS CLI started with params:', options);
+
 		// Create file index
 		const generateFiles: IFile[] = [];
 
@@ -176,7 +185,7 @@ export const appletGenerate = createCommandDefinition({
 		}
 
 		// PROMPT: Skip prompt if git was not found
-		if (git === undefined && gitFound) {
+		if (gitFound && git === undefined && !argumentsFound) {
 			const response = await prompts({
 				type: 'select',
 				name: 'git',
