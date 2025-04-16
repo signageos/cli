@@ -21,7 +21,12 @@
 		"c8",
 		"@istanbuljs/nyc-config-typescript",
 		"cross-env",
-		"lint-staged"
-		"eslint-plugin-unused-imports"
+		"lint-staged",
+		"eslint",
+		"eslint-config-prettier",
+		"eslint-plugin-no-null",
+		"eslint-plugin-prettier",
+		"eslint-plugin-unused-imports",
+		"typescript-eslint"
 	]
 }
