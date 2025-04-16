@@ -317,7 +317,7 @@ export const appletGenerate = createCommandDefinition({
 			});
 		}
 		// Create custom npm registry config
-		if (options['npm-registry']) {
+		if (typeof options['npm-registry'] === 'string') {
 			generateFiles.push({
 				path: path.join(appletRootDirectory, '.npmrc'),
 				content: createNpmRunControl(options['npm-registry']),
