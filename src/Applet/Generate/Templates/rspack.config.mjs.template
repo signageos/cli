@@ -33,7 +33,18 @@ export default defineConfig({
 				test: /^(.(?!.module.css))*.css$/,
 				use: ['style-loader', 'css-loader'],
 			},
-			{ test: /\.tsx?$/, loader: 'ts-loader' },
+			{
+				test: /\.tsx?$/,
+				loader: 'builtin:swc-loader',
+				options: {
+				  jsc: {
+					parser: {
+					  syntax: 'typescript',
+					},
+					target: 'es5',
+				  },
+				},
+			},
 		],
 	},
 	plugins: [
