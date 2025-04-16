@@ -97,6 +97,9 @@ test:general:windows:
     - windows
   script:
     - Copy-Item .env.amy .env
+    - npm -g install yarn --force
+    - npm -g install bun
+    - npm -g install pnpm
     - npm install
     - $env:NPM_REGISTRY_URL = "https://registry.npmjs.org/"
     - $env:NPM_REGISTRY_HOST = "registry.npmjs.org"
@@ -120,7 +123,12 @@ test:general:
         path: coverage/cobertura-coverage.xml
   script:
     - cp .env.amy .env
+    - npm -g install yarn --force
+    - npm -g install bun
+    - npm -g install pnpm
     - npm install
+    - export NPM_REGISTRY_URL=https://registry.npmjs.org/
+    - export NPM_REGISTRY_HOST=registry.npmjs.org
     - npm run test:coverage
 
 test:lint:
