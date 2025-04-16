@@ -4,13 +4,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [Unreleasd]
+
 ## [2.3.1] - 2025-04-25
 ### Fixed
 - Issue with `sos device connect --hot-reload` command for older devices (e.g.: Tizen 2.4) with initial build
 
 ## [2.3.0] - 2025-04-17
+
 ### Added
+- Added support for preferred package manager (npm, pnpm, bun, yarn)
+- Updated project dependencies
 - Windows build and test environment
+
+### Changed
+- Improved strategy to detect cli and interactive arguments
 
 ## [2.2.0] - 2025-04-10
 ### Added
