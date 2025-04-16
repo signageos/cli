@@ -23,8 +23,15 @@ enum GitOptions {
 	Yes = 'yes',
 }
 
+enum Packager {
+	Npm = 'npm',
+	Pnpm = 'pnpm',
+	Yarn = 'yarn',
+	Bun = 'bun',
+}
+
 const NAME_REGEXP = /^\w(\w|\d|-)*\w$/;
-const NPM_EXECUTABLE = 'npm';
+let PACKAGER_EXECUTABLE = 'npm';
 
 interface IFile {
 	path: string;
@@ -33,13 +40,14 @@ interface IFile {
 
 const OPTION_LIST = [
 	{ name: 'name', type: String, description: `Applet name. Match RegExp: ${NAME_REGEXP.toString()}` },
-	{ name: 'applet-version', type: String, description: `Applet initial version. Use semantic version`, defaultValue: '0.0.0' },
+	{ name: 'applet-version', type: String, description: 'Applet initial version. Use semantic version', defaultValue: '0.0.0' },
 	{ name: 'target-dir', type: String, description: 'Directory where will be the applet generated to' },
-	{ name: 'npm-registry', type: String, description: `NPM registry URL. If you have your private npm registry` },
-	{ name: 'language', type: String, description: `Generate applet with "typescript" or "javascript" source code` },
-	{ name: 'bundler', type: String, description: `Generate applet with "webpack" (default) or "rspack"` },
 	{ name: 'git', type: String, description: `Init applet as git repository "no" (default) or "yes"`, defaultValue: 'no' },
-] as const;
+	{ name: 'packager', type: String, description: `Use preferred package manager "npm" (default), "pnpm", "yarn" or "bun"` },
+	{ name: 'npm-registry', type: String, description: 'NPM registry URL. If you have your private npm registry' },
+	{ name: 'language', type: String, description: 'Generate applet with "typescript" or "javascript" source code' },
+	{ name: 'bundler', type: String, description: 'Generate applet with "webpack" (default) or "rspack"' },
+];
 
 const DEPENDENCIES = {
 	common: [
@@ -103,6 +111,7 @@ const importFileAsString = (relativePath: string): string => {
  * @param {string} options.language - The language of the applet (typescript or javascript)
  * @param {string} options.bundler - The bundler to use (webpack or rspack)
  * @param {string} options.git - Whether to initialize a git repository (yes or no)
+ * @param {string} options.packager - Whether to manage packages with npm, pnpm, bun or yarn
  * @returns {Promise<void>} - A promise that resolves when the applet is generated
  * @example
  * appletGenerate.run({
@@ -122,9 +131,11 @@ export const appletGenerate = createCommandDefinition({
 	commands: [],
 	async run(options: CommandLineOptions<typeof OPTION_LIST>) {
 		const currentDirectory = process.cwd();
+		// Create file index
+		const generateFiles: IFile[] = [];
 
 		// PROMPT: Applet Name
-		let appletName: string | undefined = options.name;
+		let appletName: string | undefined = typeof options.name === 'string' ? options.name : undefined;
 		if (!appletName) {
 			const response = await prompts({
 				type: 'text',
@@ -180,7 +191,8 @@ export const appletGenerate = createCommandDefinition({
 		checkSupport('git', git, Object.values(GitOptions));
 
 		// PROMPT: Bundler select
-		let bundler: Bundler | undefined = options.bundler?.toLowerCase() as Bundler | undefined;
+		let bundler: Bundler | undefined =
+			typeof options.bundler === 'string' ? (options.bundler.toLowerCase() as Bundler | undefined) : undefined;
 		if (bundler === undefined) {
 			const response = await prompts({
 				type: 'select',
@@ -195,8 +207,9 @@ export const appletGenerate = createCommandDefinition({
 		}
 		checkSupport('bundler', bundler, Object.values(Bundler));
 
-		const appletRootDirectory = options['target-dir'] || path.join(currentDirectory, appletName);
-		const appletRootDirectoryName = options['target-dir'] || appletName;
+		const targetDir = typeof options['target-dir'] === 'string' ? options['target-dir'] : undefined;
+		const appletRootDirectory = targetDir || path.join(currentDirectory, appletName);
+		const appletRootDirectoryName = targetDir || appletName;
 
 		// Merge dependencies
 		const mergedDeps = [...DEPENDENCIES.common];
@@ -208,23 +221,64 @@ export const appletGenerate = createCommandDefinition({
 				mergedDeps.push(...DEPENDENCIES.rspack);
 				break;
 			default:
-				throw new Error(`Bundler ${bundler} is not supported`);
+				console.warn(`Unknown bundler ${bundler}. No additional dependencies added.`);
 		}
 
-		// Configure bundler
-		const bundlerConfig = {
-			[Bundler.Webpack]: {
-				path: path.join(appletRootDirectory, 'webpack.config.js'),
-				content: createWebpackConfig(),
-			},
-			[Bundler.Rspack]: {
-				path: path.join(appletRootDirectory, 'rspack.config.mjs'),
-				content: createRspackConfig(),
-			},
-		};
-
-		// Create index files
-		const generateFiles: IFile[] = [];
+		// PROMPT: Package manager select
+		let packager: Packager | undefined =
+			typeof options.packager === 'string' ? (options.packager.toLowerCase() as Packager | undefined) : undefined;
+		if (packager === undefined) {
+			const response = await prompts({
+				type: 'select',
+				name: 'packager',
+				message: `Select preferred package manager`,
+				choices: [
+					{ title: Packager.Npm, value: Packager.Npm },
+					{ title: Packager.Pnpm, value: Packager.Pnpm },
+					{ title: Packager.Yarn, value: Packager.Yarn },
+					{ title: Packager.Bun, value: Packager.Bun },
+				],
+			});
+			packager = response.packager;
+		}
+		checkSupport('packager', packager, Object.values(Packager));
+		switch (packager) {
+			case Packager.Pnpm:
+				PACKAGER_EXECUTABLE = 'pnpm';
+				RUNSCRIPTS.common = {
+					prepare: 'pnpm run clean && pnpm run build',
+					upload: 'sos applet upload',
+					clean: 'pnpx rimraf dist',
+					escheck: 'pnpx es-check --module es5 dist/**/*.js',
+					postbuild: 'pnpm run escheck',
+				};
+				break;
+			case Packager.Yarn:
+				PACKAGER_EXECUTABLE = 'yarn';
+				RUNSCRIPTS.common = {
+					prepare: 'yarn run clean && yarn run build',
+					upload: 'sos applet upload',
+					clean: 'npx rimraf dist',
+					escheck: 'npx es-check --module es5 dist/**/*.js',
+					postbuild: 'npm run escheck',
+				};
+				break;
+			case Packager.Bun:
+				PACKAGER_EXECUTABLE = 'bun';
+				RUNSCRIPTS.common = {
+					prepare: 'bun run clean && bun run build',
+					upload: 'sos applet upload',
+					clean: 'bunx rimraf dist',
+					escheck: 'bunx es-check --module es5 dist/**/*.js',
+					postbuild: 'bun run escheck',
+				};
+				break;
+			default:
+		}
+		generateFiles.push({
+			path: path.join(appletRootDirectory, '.npmrc'),
+			content: 'registry=https://registry.npmjs.org/\nalways-auth=false',
+		});
 
 		// TypeScript or JavaScript
 		if (language === Language.TypeScript) {
@@ -264,10 +318,25 @@ export const appletGenerate = createCommandDefinition({
 			throw new Error('Argument --applet-version is required');
 		}
 
+		// Configure bundler
+		const bundlerConfig = {
+			[Bundler.Webpack]: {
+				path: path.join(appletRootDirectory, 'webpack.config.js'),
+				content: createWebpackConfig(),
+			},
+			[Bundler.Rspack]: {
+				path: path.join(appletRootDirectory, 'rspack.config.mjs'),
+				content: createRspackConfig(),
+			},
+		};
+		if (bundler === undefined) {
+			bundler = Bundler.Webpack;
+		}
+
 		// Add files to project
 		generateFiles.push({
 			path: path.join(appletRootDirectory, 'package.json'),
-			content: JSON.stringify(await createPackageConfig(appletName, options['applet-version'], bundler), undefined, 2) + '\n',
+			content: JSON.stringify(await createPackageConfig(appletName, String(options['applet-version']), bundler), undefined, 2) + '\n',
 		});
 		generateFiles.push(bundlerConfig[bundler]);
 		generateFiles.push({
@@ -279,9 +348,6 @@ export const appletGenerate = createCommandDefinition({
 			content: 'node_modules/\n',
 		});
 
-		// Create project files
-		await fs.mkdir(appletRootDirectory);
-
 		// Initialise git repository
 		if (git === GitOptions.Yes && gitFound) {
 			generateFiles.push({
@@ -289,12 +355,12 @@ export const appletGenerate = createCommandDefinition({
 				content: 'node_modules/\n./dist',
 			});
 
-			try {
-				await initGitRepository(appletRootDirectory);
-			} catch (error) {
+			await initGitRepository(appletRootDirectory, true).catch((error) => {
 				console.error(`Git repository initialization failed: ${error}`);
-			}
+			});
 		}
+
+		// Create applet directory
 		for (const generateFile of generateFiles) {
 			await fs.ensureDir(path.dirname(generateFile.path));
 			await fs.writeFile(generateFile.path, generateFile.content);
@@ -307,28 +373,73 @@ export const appletGenerate = createCommandDefinition({
 
 		if (packagerFound) {
 			// Install dependencies
+			process.chdir(appletRootDirectory);
 
-		child.on('close', () => {
-			log('info', `\nApplet ${chalk.green(appletName!)} created!`);
-			log('info', `use: cd ${chalk.green(appletRootDirectoryName!)} and ${chalk.green('npm start')}\n`);
-		});
+			// Ensure the default .npmrc file will be loaded from project root
+			// Yarn 2+ uses .yarnrc.yml, but we can use this flag to override user's .npmrc
+			const packagerPrefix = ''; // 'NPM_CONFIG_USERCONFIG=/dev/null';
+			const configFlag = packager === Packager.Yarn ? '--no-default-rc' : '';
+			const installCommand = packager === Packager.Yarn ? 'add' : 'install';
+
+			// Log the command being executed
+			console.log(
+				`Installing dependencies: ${packagerPrefix} ${PACKAGER_EXECUTABLE} ${installCommand} ${configFlag} --save-dev ${mergedDeps.join(' ')}`,
+			);
+
+			const child = child_process.spawn(PACKAGER_EXECUTABLE, [packagerPrefix, installCommand, configFlag, '--save-dev', ...mergedDeps], {
+				stdio: 'pipe', // Use 'pipe' to capture stdout and stderr
+				shell: true,
+			});
+
+			// Capture and log stdout
+			child.stdout.on('data', (data) => {
+				console.log(`${data.toString()}`);
+			});
+
+			// Capture and log stderr
+			child.stderr.on('data', (data) => {
+				console.error(`${data.toString()}`);
+			});
+
+			// Handle errors
+			child.on('error', (error) => {
+				console.error(`Error executing command: ${error.message}`);
+			});
+
+			// Handle process exit
+			child.on('close', (code) => {
+				if (code === 0) {
+					log('info', `\nApplet ${chalk.green(appletName!)} created!`);
+					log(
+						'info',
+						`\nContinue with ${chalk.green(`cd ${appletRootDirectoryName}`!)} and ${chalk.green(`${PACKAGER_EXECUTABLE} start`)}`,
+					);
+				} else {
+					console.error(`Command exited with code ${code}`);
+				}
+			});
+		} else {
+			log(
+				'info',
+				`${chalk.red(`Please first install ${PACKAGER_EXECUTABLE} globally.`)}\nContinue with ${chalk.green(`cd ${appletRootDirectoryName}`!)}, ${chalk.green(`${PACKAGER_EXECUTABLE} install`)} and ${chalk.green(`${PACKAGER_EXECUTABLE} start`)}`,
+			);
+			log('info', `\nApplet ${chalk.white(appletName!)} created!`);
+		}
 	},
 });
 
 /**
  * Create package.json config
  */
-const createPackageConfig = async (name: string, version: string, bundler: Bundler) => {
+const createPackageConfig = async (name: string, version: string, bundler: Bundler | undefined) => {
 	let scriptDef = { ...RUNSCRIPTS.common };
 	switch (bundler) {
-		case Bundler.Webpack:
-			scriptDef = { ...scriptDef, ...RUNSCRIPTS.webpack };
-			break;
 		case Bundler.Rspack:
 			scriptDef = { ...scriptDef, ...RUNSCRIPTS.rspack };
 			break;
+		case Bundler.Webpack:
 		default:
-			throw new Error(`Bundler ${bundler} is not supported`);
+			scriptDef = { ...scriptDef, ...RUNSCRIPTS.webpack };
 	}
 
 	return {
@@ -346,11 +457,11 @@ const createPackageConfig = async (name: string, version: string, bundler: Bundl
 const createWebpackConfig = () => importFileAsString('./Templates/webpack.config.js.template');
 const createRspackConfig = () => importFileAsString('./Templates/rspack.config.mjs.template');
 const createIndexHtml = (title: string): string => {
-	return importFileAsString('./Templates/index.html.template').replaceAll('${title}', title);
+	return importFileAsString('./Templates/index.html.template').replace(/\$\{title\}/g, title);
 };
 const createIndexCss = () => importFileAsString('./Templates/index.css.template');
 const createIndexJs = () => importFileAsString('./Templates/index.js.template');
-const createIndexTs = () => createIndexJs(); // There is currently no differences
+const createIndexTs = () => createIndexJs(); // There is currently no difference
 const createTsConfig = () => importFileAsString('./Templates/tsconfig.js.template');
 
 const createNpmRunControl = (registryUrl: string) => `
