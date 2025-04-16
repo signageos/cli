@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import * as prompts from 'prompts';
+import prompts from 'prompts';
 import { createOrganizationRestApi } from '../../../helper';
 import {
 	getOrganization,

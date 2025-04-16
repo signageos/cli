@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as fs from 'fs-extra';
-import * as archiver from 'archiver';
+import archiver from 'archiver';
 
 /**
  * Generate zip archive from a list of files and directories

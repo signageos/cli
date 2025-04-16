@@ -1,7 +1,7 @@
 import * as path from 'path';
 import * as fs from 'fs-extra';
 import chalk from 'chalk';
-import * as Debug from 'debug';
+import logger from 'debug';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import NotFoundError from '@signageos/sdk/dist/RestApi/Error/NotFoundError';
 import { getAppletFileRelativePath, getAppletFilesDictionary } from './appletUploadFacadeHelper';
@@ -9,7 +9,7 @@ import { getFileType, getFileMD5Checksum } from '../../Lib/fileSystem';
 import { ProgressBar } from '../../CommandLine/IProgressBar';
 import { log } from '@signageos/sdk/dist/Console/log';
 
-const debug = Debug('@signageos/cli:Applet:Upload:appletUploadFacade');
+const debugLog = logger('@signageos/cli:Applet:Upload:appletUploadFacade');
 
 export async function updateSingleFileApplet(parameters: {
 	restApi: RestApi;
@@ -56,7 +56,7 @@ export const updateMultiFileApplet = async (parameters: {
 
 		delete currentAppletFiles[fileRelativePosixPath];
 
-		debug('check file changed', fileHash, currentFileHash, fileType, currentFileType);
+		debugLog('check file changed', fileHash, currentFileHash, fileType, currentFileType);
 
 		if (fileHash === currentFileHash && fileType === currentFileType) {
 			continue;
@@ -109,7 +109,7 @@ export const updateMultiFileApplet = async (parameters: {
 					 * It's not expected behavior but the running CLI command shouldn't fail because of it.
 					 * Probably it's caused by some other process interfering.
 					 */
-					debug(`remove old file ${fileRelativePath} failed`);
+					debugLog(`remove old file ${fileRelativePath} failed`);
 				} else {
 					throw error;
 				}

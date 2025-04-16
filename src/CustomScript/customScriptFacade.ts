@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs-extra';
 import * as z from 'zod';
-import * as prompts from 'prompts';
+import prompts from 'prompts';
 import chalk from 'chalk';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import { log } from '@signageos/sdk/dist/Console/log';

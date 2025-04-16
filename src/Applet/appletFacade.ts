@@ -1,5 +1,5 @@
 import * as path from 'path';
-import * as prompts from 'prompts';
+import prompts from 'prompts';
 import chalk from 'chalk';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import ISdkApplet from '@signageos/sdk/dist/RestApi/Applet/IApplet';

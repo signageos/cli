@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import { isDeepStrictEqual } from 'util';
-import Debug from 'debug';
+import logger from 'debug';
 import { log } from '@signageos/sdk/dist/Console/log';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
 import { createOrganizationRestApi } from '../../helper';
@@ -12,7 +12,7 @@ import {
 } from '../../Organization/organizationFacade';
 import { ensureCustomScriptVersion, getConfig, uploadCode } from '../customScriptFacade';
 
-const debug = Debug('@signageos/cli:CustomScript:Upload:Command');
+const debugLog = logger('@signageos/cli:CustomScript:Upload:Command');
 
 export const OPTION_LIST = [NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION] as const;
 
@@ -42,14 +42,14 @@ export const customScriptUpload = createCommandDefinition({
 		}
 
 		if (!isDeepStrictEqual(customScriptVersion.configDefinition, config.configDefinition)) {
-			debug('Config definition is different, updating custom script version.');
+			debugLog('Config definition is different, updating custom script version.');
 			await restApi.customScript.version.update({
 				customScriptUid: customScriptVersion.customScriptUid,
 				version: customScriptVersion.version,
 				configDefinition: config.configDefinition,
 			});
 		} else {
-			debug('Config definition is the same, skipping update.');
+			debugLog('Config definition is the same, skipping update.');
 		}
 
 		log('info', `Custom Script ${chalk.green(config.name)} version ${chalk.green(config.version)} has been uploaded.`);

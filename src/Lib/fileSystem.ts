@@ -2,15 +2,15 @@ import * as path from 'path';
 import file from '@signageos/file';
 import { createHash } from 'crypto';
 import * as fs from 'fs-extra';
-import * as Debug from 'debug';
+import logger from 'debug';
 import { loadPackage } from '@signageos/sdk/dist/FileSystem/packageConfig';
-const debug = Debug('@signageos/cli:FileSystem:helper');
+const debugLog = logger('@signageos/cli:FileSystem:helper');
 
 const DEFAULT_FILE_TYPE = 'application/octet-stream';
 
 export async function getFileType(filePath: string) {
 	const fileResult = await file(filePath, { mimeType: true });
-	debug('file type', filePath, fileResult);
+	debugLog('file type', filePath, fileResult);
 
 	return fileResult?.mimeType ? fileResult.mimeType : DEFAULT_FILE_TYPE;
 }

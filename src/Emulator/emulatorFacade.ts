@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import * as prompts from 'prompts';
+import prompts from 'prompts';
 import { loadConfig, updateConfig } from '../RunControl/runControlHelper';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import AuthenitcationError from '@signageos/sdk/dist/RestApi/Error/AuthenticationError';

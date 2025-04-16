@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import * as prompts from 'prompts';
+import prompts from 'prompts';
 import * as path from 'path';
 import * as fs from 'fs-extra';
 import { log } from '@signageos/sdk/dist/Console/log';

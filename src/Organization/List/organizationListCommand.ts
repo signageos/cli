@@ -1,8 +1,8 @@
 import chalk from 'chalk';
-import * as Debug from 'debug';
+import logger from 'debug';
 import { createCommandDefinition } from '../../Command/commandDefinition';
 import { getOrganizations } from '../organizationFacade';
-const debug = Debug('@signageos/cli:Organization:list');
+const debugLog = logger('@signageos/cli:Organization:list');
 
 export const organizationList = createCommandDefinition({
 	name: 'list',
@@ -10,7 +10,7 @@ export const organizationList = createCommandDefinition({
 	optionList: [],
 	commands: [],
 	async run() {
-		debug('Organization list');
+		debugLog('Organization list');
 		const organizations = await getOrganizations();
 		console.log(chalk.yellow(JSON.stringify(organizations, undefined, 2)));
 	},

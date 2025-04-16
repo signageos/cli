@@ -1,7 +1,7 @@
 import * as fs from 'fs-extra';
 import * as os from 'os';
 import * as path from 'path';
-import * as should from 'should';
+import should from 'should';
 import * as sinon from 'sinon';
 import { updateMultiFileApplet } from '../../../../src/Applet/Upload/appletUploadFacade';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';

@@ -1,5 +1,5 @@
 import { createFirmwareVersionRestApi } from '../../helper';
-import * as prompts from 'prompts';
+import prompts from 'prompts';
 import chalk from 'chalk';
 import { IFirmwareVersionCreatable } from '@signageos/sdk/dist/RestApi/Firmware/Version/IFirmwareVersion';
 import { uploadFirmwareVersion } from './firmwareUploadFacade';

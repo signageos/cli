@@ -1,10 +1,10 @@
 import * as path from 'path';
 import * as http from 'http';
 import * as url from 'url';
-import * as express from 'express';
-import * as cors from 'cors';
-import * as serveStatic from 'serve-static';
-import * as mime from 'mime';
+import express from 'express';
+import cors from 'cors';
+import serveStatic from 'serve-static';
+import mime from 'mime';
 import * as fsExtra from 'fs-extra';
 import chalk from 'chalk';
 import { IEmulator } from './IEmulator';
