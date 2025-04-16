@@ -20,11 +20,8 @@
 		"prettier",
 		"c8",
 		"@istanbuljs/nyc-config-typescript",
-		"husky",
-		"lint-staged",
 		"cross-env",
-		"@typescript-eslint/eslint-plugin",
-		"@typescript-eslint/parser",
+		"lint-staged"
 		"eslint-plugin-unused-imports"
 	]
 }
