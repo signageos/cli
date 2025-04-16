@@ -2,10 +2,11 @@ import * as fs from 'fs-extra';
 import * as child_process from 'child_process';
 import chalk from 'chalk';
 import * as path from 'path';
-import * as prompts from 'prompts';
+import prompts from 'prompts';
 import { log } from '@signageos/sdk/dist/Console/log';
+import { initGitRepository } from '../../Lib/git';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
-import { initGitRepository, machineHasGit } from '../../Lib/git';
+import which from 'which';
 
 enum Language {
 	JavaScript = 'javascript',
@@ -158,7 +159,7 @@ export const appletGenerate = createCommandDefinition({
 		// PROMPT: Git support select
 		let git: GitOptions | undefined = options.git as GitOptions | undefined;
 
-		let gitFound = await machineHasGit();
+		const gitFound = await which('git', { nothrow: true });
 		if (!gitFound) {
 			console.error(`Git not found on this machine`);
 		}
@@ -299,13 +300,13 @@ export const appletGenerate = createCommandDefinition({
 			await fs.writeFile(generateFile.path, generateFile.content);
 		}
 
-		// Install dependencies
-		console.log('Installing dependencies:\n', mergedDeps);
-		process.chdir(appletRootDirectory);
-		const child = child_process.spawn(NPM_EXECUTABLE, ['install', '--save-dev', ...mergedDeps], {
-			stdio: 'inherit',
-			shell: true,
+		console.log(`Loooking for ${PACKAGER_EXECUTABLE}`);
+		const packagerFound = await which(PACKAGER_EXECUTABLE).catch((err: string) => {
+			console.error(`${PACKAGER_EXECUTABLE} not found on this machine: ${err}`);
 		});
+
+		if (packagerFound) {
+			// Install dependencies
 
 		child.on('close', () => {
 			log('info', `\nApplet ${chalk.green(appletName!)} created!`);
