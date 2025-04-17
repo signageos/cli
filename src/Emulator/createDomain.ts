@@ -18,7 +18,7 @@ export function createDomain(options: IOptions, server?: http.Server) {
 	const hostname = options.useLocalIp ? (ip as any).v4.sync() || 'localhost' : options.host || 'localhost';
 
 	const serverAddress = server?.address();
-	// eslint-disable-next-line no-nested-ternary
+
 	const port = options.socket ? 0 : server ? (typeof serverAddress === 'object' ? serverAddress?.port || 0 : 0) : 0;
 	// use explicitly defined public url
 	// (prefix with protocol if not explicitly given)

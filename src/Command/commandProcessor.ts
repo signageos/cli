@@ -34,7 +34,7 @@ export async function processCommand(
 					log('info', getUpdateVersionMessage());
 				}
 				await currentCommand.run(currentOptions);
-			} catch (error) {
+			} catch (error: any) {
 				log('error', error.message);
 				printUsage(currentCommand, nestedOptionList);
 				process.exit(1);

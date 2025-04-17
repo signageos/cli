@@ -21,7 +21,8 @@
         "lib": ["dom", "es5", "scripthost", "esnext"],
         "downlevelIteration": true,
         "skipLibCheck": true,
-        "esModuleInterop": true
+        "esModuleInterop": true,
+        "strict": true,
     },
     "include": [
         "src/**/*.ts"

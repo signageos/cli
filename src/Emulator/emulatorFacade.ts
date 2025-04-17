@@ -31,7 +31,7 @@ const createRestApi = (config: IConfig) => {
 async function getListOfEmulators(restApi: RestApi, organizationUid: string) {
 	try {
 		return await restApi.emulator.list({ organizationUid });
-	} catch (e) {
+	} catch (e: any) {
 		if (e instanceof AuthenitcationError) {
 			throw new Error(`Authentication error. Try to login using ${chalk.green('sos login')}`);
 		} else {
@@ -43,7 +43,7 @@ async function getListOfEmulators(restApi: RestApi, organizationUid: string) {
 async function createNewEmulator(restApi: RestApi, organizationUid: string) {
 	try {
 		return await restApi.emulator.create({ organizationUid });
-	} catch (e) {
+	} catch (e: any) {
 		throw new Error('Unknown error: ' + e.message);
 	}
 }

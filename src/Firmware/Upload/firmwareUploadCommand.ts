@@ -85,7 +85,7 @@ export const firmwareUpload = createCommandDefinition({
 					validateFileExistenceSync(path);
 					pathSet.add(path);
 					log('info', `${chalk.green('File added to upload list')}`);
-				} catch (e) {
+				} catch (e: any) {
 					log('error', e.message);
 				}
 			}
