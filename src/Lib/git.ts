@@ -16,9 +16,9 @@ export async function throwErrorIfGitNotInstalled() {
 	}
 }
 
-export async function initGitRepository(relativePath: string, verbose?: boolean) {
+export async function initGitRepository(relativePath: string, verbose: boolean = false) {
 	const absolutePath = path.resolve(relativePath);
-	await executeChildProcess(`git init "${absolutePath}"`, verbose ? verbose : false);
+	await executeChildProcess(`git init "${absolutePath}"`, verbose);
 }
 
 export async function cloneGitRepository(gitUrl: string, targetDir: string) {
