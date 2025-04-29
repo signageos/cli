@@ -10,9 +10,9 @@ import { createOrganizationRestApi } from '../../helper';
 import { createDevelopment } from '@signageos/sdk/dist';
 import { APPLET_UID_OPTION, getAppletUid, getAppletVersion } from '../appletFacade';
 import { log } from '@signageos/sdk/dist/Console/log';
-import logger from 'debug';
+import debug from 'debug';
 
-const debugLog = logger('@signageos/cli:Applet:Build:appletBuildCommand');
+const Debug = debug('@signageos/cli:Applet:Build:appletBuildCommand');
 
 export const OPTION_LIST = [NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION, APPLET_UID_OPTION] as const;
 
@@ -43,6 +43,6 @@ export const appletBuild = createCommandDefinition({
 			'info',
 			`Applet ${chalk.green(appletUid)}@${chalk.green(appletVersion)} was built successfully into "${chalk.green(build.packageArchivePath)}".`,
 		);
-		debugLog('Applet build result:', build);
+		Debug('Applet build result:', build);
 	},
 });

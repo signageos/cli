@@ -19,11 +19,11 @@ import {
 	SERVER_PORT_OPTION,
 	SERVER_PUBLIC_URL_OPTION,
 } from '../../Applet/appletServerHelper';
-import logger from 'debug';
+import debug from 'debug';
 import { APPLET_PATH_OPTION, getAppletDirectoryAbsolutePath } from '../../Applet/Upload/appletUploadCommandHelper';
 import { parameters } from '../../parameters';
 
-const debugLog = logger('@signageos/cli:Device:Connect:connectCommand');
+const Debug = debug('@signageos/cli:Device:Connect:connectCommand');
 
 export const USE_FORWARD_SERVER_OPTION = {
 	name: 'use-forward-server',
@@ -98,7 +98,7 @@ export const connect = createCommandDefinition({
 			stoppable = appletServer;
 			server = appletServer;
 		}
-		debugLog('Server is running', stoppable);
+		Debug('Server is running', stoppable);
 		const finalAppletPublicUrl = useForwardServer ? server.publicUrl : `http://${server.remoteAddr}:${server.port}`;
 		const connection = await dev.deviceConnect.connect(deviceUid, {
 			appletUid,

@@ -1,11 +1,11 @@
-import logger from 'debug';
+import debug from 'debug';
 import chalk from 'chalk';
 import cliUsage from 'command-line-usage';
 import cliArgs from 'command-line-args';
 import { printVersion, newVersionAvailable, getUpdateVersionMessage } from '../Cli/packageVersion';
 import { ICommand, ICommandOption, OptionList } from './commandDefinition';
 import { log } from '@signageos/sdk/dist/Console/log';
-const debugLog = logger('@signageos/cli:Command:processor');
+const Debug = debug('@signageos/cli:Command:processor');
 
 export async function processCommand(
 	currentCommand: ICommand<string, OptionList>,
@@ -14,7 +14,7 @@ export async function processCommand(
 ) {
 	const nestedOptionList = [...parentOptionList, ...currentCommand.optionList];
 	const currentOptions = cliArgs(nestedOptionList, { partial: true });
-	debugLog('process', currentOptions);
+	Debug('process', currentOptions);
 
 	const subCommandName = currentOptions.command[commandIndex];
 	const subCommand = currentCommand.commands.find((command: ICommand<string, OptionList>) => command.name === subCommandName);
