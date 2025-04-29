@@ -485,9 +485,9 @@ always-auth=true
  * @param options - The supported options
  * @throws Will throw an error if the value is not present or not one of the supported options
  */
-const checkSupport = (propName: string, value: any, options: Object) => {
+function checkSupport<T extends {}>(propName: string, value: unknown, options: T[]): asserts value is T {
 	const values = Object.values(options);
-	if (!value || !values.includes(value)) {
+	if (!value || !values.includes(value as T)) {
 		throw new Error(`Missing or incorrect argument --${propName} <${values.join('|')}>`);
 	}
-};
+}
