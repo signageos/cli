@@ -76,7 +76,7 @@ describe('unit.appletUploadCommand', () => {
 			try {
 				await singleFileAppletUploadOverrideFalse.run(singleFileOptions);
 			} catch (error) {
-				 should(getErrorMessage(error)).deepEqual('Applet version upload was canceled.');
+				should(getErrorMessage(error)).deepEqual('Applet version upload was canceled.');
 			}
 			should(appletUploadFacadeMock.updateSingleFileApplet.notCalled).true();
 			should(appletUploadFacadeMock.updateMultiFileApplet.notCalled).true();
@@ -92,7 +92,7 @@ describe('unit.appletUploadCommand', () => {
 			try {
 				await singleFileAppletUploadConfirmFalse.run(singleFileOptions);
 			} catch (error) {
-				 should(getErrorMessage(error)).deepEqual('Applet version upload was canceled.');
+				should(getErrorMessage(error)).deepEqual('Applet version upload was canceled.');
 			}
 			should(appletUploadFacadeMock.updateSingleFileApplet.notCalled).true();
 			should(appletUploadFacadeMock.updateMultiFileApplet.notCalled).true();
@@ -108,7 +108,7 @@ describe('unit.appletUploadCommand', () => {
 			try {
 				await singleFileAppletUploadOverrideFalse.run(singleFileOptions);
 			} catch (error) {
-				 should(getErrorMessage(error)).deepEqual('Applet version upload was canceled.');
+				should(getErrorMessage(error)).deepEqual('Applet version upload was canceled.');
 			}
 
 			should(appletUploadFacadeMock.updateSingleFileApplet.notCalled).true();
@@ -163,7 +163,7 @@ describe('unit.appletUploadCommand', () => {
 				try {
 					await singleFileAppletUploadOverrideFalse.run(value);
 				} catch (error) {
-					 should(getErrorMessage(error)).deepEqual('Applet version upload was canceled.');
+					should(getErrorMessage(error)).deepEqual('Applet version upload was canceled.');
 				}
 				should(appletUploadFacadeMock.updateSingleFileApplet.notCalled).true();
 				should(appletUploadFacadeMock.updateMultiFileApplet.notCalled).true();
@@ -179,7 +179,7 @@ describe('unit.appletUploadCommand', () => {
 				try {
 					await singleFileAppletUploadConfirmFalse.run(value);
 				} catch (error) {
-					 should(getErrorMessage(error)).deepEqual('Applet version upload was canceled.');
+					should(getErrorMessage(error)).deepEqual('Applet version upload was canceled.');
 				}
 				should(appletUploadFacadeMock.updateSingleFileApplet.notCalled).true();
 				should(appletUploadFacadeMock.updateMultiFileApplet.notCalled).true();

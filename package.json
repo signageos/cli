@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "1.0.2",
-    "@signageos/codestyle": "0.3.0",
+    "@signageos/codestyle": "1.0.0",
     "@types/archiver": "6.0.3",
     "@types/child-process-promise": "2.2.1",
     "@types/cli-progress": "3.7.0",

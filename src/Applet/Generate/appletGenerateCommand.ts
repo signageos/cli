@@ -138,7 +138,7 @@ export const appletGenerate = createCommandDefinition({
 			Object.entries(options)
 				.filter(([key, _value]) => !excludedKeys.includes(key))
 				.map(([key, value]) => ({ [key]: value })).length > 0;
-		console.log('sOS CLI started with params:', options);
+		console.info('sOS CLI started with params:', options);
 
 		// Create file index
 		const generateFiles: IFile[] = [];
@@ -375,7 +375,7 @@ export const appletGenerate = createCommandDefinition({
 			await fs.writeFile(generateFile.path, generateFile.content);
 		}
 
-		console.log(`Loooking for ${PACKAGER_EXECUTABLE}`);
+		console.info(`Loooking for ${PACKAGER_EXECUTABLE}`);
 		const packagerFound = await which(PACKAGER_EXECUTABLE).catch((err: string) => {
 			console.error(`${PACKAGER_EXECUTABLE} not found on this machine: ${err}`);
 		});
@@ -391,7 +391,7 @@ export const appletGenerate = createCommandDefinition({
 			const installCommand = packager === Packager.Yarn ? 'add' : 'install';
 
 			// Log the command being executed
-			console.log(
+			console.info(
 				`Installing dependencies: ${packagerPrefix} ${PACKAGER_EXECUTABLE} ${installCommand} ${configFlag} --save-dev ${mergedDeps.join(' ')}`,
 			);
 

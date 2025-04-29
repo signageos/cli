@@ -1,17 +1,13 @@
 import { FlatCompat } from '@eslint/eslintrc';
-// @ts-expect-error
 import sos from '@signageos/codestyle/.eslintrc.js';
 import tseslint from 'typescript-eslint';
-// import frontApplet from './tools/eslint/front-applet-plugin.mjs';
 
 const compat = new FlatCompat();
 
 /** @type {import("typescript-eslint").Config} */
 const config = tseslint.config(compat.extends('prettier'), compat.config(sos), {
 	files: ['**/*.ts', '**/*.tsx', '**/*.mts', '**/*.cts', '**/*.mjs', '**/*.js'],
-	plugins: {
-	//	frontApplet,
-	},
+	plugins: {},
 	languageOptions: {
 		parser: tseslint.parser,
 		parserOptions: {
@@ -19,7 +15,6 @@ const config = tseslint.config(compat.extends('prettier'), compat.config(sos), {
 		},
 	},
 	rules: {
-	    // 'frontApplet/enforce-jsdoc': 'error',
 		'@typescript-eslint/no-empty-function': 'off',
 		'unused-imports/no-unused-vars': 'off',
 		'unused-imports/no-unused-imports': 'off',

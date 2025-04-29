@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Updated project dependencies
 - Windows build and test environment
 
-### Changed
+### Fixed
 - Improved strategy to detect cli and interactive arguments
 
 ## [2.2.0] - 2025-04-10
