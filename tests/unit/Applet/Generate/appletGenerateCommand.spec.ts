@@ -10,19 +10,63 @@ const outputDir = path.join(process.cwd(), './tests/output');
 
 const baseCommand = 'npx ts-node ./src/index.ts applet generate ';
 
+/**
+ * Converts a relative path to an absolute path by joining it with the current working directory.
+ * 
+ * @param targetDir - The target directory path, relative to the current working directory
+ * @returns The absolute path to the target directory
+ * 
+ * @example
+ * // If current working directory is '/home/user'
+ * getAbsolutePath('projects/app') // Returns '/home/user/projects/app'
+ */
 const getAbsolutePath = (targetDir: string): string => {
 	return path.join(process.cwd(), targetDir);
 };
 
+/**
+ * Checks if a package (executable) is available in the system PATH.
+ * TODO: Remove checkPackage() when Windows unit tests will be stable
+ *
+ * @param packageName - The name of the package/executable to check for
+ * @returns Promise that resolves to the path of the executable if found
+ * @throws Will throw an error if the package is not found in the PATH
+ */
 const checkPackage = async (packageName: string) => {
 	return await which(packageName, { nothrow: false });
 };
 
+/**
+ * Changes the current working directory to the specified path relative to the root path.
+ * Used for traversing over generated applet source to build it
+ * 
+ * @param workDir - The directory path relative to the root path
+ * @returns {void}
+ * @example
+ * goToTarget('src/components');
+ * 
+ * @remarks
+ * This function has the side effect of changing the Node.js process's current working directory
+ * and outputs the new directory path to the console.
+ */
 const goToTarget = (workDir: string) => {
 	process.chdir(path.join(rootPath, workDir));
 	console.log('Current working directory:', process.cwd());
 };
 
+/**
+ * Builds an applet by executing a specified command in a target directory.
+ * 
+ * @param workDir - The relative path to the working directory where the command will be executed
+ * @param command - The shell command to execute for building the applet
+ * @returns A Promise that resolves when the build completes successfully
+ * @throws Will throw an error if the build process fails, ensuring test failure
+ * 
+ * @remarks
+ * This function navigates to the specified working directory, executes the given command,
+ * and provides detailed error logging if the build fails. It's designed to be used in tests
+ * to verify build processes.
+ */
 const buildApplet = async (workDir: string, command: string) => {
 	const absoluteWorkDir = path.join(rootPath, workDir);
 	console.log('\n Navigating to', absoluteWorkDir);
