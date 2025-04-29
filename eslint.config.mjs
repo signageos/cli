@@ -1,11 +1,11 @@
 import { FlatCompat } from '@eslint/eslintrc';
-import sos from '@signageos/codestyle/.eslintrc.js';
+import codeStyle from '@signageos/codestyle/.eslintrc.js';
 import tseslint from 'typescript-eslint';
 
 const compat = new FlatCompat();
 
 /** @type {import("typescript-eslint").Config} */
-const config = tseslint.config(compat.extends('prettier'), compat.config(sos), {
+const config = tseslint.config(compat.extends('prettier'), compat.config(codeStyle), {
 	files: ['**/*.ts', '**/*.tsx', '**/*.mts', '**/*.cts', '**/*.mjs', '**/*.js'],
 	plugins: {},
 	languageOptions: {
@@ -14,11 +14,7 @@ const config = tseslint.config(compat.extends('prettier'), compat.config(sos), {
 			project: './tsconfig.json',
 		},
 	},
-	rules: {
-		'@typescript-eslint/no-empty-function': 'off',
-		'unused-imports/no-unused-vars': 'off',
-		'unused-imports/no-unused-imports': 'off',
-	},
+	rules: {},
     ignores: [
         'dist/**/* ',
         'build/**/*',

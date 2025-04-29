@@ -30,7 +30,7 @@ export async function getLatestVersion(packageName: string) {
 		const latestVersion = versionCommand.stdout.trim();
 
 		return latestVersion;
-	} catch (e) {
+	} catch {
 		return undefined;
 	}
 }
