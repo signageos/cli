@@ -28,7 +28,10 @@ export async function uploadFirmwareVersion(parameters: {
 
 	for (let index in pathArr) {
 		const filePath = pathArr[index];
-		const fileSize = sizes[index];
+		if (!filePath) {
+			continue;
+		}
+		const fileSize = sizes[parseInt(index)];
 		const fileName = path.basename(filePath);
 
 		const md5Hash = await getFileMD5Checksum(filePath);
@@ -44,7 +47,7 @@ export async function uploadFirmwareVersion(parameters: {
 		firmware.files.push({
 			hash: md5Hash,
 			content: stream,
-			size: fileSize,
+			size: fileSize ?? 0,
 		});
 	}
 	try {

@@ -32,11 +32,16 @@ export const customScriptUpload = createCommandDefinition({
 		const customScriptVersion = await ensureCustomScriptVersion(restApi, config);
 
 		for (const platform of Object.keys(config.platforms)) {
+			const platformConfig = config.platforms[platform];
+			if (!platformConfig) {
+				console.warn(`Skipping platform ${platform} due to missing configuration`);
+				continue;
+			}
 			await uploadCode({
 				restApi,
 				workDir: currentDirectory,
 				platform,
-				config: config.platforms[platform],
+				config: platformConfig,
 				customScriptVersion,
 			});
 		}

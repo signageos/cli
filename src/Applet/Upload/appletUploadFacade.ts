@@ -46,13 +46,17 @@ export const updateMultiFileApplet = async (parameters: {
 
 	for (let index = 0; index < applet.files.length; index++) {
 		const fileAbsolutePath = applet.files[index];
+		if (!fileAbsolutePath) {
+			continue;
+		}
 		const fileRelativePath = getAppletFileRelativePath(fileAbsolutePath, applet.directoryPath);
 		const fileRelativePosixPath = path.posix.normalize(fileRelativePath.replace(/\\/g, '/'));
-		const fileSize = (await fs.stat(fileAbsolutePath)).size;
+		const fileStats = await fs.stat(fileAbsolutePath);
+		const fileSize = fileStats.size;
 		const fileHash = await getFileMD5Checksum(fileAbsolutePath);
-		const fileType = await getFileType(fileAbsolutePath); // not correctly detected here
-		const currentFileHash = currentAppletFiles[fileRelativePosixPath] ? currentAppletFiles[fileRelativePosixPath].hash : undefined;
-		const currentFileType = currentAppletFiles[fileRelativePosixPath] ? currentAppletFiles[fileRelativePosixPath].type : undefined;
+		const fileType = await getFileType(fileAbsolutePath);
+		const currentFileHash = currentAppletFiles[fileRelativePosixPath]?.hash;
+		const currentFileType = currentAppletFiles[fileRelativePosixPath]?.type;
 
 		delete currentAppletFiles[fileRelativePosixPath];
 
