@@ -161,8 +161,8 @@ export const appletGenerate = createCommandDefinition({
 		}
 
 		// PROMPT: Language select
-		let language: Language | undefined = options.language as Language | undefined;
-		if (language === undefined) {
+		let language: Language | undefined;
+		if (options.language === undefined) {
 			const response = await prompts({
 				type: 'select',
 				name: 'language',
@@ -174,10 +174,11 @@ export const appletGenerate = createCommandDefinition({
 			});
 			language = response.language;
 		}
-		checkSupport('language', language, Object.values(Language));
+		language = language === undefined ? Language.TypeScript : language;
+		checkSupport('language', language.toLowerCase(), Object.values(Language));
 
 		// PROMPT: Git support select
-		let git: GitOptions | undefined = options.git as GitOptions | undefined;
+		let git: GitOptions | undefined;
 
 		const gitFound = await which('git', { nothrow: true });
 		if (!gitFound) {
@@ -185,7 +186,7 @@ export const appletGenerate = createCommandDefinition({
 		}
 
 		// PROMPT: Skip prompt if git was not found
-		if (gitFound && git === undefined && !argumentsFound) {
+		if (options.git === undefined && gitFound && !argumentsFound) {
 			const response = await prompts({
 				type: 'select',
 				name: 'git',
@@ -197,12 +198,12 @@ export const appletGenerate = createCommandDefinition({
 			});
 			git = response.git;
 		}
-		checkSupport('git', git, Object.values(GitOptions));
+		git = git === undefined ? GitOptions.No : git;
+		checkSupport('git', git.toLowerCase(), Object.values(GitOptions));
 
 		// PROMPT: Bundler select
-		let bundler: Bundler | undefined =
-			typeof options.bundler === 'string' ? (options.bundler.toLowerCase() as Bundler | undefined) : undefined;
-		if (bundler === undefined) {
+		let bundler: Bundler | undefined;
+		if (options.bundler === undefined) {
 			const response = await prompts({
 				type: 'select',
 				name: 'bundler',
@@ -214,7 +215,8 @@ export const appletGenerate = createCommandDefinition({
 			});
 			bundler = response.bundler;
 		}
-		checkSupport('bundler', bundler, Object.values(Bundler));
+		bundler = bundler === undefined ? Bundler.Rspack : bundler;
+		checkSupport('bundler', bundler.toLowerCase(), Object.values(Bundler));
 
 		const targetDir = typeof options['target-dir'] === 'string' ? options['target-dir'] : undefined;
 		const appletRootDirectory = targetDir || path.join(currentDirectory, appletName);
@@ -234,9 +236,8 @@ export const appletGenerate = createCommandDefinition({
 		}
 
 		// PROMPT: Package manager select
-		let packager: Packager | undefined =
-			typeof options.packager === 'string' ? (options.packager.toLowerCase() as Packager | undefined) : undefined;
-		if (packager === undefined) {
+		let packager: Packager | undefined;
+		if (options.packager === undefined) {
 			const response = await prompts({
 				type: 'select',
 				name: 'packager',
@@ -250,7 +251,9 @@ export const appletGenerate = createCommandDefinition({
 			});
 			packager = response.packager;
 		}
-		checkSupport('packager', packager, Object.values(Packager));
+		packager = packager === undefined ? Packager.Npm : packager;
+		checkSupport('packager', packager.toLowerCase(), Object.values(Packager));
+
 		switch (packager) {
 			case Packager.Pnpm:
 				PACKAGER_EXECUTABLE = 'pnpm';
@@ -338,9 +341,6 @@ export const appletGenerate = createCommandDefinition({
 				content: createRspackConfig(),
 			},
 		};
-		if (bundler === undefined) {
-			bundler = Bundler.Webpack;
-		}
 
 		// Add files to project
 		generateFiles.push({
