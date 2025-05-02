@@ -161,7 +161,7 @@ export const appletGenerate = createCommandDefinition({
 		}
 
 		// PROMPT: Language select
-		let language: Language | undefined;
+		let language: string | undefined;
 		if (options.language === undefined) {
 			const response = await prompts({
 				type: 'select',
@@ -172,14 +172,14 @@ export const appletGenerate = createCommandDefinition({
 					{ title: Language.JavaScript, value: Language.JavaScript },
 				],
 			});
-			language = response.language as Language;
+			language = response.language;
 		} else {
-			language = typeof options.language === 'string' ? (options.language.toLowerCase() as Language) : Language.TypeScript;
+			language = typeof options.language === 'string' ? options.language.toLowerCase() : Language.TypeScript;
 		}
 		checkSupport('language', language, Object.values(Language));
 
 		// PROMPT: Git support select
-		let git: GitOptions | undefined;
+		let git: string | undefined;
 
 		const gitFound = await which('git', { nothrow: true });
 		if (!gitFound) {
@@ -197,14 +197,14 @@ export const appletGenerate = createCommandDefinition({
 					{ title: GitOptions.Yes, value: GitOptions.Yes },
 				],
 			});
-			git = response.git as GitOptions;
+			git = response.git;
 		} else {
-			git = typeof options.git === 'string' ? (options.git.toLowerCase() as GitOptions) : GitOptions.No;
+			git = typeof options.git === 'string' ? options.git.toLowerCase() : GitOptions.No;
 		}
 		checkSupport('git', git, Object.values(GitOptions));
 
 		// PROMPT: Bundler select
-		let bundler: Bundler | undefined;
+		let bundler: string | undefined;
 		if (options.bundler === undefined) {
 			const response = await prompts({
 				type: 'select',
@@ -217,7 +217,7 @@ export const appletGenerate = createCommandDefinition({
 			});
 			bundler = response.bundler;
 		} else {
-			bundler = typeof options.bundler === 'string' ? (options.bundler.toLowerCase() as Bundler) : Bundler.Webpack;
+			bundler = typeof options.bundler === 'string' ? options.bundler.toLowerCase() : Bundler.Webpack;
 		}
 		checkSupport('bundler', bundler, Object.values(Bundler));
 
@@ -239,7 +239,7 @@ export const appletGenerate = createCommandDefinition({
 		}
 
 		// PROMPT: Package manager select
-		let packager: Packager | undefined;
+		let packager: string | undefined;
 		if (options.packager === undefined) {
 			const response = await prompts({
 				type: 'select',
@@ -252,9 +252,9 @@ export const appletGenerate = createCommandDefinition({
 					{ title: Packager.Bun, value: Packager.Bun },
 				],
 			});
-			packager = response.packager as Packager;
+			packager = response.packager;
 		} else {
-			packager = typeof options.packager === 'string' ? (options.packager.toLowerCase() as Packager) : Packager.Npm;
+			packager = typeof options.packager === 'string' ? options.packager.toLowerCase() : Packager.Npm;
 		}
 		checkSupport('packager', packager, Object.values(Packager));
 
