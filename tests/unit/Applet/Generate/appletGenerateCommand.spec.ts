@@ -11,17 +11,15 @@ const outputDir = path.join(process.cwd(), './tests/output');
 const baseCommand = 'npx ts-node ./src/index.ts applet generate ';
 
 describe('unit.appletGenerateCommand', async () => {
-	describe('generate applets - bundlers', async () => {
-		it('should generate TypeScript applet with webpack and git', async () => {
-			const targetDir = 'tests/output/webpack';
+	describe('generate applets - all bundler types', async () => {
+		it('should generate default applet (TypeScript, Webpack, Npm, git option ommited)', async () => {
+			const targetDir = 'tests/output/default';
 			const command =
-				baseCommand +
-				`--bundler webpack --git yes --name webpack --packager npm --language typescript --target-dir ${getAbsolutePath(targetDir)}`;
+				baseCommand + `--bundler webpack --name default --packager npm --language typescript --target-dir ${getAbsolutePath(targetDir)}`;
 			execSync(command, { stdio: 'inherit' });
 
 			should(await fs.pathExists(targetDir)).be.true();
 			should(await fs.pathExists(path.join(targetDir, 'webpack.config.js'))).be.true();
-			should(await fs.pathExists(path.join(targetDir, '.gitignore'))).be.true();
 			should(await fs.pathExists(path.join(targetDir, './node_modules'))).be.true();
 		}).timeout(180000);
 
@@ -50,9 +48,15 @@ describe('unit.appletGenerateCommand', async () => {
 		}).timeout(180000);
 	});
 
-	describe('build applets - bundlers', async () => {
-		it('should build webpack applet', async () => {
-			await buildApplet('tests/output/webpack', 'npm run build');
+	/**
+	 * This test is building generated applet sources with different bundlers
+	 *
+	 * We are not generating applets every time, but using genearted ones from previous tests.
+	 * This is violating test isolation, but significantly speeds up test completion.
+	 */
+	describe('build applets - all bundler types', async () => {
+		it('should build default webpack/typescript applet', async () => {
+			await buildApplet('tests/output/default', 'npm run build');
 		}).timeout(180000);
 
 		it('should build webpack_js applet', async () => {
@@ -64,7 +68,7 @@ describe('unit.appletGenerateCommand', async () => {
 		}).timeout(180000);
 	});
 
-	describe('generate applets - packagers', async () => {
+	describe('generate applets - all packager types', async () => {
 		it('should generate applet with yarn packager', async () => {
 			process.chdir(path.join(rootPath));
 			console.log('Current working directory:', process.cwd());
@@ -132,11 +136,18 @@ describe('unit.appletGenerateCommand', async () => {
 			execSync(command, { stdio: 'inherit' });
 
 			should(await fs.pathExists(targetDir)).be.true();
+			should(await fs.pathExists(path.join(targetDir, '.gitignore'))).be.true();
 			should(await fs.pathExists(path.join(targetDir, './node_modules'))).be.true();
 		}).timeout(180000);
 	});
 
-	describe('build applets - packagers', async () => {
+	/**
+	 * This test is building generated applet sources with different packagers
+	 *
+	 * We are not generating applets every time, but using genearted ones from previous tests.
+	 * This is violating test isolation, but significantly speeds up test completion.
+	 */
+	describe('build applets - all packager types', async () => {
 		it('should build rspack_yarn applet', async () => {
 			await checkPackage('yarn');
 			await buildApplet('tests/output/rspack_yarn', 'yarn run build');

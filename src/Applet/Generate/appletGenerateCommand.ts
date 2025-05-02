@@ -42,8 +42,8 @@ const OPTION_LIST = [
 	{ name: 'name', type: String, description: `Applet name. Match RegExp: ${NAME_REGEXP.toString()}` },
 	{ name: 'applet-version', type: String, description: 'Applet initial version. Use semantic version', defaultValue: '0.0.0' },
 	{ name: 'target-dir', type: String, description: 'Directory where will be the applet generated to' },
-	{ name: 'git', type: String, description: `Init applet as git repository "no" (default) or "yes"`, defaultValue: 'no' },
-	{ name: 'packager', type: String, description: `Use preferred package manager "npm" (default), "pnpm", "yarn" or "bun"` },
+	{ name: 'git', type: String, description: 'Init applet as git repository "no" (default) or "yes"' },
+	{ name: 'packager', type: String, description: 'Use preferred package manager "npm" (default), "pnpm", "yarn" or "bun"' },
 	{ name: 'npm-registry', type: String, description: 'NPM registry URL. If you have your private npm registry' },
 	{ name: 'language', type: String, description: 'Generate applet with "typescript" or "javascript" source code' },
 	{ name: 'bundler', type: String, description: 'Generate applet with "webpack" (default) or "rspack"' },
@@ -172,10 +172,11 @@ export const appletGenerate = createCommandDefinition({
 					{ title: Language.JavaScript, value: Language.JavaScript },
 				],
 			});
-			language = response.language;
+			language = response.language as Language;
+		} else {
+			language = typeof options.language === 'string' ? (options.language.toLowerCase() as Language) : Language.TypeScript;
 		}
-		language = language === undefined ? Language.TypeScript : language;
-		checkSupport('language', language.toLowerCase(), Object.values(Language));
+		checkSupport('language', language, Object.values(Language));
 
 		// PROMPT: Git support select
 		let git: GitOptions | undefined;
@@ -196,10 +197,11 @@ export const appletGenerate = createCommandDefinition({
 					{ title: GitOptions.Yes, value: GitOptions.Yes },
 				],
 			});
-			git = response.git;
+			git = response.git as GitOptions;
+		} else {
+			git = typeof options.git === 'string' ? (options.git.toLowerCase() as GitOptions) : GitOptions.No;
 		}
-		git = git === undefined ? GitOptions.No : git;
-		checkSupport('git', git.toLowerCase(), Object.values(GitOptions));
+		checkSupport('git', git, Object.values(GitOptions));
 
 		// PROMPT: Bundler select
 		let bundler: Bundler | undefined;
@@ -214,9 +216,10 @@ export const appletGenerate = createCommandDefinition({
 				],
 			});
 			bundler = response.bundler;
+		} else {
+			bundler = typeof options.bundler === 'string' ? (options.bundler.toLowerCase() as Bundler) : Bundler.Webpack;
 		}
-		bundler = bundler === undefined ? Bundler.Rspack : bundler;
-		checkSupport('bundler', bundler.toLowerCase(), Object.values(Bundler));
+		checkSupport('bundler', bundler, Object.values(Bundler));
 
 		const targetDir = typeof options['target-dir'] === 'string' ? options['target-dir'] : undefined;
 		const appletRootDirectory = targetDir || path.join(currentDirectory, appletName);
@@ -225,11 +228,11 @@ export const appletGenerate = createCommandDefinition({
 		// Merge dependencies
 		const mergedDeps = [...DEPENDENCIES.common];
 		switch (bundler) {
-			case Bundler.Webpack:
-				mergedDeps.push(...DEPENDENCIES.webpack);
-				break;
 			case Bundler.Rspack:
 				mergedDeps.push(...DEPENDENCIES.rspack);
+				break;
+			case Bundler.Webpack:
+				mergedDeps.push(...DEPENDENCIES.webpack);
 				break;
 			default:
 				console.warn(`Unknown bundler ${bundler}. No additional dependencies added.`);
@@ -249,10 +252,11 @@ export const appletGenerate = createCommandDefinition({
 					{ title: Packager.Bun, value: Packager.Bun },
 				],
 			});
-			packager = response.packager;
+			packager = response.packager as Packager;
+		} else {
+			packager = typeof options.packager === 'string' ? (options.packager.toLowerCase() as Packager) : Packager.Npm;
 		}
-		packager = packager === undefined ? Packager.Npm : packager;
-		checkSupport('packager', packager.toLowerCase(), Object.values(Packager));
+		checkSupport('packager', packager, Object.values(Packager));
 
 		switch (packager) {
 			case Packager.Pnpm:
@@ -330,24 +334,30 @@ export const appletGenerate = createCommandDefinition({
 			throw new Error('Argument --applet-version is required');
 		}
 
-		// Configure bundler
-		const bundlerConfig = {
-			[Bundler.Webpack]: {
-				path: path.join(appletRootDirectory, 'webpack.config.js'),
-				content: createWebpackConfig(),
-			},
-			[Bundler.Rspack]: {
-				path: path.join(appletRootDirectory, 'rspack.config.mjs'),
-				content: createRspackConfig(),
-			},
-		};
-
 		// Add files to project
 		generateFiles.push({
 			path: path.join(appletRootDirectory, 'package.json'),
 			content: JSON.stringify(await createPackageConfig(appletName, String(options['applet-version']), bundler), undefined, 2) + '\n',
 		});
-		generateFiles.push(bundlerConfig[bundler]);
+
+		// Configure bundler
+		switch (bundler) {
+			case Bundler.Rspack:
+				generateFiles.push({
+					path: path.join(appletRootDirectory, 'rspack.config.mjs'),
+					content: createRspackConfig(),
+				});
+				break;
+			case Bundler.Webpack:
+				generateFiles.push({
+					path: path.join(appletRootDirectory, 'webpack.config.js'),
+					content: createWebpackConfig(),
+				});
+				break;
+			default:
+				throw new Error('Argument --bundler is required');
+		}
+
 		generateFiles.push({
 			path: path.join(appletRootDirectory, 'public', 'index.html'),
 			content: createIndexHtml(appletName),
