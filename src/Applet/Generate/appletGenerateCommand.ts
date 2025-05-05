@@ -63,10 +63,10 @@ const DEPENDENCIES = {
 	],
 	webpack: [
 		'webpack@5',
-		'webpack-cli@4',
-		'webpack-dev-server@4',
+		'webpack-cli@6',
+		'webpack-dev-server@5',
 		'html-webpack-plugin@5',
-		'babel-loader@8',
+		'babel-loader@10',
 		'@babel/core@7',
 		'@babel/preset-env@7',
 	],
