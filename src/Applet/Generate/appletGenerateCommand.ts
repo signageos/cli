@@ -52,19 +52,24 @@ const OPTION_LIST = [
 const DEPENDENCIES = {
 	common: [
 		'@signageos/front-applet@latest',
-		'@signageos/front-display@14',
+		'@signageos/front-display@latest',
 		'@signageos/webpack-plugin@latest',
-		'es-check@8',
+		'es-check@9',
 
 		/* required for transpilation to ES5 */
-		'@babel/core@7',
-		'@babel/preset-env@7',
-		'babel-loader@8',
-		'css-loader@6',
-		'style-loader@3',
+		'css-loader@7',
+		'style-loader@4',
 		'core-js@3',
 	],
-	webpack: ['webpack@5', 'webpack-cli@4', 'webpack-dev-server@4', 'html-webpack-plugin@5'],
+	webpack: [
+		'webpack@5',
+		'webpack-cli@4',
+		'webpack-dev-server@4',
+		'html-webpack-plugin@5',
+		'babel-loader@8',
+		'@babel/core@7',
+		'@babel/preset-env@7',
+	],
 	rspack: ['@rspack/core@latest', '@rspack/cli@latest'],
 };
 
