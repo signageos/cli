@@ -76,6 +76,7 @@ npm run build
 | --language *(optional)*     | Generate applet with "typescript" or "javascript" source code | STDIN          |
 | --bundler *(optional)*      | Generate applet with "webpack" or "rspack"                    | webpack        |
 | --git *(optional)*          | Initialize applet as git repository "yes" or "no"             | no             |
+| --packager *(optional)*     | Use preferred package manager "npm", "pnpm", "bun", "yarn"    | npm            |
 
 > ! Windows users note:
 > There are unresolved issue with NPX tool on Windows clients when your username contains spaces (e.g.: `John Doe`).

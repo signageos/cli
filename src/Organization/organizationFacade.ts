@@ -1,11 +1,11 @@
 import chalk from 'chalk';
-import * as Debug from 'debug';
-import * as prompts from 'prompts';
+import debug from 'debug';
+import prompts from 'prompts';
 import { getResource, deserializeJSON, getApiUrl } from '../helper';
 import { loadConfig, updateConfig } from '../RunControl/runControlHelper';
 import { CommandLineOptions } from '../Command/commandDefinition';
 import { ApiVersions } from '@signageos/sdk/dist/RestApi/apiVersions';
-const debug = Debug('@signageos/cli:Organization:facade');
+const Debug = debug('@signageos/cli:Organization:facade');
 
 export interface IOrganization {
 	uid: string;
@@ -68,7 +68,7 @@ export async function selectOrganizationUid(options: CommandLineOptions<[typeof 
 				value: org.uid,
 			})),
 		});
-		debug('Organization selected', response.organizationUid);
+		Debug('Organization selected', response.organizationUid);
 		organizationUid = response.organizationUid;
 	}
 	if (!organizationUid) {
@@ -90,7 +90,7 @@ export async function getOrganizations(): Promise<IOrganization[]> {
 	};
 	const responseOfGet = await getResource(options, ORGANIZATION_RESOURCE);
 	const bodyOfGet = JSON.parse(await responseOfGet.text(), deserializeJSON);
-	debug('GET organizations response', bodyOfGet);
+	Debug('GET organizations response', bodyOfGet);
 	if (responseOfGet.status === 200) {
 		return bodyOfGet;
 	} else if (responseOfGet.status === 403) {
@@ -113,7 +113,7 @@ export async function getOrganization(organizationUid: string): Promise<IOrganiz
 	};
 	const responseOfGet = await getResource(options, ORGANIZATION_RESOURCE + '/' + organizationUid);
 	const bodyOfGet = JSON.parse(await responseOfGet.text(), deserializeJSON);
-	debug('GET organization response', bodyOfGet);
+	Debug('GET organization response', bodyOfGet);
 	if (responseOfGet.status === 200) {
 		return bodyOfGet;
 	} else if (responseOfGet.status === 403) {

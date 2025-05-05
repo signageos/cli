@@ -1,4 +1,4 @@
-import * as should from 'should';
+import should from 'should';
 import { getIsAuth0OrLegacyEnabled } from '../../../src/Auth/loginCommand';
 
 describe('Auth.loginCommand', () => {

@@ -1,6 +1,6 @@
 import chalk from 'chalk';
-import * as prompts from 'prompts';
-import * as Debug from 'debug';
+import prompts from 'prompts';
+import debug from 'debug';
 import * as os from 'os';
 import { ApiVersions } from '@signageos/sdk/dist/RestApi/apiVersions';
 import { log } from '@signageos/sdk/dist/Console/log';
@@ -10,7 +10,7 @@ import { saveConfig, loadConfig } from '../RunControl/runControlHelper';
 import { parameters } from '../parameters';
 import { CommandLineOptions, createCommandDefinition } from '../Command/commandDefinition';
 
-const debug = Debug('@signageos/cli:Auth:login');
+const Debug = debug('@signageos/cli:Auth:login');
 
 const OPTION_LIST = [{ name: 'username', type: String, description: `Username or e-mail used for ${parameters.boxHost}` }] as const;
 
@@ -136,7 +136,7 @@ async function getOrCreateApiSecurityToken({
 	const responseOfPost = await postResource(options, ACCOUNT_SECURITY_TOKEN_RESOURCE, query);
 	const bodyOfPost = JSON.parse(await responseOfPost.text(), deserializeJSON);
 
-	debug('POST security-token response', bodyOfPost);
+	Debug('POST security-token response', bodyOfPost);
 
 	if (responseOfPost.status === 201) {
 		return bodyOfPost;

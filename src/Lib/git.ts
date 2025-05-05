@@ -5,7 +5,7 @@ export async function machineHasGit() {
 	try {
 		const result = await executeChildProcess('git --version', true);
 		return result.includes('git version');
-	} catch (error) {
+	} catch {
 		return false;
 	}
 }
@@ -16,9 +16,9 @@ export async function throwErrorIfGitNotInstalled() {
 	}
 }
 
-export async function initGitRepository(relativePath: string) {
+export async function initGitRepository(relativePath: string, verbose: boolean = false) {
 	const absolutePath = path.resolve(relativePath);
-	await executeChildProcess(`git init "${absolutePath}"`, false);
+	await executeChildProcess(`git init "${absolutePath}"`, verbose);
 }
 
 export async function cloneGitRepository(gitUrl: string, targetDir: string) {

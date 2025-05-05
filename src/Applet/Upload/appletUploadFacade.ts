@@ -1,7 +1,7 @@
 import * as path from 'path';
 import * as fs from 'fs-extra';
 import chalk from 'chalk';
-import * as Debug from 'debug';
+import debug from 'debug';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import NotFoundError from '@signageos/sdk/dist/RestApi/Error/NotFoundError';
 import { getAppletFileRelativePath, getAppletFilesDictionary } from './appletUploadFacadeHelper';
@@ -9,7 +9,7 @@ import { getFileType, getFileMD5Checksum } from '../../Lib/fileSystem';
 import { ProgressBar } from '../../CommandLine/IProgressBar';
 import { log } from '@signageos/sdk/dist/Console/log';
 
-const debug = Debug('@signageos/cli:Applet:Upload:appletUploadFacade');
+const Debug = debug('@signageos/cli:Applet:Upload:appletUploadFacade');
 
 export async function updateSingleFileApplet(parameters: {
 	restApi: RestApi;
@@ -46,17 +46,21 @@ export const updateMultiFileApplet = async (parameters: {
 
 	for (let index = 0; index < applet.files.length; index++) {
 		const fileAbsolutePath = applet.files[index];
+		if (!fileAbsolutePath) {
+			continue;
+		}
 		const fileRelativePath = getAppletFileRelativePath(fileAbsolutePath, applet.directoryPath);
 		const fileRelativePosixPath = path.posix.normalize(fileRelativePath.replace(/\\/g, '/'));
-		const fileSize = (await fs.stat(fileAbsolutePath)).size;
+		const fileStats = await fs.stat(fileAbsolutePath);
+		const fileSize = fileStats.size;
 		const fileHash = await getFileMD5Checksum(fileAbsolutePath);
-		const fileType = await getFileType(fileAbsolutePath); // not correctly detected here
-		const currentFileHash = currentAppletFiles[fileRelativePosixPath] ? currentAppletFiles[fileRelativePosixPath].hash : undefined;
-		const currentFileType = currentAppletFiles[fileRelativePosixPath] ? currentAppletFiles[fileRelativePosixPath].type : undefined;
+		const fileType = await getFileType(fileAbsolutePath);
+		const currentFileHash = currentAppletFiles[fileRelativePosixPath]?.hash;
+		const currentFileType = currentAppletFiles[fileRelativePosixPath]?.type;
 
 		delete currentAppletFiles[fileRelativePosixPath];
 
-		debug('check file changed', fileHash, currentFileHash, fileType, currentFileType);
+		Debug('check file changed', fileHash, currentFileHash, fileType, currentFileType);
 
 		if (fileHash === currentFileHash && fileType === currentFileType) {
 			continue;
@@ -109,7 +113,7 @@ export const updateMultiFileApplet = async (parameters: {
 					 * It's not expected behavior but the running CLI command shouldn't fail because of it.
 					 * Probably it's caused by some other process interfering.
 					 */
-					debug(`remove old file ${fileRelativePath} failed`);
+					Debug(`remove old file ${fileRelativePath} failed`);
 				} else {
 					throw error;
 				}

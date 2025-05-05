@@ -20,7 +20,7 @@ export function getCachedValue(key: string): string | null {
 			return null;
 		}
 		return cachedValue.value;
-	} catch (error) {
+	} catch {
 		return null;
 	}
 }
@@ -38,7 +38,7 @@ export function updateCacheValue(key: string, value: string, options: IOptions):
 			expireAt: new Date().valueOf() + options.expireInMs,
 		};
 		fs.writeFileSync(cacheValuePath, JSON.stringify(cachedValue));
-	} catch (error) {
+	} catch {
 		// skip caching
 	}
 }

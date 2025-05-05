@@ -2,10 +2,11 @@ import * as fs from 'fs-extra';
 import * as child_process from 'child_process';
 import chalk from 'chalk';
 import * as path from 'path';
-import * as prompts from 'prompts';
+import prompts from 'prompts';
 import { log } from '@signageos/sdk/dist/Console/log';
+import { initGitRepository } from '../../Lib/git';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
-import { initGitRepository, machineHasGit } from '../../Lib/git';
+import which from 'which';
 
 enum Language {
 	JavaScript = 'javascript',
@@ -22,40 +23,65 @@ enum GitOptions {
 	Yes = 'yes',
 }
 
+enum Packager {
+	Npm = 'npm',
+	Pnpm = 'pnpm',
+	Yarn = 'yarn',
+	Bun = 'bun',
+}
+
 const NAME_REGEXP = /^\w(\w|\d|-)*\w$/;
-const NPM_EXECUTABLE = 'npm';
+let PACKAGER_EXECUTABLE = 'npm';
 
 interface IFile {
 	path: string;
 	content: string;
 }
+interface ScriptDefinition {
+	prepare: string;
+	upload: string;
+	clean: string;
+	escheck: string;
+	postbuild: string;
+	build?: string;
+	start?: string;
+	connect?: string;
+	watch?: string;
+	typecheck?: string;
+}
 
 const OPTION_LIST = [
 	{ name: 'name', type: String, description: `Applet name. Match RegExp: ${NAME_REGEXP.toString()}` },
-	{ name: 'applet-version', type: String, description: `Applet initial version. Use semantic version`, defaultValue: '0.0.0' },
+	{ name: 'applet-version', type: String, description: 'Applet initial version. Use semantic version', defaultValue: '0.0.0' },
 	{ name: 'target-dir', type: String, description: 'Directory where will be the applet generated to' },
-	{ name: 'npm-registry', type: String, description: `NPM registry URL. If you have your private npm registry` },
-	{ name: 'language', type: String, description: `Generate applet with "typescript" or "javascript" source code` },
-	{ name: 'bundler', type: String, description: `Generate applet with "webpack" (default) or "rspack"` },
-	{ name: 'git', type: String, description: `Init applet as git repository "no" (default) or "yes"`, defaultValue: 'no' },
-] as const;
+	{ name: 'git', type: String, description: 'Init applet as git repository "no" (default) or "yes"' },
+	{ name: 'packager', type: String, description: 'Use preferred package manager "npm" (default), "pnpm", "yarn" or "bun"' },
+	{ name: 'npm-registry', type: String, description: 'NPM registry URL. If you have your private npm registry' },
+	{ name: 'language', type: String, description: 'Generate applet with "typescript" or "javascript" source code' },
+	{ name: 'bundler', type: String, description: 'Generate applet with "webpack" (default) or "rspack"' },
+];
 
 const DEPENDENCIES = {
 	common: [
 		'@signageos/front-applet@latest',
-		'@signageos/front-display@14',
+		'@signageos/front-display@latest',
 		'@signageos/webpack-plugin@latest',
-		'es-check@8',
+		'es-check@9',
 
 		/* required for transpilation to ES5 */
-		'@babel/core@7',
-		'@babel/preset-env@7',
-		'babel-loader@8',
-		'css-loader@6',
-		'style-loader@3',
+		'css-loader@7',
+		'style-loader@4',
 		'core-js@3',
 	],
-	webpack: ['webpack@5', 'webpack-cli@4', 'webpack-dev-server@4', 'html-webpack-plugin@5'],
+	webpack: [
+		'webpack@5',
+		'webpack-cli@6',
+		'webpack-dev-server@5',
+		'html-webpack-plugin@5',
+		'babel-loader@10',
+		'@babel/core@7',
+		'@babel/preset-env@7',
+	],
 	rspack: ['@rspack/core@latest', '@rspack/cli@latest'],
 };
 
@@ -102,6 +128,7 @@ const importFileAsString = (relativePath: string): string => {
  * @param {string} options.language - The language of the applet (typescript or javascript)
  * @param {string} options.bundler - The bundler to use (webpack or rspack)
  * @param {string} options.git - Whether to initialize a git repository (yes or no)
+ * @param {string} options.packager - Whether to manage packages with npm, pnpm, bun or yarn
  * @returns {Promise<void>} - A promise that resolves when the applet is generated
  * @example
  * appletGenerate.run({
@@ -122,8 +149,19 @@ export const appletGenerate = createCommandDefinition({
 	async run(options: CommandLineOptions<typeof OPTION_LIST>) {
 		const currentDirectory = process.cwd();
 
+		// Detect if the command has been called with optional parameters
+		const excludedKeys = ['command', 'applet-version'];
+		const argumentsFound =
+			Object.entries(options)
+				.filter(([key, _value]) => !excludedKeys.includes(key))
+				.map(([key, value]) => ({ [key]: value })).length > 0;
+		console.info('sOS CLI started with params:', options);
+
+		// Create file index
+		const generateFiles: IFile[] = [];
+
 		// PROMPT: Applet Name
-		let appletName: string | undefined = options.name;
+		let appletName: string | undefined = typeof options.name === 'string' ? options.name : undefined;
 		if (!appletName) {
 			const response = await prompts({
 				type: 'text',
@@ -140,8 +178,8 @@ export const appletGenerate = createCommandDefinition({
 		}
 
 		// PROMPT: Language select
-		let language: Language | undefined = options.language as Language | undefined;
-		if (language === undefined) {
+		let language: string | undefined;
+		if (options.language === undefined) {
 			const response = await prompts({
 				type: 'select',
 				name: 'language',
@@ -152,19 +190,21 @@ export const appletGenerate = createCommandDefinition({
 				],
 			});
 			language = response.language;
+		} else {
+			language = typeof options.language === 'string' ? options.language.toLowerCase() : Language.TypeScript;
 		}
 		checkSupport('language', language, Object.values(Language));
 
 		// PROMPT: Git support select
-		let git: GitOptions | undefined = options.git as GitOptions | undefined;
+		let git: string | undefined;
 
-		let gitFound = await machineHasGit();
+		const gitFound = await which('git', { nothrow: true });
 		if (!gitFound) {
 			console.error(`Git not found on this machine`);
 		}
 
 		// PROMPT: Skip prompt if git was not found
-		if (git === undefined && gitFound) {
+		if (options.git === undefined && gitFound && !argumentsFound) {
 			const response = await prompts({
 				type: 'select',
 				name: 'git',
@@ -175,12 +215,14 @@ export const appletGenerate = createCommandDefinition({
 				],
 			});
 			git = response.git;
+		} else {
+			git = typeof options.git === 'string' ? options.git.toLowerCase() : GitOptions.No;
 		}
 		checkSupport('git', git, Object.values(GitOptions));
 
 		// PROMPT: Bundler select
-		let bundler: Bundler | undefined = options.bundler?.toLowerCase() as Bundler | undefined;
-		if (bundler === undefined) {
+		let bundler: string | undefined;
+		if (options.bundler === undefined) {
 			const response = await prompts({
 				type: 'select',
 				name: 'bundler',
@@ -191,39 +233,85 @@ export const appletGenerate = createCommandDefinition({
 				],
 			});
 			bundler = response.bundler;
+		} else {
+			bundler = typeof options.bundler === 'string' ? options.bundler.toLowerCase() : Bundler.Webpack;
 		}
 		checkSupport('bundler', bundler, Object.values(Bundler));
 
-		const appletRootDirectory = options['target-dir'] || path.join(currentDirectory, appletName);
-		const appletRootDirectoryName = options['target-dir'] || appletName;
+		const targetDir = typeof options['target-dir'] === 'string' ? options['target-dir'] : undefined;
+		const appletRootDirectory = targetDir || path.join(currentDirectory, appletName);
+		const appletRootDirectoryName = targetDir || appletName;
 
 		// Merge dependencies
 		const mergedDeps = [...DEPENDENCIES.common];
 		switch (bundler) {
-			case Bundler.Webpack:
-				mergedDeps.push(...DEPENDENCIES.webpack);
-				break;
 			case Bundler.Rspack:
 				mergedDeps.push(...DEPENDENCIES.rspack);
 				break;
+			case Bundler.Webpack:
+				mergedDeps.push(...DEPENDENCIES.webpack);
+				break;
 			default:
-				throw new Error(`Bundler ${bundler} is not supported`);
+				console.warn(`Unknown bundler ${bundler}. No additional dependencies added.`);
 		}
 
-		// Configure bundler
-		const bundlerConfig = {
-			[Bundler.Webpack]: {
-				path: path.join(appletRootDirectory, 'webpack.config.js'),
-				content: createWebpackConfig(),
-			},
-			[Bundler.Rspack]: {
-				path: path.join(appletRootDirectory, 'rspack.config.mjs'),
-				content: createRspackConfig(),
-			},
-		};
+		// PROMPT: Package manager select
+		let packager: string | undefined;
+		if (options.packager === undefined) {
+			const response = await prompts({
+				type: 'select',
+				name: 'packager',
+				message: `Select preferred package manager`,
+				choices: [
+					{ title: Packager.Npm, value: Packager.Npm },
+					{ title: Packager.Pnpm, value: Packager.Pnpm },
+					{ title: Packager.Yarn, value: Packager.Yarn },
+					{ title: Packager.Bun, value: Packager.Bun },
+				],
+			});
+			packager = response.packager;
+		} else {
+			packager = typeof options.packager === 'string' ? options.packager.toLowerCase() : Packager.Npm;
+		}
+		checkSupport('packager', packager, Object.values(Packager));
 
-		// Create index files
-		const generateFiles: IFile[] = [];
+		switch (packager) {
+			case Packager.Pnpm:
+				PACKAGER_EXECUTABLE = 'pnpm';
+				RUNSCRIPTS.common = {
+					prepare: 'pnpm run clean && pnpm run build',
+					upload: 'sos applet upload',
+					clean: 'pnpx rimraf dist',
+					escheck: 'pnpx es-check --module es5 dist/**/*.js',
+					postbuild: 'pnpm run escheck',
+				};
+				break;
+			case Packager.Yarn:
+				PACKAGER_EXECUTABLE = 'yarn';
+				RUNSCRIPTS.common = {
+					prepare: 'yarn run clean && yarn run build',
+					upload: 'sos applet upload',
+					clean: 'npx rimraf dist',
+					escheck: 'npx es-check --module es5 dist/**/*.js',
+					postbuild: 'npm run escheck',
+				};
+				break;
+			case Packager.Bun:
+				PACKAGER_EXECUTABLE = 'bun';
+				RUNSCRIPTS.common = {
+					prepare: 'bun run clean && bun run build',
+					upload: 'sos applet upload',
+					clean: 'bunx rimraf dist',
+					escheck: 'bunx es-check --module es5 dist/**/*.js',
+					postbuild: 'bun run escheck',
+				};
+				break;
+			default:
+		}
+		generateFiles.push({
+			path: path.join(appletRootDirectory, '.npmrc'),
+			content: 'registry=https://registry.npmjs.org/\nalways-auth=false',
+		});
 
 		// TypeScript or JavaScript
 		if (language === Language.TypeScript) {
@@ -236,7 +324,12 @@ export const appletGenerate = createCommandDefinition({
 				content: createTsConfig(),
 			});
 			// Extend dependencies for Typescript
-			mergedDeps.push('ts-loader@9', 'typescript@5', '@babel/preset-typescript@7', 'ts-node@10');
+			mergedDeps.push('typescript@5');
+
+			// Extend dependencies for Webpack
+			if (bundler === Bundler.Webpack) {
+				mergedDeps.push('ts-loader@9', '@babel/preset-typescript@7', 'ts-node@10');
+			}
 		} else {
 			generateFiles.push({
 				path: path.join(appletRootDirectory, 'src', 'index.js'),
@@ -253,7 +346,7 @@ export const appletGenerate = createCommandDefinition({
 			});
 		}
 		// Create custom npm registry config
-		if (options['npm-registry']) {
+		if (typeof options['npm-registry'] === 'string') {
 			generateFiles.push({
 				path: path.join(appletRootDirectory, '.npmrc'),
 				content: createNpmRunControl(options['npm-registry']),
@@ -266,9 +359,28 @@ export const appletGenerate = createCommandDefinition({
 		// Add files to project
 		generateFiles.push({
 			path: path.join(appletRootDirectory, 'package.json'),
-			content: JSON.stringify(await createPackageConfig(appletName, options['applet-version'], bundler), undefined, 2) + '\n',
+			content:
+				JSON.stringify(await createPackageConfig(appletName, String(options['applet-version']), bundler, language), undefined, 2) + '\n',
 		});
-		generateFiles.push(bundlerConfig[bundler]);
+
+		// Configure bundler
+		switch (bundler) {
+			case Bundler.Rspack:
+				generateFiles.push({
+					path: path.join(appletRootDirectory, 'rspack.config.mjs'),
+					content: createRspackConfig(),
+				});
+				break;
+			case Bundler.Webpack:
+				generateFiles.push({
+					path: path.join(appletRootDirectory, 'webpack.config.js'),
+					content: createWebpackConfig(),
+				});
+				break;
+			default:
+				throw new Error('Argument --bundler is required');
+		}
+
 		generateFiles.push({
 			path: path.join(appletRootDirectory, 'public', 'index.html'),
 			content: createIndexHtml(appletName),
@@ -278,9 +390,6 @@ export const appletGenerate = createCommandDefinition({
 			content: 'node_modules/\n',
 		});
 
-		// Create project files
-		await fs.mkdir(appletRootDirectory);
-
 		// Initialise git repository
 		if (git === GitOptions.Yes && gitFound) {
 			generateFiles.push({
@@ -288,46 +397,101 @@ export const appletGenerate = createCommandDefinition({
 				content: 'node_modules/\n./dist',
 			});
 
-			try {
-				await initGitRepository(appletRootDirectory);
-			} catch (error) {
+			await initGitRepository(appletRootDirectory, true).catch((error) => {
 				console.error(`Git repository initialization failed: ${error}`);
-			}
+			});
 		}
+
+		// Create applet directory
 		for (const generateFile of generateFiles) {
 			await fs.ensureDir(path.dirname(generateFile.path));
 			await fs.writeFile(generateFile.path, generateFile.content);
 		}
 
-		// Install dependencies
-		console.log('Installing dependencies:\n', mergedDeps);
-		process.chdir(appletRootDirectory);
-		const child = child_process.spawn(NPM_EXECUTABLE, ['install', '--save-dev', ...mergedDeps], {
-			stdio: 'inherit',
-			shell: true,
+		console.info(`Loooking for ${PACKAGER_EXECUTABLE}`);
+		const packagerFound = await which(PACKAGER_EXECUTABLE).catch((err: string) => {
+			console.error(`${PACKAGER_EXECUTABLE} not found on this machine: ${err}`);
 		});
 
-		child.on('close', () => {
-			log('info', `\nApplet ${chalk.green(appletName!)} created!`);
-			log('info', `use: cd ${chalk.green(appletRootDirectoryName!)} and ${chalk.green('npm start')}\n`);
-		});
+		if (packagerFound) {
+			// Install dependencies
+			process.chdir(appletRootDirectory);
+
+			// Ensure the default .npmrc file will be loaded from project root
+			// Yarn 2+ uses .yarnrc.yml, but we can use this flag to override user's .npmrc
+			const packagerPrefix = ''; // 'NPM_CONFIG_USERCONFIG=/dev/null';
+			const configFlag = packager === Packager.Yarn ? '--no-default-rc' : '';
+			const installCommand = packager === Packager.Yarn ? 'add' : 'install';
+
+			// Log the command being executed
+			console.info(
+				`Installing dependencies: ${packagerPrefix} ${PACKAGER_EXECUTABLE} ${installCommand} ${configFlag} --save-dev ${mergedDeps.join(' ')}`,
+			);
+
+			const child = child_process.spawn(PACKAGER_EXECUTABLE, [packagerPrefix, installCommand, configFlag, '--save-dev', ...mergedDeps], {
+				stdio: 'pipe', // Use 'pipe' to capture stdout and stderr
+				shell: true,
+			});
+
+			// Capture and log stdout
+			child.stdout.on('data', (data) => {
+				console.log(`${data.toString()}`);
+			});
+
+			// Capture and log stderr
+			child.stderr.on('data', (data) => {
+				console.error(`${data.toString()}`);
+			});
+
+			// Handle errors
+			child.on('error', (error) => {
+				console.error(`Error executing command: ${error.message}`);
+			});
+
+			// Handle process exit
+			child.on('close', (code) => {
+				if (code === 0) {
+					log('info', `\nApplet ${chalk.green(appletName!)} created!`);
+					log(
+						'info',
+						`\nContinue with ${chalk.green(`cd ${appletRootDirectoryName}`!)} and ${chalk.green(`${PACKAGER_EXECUTABLE} start`)}`,
+					);
+				} else {
+					console.error(`Command exited with code ${code}`);
+				}
+			});
+		} else {
+			log(
+				'info',
+				`${chalk.red(`Please first install ${PACKAGER_EXECUTABLE} globally.`)}\nContinue with ${chalk.green(`cd ${appletRootDirectoryName}`!)}, ${chalk.green(`${PACKAGER_EXECUTABLE} install`)} and ${chalk.green(`${PACKAGER_EXECUTABLE} start`)}`,
+			);
+			log('info', `\nApplet ${chalk.white(appletName!)} created!`);
+		}
 	},
 });
 
 /**
  * Create package.json config
  */
-const createPackageConfig = async (name: string, version: string, bundler: Bundler) => {
-	let scriptDef = { ...RUNSCRIPTS.common };
+const createPackageConfig = async (name: string, version: string, bundler: Bundler | undefined, language: Language) => {
+	// Define type for script definition to avoid TypeScript errors
+	let scriptDef: ScriptDefinition = { ...RUNSCRIPTS.common };
 	switch (bundler) {
-		case Bundler.Webpack:
-			scriptDef = { ...scriptDef, ...RUNSCRIPTS.webpack };
-			break;
 		case Bundler.Rspack:
 			scriptDef = { ...scriptDef, ...RUNSCRIPTS.rspack };
 			break;
+		case Bundler.Webpack:
 		default:
-			throw new Error(`Bundler ${bundler} is not supported`);
+			scriptDef = { ...scriptDef, ...RUNSCRIPTS.webpack };
+	}
+
+	// Add typescript checking before builds
+	if (language === Language.TypeScript) {
+		scriptDef.typecheck = 'tsc --noEmit';
+		// Make sure build exists before modifying it
+		if (scriptDef.build) {
+			scriptDef.build = `npm run typecheck && ${scriptDef.build}`;
+		}
 	}
 
 	return {
@@ -345,11 +509,11 @@ const createPackageConfig = async (name: string, version: string, bundler: Bundl
 const createWebpackConfig = () => importFileAsString('./Templates/webpack.config.js.template');
 const createRspackConfig = () => importFileAsString('./Templates/rspack.config.mjs.template');
 const createIndexHtml = (title: string): string => {
-	return importFileAsString('./Templates/index.html.template').replaceAll('${title}', title);
+	return importFileAsString('./Templates/index.html.template').replace(/\$\{title\}/g, title);
 };
 const createIndexCss = () => importFileAsString('./Templates/index.css.template');
 const createIndexJs = () => importFileAsString('./Templates/index.js.template');
-const createIndexTs = () => createIndexJs(); // There is currently no differences
+const createIndexTs = () => createIndexJs(); // There is currently no difference
 const createTsConfig = () => importFileAsString('./Templates/tsconfig.js.template');
 
 const createNpmRunControl = (registryUrl: string) => `
@@ -364,9 +528,9 @@ always-auth=true
  * @param options - The supported options
  * @throws Will throw an error if the value is not present or not one of the supported options
  */
-const checkSupport = (propName: string, value: any, options: Object) => {
+function checkSupport<T extends {}>(propName: string, value: unknown, options: T[]): asserts value is T {
 	const values = Object.values(options);
-	if (!value || !values.includes(value)) {
+	if (!value || !values.includes(value as T)) {
 		throw new Error(`Missing or incorrect argument --${propName} <${values.join('|')}>`);
 	}
-};
+}

@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import * as prompts from 'prompts';
+import prompts from 'prompts';
 import { loadConfig, updateConfig } from '../RunControl/runControlHelper';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import AuthenitcationError from '@signageos/sdk/dist/RestApi/Error/AuthenticationError';
@@ -31,7 +31,7 @@ const createRestApi = (config: IConfig) => {
 async function getListOfEmulators(restApi: RestApi, organizationUid: string) {
 	try {
 		return await restApi.emulator.list({ organizationUid });
-	} catch (e) {
+	} catch (e: any) {
 		if (e instanceof AuthenitcationError) {
 			throw new Error(`Authentication error. Try to login using ${chalk.green('sos login')}`);
 		} else {
@@ -43,7 +43,7 @@ async function getListOfEmulators(restApi: RestApi, organizationUid: string) {
 async function createNewEmulator(restApi: RestApi, organizationUid: string) {
 	try {
 		return await restApi.emulator.create({ organizationUid });
-	} catch (e) {
+	} catch (e: any) {
 		throw new Error('Unknown error: ' + e.message);
 	}
 }
@@ -65,8 +65,8 @@ export async function loadEmulatorOrCreateNewAndReturnUid(organizationUid: strin
 	let emulatorUid: string = '';
 	log('info', 'Looking for valid emulator assigned to your account via API...');
 	if (listOfEmulatorsResponse.length === 1) {
-		const emulatorName = listOfEmulatorsResponse[0].name;
-		emulatorUid = listOfEmulatorsResponse[0].duid;
+		const emulatorName = listOfEmulatorsResponse[0]?.name ?? 'Unknown';
+		emulatorUid = listOfEmulatorsResponse[0]?.duid ?? '';
 		log('info', `One valid emulator ${chalk.green(emulatorName)} fetched and saved into .sosrc`);
 	} else if (listOfEmulatorsResponse.length > 1) {
 		const selectedEmulator = await prompts({
@@ -83,8 +83,8 @@ export async function loadEmulatorOrCreateNewAndReturnUid(organizationUid: strin
 		log('warning', 'No valid emulator assigned to your account found via API thus newone will be created');
 		await createNewEmulator(restApi, organizationUid);
 		const newEmulatorList = await getListOfEmulators(restApi, organizationUid);
-		const emulatorName = newEmulatorList[0].name;
-		emulatorUid = newEmulatorList[0].duid;
+		const emulatorName = newEmulatorList[0]?.name ?? 'Unknown';
+		emulatorUid = newEmulatorList[0]?.duid ?? '';
 		log('info', `New emulator ${chalk.green(emulatorName)} created and saved into .sosrc`);
 	}
 	await updateConfig({ emulatorUid });

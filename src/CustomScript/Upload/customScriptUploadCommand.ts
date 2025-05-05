@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import { isDeepStrictEqual } from 'util';
-import Debug from 'debug';
+import debug from 'debug';
 import { log } from '@signageos/sdk/dist/Console/log';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
 import { createOrganizationRestApi } from '../../helper';
@@ -12,7 +12,7 @@ import {
 } from '../../Organization/organizationFacade';
 import { ensureCustomScriptVersion, getConfig, uploadCode } from '../customScriptFacade';
 
-const debug = Debug('@signageos/cli:CustomScript:Upload:Command');
+const Debug = debug('@signageos/cli:CustomScript:Upload:Command');
 
 export const OPTION_LIST = [NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION] as const;
 
@@ -32,24 +32,29 @@ export const customScriptUpload = createCommandDefinition({
 		const customScriptVersion = await ensureCustomScriptVersion(restApi, config);
 
 		for (const platform of Object.keys(config.platforms)) {
+			const platformConfig = config.platforms[platform];
+			if (!platformConfig) {
+				console.warn(`Skipping platform ${platform} due to missing configuration`);
+				continue;
+			}
 			await uploadCode({
 				restApi,
 				workDir: currentDirectory,
 				platform,
-				config: config.platforms[platform],
+				config: platformConfig,
 				customScriptVersion,
 			});
 		}
 
 		if (!isDeepStrictEqual(customScriptVersion.configDefinition, config.configDefinition)) {
-			debug('Config definition is different, updating custom script version.');
+			Debug('Config definition is different, updating custom script version.');
 			await restApi.customScript.version.update({
 				customScriptUid: customScriptVersion.customScriptUid,
 				version: customScriptVersion.version,
 				configDefinition: config.configDefinition,
 			});
 		} else {
-			debug('Config definition is the same, skipping update.');
+			Debug('Config definition is the same, skipping update.');
 		}
 
 		log('info', `Custom Script ${chalk.green(config.name)} version ${chalk.green(config.version)} has been uploaded.`);

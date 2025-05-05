@@ -19,21 +19,21 @@ export default defineConfig({
 	module: {
 		rules: [
 			{
-				test: /\.js$/,
-				exclude: /node_modules/,
-				use: {
-					loader: 'babel-loader',
-					options: {
-						presets: ['@babel/preset-env'], // Ensure ES5 transpilation
-						cacheDirectory: true, // Speed up subsequent builds
-					},
-				},
-			},
-			{
 				test: /^(.(?!.module.css))*.css$/,
 				use: ['style-loader', 'css-loader'],
 			},
-			{ test: /\.tsx?$/, loader: 'ts-loader' },
+			{
+				test: /\.(tsx?|js)$/,
+				loader: 'builtin:swc-loader',
+				options: {
+				  jsc: {
+					parser: {
+					  syntax: 'typescript',
+					},
+					target: 'es5',
+				  },
+				},
+			},
 		],
 	},
 	plugins: [

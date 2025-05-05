@@ -1,5 +1,5 @@
 import { createFirmwareVersionRestApi } from '../../helper';
-import * as prompts from 'prompts';
+import prompts from 'prompts';
 import chalk from 'chalk';
 import { IFirmwareVersionCreatable } from '@signageos/sdk/dist/RestApi/Firmware/Version/IFirmwareVersion';
 import { uploadFirmwareVersion } from './firmwareUploadFacade';
@@ -85,7 +85,7 @@ export const firmwareUpload = createCommandDefinition({
 					validateFileExistenceSync(path);
 					pathSet.add(path);
 					log('info', `${chalk.green('File added to upload list')}`);
-				} catch (e) {
+				} catch (e: any) {
 					log('error', e.message);
 				}
 			}

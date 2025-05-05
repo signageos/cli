@@ -1,5 +1,5 @@
-import * as Debug from 'debug';
-import * as prompts from 'prompts';
+import debug from 'debug';
+import prompts from 'prompts';
 import { deserializeJSON, getApiUrl, postResource } from '../helper';
 import { IOrganization } from '../Organization/organizationFacade';
 import { DevicePowerAction } from '@signageos/sdk/dist/RestApi/Device/PowerAction/IPowerAction';
@@ -9,7 +9,7 @@ import IDeviceReadOnly from '@signageos/sdk/dist/RestApi/Device/IDevice';
 import { ApiVersions } from '@signageos/sdk/dist/RestApi/apiVersions';
 import { loadConfig } from '../RunControl/runControlHelper';
 
-const debug = Debug('@signageos/cli:Device:facade');
+const Debug = debug('@signageos/cli:Device:facade');
 
 export interface ActionData {
 	name: string;
@@ -43,7 +43,7 @@ export async function getDeviceUid(restApi: RestApi, options: CommandLineOptions
 				value: dev.uid,
 			})),
 		});
-		debug('Device selected', response.deviceUid);
+		Debug('Device selected', response.deviceUid);
 		deviceUid = response.deviceUid;
 	}
 	if (!deviceUid) {

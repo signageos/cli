@@ -1,7 +1,7 @@
 import * as path from 'path';
 import * as fs from 'fs-extra';
 import * as unzipper from 'unzipper';
-import * as should from 'should';
+import should from 'should';
 import { generateZip } from '../../../src/Lib/archive';
 import { useTmpFiles } from '../../lib/tmpFiles';
 

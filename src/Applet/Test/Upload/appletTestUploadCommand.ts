@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import * as prompts from 'prompts';
+import prompts from 'prompts';
 import { createOrganizationRestApi } from '../../../helper';
 import {
 	getOrganization,
@@ -100,13 +100,13 @@ export const appletTestUpload = createCommandDefinition({
 				...identifiersToCreate.map(async (identifier) => {
 					await restApi.applet.tests.create(applet.uid, appletVersion.version, {
 						identifier,
-						binary: testFilesContents[identifier],
+						binary: testFilesContents[identifier] ?? '',
 					});
 					progressBar.update({ add: 1 });
 				}),
 				...identifiersToUpdate.map(async (identifier) => {
 					await restApi.applet.tests.update(applet.uid, appletVersion.version, identifier, {
-						binary: testFilesContents[identifier],
+						binary: testFilesContents[identifier] ?? '',
 					});
 					progressBar.update({ add: 1 });
 				}),

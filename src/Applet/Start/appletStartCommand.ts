@@ -79,7 +79,7 @@ export const appletStart = createCommandDefinition({
 		let appletVersion: string | undefined;
 		try {
 			({ appletUid, appletVersion } = await dev.applet.identification.getAppletUidAndVersion(appletPath));
-		} catch (e) {
+		} catch {
 			log('warning', chalk.yellow('Applet is not uploaded yet. It cannot be developed on real device.'));
 		}
 

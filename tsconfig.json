@@ -1,26 +1,13 @@
 {
+    "extends": "@signageos/codestyle/tsconfig-strict",
     "compilerOptions": {
-        "module": "commonjs",
         "outDir": "dist",
         "rootDir": "src",
-        "sourceMap": true,
-        "target": "es5",
-        "declaration": true,
-        "moduleResolution": "node",
-        "experimentalDecorators": true,
-        "emitDecoratorMetadata": true,
-        "pretty": true,
-        "noImplicitAny": true,
-        "strictNullChecks": true,
-        "noImplicitThis": true,
-        "noUnusedParameters": true,
-        "noUnusedLocals": true,
         "typeRoots": [
             "node_modules/@types/"
         ],
         "lib": ["dom", "es5", "scripthost", "esnext"],
-        "downlevelIteration": true,
-        "skipLibCheck": true
+        "downlevelIteration": true
     },
     "include": [
         "src/**/*.ts"

@@ -1,5 +1,5 @@
 import * as path from 'path';
-import * as prompts from 'prompts';
+import prompts from 'prompts';
 import chalk from 'chalk';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import ISdkApplet from '@signageos/sdk/dist/RestApi/Applet/IApplet';
@@ -77,7 +77,7 @@ export async function getAppletUid(restApi: RestApi, options: CommandLineOptions
 			});
 			appletUid = response.appletUid;
 		} else {
-			appletUid = candidatesOfApplets[0].uid;
+			appletUid = candidatesOfApplets[0]?.uid;
 		}
 	}
 	if (!appletUid) {
@@ -93,7 +93,7 @@ export async function getAppletVersionFromApi(restApi: RestApi, appletUid: strin
 	let appletVersion: string;
 
 	const appletVersions = await restApi.applet.version.list(appletUid);
-	if (appletVersions.length === 1) {
+	if (appletVersions.length === 1 && appletVersions[0]?.version) {
 		appletVersion = appletVersions[0].version;
 	} else {
 		const response = await prompts({
