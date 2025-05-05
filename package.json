@@ -13,7 +13,7 @@
     "type": "git"
   },
   "scripts": {
-    "build": "npx check-engine@latest && npm run check-types && tsc && npm run build:templates",
+    "build": "npx check-engine@latest && tsc && npm run build:templates",
     "build:templates": "node tools/include-templates.js",
     "lint:eslint": "eslint --ext .ts,.tsx,.js,.json ./src/",
     "lint": "npm run lint:eslint",
@@ -26,7 +26,7 @@
     "check": "npm run depcheck && npx --userconfig ./.npmrc @signageos/lib check-deps && npm run check-circular-deps",
     "check-circular-deps": "npx madge@5 --circular --extensions ts ./src/",
     "depcheck": "depcheck --config .depcheckrc.json",
-    "check-types": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
     "prettier:format": "prettier \"(src|tests|tools)/**/*.+(ts|js)\" --write"
   },
   "license": "MIT",

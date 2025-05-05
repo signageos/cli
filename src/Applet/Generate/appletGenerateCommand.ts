@@ -37,6 +37,18 @@ interface IFile {
 	path: string;
 	content: string;
 }
+interface ScriptDefinition {
+	prepare: string;
+	upload: string;
+	clean: string;
+	escheck: string;
+	postbuild: string;
+	build?: string;
+	start?: string;
+	connect?: string;
+	watch?: string;
+	typecheck?: string;
+}
 
 const OPTION_LIST = [
 	{ name: 'name', type: String, description: `Applet name. Match RegExp: ${NAME_REGEXP.toString()}` },
@@ -312,7 +324,12 @@ export const appletGenerate = createCommandDefinition({
 				content: createTsConfig(),
 			});
 			// Extend dependencies for Typescript
-			mergedDeps.push('ts-loader@9', 'typescript@5', '@babel/preset-typescript@7', 'ts-node@10');
+			mergedDeps.push('typescript@5');
+
+			// Extend dependencies for Webpack
+			if (bundler === Bundler.Webpack) {
+				mergedDeps.push('ts-loader@9', '@babel/preset-typescript@7', 'ts-node@10');
+			}
 		} else {
 			generateFiles.push({
 				path: path.join(appletRootDirectory, 'src', 'index.js'),
@@ -342,7 +359,8 @@ export const appletGenerate = createCommandDefinition({
 		// Add files to project
 		generateFiles.push({
 			path: path.join(appletRootDirectory, 'package.json'),
-			content: JSON.stringify(await createPackageConfig(appletName, String(options['applet-version']), bundler), undefined, 2) + '\n',
+			content:
+				JSON.stringify(await createPackageConfig(appletName, String(options['applet-version']), bundler, language), undefined, 2) + '\n',
 		});
 
 		// Configure bundler
@@ -455,8 +473,9 @@ export const appletGenerate = createCommandDefinition({
 /**
  * Create package.json config
  */
-const createPackageConfig = async (name: string, version: string, bundler: Bundler | undefined) => {
-	let scriptDef = { ...RUNSCRIPTS.common };
+const createPackageConfig = async (name: string, version: string, bundler: Bundler | undefined, language: Language) => {
+	// Define type for script definition to avoid TypeScript errors
+	let scriptDef: ScriptDefinition = { ...RUNSCRIPTS.common };
 	switch (bundler) {
 		case Bundler.Rspack:
 			scriptDef = { ...scriptDef, ...RUNSCRIPTS.rspack };
@@ -464,6 +483,15 @@ const createPackageConfig = async (name: string, version: string, bundler: Bundl
 		case Bundler.Webpack:
 		default:
 			scriptDef = { ...scriptDef, ...RUNSCRIPTS.webpack };
+	}
+
+	// Add typescript checking before builds
+	if (language === Language.TypeScript) {
+		scriptDef.typecheck = 'tsc --noEmit';
+		// Make sure build exists before modifying it
+		if (scriptDef.build) {
+			scriptDef.build = `npm run typecheck && ${scriptDef.build}`;
+		}
 	}
 
 	return {
