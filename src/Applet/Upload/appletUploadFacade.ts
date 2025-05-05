@@ -75,7 +75,7 @@ export const updateMultiFileApplet = async (parameters: {
 
 		const fileStream = fs.createReadStream(fileAbsolutePath);
 		fileStream.pause();
-		fileStream.on('data', (chunk: Buffer) => {
+		fileStream.on('data', (chunk: string | Buffer) => {
 			if (progressBar) {
 				progressBar.update({ add: chunk.length });
 			}
@@ -196,7 +196,7 @@ export const createMultiFileFileApplet = async (parameters: {
 
 				const fileStream = fs.createReadStream(fileAbsolutePath);
 				fileStream.pause();
-				fileStream.on('data', (chunk: Buffer) => {
+				fileStream.on('data', (chunk: string | Buffer) => {
 					if (progressBar) {
 						progressBar.update({ add: chunk.length });
 					}

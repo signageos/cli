@@ -97,9 +97,21 @@ test:general:windows:
     - windows
   script:
     - Copy-Item .env.amy .env
+    # Add npm's global bin directory to PATH
+    - $env:PATH = "$(npm config get prefix)\;$env:PATH"
+    # Install packagers for testing
     - npm -g install yarn --force
+    - yarn --version
     - npm -g install bun
+    - bun --version
     - npm -g install pnpm
+    - pnpm --version
+    # Install Git using its official installer
+    - Invoke-WebRequest -Uri "https://github.com/git-for-windows/git/releases/download/v2.45.1.windows.1/Git-2.45.1-64-bit.exe" -OutFile "git-installer.exe"
+    - Start-Process -FilePath "git-installer.exe" -ArgumentList "/VERYSILENT /NORESTART" -Wait
+    - $env:PATH = "C:\Program Files\Git\bin;$env:PATH"
+    - git --version
+    # Install dependencies
     - npm install
     - $env:NPM_REGISTRY_URL = "https://registry.npmjs.org/"
     - $env:NPM_REGISTRY_HOST = "registry.npmjs.org"
