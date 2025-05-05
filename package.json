@@ -15,8 +15,10 @@
   "scripts": {
     "build": "npx check-engine@latest && tsc && npm run build:templates",
     "build:templates": "node tools/include-templates.js",
-    "lint:eslint": "eslint --ext .ts,.tsx,.js,.json ./src/",
-    "lint": "npm run lint:eslint",
+    "lint": "eslint --config ./eslint.config.mjs --ext .ts,.tsx,.js ./src/",
+    "lint:fix": "eslint --config ./eslint.config.mjs --fix --ext .ts,.tsx,.js ./src/",
+    "lint:prettier": "prettier  \"(src|tests|tools)/**/*.+(ts|tsx|json|js)\" --check",
+    "lint:prettier:fix": "prettier  \"(src|tests|tools)/**/*.+(ts|tsx|json|js)\" --write",
     "clean": "rm -rf dist/*",
     "clean-build": "npm run clean && npm run build && chmod +x dist/index.js",
     "test": "env NODE_ENV=test mocha",
