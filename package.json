@@ -23,7 +23,7 @@
     "test:windows": "cross-env NODE_ENV=test mocha",
     "test:coverage": "c8 npm run test",
     "watch": "tsc --watch",
-    "check": "npm run depcheck && npx --userconfig ./.npmrc @signageos/lib check-deps && npm run check-circular-deps",
+    "check": "npm run depcheck && npx --userconfig ./.npmrc @signageos/lib-ci check-deps && npm run check-circular-deps",
     "check-circular-deps": "npx madge@5 --circular --extensions ts ./src/",
     "depcheck": "depcheck --config .depcheckrc.json",
     "typecheck": "tsc --noEmit",

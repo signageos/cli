@@ -20,7 +20,7 @@ cache:
 before_script:
   - export VERSION=`cat ./VERSION`
   - export TAG=`cat ./PRERELEASE`
-  - npx --userconfig ./.npmrc @signageos/lib@latest version-upgrade $VERSION
+  - npx --userconfig ./.npmrc @signageos/lib-ci@latest version-upgrade $VERSION
   - mkdir -p dist
   - npm install
 
@@ -50,9 +50,9 @@ prepare:
     - node --version
     - npm --version
     - npm ci --cache npm-cache --prefer-offline --ignore-scripts
-    - npm i @signageos/lib --ignore-scripts --cache npm-cache --prefer-offline
+    - npm i @signageos/lib-ci --ignore-scripts --cache npm-cache --prefer-offline
     - npm i @signageos/file --cache npm-cache --prefer-offline
-    - npx --userconfig ./.npmrc @signageos/lib@latest version-upgrade $VERSION
+    - npx --userconfig ./.npmrc @signageos/lib-ci@latest version-upgrade $VERSION
 
 windows-prepare:
   image: $CI_REGISTRY/signageos/docker:master
