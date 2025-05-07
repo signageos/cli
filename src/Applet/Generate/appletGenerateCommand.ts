@@ -282,7 +282,7 @@ export const appletGenerate = createCommandDefinition({
 					prepare: 'pnpm run clean && pnpm run build',
 					upload: 'sos applet upload',
 					clean: 'pnpx rimraf dist',
-					escheck: 'pnpx es-check --module es5 dist/**/*.js',
+					escheck: 'pnpx es-check --module es5 "./dist/**/*.js"',
 					postbuild: 'pnpm run escheck',
 				};
 				break;
@@ -292,7 +292,7 @@ export const appletGenerate = createCommandDefinition({
 					prepare: 'yarn run clean && yarn run build',
 					upload: 'sos applet upload',
 					clean: 'npx rimraf dist',
-					escheck: 'npx es-check --module es5 dist/**/*.js',
+					escheck: 'npx es-check --module es5 "./dist/**/*.js"',
 					postbuild: 'npm run escheck',
 				};
 				break;
@@ -302,7 +302,7 @@ export const appletGenerate = createCommandDefinition({
 					prepare: 'bun run clean && bun run build',
 					upload: 'sos applet upload',
 					clean: 'bunx rimraf dist',
-					escheck: 'bunx es-check --module es5 dist/**/*.js',
+					escheck: 'ls ./dist && bunx es-check --module es5 "./dist/**/*.js"',
 					postbuild: 'bun run escheck',
 				};
 				break;
@@ -420,7 +420,21 @@ export const appletGenerate = createCommandDefinition({
 			// Ensure the default .npmrc file will be loaded from project root
 			// Yarn 2+ uses .yarnrc.yml, but we can use this flag to override user's .npmrc
 			const packagerPrefix = ''; // 'NPM_CONFIG_USERCONFIG=/dev/null';
-			const configFlag = packager === Packager.Yarn ? '--no-default-rc' : '';
+
+			// Apply packager specific options
+			let configFlag: string = '';
+			switch (packager) {
+				case Packager.Yarn:
+					// Prevent Yarn from automatically detecting yarnrc and npmrc files
+					configFlag = '--no-default-rc';
+					break;
+				case Packager.Bun:
+					// Prevent Bun from failing on issues related to lockfile permissions
+					configFlag = '--frozen-lockfile';
+					break;
+				default:
+			}
+
 			const installCommand = packager === Packager.Yarn ? 'add' : 'install';
 
 			// Log the command being executed
