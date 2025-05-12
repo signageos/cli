@@ -507,6 +507,7 @@ const createPackageConfig = async (name: string, version: string, bundler: Bundl
 	return {
 		name,
 		version,
+		author: '',
 		main: 'dist/index.html',
 		scripts: scriptDef,
 		files: ['dist', 'CHANGELOG.md', 'README.md'],
