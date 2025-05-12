@@ -31,9 +31,9 @@ export async function getAppletDirectoryAbsolutePath(
 		appletDirectoryPath = DEFAULT_APPLET_DIR_PATH;
 	}
 
-	// Special handling for test case scenario
+	// Special handling for scenario when appletDirectoryPath is set to the current directory (test scenario)
 	if (appletDirectoryPath === '.' && currentDirectory === '/') {
-		return '/'; // Return root directory for the specific test case
+		return '/';
 	}
 
 	// When using the default directory ('.'), use the current directory directly

@@ -302,7 +302,7 @@ export const appletGenerate = createCommandDefinition({
 					prepare: 'bun run clean && bun run build',
 					upload: 'sos applet upload',
 					clean: 'bunx rimraf dist',
-					escheck: 'ls ./dist && bunx es-check --module es5 "./dist/**/*.js"',
+					escheck: 'bunx es-check --module es5 "./dist/**/*.js"',
 					postbuild: 'bun run escheck',
 				};
 				break;
