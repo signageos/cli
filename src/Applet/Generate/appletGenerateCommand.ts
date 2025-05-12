@@ -363,6 +363,16 @@ export const appletGenerate = createCommandDefinition({
 				JSON.stringify(await createPackageConfig(appletName, String(options['applet-version']), bundler, language), undefined, 2) + '\n',
 		});
 
+		generateFiles.push({
+			path: path.join(appletRootDirectory, 'CHANGELOG.md'),
+			content: createChangelogFile(),
+		});
+
+		generateFiles.push({
+			path: path.join(appletRootDirectory, 'README.md'),
+			content: createReadmeFile(),
+		});
+
 		// Configure bundler
 		switch (bundler) {
 			case Bundler.Rspack:
@@ -499,7 +509,7 @@ const createPackageConfig = async (name: string, version: string, bundler: Bundl
 		version,
 		main: 'dist/index.html',
 		scripts: scriptDef,
-		files: ['dist'],
+		files: ['dist', 'CHANGELOG.md', 'README.md'],
 		description: 'signageOS applet',
 		repository: {},
 		license: 'UNLICENSED',
@@ -515,6 +525,9 @@ const createIndexCss = () => importFileAsString('./Templates/index.css.template'
 const createIndexJs = () => importFileAsString('./Templates/index.js.template');
 const createIndexTs = () => createIndexJs(); // There is currently no difference
 const createTsConfig = () => importFileAsString('./Templates/tsconfig.js.template');
+
+const createChangelogFile = () => importFileAsString('./Templates/CHANGELOG.md.template');
+const createReadmeFile = () => importFileAsString('./Templates/README.md.template');
 
 const createNpmRunControl = (registryUrl: string) => `
 registry=${registryUrl}
