@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Usage of @signageos/lib-ci dependency
 - Updated dependencies for applet generator
 
+### Added
+- Command auto-suggestion feature (`sos autocomplete install` command to set up bash/zsh tab completion)
+
 ## [2.3.1] - 2025-04-25
 ### Fixed
 - Issue with `sos device connect --hot-reload` command for older devices (e.g.: Tizen 2.4) with initial build
