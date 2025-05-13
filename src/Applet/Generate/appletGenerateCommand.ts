@@ -433,6 +433,7 @@ export const appletGenerate = createCommandDefinition({
 					configFlag = '--frozen-lockfile';
 					break;
 				default:
+				// Other packagers (npm, pnpm) currently do not require any special config
 			}
 
 			const installCommand = packager === Packager.Yarn ? 'add' : 'install';
