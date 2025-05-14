@@ -37,7 +37,7 @@ export async function getOrganizationUidOrDefaultOrSelect(
 
 	if (!organizationUid) {
 		organizationUid = await selectOrganizationUid(options);
-		if (organizationUid) {
+		if (organizationUid && !options['no-default-organization']) {
 			const response = await prompts({
 				type: 'confirm',
 				name: 'setDefault',
