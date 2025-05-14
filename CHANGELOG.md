@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleasd]
+### Added
+- New CI pipeline to detect accidental private package dependencies that would break installation for users
 
 ## [2.3.1] - 2025-04-25
 ### Fixed

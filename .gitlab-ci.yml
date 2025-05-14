@@ -131,6 +131,27 @@ test:general:
     - export NPM_REGISTRY_HOST=registry.npmjs.org
     - npm run test:coverage
 
+test:public:
+  stage: test
+  except:
+    - tags
+  allow_failure: false
+  script:
+    - echo "Unsetting private registry credentials to simulate public installation"
+    - unset NPM_AUTH_TOKEN
+    - export NPM_REGISTRY_URL=https://registry.npmjs.org/
+    - export NPM_REGISTRY_HOST=registry.npmjs.org
+    - echo "Attempting to install package without credentials to detect private dependencies..."
+    - echo "NPM Registry configuration:"
+    - 'npm config list | grep -E "(registry|auth|_auth|token|proxy|https)" || true'
+    - echo "Testing package installation..."
+    - |
+      npm install --production --no-package-lock || (
+        echo "ERROR: Installation failed - this may indicate private dependencies" 
+        exit 1
+      )
+    - echo "Installation successful - no private dependencies detected"
+
 test:lint:
   stage: test
   except:
