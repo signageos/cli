@@ -26,10 +26,10 @@ function buildCompletionSchema(
 	}
 
 	// Process subcommands with a simpler approach
-	command.commands.forEach((subCommand) => {
+	for (const subCommand of command.commands) {
 		const newParent = commandName || '';
 		Object.assign(result, buildCompletionSchema(subCommand, newParent, false));
-	});
+	}
 
 	return result;
 }
