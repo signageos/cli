@@ -20,7 +20,7 @@ cache:
 before_script:
   - export VERSION=`cat ./VERSION`
   - export TAG=`cat ./PRERELEASE`
-  - npx --userconfig ./.npmrc @signageos/lib@latest version-upgrade $VERSION
+  - npx --userconfig ./.npmrc @signageos/lib-ci@latest version-upgrade $VERSION
   - mkdir -p dist
   - npm install
 
@@ -50,9 +50,9 @@ prepare:
     - node --version
     - npm --version
     - npm ci --cache npm-cache --prefer-offline --ignore-scripts
-    - npm i @signageos/lib --ignore-scripts --cache npm-cache --prefer-offline
+    - npm i @signageos/lib-ci --ignore-scripts --cache npm-cache --prefer-offline
     - npm i @signageos/file --cache npm-cache --prefer-offline
-    - npx --userconfig ./.npmrc @signageos/lib@latest version-upgrade $VERSION
+    - npx --userconfig ./.npmrc @signageos/lib-ci@latest version-upgrade $VERSION
 
 windows-prepare:
   image: $CI_REGISTRY/signageos/docker:master
@@ -87,19 +87,31 @@ test:general:windows:
   image: docker:24.0.9-windowsservercore-1809
   needs:
     - windows-prepare
-  allow_failure: true
+  allow_failure: false
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       when: never
-    - when: manual
+    - when: always
   stage: test
   tags:
     - windows
   script:
     - Copy-Item .env.amy .env
+    # Add npm's global bin directory to PATH
+    - $env:PATH = "$(npm config get prefix)\;$env:PATH"
+    # Install packagers for testing
     - npm -g install yarn --force
+    - yarn --version
     - npm -g install bun
+    - bun --version
     - npm -g install pnpm
+    - pnpm --version
+    # Install Git using its official installer
+    - Invoke-WebRequest -Uri "https://github.com/git-for-windows/git/releases/download/v2.45.1.windows.1/Git-2.45.1-64-bit.exe" -OutFile "git-installer.exe"
+    - Start-Process -FilePath "git-installer.exe" -ArgumentList "/VERYSILENT /NORESTART" -Wait
+    - $env:PATH = "C:\Program Files\Git\bin;$env:PATH"
+    - git --version
+    # Install dependencies
     - npm install
     - $env:NPM_REGISTRY_URL = "https://registry.npmjs.org/"
     - $env:NPM_REGISTRY_HOST = "registry.npmjs.org"
@@ -130,6 +142,20 @@ test:general:
     - export NPM_REGISTRY_URL=https://registry.npmjs.org/
     - export NPM_REGISTRY_HOST=registry.npmjs.org
     - npm run test:coverage
+
+test:public:
+  stage: test
+  except:
+    - tags
+  allow_failure: false
+  script:
+    - echo "Attempting to install package without credentials to detect private dependencies..."
+    - |
+      npm install --registry https://registry.npmjs.org/ --production --no-package-lock --dry-run || (
+        echo "ERROR: Installation failed - this may indicate private dependencies" 
+        exit 1
+      )
+    - echo "Installation successful - no private dependencies detected"
 
 test:lint:
   stage: test

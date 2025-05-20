@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Added CHANGELOG and README files to new applets
 - Prepared for applet authorship
+- Fixing windows build pipeline
+- Usage of @signageos/lib-ci dependency
+- Updated dependencies for applet generator
 
 ## [2.3.1] - 2025-04-25
 ### Fixed
