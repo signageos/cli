@@ -143,6 +143,20 @@ test:general:
     - export NPM_REGISTRY_HOST=registry.npmjs.org
     - npm run test:coverage
 
+test:public:
+  stage: test
+  except:
+    - tags
+  allow_failure: false
+  script:
+    - echo "Attempting to install package without credentials to detect private dependencies..."
+    - |
+      npm install --registry https://registry.npmjs.org/ --production --no-package-lock --dry-run || (
+        echo "ERROR: Installation failed - this may indicate private dependencies" 
+        exit 1
+      )
+    - echo "Installation successful - no private dependencies detected"
+
 test:lint:
   stage: test
   except:
