@@ -31,25 +31,11 @@ export async function getAppletDirectoryAbsolutePath(
 		appletDirectoryPath = DEFAULT_APPLET_DIR_PATH;
 	}
 
-	// Special handling for scenario when appletDirectoryPath is set to the current directory (test scenario)
-	if (appletDirectoryPath === '.' && currentDirectory === '/') {
-		return '/';
-	}
-
-	// When using the default directory ('.'), use the current directory directly
-	if (appletDirectoryPath === '.') {
-		appletDirectoryPath = currentDirectory;
-	} else if (!path.isAbsolute(appletDirectoryPath)) {
-		// Make other relative paths absolute
+	if (!path.isAbsolute(appletDirectoryPath)) {
 		appletDirectoryPath = path.join(currentDirectory, appletDirectoryPath);
 	}
-
-	// Normalize the path for cross-platform compatibility
-	appletDirectoryPath = path.normalize(appletDirectoryPath);
-
-	// Remove trailing slash for both Windows and Unix paths
-	if (appletDirectoryPath.endsWith(path.sep)) {
-		appletDirectoryPath = appletDirectoryPath.slice(0, -1);
+	if (appletDirectoryPath.length > 1 && appletDirectoryPath[appletDirectoryPath.length - 1] === '/') {
+		appletDirectoryPath = appletDirectoryPath.substring(0, appletDirectoryPath.length - 1);
 	}
 
 	log('info', `\nUse applet project directory path: ${appletDirectoryPath}`);
