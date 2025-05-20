@@ -7,11 +7,7 @@ import { updateMultiFileApplet } from '../../../../src/Applet/Upload/appletUploa
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import NotFoundError from '@signageos/sdk/dist/RestApi/Error/NotFoundError';
 import IAppletVersion from '@signageos/sdk/dist/RestApi/Applet/Version/IAppletVersion';
-
-function makeTempDir() {
-	const prefix = path.join(os.tmpdir(), 'appletUploadFacadeSpec-');
-	return fs.mkdtemp(prefix);
-}
+import wait from '../../../../src/Timer/wait';
 
 describe('Applet.Upload.appletUploadFacade', () => {
 	describe('updateMultiFileApplet', async () => {
@@ -92,7 +88,7 @@ describe('Applet.Upload.appletUploadFacade', () => {
 				should(mockRestApi.applet.version.file.remove.getCall(0).args).deepEqual(['test1', '1.0.0', 'oldFile1.txt', { build: false }]);
 				should(mockRestApi.applet.version.file.remove.getCall(1).args).deepEqual(['test1', '1.0.0', 'oldFile2.txt', { build: false }]);
 			} finally {
-				await fs.remove(tmpDir);
+				await safeRemove(tmpDir);
 			}
 		});
 
@@ -174,7 +170,7 @@ describe('Applet.Upload.appletUploadFacade', () => {
 
 				should(mockRestApi.applet.version.file.remove.callCount).equal(0);
 			} finally {
-				await fs.remove(tmpDir);
+				await safeRemove(tmpDir);
 			}
 		});
 
@@ -223,7 +219,7 @@ describe('Applet.Upload.appletUploadFacade', () => {
 				should(mockRestApi.applet.version.file.update.callCount).equal(0);
 				should(mockRestApi.applet.version.file.remove.callCount).equal(0);
 			} finally {
-				await fs.remove(tmpDir);
+				await safeRemove(tmpDir);
 			}
 		});
 
@@ -270,7 +266,7 @@ describe('Applet.Upload.appletUploadFacade', () => {
 
 				should(mockRestApi.applet.version.file.remove.callCount).equal(1);
 			} finally {
-				await fs.remove(tmpDir);
+				await safeRemove(tmpDir);
 			}
 		});
 
@@ -319,8 +315,36 @@ describe('Applet.Upload.appletUploadFacade', () => {
 
 				should(mockRestApi.applet.version.file.remove.callCount).equal(1);
 			} finally {
-				await fs.remove(tmpDir);
+				await safeRemove(tmpDir);
 			}
 		});
 	});
 });
+
+function makeTempDir() {
+	const prefix = path.join(os.tmpdir(), 'appletUploadFacadeSpec-');
+	return fs.mkdtemp(prefix);
+}
+
+// Helper function to safely remove temporary directories (Windows compatible)
+async function safeRemove(dir: string): Promise<void> {
+	try {
+		// Ensure all file handles are closed by using rimraf with maxRetries
+		await fs.remove(dir);
+	} catch (err: unknown) {
+		const error = err as { code?: string; message?: string };
+		// On Windows, sometimes we need to retry after a small delay
+		if (error.code === 'ENOTEMPTY' || error.code === 'EBUSY') {
+			await wait(100);
+			try {
+				await fs.remove(dir);
+			} catch (err: unknown) {
+				const retryError = err as { message?: string };
+				// If still failing, log but don't throw to prevent test failures
+				console.warn(`Warning: Could not remove temporary directory ${dir}: ${retryError.message || 'Unknown error'}`);
+			}
+		} else {
+			console.warn(`Warning: Could not remove temporary directory ${dir}: ${error.message || 'Unknown error'}`);
+		}
+	}
+}

@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleasd]
 ### Fixed
 - Issue when using flag `--no-default-organization`, where user was prompted to make selection as default
+- Fixing windows build pipeline
+- Usage of @signageos/lib-ci dependency
+- Updated dependencies for applet generator
 
 ## [2.3.1] - 2025-04-25
 ### Fixed

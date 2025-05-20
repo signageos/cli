@@ -38,7 +38,7 @@ export async function uploadFirmwareVersion(parameters: {
 
 		const stream = fs.createReadStream(filePath);
 		stream.pause();
-		stream.on('data', (chunk: Buffer) => {
+		stream.on('data', (chunk: string | Buffer) => {
 			if (progressBar) {
 				progressBar.update({ add: chunk.length, name: fileName });
 			}
