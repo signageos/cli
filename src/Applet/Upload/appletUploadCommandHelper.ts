@@ -34,8 +34,10 @@ export async function getAppletDirectoryAbsolutePath(
 	if (!path.isAbsolute(appletDirectoryPath)) {
 		appletDirectoryPath = path.join(currentDirectory, appletDirectoryPath);
 	}
-	if (appletDirectoryPath.length > 1 && appletDirectoryPath[appletDirectoryPath.length - 1] === '/') {
-		appletDirectoryPath = appletDirectoryPath.substring(0, appletDirectoryPath.length - 1);
+	// Handle trailing slashes (both / and \) for cross-platform compatibility
+	appletDirectoryPath = path.normalize(appletDirectoryPath);
+	if (appletDirectoryPath.length > 1 && (appletDirectoryPath.endsWith('/') || appletDirectoryPath.endsWith('\\'))) {
+		appletDirectoryPath = appletDirectoryPath.slice(0, -1);
 	}
 
 	log('info', `\nUse applet project directory path: ${appletDirectoryPath}`);
