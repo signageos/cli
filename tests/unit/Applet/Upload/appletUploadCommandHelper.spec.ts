@@ -14,11 +14,6 @@ const DEFAULT_APPLET_DIR_PATH = '.';
 const DEFAULT_APPLET_ENTRY_FILE_PATH = 'dist/index.html';
 const DEFAULT_APPLET_BINARY_FILE_PATH = 'dist/index.html';
 
-// Simple helper to normalize paths for platform compatibility
-function normalizePath(p: string): string {
-	return pathTool.normalize(p);
-}
-
 const fsMock = {
 	pathExists: (path: string) => {
 		// Special case for root directory which may be normalized differently on different platforms
@@ -38,7 +33,7 @@ const fsMock = {
 			normalizePath(ROOT_DIR), // Root directory
 		];
 
-		return validPaths.some((validPath) => normalizedPath === validPath);
+		return validPaths.includes(normalizedPath);
 	},
 	stat: (path: string) => {
 		// Special case for root directory which may be normalized differently on different platforms
@@ -81,11 +76,6 @@ import {
 } from '../../../../src/Applet/Upload/appletUploadCommandHelper';
 import { generalOptions } from '../../helperMock';
 rewireMock.disable();
-
-// Helper to normalize path assertions
-function assertPathsEqual(actual: string, expected: string) {
-	should.equal(normalizePath(actual), normalizePath(expected));
-}
 
 describe('unit.appletUploadCommandHelper', () => {
 	describe('getAppletDirectoryAbsolutePath', () => {
@@ -357,3 +347,13 @@ describe('unit.appletUploadCommandHelper', () => {
 		});
 	});
 });
+
+// Simple helper to normalize paths for platform compatibility
+function normalizePath(p: string): string {
+	return pathTool.normalize(p);
+}
+
+// Helper to normalize path assertions
+function assertPathsEqual(actual: string, expected: string) {
+	should.equal(normalizePath(actual), normalizePath(expected));
+}

@@ -7,34 +7,7 @@ import { updateMultiFileApplet } from '../../../../src/Applet/Upload/appletUploa
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import NotFoundError from '@signageos/sdk/dist/RestApi/Error/NotFoundError';
 import IAppletVersion from '@signageos/sdk/dist/RestApi/Applet/Version/IAppletVersion';
-
-function makeTempDir() {
-	const prefix = path.join(os.tmpdir(), 'appletUploadFacadeSpec-');
-	return fs.mkdtemp(prefix);
-}
-
-// Helper function to safely remove temporary directories (Windows compatible)
-async function safeRemove(dir: string): Promise<void> {
-	try {
-		// Ensure all file handles are closed by using rimraf with maxRetries
-		await fs.remove(dir);
-	} catch (err: unknown) {
-		const error = err as { code?: string; message?: string };
-		// On Windows, sometimes we need to retry after a small delay
-		if (error.code === 'ENOTEMPTY' || error.code === 'EBUSY') {
-			await new Promise((resolve) => setTimeout(resolve, 100));
-			try {
-				await fs.remove(dir);
-			} catch (err: unknown) {
-				const retryError = err as { message?: string };
-				// If still failing, log but don't throw to prevent test failures
-				console.warn(`Warning: Could not remove temporary directory ${dir}: ${retryError.message || 'Unknown error'}`);
-			}
-		} else {
-			console.warn(`Warning: Could not remove temporary directory ${dir}: ${error.message || 'Unknown error'}`);
-		}
-	}
-}
+import wait from '../../../../src/Timer/wait';
 
 describe('Applet.Upload.appletUploadFacade', () => {
 	describe('updateMultiFileApplet', async () => {
@@ -347,3 +320,31 @@ describe('Applet.Upload.appletUploadFacade', () => {
 		});
 	});
 });
+
+function makeTempDir() {
+	const prefix = path.join(os.tmpdir(), 'appletUploadFacadeSpec-');
+	return fs.mkdtemp(prefix);
+}
+
+// Helper function to safely remove temporary directories (Windows compatible)
+async function safeRemove(dir: string): Promise<void> {
+	try {
+		// Ensure all file handles are closed by using rimraf with maxRetries
+		await fs.remove(dir);
+	} catch (err: unknown) {
+		const error = err as { code?: string; message?: string };
+		// On Windows, sometimes we need to retry after a small delay
+		if (error.code === 'ENOTEMPTY' || error.code === 'EBUSY') {
+			await wait(100);
+			try {
+				await fs.remove(dir);
+			} catch (err: unknown) {
+				const retryError = err as { message?: string };
+				// If still failing, log but don't throw to prevent test failures
+				console.warn(`Warning: Could not remove temporary directory ${dir}: ${retryError.message || 'Unknown error'}`);
+			}
+		} else {
+			console.warn(`Warning: Could not remove temporary directory ${dir}: ${error.message || 'Unknown error'}`);
+		}
+	}
+}
