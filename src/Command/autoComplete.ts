@@ -13,14 +13,13 @@ function buildCompletionSchema(
 	const commandName = isRoot ? '' : parentCommand ? `${parentCommand} ${command.name}` : command.name;
 	const result: Record<string, string[]> = {};
 
-	// Add subcommands and options in one step
+	// Add subcommands
 	if (command.commands.length > 0) {
 		result[commandName] = command.commands.map((cmd) => cmd.name);
 	}
 
-	// Add options more directly
-	const options = command.optionList.filter((opt) => typeof opt.name === 'string').map((opt) => `--${opt.name}`);
-
+	// Add options
+	const options = command.optionList.map((opt) => `--${opt.name}`);
 	if (options.length > 0) {
 		result[`${commandName} options`] = options;
 	}
