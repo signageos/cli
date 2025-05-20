@@ -17,49 +17,49 @@ const DEFAULT_APPLET_BINARY_FILE_PATH = 'dist/index.html';
 const fsMock = {
 	pathExists: (path: string) => {
 		// Special case for root directory which may be normalized differently on different platforms
-		if (path === '' || path === '.' || path === '/' || path === normalizePath('/')) {
+		if (path === '' || path === '.' || path === '/' || path === pathTool.normalize('/')) {
 			return true;
 		}
 
-		const normalizedPath = normalizePath(path);
+		const normalizedPath = pathTool.normalize(path);
 		const validPaths = [
-			normalizePath(pathTool.join(ROOT_DIR, EXISTING_RELATIVE_DIR_PATH)),
-			normalizePath(pathTool.join(ROOT_DIR, EXISTING_RELATIVE_FILE_PATH)),
-			normalizePath(EXISTING_ABSOLUTE_FILE_PATH),
-			normalizePath(EXISTING_ABSOLUTE_DIR_PATH),
-			normalizePath(pathTool.join(ROOT_DIR, DEFAULT_APPLET_BINARY_FILE_PATH)),
-			normalizePath(pathTool.join(ROOT_DIR, DEFAULT_APPLET_ENTRY_FILE_PATH)),
-			normalizePath(pathTool.join(ROOT_DIR, DEFAULT_APPLET_DIR_PATH)),
-			normalizePath(ROOT_DIR), // Root directory
+			pathTool.normalize(pathTool.join(ROOT_DIR, EXISTING_RELATIVE_DIR_PATH)),
+			pathTool.normalize(pathTool.join(ROOT_DIR, EXISTING_RELATIVE_FILE_PATH)),
+			pathTool.normalize(EXISTING_ABSOLUTE_FILE_PATH),
+			pathTool.normalize(EXISTING_ABSOLUTE_DIR_PATH),
+			pathTool.normalize(pathTool.join(ROOT_DIR, DEFAULT_APPLET_BINARY_FILE_PATH)),
+			pathTool.normalize(pathTool.join(ROOT_DIR, DEFAULT_APPLET_ENTRY_FILE_PATH)),
+			pathTool.normalize(pathTool.join(ROOT_DIR, DEFAULT_APPLET_DIR_PATH)),
+			pathTool.normalize(ROOT_DIR), // Root directory
 		];
 
 		return validPaths.includes(normalizedPath);
 	},
 	stat: (path: string) => {
 		// Special case for root directory which may be normalized differently on different platforms
-		if (path === '' || path === '.' || path === '/' || path === normalizePath('/')) {
+		if (path === '' || path === '.' || path === '/' || path === pathTool.normalize('/')) {
 			return Promise.resolve({
 				isDirectory: () => true,
 				isFile: () => false,
 			});
 		}
 
-		const normalizedPath = normalizePath(path);
+		const normalizedPath = pathTool.normalize(path);
 		return Promise.resolve({
 			isDirectory: () => {
 				return [
-					normalizePath(pathTool.join(ROOT_DIR, EXISTING_RELATIVE_DIR_PATH)),
-					normalizePath(EXISTING_ABSOLUTE_DIR_PATH),
-					normalizePath(pathTool.join(ROOT_DIR, DEFAULT_APPLET_DIR_PATH)),
-					normalizePath(ROOT_DIR), // Root directory
+					pathTool.normalize(pathTool.join(ROOT_DIR, EXISTING_RELATIVE_DIR_PATH)),
+					pathTool.normalize(EXISTING_ABSOLUTE_DIR_PATH),
+					pathTool.normalize(pathTool.join(ROOT_DIR, DEFAULT_APPLET_DIR_PATH)),
+					pathTool.normalize(ROOT_DIR), // Root directory
 				].some((validPath) => normalizedPath === validPath);
 			},
 			isFile: () => {
 				return [
-					normalizePath(pathTool.join(ROOT_DIR, EXISTING_RELATIVE_FILE_PATH)),
-					normalizePath(EXISTING_ABSOLUTE_FILE_PATH),
-					normalizePath(pathTool.join(ROOT_DIR, DEFAULT_APPLET_BINARY_FILE_PATH)),
-					normalizePath(pathTool.join(ROOT_DIR, DEFAULT_APPLET_ENTRY_FILE_PATH)),
+					pathTool.normalize(pathTool.join(ROOT_DIR, EXISTING_RELATIVE_FILE_PATH)),
+					pathTool.normalize(EXISTING_ABSOLUTE_FILE_PATH),
+					pathTool.normalize(pathTool.join(ROOT_DIR, DEFAULT_APPLET_BINARY_FILE_PATH)),
+					pathTool.normalize(pathTool.join(ROOT_DIR, DEFAULT_APPLET_ENTRY_FILE_PATH)),
 				].some((validPath) => normalizedPath === validPath);
 			},
 		});
@@ -131,7 +131,7 @@ describe('unit.appletUploadCommandHelper', () => {
 			try {
 				await getAppletDirectoryAbsolutePath(ROOT_DIR, {
 					...generalOptions,
-					'applet-path': normalizePath('/nonExistingAbsolutePath'),
+					'applet-path': pathTool.normalize('/nonExistingAbsolutePath'),
 				});
 			} catch (error) {
 				failed = true;
@@ -202,7 +202,7 @@ describe('unit.appletUploadCommandHelper', () => {
 			try {
 				await getAppletBinaryFileAbsolutePath(ROOT_DIR, {
 					...generalOptions,
-					'applet-path': normalizePath('/nonExistingAbsolutePath'),
+					'applet-path': pathTool.normalize('/nonExistingAbsolutePath'),
 				});
 			} catch (error) {
 				failed = true;
@@ -273,7 +273,7 @@ describe('unit.appletUploadCommandHelper', () => {
 			try {
 				await getAppletEntryFileAbsolutePath(ROOT_DIR, {
 					...generalOptions,
-					'entry-file-path': normalizePath('/nonExistingAbsolutePath'),
+					'entry-file-path': pathTool.normalize('/nonExistingAbsolutePath'),
 				});
 			} catch (error) {
 				failed = true;
@@ -348,12 +348,7 @@ describe('unit.appletUploadCommandHelper', () => {
 	});
 });
 
-// Simple helper to normalize paths for platform compatibility
-function normalizePath(p: string): string {
-	return pathTool.normalize(p);
-}
-
 // Helper to normalize path assertions
 function assertPathsEqual(actual: string, expected: string) {
-	should.equal(normalizePath(actual), normalizePath(expected));
+	should.equal(pathTool.normalize(actual), pathTool.normalize(expected));
 }
