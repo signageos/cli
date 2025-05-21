@@ -1,4 +1,4 @@
-# CLI program
+# signageOS CLI
 
 signageOS command-line interface which helps you develop your applets locally and manage devices from terminal.
 
@@ -11,6 +11,39 @@ sos --help
 ### User Interface
 cli tool allows you to run commands interactively for best user experience, please use standard bash terminal on *nix systems
 and [gitbash](https://gitforwindows.org/), run it in [windows terminal](https://www.microsoft.com/en-us/p/windows-terminal/9n0dx20hk701?activetab=pivot:overviewtab).
+
+### Autocomplete
+signageOS CLI offers tab completion for commands and options, which enhances the user experience by making it easier to discover and use available commands.
+
+#### Installation
+To enable autocomplete in your shell, use the following command:
+```sh
+sos autocomplete install
+```
+
+This will install a completion script in your home directory and add a source line to your shell configuration file (`.zshrc`, `.bashrc`, or `.bash_profile`, depending on your shell).
+
+To start using autocomplete immediately without restarting your terminal, run:
+```sh
+source ~/.sos-completion.sh
+```
+
+#### Usage
+Once autocomplete is installed, you can use the TAB key to discover and complete commands:
+```sh
+sos [TAB]          # Show all top-level commands
+sos applet [TAB]   # Show all applet subcommands
+sos applet up[TAB] # Autocomplete to "sos applet upload"
+```
+
+#### Uninstallation
+If you want to disable autocomplete, use:
+```sh
+sos autocomplete uninstall
+```
+
+This will remove the completion script and the source line from your shell configuration file.
+
 
 ## Test
 ```bash
@@ -273,6 +306,7 @@ sos device connect
 | --detach *(optional)* | Run the applet HTTP server in the background (detached proccess) | false |
 | --forward-server-url *(optional)* | Custom forward server URL. | https://forward.signageos.io |
 | --hot-reload *(optional)* | Enable hot reload and build of applet | false |
+
 
 ## Debugging
 
