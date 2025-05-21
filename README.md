@@ -55,7 +55,7 @@ npm test
 ### General
 | Argument                   | Description                     | Default value                                     |
 |----------------------------|---------------------------------|---------------------------------------------------|
-| --api-url *(optional)*     | URL address to use for REST API | ${SOS_API_URL~'https://api.signageos.io'}         |
+| --api-url *(optional)*     | URL address to use for REST API | ${SOS_API_URL='https://api.signageos.io'}         |
 | --profile *(optional)*     | Profile used for separation of credentials and other configurations set in the `~/.sosrc` file | ${SOS_PROFILE}         |
 
 ### Login
@@ -65,21 +65,21 @@ npm test
 ```bash
 sos login
 ```
-- Login account to allow use REST API commands
+- Login account to allow you to use REST API commands
 - Logged account credentials are stored in `~/.sosrc` file.
-- You override login credentials using environment variables `SOS_API_IDENTIFICATION` & `SOS_API_SECURITY_TOKEN`. Go to https://box.signageos.io/settings to generate the token.
+- You can override login credentials using environment variables `SOS_API_IDENTIFICATION` & `SOS_API_SECURITY_TOKEN`. Go to https://box.signageos.io/settings to generate the token.
 
 | Argument                   | Description                     | Default value  |
 |----------------------------|---------------------------------|----------------|
 | --username *(required)*    | Username or e-mail user for box | STDIN          |
 
 #### Run control file
-There are file created when run command `sos login` in the path `~/.sosrc`. This file contains by default only following values (as default profile is used).
+There is a file created when running command `sos login` in the path `~/.sosrc`. This file contains by default only the following values (as default profile is used).
 ```ini
 identification=xxxxxxxxxxxxxxxxxxxx
 apiSecurityToken=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
-If you'd like to manage more accounts/configurations on one machine, you can use environment variable `SOS_PROFILE` or argument `--profile`. The configuration file will uses a INI section `profile xxxx` for the profile named `xxxx`. You can use as many profiles as you want.
+If you'd like to manage more accounts/configurations on one machine, you can use environment variable `SOS_PROFILE` or argument `--profile`. The configuration file will use an INI section `profile xxxx` for the profile named `xxxx`. You can use as many profiles as you want.
 ```ini
 [profile xxxx]
 identification=xxxxxxxxxxxxxxxxxxxx
@@ -112,9 +112,9 @@ npm run build
 | --packager *(optional)*     | Use preferred package manager "npm", "pnpm", "bun", "yarn"    | npm            |
 
 > ! Windows users note:
-> There are unresolved issue with NPX tool on Windows clients when your username contains spaces (e.g.: `John Doe`).
+> There is an unresolved issue with NPX tool on Windows clients when your username contains spaces (e.g.: `John Doe`).
 > https://stackoverflow.com/a/58354623/4609457
-> To prevent this issue there is simple hotfix. Run following command in your Command Line (replace `John` with your real first name):
+> To prevent this issue there is a simple hotfix. Run following command in your Command Line (replace `John` with your real first name):
 > Sometimes the Administrator privileges are required (Run as Administrator)
 ```cmd
 npm config set cache "C:\Users\John~1\AppData\Roaming\npm-cache" --global
@@ -129,7 +129,7 @@ npm run upload
 #Deprecated
 sos applet upload --applet-path=dist/index.html
 # This will upload only the one specified file
-# Rest of the files will be removed from our servers
+# The rest of the files will be removed from our servers
 ```
 - If applet is not created yet, it will create it
 - The applet version is used from `package.json`
@@ -137,7 +137,7 @@ sos applet upload --applet-path=dist/index.html
 - You can use SOS_APPLET_UID as environment variable to specify appletUid to upload to (sos.appletUid of package.json will be overlooked).
 - You can use SOS_APPLET_VERSION as environment variable to specify applet version to upload to (version of package.json will be overlooked).
 - Ignore files priority (from top to bottom) `.sosignore` > `.npmignore` > `.gitignore`
-- Only one ignore file is used or non
+- Only one ignore file is used or none
 
 | Argument                       | Description                   | Default value          |
 |--------------------------------|-------------------------------|------------------------|
@@ -172,7 +172,7 @@ sos applet start
 | --server-port *(optional)* | The custom server port for local machine server. | {RANDOM_PORT} |
 | --hot-reload *(optional)* | Enable hot reload and build of applet | false |
 | --force *(optional)* | Force start applet server of hot reload even if it is already running on a different port. Kill the running server first. | false |
-| --detach *(optional)* | Run the applet HTTP server in the background (detached proccess) | false |
+| --detach *(optional)* | Run the applet HTTP server in the background (detached process) | false |
 | --forward-server-url *(optional)* | Custom forward server URL for `sos device connect` command. | https://forward.signageos.io |
 
 #### Applet Tests Upload
@@ -221,12 +221,12 @@ sos organization get
 | --organization-uid *(required)* | Organization UID             | STDIN          |
 
 #### Organization Set Default
-- Sets default organization for current logged in account. This organization will be used for example in webpack plugin of applet to register emulator
-- If you not set default organization, by default will be used the organization you will be asked to select from list where you have access to.
+- Sets default organization for current logged in account. This organization will be used for example in the webpack plugin of applet to register emulator
+- If you do not set default organization, by default will be used the organization you will be asked to select from list where you have access to.
 ```bash
 sos organization set-default
 ```
-- You override default organization using environment variable `SOS_ORGANIZATION_UID`. Go to https://box.signageos.io/organizations to git the organizationUid.
+- You can override default organization using environment variable `SOS_ORGANIZATION_UID`. Go to https://box.signageos.io/organizations to get the organizationUid.
 
 | Argument                        | Description                  | Default value  |
 |---------------------------------|------------------------------|----------------|
@@ -268,7 +268,7 @@ sos device power-action
 |---------------------------------|------------------------------|
 | reload       | Applet Reload                                   |
 | displayOn    | Display power On                                |
-| displayOff   | Display power Of                                |
+| displayOff   | Display power Off                               |
 | restart      | Application restart                             |
 | disable      | Applet disable                                  |
 | enable       | Applet enable                                   |
@@ -294,16 +294,16 @@ sos device connect
 ```
 | Argument                       | Description                           | Default value          |
 |--------------------------------|---------------------------------------|------------------------|
-| --device-uid *(required)*      | Uid of device from box'               |  STDIN           |
+| --device-uid *(required)*      | Uid of device from box                |  STDIN           |
 | --applet-uid *(required)*      | Applet UID                            | STDIN |
 | --organization-uid *(required)* | Organization UID             | STDIN          |
-| --update-package-config *(optional)*      | Update package.json value `sos.appletUid` config when applet doesn't exists and is created       | false |
+| --update-package-config *(optional)*      | Update package.json value `sos.appletUid` config when applet doesn't exist and is created       | false |
 | --server-public-url *(optional)* | Public url of local machine server. Is useful when the local machine is behind a reverse proxy. | http://{CURRENT_REMOTE_ADDR}:{RANDOM_PORT} or https://forward.signageos.io/{random-hash} |
 | --use-forward-server *(optional)* | Use forward server to connect to the device instead of the local network (LAN) (https://forward.signageos.io/{random-hash}). It's useful when the device is not in the same network as the local machine. | false |
 | --server-port *(optional)* | The custom server port for local machine server. | {RANDOM_PORT} |
 | --force *(optional)* | Force start applet server even if it is already running on a different port. Kill the running server first. | false |
 | --applet-path *(optional)*     | Root path of applet project           | ${PWD}/dist            |
-| --detach *(optional)* | Run the applet HTTP server in the background (detached proccess) | false |
+| --detach *(optional)* | Run the applet HTTP server in the background (detached process) | false |
 | --forward-server-url *(optional)* | Custom forward server URL. | https://forward.signageos.io |
 | --hot-reload *(optional)* | Enable hot reload and build of applet | false |
 
@@ -322,7 +322,7 @@ If you want to enable debugging for all modules under `@signageos`, use the aste
 DEBUG=@signageos/* sos applet upload
 ```
 
-You can use `export DEBUG=@signageos/*`, though.
+You can use `export DEBUG=@signageos/*` as well.
 
 ## Contribution
 Clone the repository and install dev dependencies

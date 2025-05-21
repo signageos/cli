@@ -30,7 +30,7 @@
     "depcheck": "depcheck --config .depcheckrc.json",
     "typecheck": "tsc --noEmit",
     "prettier:format": "prettier \"(src|tests|tools)/**/*.+(ts|js)\" --write",
-    "postinstall": "node dist/postinstall.js"
+    "postinstall": "ts-node src/postinstall.ts"
   },
   "license": "MIT",
   "engines": {
