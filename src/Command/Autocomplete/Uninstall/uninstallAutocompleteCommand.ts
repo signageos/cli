@@ -69,7 +69,7 @@ export const uninstallAutocomplete = createCommandDefinition({
 			}
 
 			if (!configModified) {
-				console.log(`ℹ️ No shell configuration files were modified`);
+				console.info(`ℹ️ No shell configuration files were modified`);
 			}
 
 			console.log('\nAuto-completion for signageOS CLI has been uninstalled.');
