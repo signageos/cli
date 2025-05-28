@@ -22,11 +22,16 @@ export const uninstallAutocomplete = createCommandDefinition({
 			const completionFilePath = path.join(homeDir, '.sos-completion.sh');
 
 			// Remove completion script if it exists
-			if (fs.existsSync(completionFilePath)) {
-				fs.unlinkSync(completionFilePath);
+			try {
+				await fs.promises.access(completionFilePath);
+				await fs.promises.unlink(completionFilePath);
 				console.log(`✅ Removed completion script: ${completionFilePath}`);
-			} else {
-				console.log(`ℹ️ Completion script not found at: ${completionFilePath}`);
+			} catch (error) {
+				if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+					console.log(`ℹ️ Completion script not found at: ${completionFilePath}`);
+				} else {
+					throw error;
+				}
 			}
 
 			// Check shell config files and remove the source line
