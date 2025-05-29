@@ -49,6 +49,8 @@ prepare:
     # Output current versions to verify installation
     - node --version
     - npm --version
+    # Create npm global directory to fix ENOENT errors
+    - New-Item -ItemType Directory -Force -Path "C:\Users\ContainerAdministrator\AppData\Roaming\npm"
     - npm ci --cache npm-cache --prefer-offline --ignore-scripts
     - npm i @signageos/lib-ci --ignore-scripts --cache npm-cache --prefer-offline
     - npm i @signageos/file --cache npm-cache --prefer-offline

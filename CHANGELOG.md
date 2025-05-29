@@ -4,16 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [Unreleasd]
+## [Unreleased]
 ### Fixed
 - Issue when using flag `--no-default-organization`, where user was prompted to make selection as default
 
 ### Added
-- Added CHANGELOG and README files to new applets
-- Prepared for applet authorship
-- Fixing windows build pipeline
-- Usage of @signageos/lib-ci dependency
+- Added basic `CHANGELOG.md` and `README.md` files to generated applets
+- Prepared for applet authorship support
 - Updated dependencies for applet generator
+- Support for shell auto-completion feature (`sos autocomplete install`)
 
 ## [2.3.1] - 2025-04-25
 ### Fixed

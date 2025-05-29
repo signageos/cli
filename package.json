@@ -29,7 +29,8 @@
     "check-circular-deps": "npx madge@5 --circular --extensions ts ./src/",
     "depcheck": "depcheck --config .depcheckrc.json",
     "typecheck": "tsc --noEmit",
-    "prettier:format": "prettier \"(src|tests|tools)/**/*.+(ts|js)\" --write"
+    "prettier:format": "prettier \"(src|tests|tools)/**/*.+(ts|js)\" --write",
+    "postinstall": "node -e \"try{require('./postinstall.js')}catch(e){}\""
   },
   "license": "MIT",
   "engines": {
