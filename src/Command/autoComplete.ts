@@ -138,7 +138,7 @@ function configureShellFile(homeDir: string, sourceLine: string): { configured: 
 		}
 	}
 
-	// No config file found or configured
+	// No config file found
 	return {
 		configured: false,
 		error: `No suitable shell configuration file found or accessible in ${homeDir}`,
