@@ -1,6 +1,4 @@
-import fetch, { RequestInit } from 'node-fetch';
 import { stringify } from 'querystring';
-// import { RequestInit } from 'node-fetch';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import IRestApiOptions from '@signageos/sdk/dist/RestApi/IOptions';
 import { loadConfig } from './RunControl/runControlHelper';
@@ -9,6 +7,7 @@ import { parameters } from './parameters';
 import { getGlobalApiUrl } from './Command/globalArgs';
 import { IConfig } from '@signageos/sdk/dist/SosHelper/sosControlHelper';
 
+type RequestInit = globalThis.RequestInit;
 interface ICredentials {
 	oauthClientId: string;
 	oauthClientSecret: string;
