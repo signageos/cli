@@ -29,6 +29,19 @@ This will:
 3. For each version, perform a clean build and test
 4. Generate a summary report of passed/failed tests
 
+## Alternative Shell Script
+
+There is also a shell script (`test-node-versions.sh`) available that performs the same compatibility checks. The shell script offers several advantages over the integration test:
+- Significantly faster execution time
+- Requires fewer system resources
+- Provides better debugging output when issues arise
+
+You can run this script directly for quicker testing during development using:
+
+```
+npm run test:node-versions
+```
+
 ## Test Output
 
 Test results are saved in the `tests/output/node_versions/` directory:
