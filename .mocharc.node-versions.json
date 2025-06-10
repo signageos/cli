@@ -1,5 +1,5 @@
 {
-  "require": ["should", "ts-node/register"],
-  "spec": ["tests/integration/nodeVersions.spec.ts"],
-  "timeout": 600000
+	"require": ["should", "ts-node/register"],
+	"spec": ["tests/integration/nodeVersions.spec.ts"],
+	"timeout": 600000
 }

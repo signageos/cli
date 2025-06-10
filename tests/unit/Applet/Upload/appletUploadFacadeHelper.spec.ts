@@ -13,7 +13,7 @@ describe('unit.appletUploadFacadeHelper', () => {
 			let failed = false;
 			try {
 				await getAppletFileRelativePath('/path/file.js', '/path/path');
-			} catch (error) {
+			} catch {
 				failed = true;
 			}
 
@@ -24,7 +24,7 @@ describe('unit.appletUploadFacadeHelper', () => {
 			let failed = false;
 			try {
 				await getAppletFileRelativePath('path/file.js', '/path');
-			} catch (error) {
+			} catch {
 				failed = true;
 			}
 
@@ -35,7 +35,7 @@ describe('unit.appletUploadFacadeHelper', () => {
 			let failed = false;
 			try {
 				await getAppletFileRelativePath('/path/file.js', 'path');
-			} catch (error) {
+			} catch {
 				failed = true;
 			}
 
@@ -46,7 +46,7 @@ describe('unit.appletUploadFacadeHelper', () => {
 			let failed = false;
 			try {
 				await getAppletFileRelativePath('path/file.js', 'path');
-			} catch (error) {
+			} catch {
 				failed = true;
 			}
 

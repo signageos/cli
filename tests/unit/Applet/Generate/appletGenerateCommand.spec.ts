@@ -71,7 +71,7 @@ describe('unit.appletGenerateCommand', async () => {
 	describe('generate applets - all packager types', async () => {
 		it('should generate applet with yarn packager', async () => {
 			process.chdir(path.join(rootPath));
-			console.log('Current working directory:', process.cwd());
+			console.info('Current working directory:', process.cwd());
 			const targetDir = 'tests/output/rspack_yarn';
 			const command = [
 				baseCommand,
@@ -207,7 +207,7 @@ const checkPackage = async (packageName: string) => {
  */
 const goToTarget = (workDir: string) => {
 	process.chdir(path.join(rootPath, workDir));
-	console.log('Current working directory:', process.cwd());
+	console.info('Current working directory:', process.cwd());
 };
 
 /**
@@ -225,7 +225,7 @@ const goToTarget = (workDir: string) => {
  */
 const buildApplet = async (workDir: string, command: string) => {
 	const absoluteWorkDir = path.join(rootPath, workDir);
-	console.log('\n Navigating to', absoluteWorkDir);
+	console.info('\n Navigating to', absoluteWorkDir);
 	goToTarget(workDir);
 
 	try {

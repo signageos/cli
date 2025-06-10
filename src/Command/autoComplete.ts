@@ -168,7 +168,7 @@ function displayInstallationMessage(completionFilePath: string, config: { config
 	message.push('    sos [TAB]          # Show all top-level commands');
 	message.push('    sos applet [TAB]   # Show all applet subcommands');
 
-	console.log(message.join('\n'));
+	console.info(message.join('\n'));
 }
 
 // Create a standalone completion setup command

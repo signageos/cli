@@ -20,6 +20,6 @@ export const organizationGet = createCommandDefinition({
 		Debug('Organization get');
 		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
 		const organization = await getOrganization(organizationUid);
-		console.log(chalk.yellow(JSON.stringify(organization, undefined, 2)));
+		console.info(chalk.yellow(JSON.stringify(organization, undefined, 2)));
 	},
 });

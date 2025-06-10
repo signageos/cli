@@ -103,7 +103,7 @@ export const updateMultiFileApplet = async (parameters: {
 	}
 
 	for (const fileRelativePath in currentAppletFiles) {
-		if (currentAppletFiles.hasOwnProperty(fileRelativePath)) {
+		if (Object.prototype.hasOwnProperty.call(currentAppletFiles, fileRelativePath)) {
 			try {
 				await restApi.applet.version.file.remove(applet.uid, applet.version, fileRelativePath, { build: false });
 			} catch (error) {

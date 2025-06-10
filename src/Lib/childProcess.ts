@@ -13,8 +13,8 @@ export const executeChildProcess = (command: string, verbose: boolean): Promise<
 				reject(error);
 			} else {
 				if (verbose) {
-					console.log(stdout);
-					console.log(stderr);
+					console.info(stdout);
+					console.error(stderr);
 				}
 				resolve(stdout);
 			}

@@ -12,6 +12,6 @@ export const organizationList = createCommandDefinition({
 	async run() {
 		Debug('Organization list');
 		const organizations = await getOrganizations();
-		console.log(chalk.yellow(JSON.stringify(organizations, undefined, 2)));
+		console.info(chalk.yellow(JSON.stringify(organizations, undefined, 2)));
 	},
 });
