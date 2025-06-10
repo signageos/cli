@@ -59,7 +59,7 @@ export function generateCompletionScript(rootCommand: ICommand<string, OptionLis
 
 	// Replace placeholders in the shell script
 	script = script.replace(/\${TOPLEVEL_COMMANDS}/g, topLevelCommands);
-	script = script.replace(/    # COMMAND_SCHEMA_CASES will be replaced with actual cases during generation/g, commandCases);
+	script = script.replace(/ {4}# COMMAND_SCHEMA_CASES will be replaced with actual cases during generation/g, commandCases);
 
 	return script;
 }
