@@ -1,3 +1,10 @@
+import * as fs from 'fs-extra';
+import * as path from 'path';
+import { fileURLToPath } from 'url';
+
+// Get the directory path equivalent to __dirname in ESM
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 // Template directories
 const TEMPLATE_SOURCE_DIR = path.resolve(__dirname, '../src/Applet/Generate/Templates');
 const TEMPLATE_DEST_DIR = path.resolve(__dirname, '../dist/Applet/Generate/Templates');
@@ -6,7 +13,8 @@ const TEMPLATE_DEST_DIR = path.resolve(__dirname, '../dist/Applet/Generate/Templ
 const AUTOCOMPLETE_SOURCE_DIR = path.resolve(__dirname, '../src/Command/Autocomplete/Install');
 const AUTOCOMPLETE_DEST_DIR = path.resolve(__dirname, '../dist/Command/Autocomplete/Install');
 
-void async function copyTemplates() {
+// Self-executing async function to copy templates
+(async function() {
 	try {
 		// Ensure the destination directories exist
 		await fs.ensureDir(TEMPLATE_DEST_DIR);
@@ -23,6 +31,4 @@ void async function copyTemplates() {
 		console.error('Error copying files:', err);
 		process.exit(1);
 	}
-};
-
-copyTemplates();
+})();
