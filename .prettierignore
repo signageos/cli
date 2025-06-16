@@ -14,7 +14,6 @@ tsconfig.json
 # Test
 .mocharc.json
 .c8rc
-tests/*
 
 # Other
 .depcheckrc.json

@@ -59,8 +59,12 @@ async function testNodeVersion(version: string, shouldSucceed: boolean, descript
 	const errorPath = path.join(outputDir, errorFileName);
 
 	// Remove previous logs if they exist
-	if (fs.existsSync(outputPath)) { fs.removeSync(outputPath) };
-	if (fs.existsSync(errorPath)) { fs.removeSync(errorPath) };
+	if (fs.existsSync(outputPath)) {
+		fs.removeSync(outputPath);
+	}
+	if (fs.existsSync(errorPath)) {
+		fs.removeSync(errorPath);
+	}
 	fs.ensureFileSync(outputPath);
 	fs.ensureFileSync(errorPath);
 
@@ -114,7 +118,6 @@ async function testNodeVersion(version: string, shouldSucceed: boolean, descript
 		}
 	}
 }
-
 
 describe('Node.js Version Compatibility Tests', function () {
 	// These tests take time, so increase the timeout

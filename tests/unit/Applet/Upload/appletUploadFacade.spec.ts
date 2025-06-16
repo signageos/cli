@@ -330,7 +330,7 @@ function makeTempDir() {
 async function safeRemove(dir: string): Promise<void> {
 	const maxRetries = 3;
 	const baseDelay = 100;
-	
+
 	for (let attempt = 0; attempt <= maxRetries; attempt++) {
 		try {
 			await fs.remove(dir);
@@ -338,13 +338,13 @@ async function safeRemove(dir: string): Promise<void> {
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : 'Unknown error';
 			const errorCode = err instanceof Error && 'code' in err ? (err as any).code : null;
-			
+
 			// If this is our last attempt or not a retryable error, log and return
 			if (attempt === maxRetries || (errorCode !== 'ENOTEMPTY' && errorCode !== 'EBUSY')) {
 				console.warn(`Warning: Could not remove temporary directory ${dir}: ${errorMessage}`);
 				return;
 			}
-			
+
 			// Exponential backoff
 			const delay = baseDelay * Math.pow(2, attempt);
 			await wait(delay);
