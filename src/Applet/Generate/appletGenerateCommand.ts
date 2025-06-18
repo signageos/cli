@@ -47,7 +47,7 @@ interface ScriptDefinition {
 	start?: string;
 	connect?: string;
 	watch?: string;
-	typecheck?: string;
+	'check-types'?: string;
 }
 
 const OPTION_LIST = [
@@ -96,7 +96,7 @@ const RUNSCRIPTS = {
 	webpack: {
 		start: 'webpack serve --mode development',
 		build: 'webpack --mode production',
-		connect: 'echo "Deprecated command \"npm run connect\". Use \"npm run watch\" instead." && npm run watch',
+		connect: 'echo "Deprecated command \\"npm run connect\\". Use \\"npm run watch\\" instead." && npm run watch',
 		watch: 'webpack --watch',
 	},
 	rspack: {
@@ -153,7 +153,7 @@ export const appletGenerate = createCommandDefinition({
 		const excludedKeys = ['command', 'applet-version'];
 		const argumentsFound =
 			Object.entries(options)
-				.filter(([key, _value]) => !excludedKeys.includes(key))
+				.filter(([key]) => !excludedKeys.includes(key))
 				.map(([key, value]) => ({ [key]: value })).length > 0;
 		console.info('sOS CLI started with params:', options);
 
@@ -460,7 +460,7 @@ export const appletGenerate = createCommandDefinition({
 
 			// Capture and log stdout
 			child.stdout.on('data', (data) => {
-				console.log(`${data.toString()}`);
+				console.info(`${data.toString()}`);
 			});
 
 			// Capture and log stderr
@@ -512,10 +512,10 @@ const createPackageConfig = async (name: string, version: string, bundler: Bundl
 
 	// Add typescript checking before builds
 	if (language === Language.TypeScript) {
-		scriptDef.typecheck = 'tsc --noEmit';
+		scriptDef['check-types'] = 'tsc --noEmit';
 		// Make sure build exists before modifying it
 		if (scriptDef.build) {
-			scriptDef.build = `npm run typecheck && ${scriptDef.build}`;
+			scriptDef.build = `npm run check-types && ${scriptDef.build}`;
 		}
 	}
 
@@ -557,7 +557,7 @@ always-auth=true
  * @param options - The supported options
  * @throws Will throw an error if the value is not present or not one of the supported options
  */
-function checkSupport<T extends {}>(propName: string, value: unknown, options: T[]): asserts value is T {
+function checkSupport<T extends string>(propName: string, value: unknown, options: T[]): asserts value is T {
 	const values = Object.values(options);
 	if (!value || !values.includes(value as T)) {
 		throw new Error(`Missing or incorrect argument --${propName} <${values.join('|')}>`);

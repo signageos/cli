@@ -77,7 +77,7 @@ export async function getActionType(options: CommandLineOptions<[typeof POWER_AC
 	return action;
 }
 
-export async function disconnectDevice(organization: IOrganization, deviceUid: String) {
+export async function disconnectDevice(organization: IOrganization, deviceUid: string) {
 	const config = await loadConfig();
 	const DEVICE_RESOURCE = `/device/${deviceUid}/disconnect`;
 	const options = {

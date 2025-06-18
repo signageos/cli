@@ -96,7 +96,7 @@ export async function getOrganizations(): Promise<IOrganization[]> {
 	} else if (responseOfGet.status === 403) {
 		throw new Error(`Authentication error. Try to login using ${chalk.green('sos login')}`);
 	} else {
-		throw new Error('Unknown error: ' + (bodyOfGet && bodyOfGet.message ? bodyOfGet.message : responseOfGet.status));
+		throw new Error('Unknown error: ' + (bodyOfGet?.message ? bodyOfGet.message : responseOfGet.status));
 	}
 }
 
@@ -119,6 +119,6 @@ export async function getOrganization(organizationUid: string): Promise<IOrganiz
 	} else if (responseOfGet.status === 403) {
 		throw new Error(`Authentication error. Try to login using ${chalk.green('sos login')}`);
 	} else {
-		throw new Error('Unknown error: ' + (bodyOfGet && bodyOfGet.message ? bodyOfGet.message : responseOfGet.status));
+		throw new Error('Unknown error: ' + (bodyOfGet?.message ? bodyOfGet.message : responseOfGet.status));
 	}
 }

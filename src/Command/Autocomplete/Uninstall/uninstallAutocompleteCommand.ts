@@ -25,10 +25,10 @@ export const uninstallAutocomplete = createCommandDefinition({
 			try {
 				await fs.promises.access(completionFilePath);
 				await fs.promises.unlink(completionFilePath);
-				console.log(`✅ Removed completion script: ${completionFilePath}`);
+				console.info(`✅ Removed completion script: ${completionFilePath}`);
 			} catch (error) {
 				if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-					console.log(`ℹ️ Completion script not found at: ${completionFilePath}`);
+					console.info(`ℹ️ Completion script not found at: ${completionFilePath}`);
 				} else {
 					throw error;
 				}
@@ -58,7 +58,7 @@ export const uninstallAutocomplete = createCommandDefinition({
 
 						if (content !== originalContent) {
 							fs.writeFileSync(configFilePath, content, 'utf8');
-							console.log(`✅ Removed source line from ${configFile}`);
+							console.info(`✅ Removed source line from ${configFile}`);
 							configModified = true;
 						}
 					} catch (error) {
@@ -72,8 +72,8 @@ export const uninstallAutocomplete = createCommandDefinition({
 				console.info(`ℹ️ No shell configuration files were modified`);
 			}
 
-			console.log('\nAuto-completion for signageOS CLI has been uninstalled.');
-			console.log('You may need to restart your terminal or run "source ~/.bashrc" (or equivalent) for changes to take effect.');
+			console.info('\nAuto-completion for signageOS CLI has been uninstalled.');
+			console.info('You may need to restart your terminal or run "source ~/.bashrc" (or equivalent) for changes to take effect.');
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : String(error);
 			console.error('Error uninstalling auto-completion:', errorMessage);

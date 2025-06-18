@@ -133,7 +133,7 @@ describe('unit.appletUploadCommandHelper', () => {
 					...generalOptions,
 					'applet-path': pathTool.normalize('/nonExistingAbsolutePath'),
 				});
-			} catch (error) {
+			} catch {
 				failed = true;
 			}
 
@@ -147,7 +147,7 @@ describe('unit.appletUploadCommandHelper', () => {
 					...generalOptions,
 					'applet-path': EXISTING_ABSOLUTE_FILE_PATH,
 				});
-			} catch (error) {
+			} catch {
 				failed = true;
 			}
 
@@ -161,7 +161,7 @@ describe('unit.appletUploadCommandHelper', () => {
 					...generalOptions,
 					'applet-path': EXISTING_RELATIVE_FILE_PATH,
 				});
-			} catch (error) {
+			} catch {
 				failed = true;
 			}
 
@@ -204,7 +204,7 @@ describe('unit.appletUploadCommandHelper', () => {
 					...generalOptions,
 					'applet-path': pathTool.normalize('/nonExistingAbsolutePath'),
 				});
-			} catch (error) {
+			} catch {
 				failed = true;
 			}
 
@@ -218,7 +218,7 @@ describe('unit.appletUploadCommandHelper', () => {
 					...generalOptions,
 					'applet-path': EXISTING_ABSOLUTE_DIR_PATH,
 				});
-			} catch (error) {
+			} catch {
 				failed = true;
 			}
 
@@ -232,7 +232,7 @@ describe('unit.appletUploadCommandHelper', () => {
 					...generalOptions,
 					'applet-path': EXISTING_RELATIVE_DIR_PATH,
 				});
-			} catch (error) {
+			} catch {
 				failed = true;
 			}
 
@@ -275,7 +275,7 @@ describe('unit.appletUploadCommandHelper', () => {
 					...generalOptions,
 					'entry-file-path': pathTool.normalize('/nonExistingAbsolutePath'),
 				});
-			} catch (error) {
+			} catch {
 				failed = true;
 			}
 
@@ -289,7 +289,7 @@ describe('unit.appletUploadCommandHelper', () => {
 					...generalOptions,
 					'entry-file-path': EXISTING_ABSOLUTE_DIR_PATH,
 				});
-			} catch (error) {
+			} catch {
 				failed = true;
 			}
 
@@ -303,7 +303,7 @@ describe('unit.appletUploadCommandHelper', () => {
 					...generalOptions,
 					'entry-file-path': EXISTING_RELATIVE_DIR_PATH,
 				});
-			} catch (error) {
+			} catch {
 				failed = true;
 			}
 
@@ -328,7 +328,7 @@ describe('unit.appletUploadCommandHelper', () => {
 			let failed = false;
 			try {
 				getAppletEntryFileRelativePath('/applet/index.js', '/src');
-			} catch (error) {
+			} catch {
 				failed = true;
 			}
 
@@ -339,7 +339,7 @@ describe('unit.appletUploadCommandHelper', () => {
 			let failed = false;
 			try {
 				getAppletEntryFileRelativePath('/applet/index.js', '/applet/src');
-			} catch (error) {
+			} catch {
 				failed = true;
 			}
 

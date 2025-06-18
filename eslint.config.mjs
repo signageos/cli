@@ -1,35 +1,18 @@
-import { FlatCompat } from '@eslint/eslintrc';
-import codeStyle from '@signageos/codestyle/.eslintrc.js';
-import tseslint from 'typescript-eslint';
+// eslint.config.js
+import codestyle from '@signageos/codestyle/eslint.config.mjs';
 
-const compat = new FlatCompat();
-
-/** @type {import("typescript-eslint").Config} */
-const config = tseslint.config(compat.extends('prettier'), compat.config(codeStyle), {
-	files: ['**/*.ts', '**/*.tsx', '**/*.mts', '**/*.cts', '**/*.mjs', '**/*.js'],
-	plugins: {},
-	languageOptions: {
-		parser: tseslint.parser,
-		parserOptions: {
-			project: './tsconfig.json',
+export default [
+	{
+		ignores: ['dist/**', 'tools/**/*.{js,mjs}', '**/*.config.{js,mjs}', './postinstall.js', '.prettierrc.mjs'],
+	},
+	...codestyle,
+	{
+		files: ['./src/**/*.{ts,tsx,mts,cts,mjs,js}', './tests/**/*.{ts,tsx,mts,cts}'],
+		languageOptions: {
+			parserOptions: {
+				project: ['./tsconfig.json', './tests/tsconfig.json'],
+				tsconfigRootDir: '.',
+			},
 		},
 	},
-	rules: {},
-    ignores: [
-        'dist/**/* ',
-        'build/**/*',
-        'node_modules/**/*',
-        'tests/output/**/*',
-        '*.min.js ',
-        '**/*.json',
-        'node_modules/',
-        'package.json',
-        'package-lock.json',
-        'README.md',
-        'CHANGELOG.md',
-        '.prettierignore',
-        'docker-compose.yml',
-    ]
-});
-
-export default config;
+];

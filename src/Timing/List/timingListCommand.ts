@@ -27,6 +27,6 @@ export const timingList = createCommandDefinition({
 		const timings = await restApi.timing.getList({
 			deviceUid,
 		});
-		console.log(chalk.yellow(JSON.stringify(timings, undefined, 2)));
+		console.info(chalk.yellow(JSON.stringify(timings, undefined, 2)));
 	},
 });

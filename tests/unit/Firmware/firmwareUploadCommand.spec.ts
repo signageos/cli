@@ -41,7 +41,7 @@ describe('unit.firmwareUploadCommand', () => {
 				src: ['/what evers'],
 			});
 			should(false).true();
-		} catch (e) {
+		} catch {
 			should(true).true();
 		}
 	});

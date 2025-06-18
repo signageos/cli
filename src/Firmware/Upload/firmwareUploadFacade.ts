@@ -26,7 +26,7 @@ export async function uploadFirmwareVersion(parameters: {
 		progressBar.init({ size: totalSize, name: pathArr.join(',') });
 	}
 
-	for (let index in pathArr) {
+	for (const index in pathArr) {
 		const filePath = pathArr[index];
 		if (!filePath) {
 			continue;

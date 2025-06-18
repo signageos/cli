@@ -11,19 +11,19 @@ import { log } from '@signageos/sdk/dist/Console/log';
 
 const questions = [
 	{
-		type: 'text' as 'text',
+		type: 'text' as const,
 		name: 'applicationType',
 		message: `Application type`,
 	},
 	{
-		type: 'text' as 'text',
+		type: 'text' as const,
 		name: 'version',
 		message: `Firmware version`,
 	},
 ];
 const fwTypeQuestion = [
 	{
-		type: 'text' as 'text',
+		type: 'text' as const,
 		name: 'firmwareType',
 		message: `Model prefixed with brand. E.g.: "benq_sl550", "rpi4", "rpi"`,
 	},
@@ -46,7 +46,7 @@ export const firmwareUpload = createCommandDefinition({
 	async run(options: CommandLineOptions<typeof OPTION_LIST>) {
 		const optionsProvided = !!(options['application-type'] && options['firmware-version'] && options.src && options.src.length > 0);
 		const restApi = await createFirmwareVersionRestApi();
-		let data: IFirmwareVersionCreatable = {
+		const data: IFirmwareVersionCreatable = {
 			applicationType: '',
 			version: '',
 			files: [],

@@ -59,7 +59,7 @@ export function generateCompletionScript(rootCommand: ICommand<string, OptionLis
 
 	// Replace placeholders in the shell script
 	script = script.replace(/\${TOPLEVEL_COMMANDS}/g, topLevelCommands);
-	script = script.replace(/    # COMMAND_SCHEMA_CASES will be replaced with actual cases during generation/g, commandCases);
+	script = script.replace(/ {4}# COMMAND_SCHEMA_CASES will be replaced with actual cases during generation/g, commandCases);
 
 	return script;
 }
@@ -168,7 +168,7 @@ function displayInstallationMessage(completionFilePath: string, config: { config
 	message.push('    sos [TAB]          # Show all top-level commands');
 	message.push('    sos applet [TAB]   # Show all applet subcommands');
 
-	console.log(message.join('\n'));
+	console.info(message.join('\n'));
 }
 
 // Create a standalone completion setup command

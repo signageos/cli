@@ -143,7 +143,7 @@ async function getOrCreateApiSecurityToken({
 	} else if (responseOfPost.status === 403) {
 		throw new Error(`Incorrect username or password`);
 	} else {
-		throw new Error('Unknown error: ' + (bodyOfPost && bodyOfPost.message ? bodyOfPost.message : responseOfPost.status));
+		throw new Error('Unknown error: ' + (bodyOfPost?.message ? bodyOfPost.message : responseOfPost.status));
 	}
 }
 

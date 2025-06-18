@@ -27,7 +27,7 @@
 		"emitDecoratorMetadata": true,
 		"jsx": "react",
 
-		/* Typecheck javascript */
+		/* Javascript type checking */
 		"allowJs": true,
 		"checkJs": true
 	},

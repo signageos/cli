@@ -328,23 +328,26 @@ function makeTempDir() {
 
 // Helper function to safely remove temporary directories (Windows compatible)
 async function safeRemove(dir: string): Promise<void> {
-	try {
-		// Ensure all file handles are closed by using rimraf with maxRetries
-		await fs.remove(dir);
-	} catch (err: unknown) {
-		const error = err as { code?: string; message?: string };
-		// On Windows, sometimes we need to retry after a small delay
-		if (error.code === 'ENOTEMPTY' || error.code === 'EBUSY') {
-			await wait(100);
-			try {
-				await fs.remove(dir);
-			} catch (err: unknown) {
-				const retryError = err as { message?: string };
-				// If still failing, log but don't throw to prevent test failures
-				console.warn(`Warning: Could not remove temporary directory ${dir}: ${retryError.message || 'Unknown error'}`);
+	const maxRetries = 3;
+	const baseDelay = 100;
+
+	for (let attempt = 0; attempt <= maxRetries; attempt++) {
+		try {
+			await fs.remove(dir);
+			return; // Success
+		} catch (err) {
+			const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+			const errorCode = err instanceof Error && 'code' in err ? (err as any).code : null;
+
+			// If this is our last attempt or not a retryable error, log and return
+			if (attempt === maxRetries || (errorCode !== 'ENOTEMPTY' && errorCode !== 'EBUSY')) {
+				console.warn(`Warning: Could not remove temporary directory ${dir}: ${errorMessage}`);
+				return;
 			}
-		} else {
-			console.warn(`Warning: Could not remove temporary directory ${dir}: ${error.message || 'Unknown error'}`);
+
+			// Exponential backoff
+			const delay = baseDelay * Math.pow(2, attempt);
+			await wait(delay);
 		}
 	}
 }
