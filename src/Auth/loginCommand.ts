@@ -12,7 +12,7 @@ import { CommandLineOptions, createCommandDefinition } from '../Command/commandD
 
 const Debug = debug('@signageos/cli:Auth:login');
 
-const OPTION_LIST = [{ name: 'username', type: String, description: `Username or e-mail used for ${parameters.boxHost}` }] as const;
+const OPTION_LIST = [{ name: 'username', type: String, description: `Username or e-mail` }] as const;
 
 /**
  * To explicitly enable auth0 authentication add flag --auth0-enabled to command line options
@@ -51,11 +51,17 @@ export const login = createCommandDefinition({
 	commands: [],
 	async run(options: CommandLineOptions<typeof OPTION_LIST>) {
 		let identification: string | undefined = options.username;
+		const config = await loadConfig();
+		const apiUrl = getApiUrl(config);
+		// Extract domain from API URL to show in prompts
+		const apiUrlObj = new URL(apiUrl);
+		const hostToDisplay = apiUrlObj.hostname;
+
 		if (!identification) {
 			const response = await prompts({
 				type: 'text',
 				name: 'username',
-				message: `Type your username or e-mail used for ${parameters.boxHost}`,
+				message: `Type your username or e-mail used for ${hostToDisplay}`,
 			});
 			identification = response.username;
 		}
@@ -66,12 +72,9 @@ export const login = createCommandDefinition({
 		const { password } = await prompts({
 			type: 'password',
 			name: 'password',
-			message: `Type your password used for ${parameters.boxHost}`,
+			message: `Type your password used for ${hostToDisplay}`,
 		});
 
-		const config = await loadConfig();
-
-		const apiUrl = getApiUrl(config);
 		const authQueryParams = getIsAuth0OrLegacyEnabled(options);
 
 		const {
