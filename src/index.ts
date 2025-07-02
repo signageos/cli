@@ -10,6 +10,8 @@ import { device } from './Device/deviceCommand';
 import { GENERAL_OPTION_LIST } from './generalCommand';
 import { createCommandDefinition } from './Command/commandDefinition';
 import { customScript } from './CustomScript/customScriptCommand';
+import { plugin } from './Plugin/pluginCommand';
+import { runner } from './Runner/runnerCommand';
 import { autocomplete, initializeAutocomplete } from './Command/Autocomplete/autocompleteCommand';
 
 /**
@@ -38,7 +40,7 @@ const index = createCommandDefinition({
 	name: 'sos',
 	description: 'SignageOS CLI - The central command-line tool for deploying, managing, and debugging signageOS projects and devices',
 	optionList: GENERAL_OPTION_LIST,
-	commands: [applet, login, organization, timing, firmware, device, customScript, autocomplete],
+	commands: [applet, login, organization, timing, firmware, device, customScript, plugin, runner, autocomplete],
 	async run() {
 		throw new Error('Unknown command');
 	},
