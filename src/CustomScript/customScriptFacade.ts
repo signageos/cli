@@ -14,7 +14,7 @@ import { RUNTIME_DIRNAME } from '@signageos/sdk/dist/Development/runtimeFileSyst
 const CONFIG_FILE_NAME = '.sosconfig.json';
 const CUSTOM_SCRIPTS_BUILDS_DIRNAME = 'custom_scripts_builds';
 
-const PlatformSchema = z.strictObject({
+export const PlatformSchema = z.strictObject({
 	/** List of files/directories that are part of the custom script for a particular platform. */
 	rootDir: z.string(),
 	/** Main file of the particular platform script that will be executed. */
@@ -30,7 +30,7 @@ const ConfigSchema = z.object({
 	name: z.string(),
 	version: z.string(),
 	description: z.string().optional(),
-	dangerLevel: z.string(),
+	dangerLevel: z.string().optional(),
 	/**
 	 * Config of individual custom script implementations for each target platform.
 	 *
@@ -149,7 +149,7 @@ async function ensureCustomScript(restApi: RestApi, config: CustomScriptConfig) 
 		name: config.name,
 		title: config.name, // TODO change
 		description: config.description,
-		dangerLevel: config.dangerLevel,
+		dangerLevel: config.dangerLevel? config.dangerLevel : 'normal', // default to 'normal' if not provided
 	});
 
 	// TODO ask for permission or read from CLI arg
