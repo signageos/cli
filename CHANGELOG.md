@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Fixed
+- Upgrade underlying SDK
+
 ## [2.4.0] - 2025-05-29
 ### Fixed
 - Issue when using flag `--no-default-organization`, where user was prompted to make selection as default
