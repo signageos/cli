@@ -34,7 +34,7 @@ const PORT_OPTION = {
 	name: 'port',
 	type: Number,
 	description: `Port where will the applet run`,
-	defaultValue: DEFAULT_PORT,
+	defaultValue: 8090,
 } as const;
 
 export const OPTION_LIST = [
@@ -51,9 +51,51 @@ export const OPTION_LIST = [
 	FORWARD_SERVER_URL_OPTION,
 ] as const;
 
+/**
+ * Starts a local development server with hot reload functionality, allowing developers
+ * to preview their applets in a browser-based emulator. Supports both local development
+ * and device connection for testing on actual signageOS devices.
+ *
+ * @group Development:3
+ *
+ * @example
+ * ```bash
+ * # Start development server with default settings
+ * sos applet start
+ *
+ * # Start with custom port and hot reload
+ * sos applet start --port 8080 --hot-reload
+ *
+ * # Start with specific organization
+ * sos applet start --organization-uid abc123
+ *
+ * # Start with custom applet path
+ * sos applet start --applet-path ./my-applet
+ *
+ * # Start with specific entry file
+ * sos applet start --entry-file-path index.html
+ *
+ * # Force restart if server is already running
+ * sos applet start --force
+ *
+ * # Run in detached mode
+ * sos applet start --detach
+ * ```
+ *
+ * @remarks
+ * The development server provides a browser-based emulator accessible at http://localhost:8090
+ * by default. Hot reload automatically refreshes the emulator when source code changes.
+ *
+ * @throws {Error} When applet files are not found or invalid
+ * @throws {Error} When organization is not accessible
+ *
+ * @see {@link https://developers.signageos.io/docs/applets/connect-to-device-cli/ Applet Development Documentation}
+ *
+ * @since 0.1.0
+ */
 export const appletStart = createCommandDefinition({
 	name: 'start',
-	description: 'Start applet locally',
+	description: 'Start local applet development server with live preview',
 	optionList: OPTION_LIST,
 	commands: [],
 	async run(options: CommandLineOptions<typeof OPTION_LIST>) {

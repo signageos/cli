@@ -12,7 +12,7 @@ import { CommandLineOptions, createCommandDefinition } from '../Command/commandD
 
 const Debug = debug('@signageos/cli:Auth:login');
 
-const OPTION_LIST = [{ name: 'username', type: String, description: `Username or e-mail` }] as const;
+const OPTION_LIST = [{ name: 'username', type: String, description: `Username or e-mail used for authentication` }] as const;
 
 /**
  * To explicitly enable auth0 authentication add flag --auth0-enabled to command line options
@@ -44,9 +44,36 @@ export const getIsAuth0OrLegacyEnabled = (options: any) => {
 	return queryParams;
 };
 
+/**
+ * Handles user authentication using username/email and password credentials.
+ * Supports both Auth0 and legacy authentication methods. Stores credentials
+ * securely in the ~/.sosrc configuration file for subsequent CLI operations.
+ *
+ * @group Authentication:1
+ *
+ * @example
+ * ```bash
+ * # Interactive login (prompts for username and password)
+ * sos login
+ *
+ * # Login with username specified
+ * sos login --username user@example.com
+ *
+ * # Enable Auth0 authentication
+ * sos login --auth0-enabled
+ *
+ * # Enable legacy authentication
+ * sos login --legacy-enabled
+ * ```
+ *
+ * @throws {Error} When username is missing and not provided interactively
+ * @throws {Error} When both Auth0 and legacy authentication flags are specified
+ *
+ * @since 0.3.0
+ */
 export const login = createCommandDefinition({
 	name: 'login',
-	description: 'Login account using username & password',
+	description: 'Authenticate user with signageOS',
 	optionList: OPTION_LIST,
 	commands: [],
 	async run(options: CommandLineOptions<typeof OPTION_LIST>) {

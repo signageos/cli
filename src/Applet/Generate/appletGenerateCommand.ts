@@ -51,7 +51,7 @@ interface ScriptDefinition {
 }
 
 const OPTION_LIST = [
-	{ name: 'name', type: String, description: `Applet name. Match RegExp: ${NAME_REGEXP.toString()}` },
+	{ name: 'name', type: String, description: `Applet name. Match RegExp: /^\\w(\\w|\\d|-)*\\w$/` },
 	{ name: 'applet-version', type: String, description: 'Applet initial version. Use semantic version', defaultValue: '0.0.0' },
 	{ name: 'target-dir', type: String, description: 'Directory where will be the applet generated to' },
 	{ name: 'git', type: String, description: 'Init applet as git repository "no" (default) or "yes"' },
@@ -116,34 +116,40 @@ const importFileAsString = (relativePath: string): string => {
 };
 
 /**
- * Command definition for generating a new applet.
- * This command facilitates the creation of a basic applet sample with configurable options such as
- * language, bundler, git initialization, and npm registry. It generates the necessary files and
- * installs dependencies based on the selected options.
- * @param {Object} options - The options for generating the applet
- * @param {string} options.name - The name of the applet
- * @param {string} options.appletVersion - The version of the applet
- * @param {string} options.targetDir - The target directory for the applet
- * @param {string} options.npmRegistry - The npm registry URL
- * @param {string} options.language - The language of the applet (typescript or javascript)
- * @param {string} options.bundler - The bundler to use (webpack or rspack)
- * @param {string} options.git - Whether to initialize a git repository (yes or no)
- * @param {string} options.packager - Whether to manage packages with npm, pnpm, bun or yarn
- * @returns {Promise<void>} - A promise that resolves when the applet is generated
+ * Creates a new applet project with all necessary configuration files, dependencies,
+ * and boilerplate code. Supports both TypeScript and JavaScript, multiple bundlers
+ * (webpack/rspack), various package managers (npm/pnpm/yarn/bun), and includes
+ * git repository initialization.
+ *
+ * @group Development:1
+ *
  * @example
- * appletGenerate.run({
- *   name: 'my-applet',
- *   appletVersion: '1.0.0',
- *   targetDir: './output',
- *   npmRegistry: 'https://registry.npmjs.org/',
- *   language: 'typescript',
- *   bundler: 'webpack',
- *   git: 'yes',
- * });
+ * ```bash
+ * # Interactive generation with prompts
+ * sos applet generate
+ *
+ * # Generate TypeScript applet with webpack
+ * sos applet generate --name my-applet --language typescript --bundler webpack
+ *
+ * # Generate with custom settings
+ * sos applet generate --name my-app --target-dir ./projects --git yes --packager pnpm
+ *
+ * # Generate with npm registry
+ * sos applet generate --name my-applet --npm-registry https://registry.npmjs.org/ --packager npm
+ *
+ * # Generate applet with specific configuration
+ * sos applet generate --name my-applet --applet-version 1.0.0 --target-dir ./output --language typescript --bundler webpack --git yes
+ * ```
+ *
+ * @throws {Error} When required parameters are missing or invalid
+ *
+ * @throws {Error} When target directory conflicts exist
+ *
+ * @since 0.1.0
  */
 export const appletGenerate = createCommandDefinition({
 	name: 'generate',
-	description: 'Generate basic applet sample',
+	description: 'Generate new signageOS applet projects with boilerplate code',
 	optionList: OPTION_LIST,
 	commands: [],
 	async run(options: CommandLineOptions<typeof OPTION_LIST>) {

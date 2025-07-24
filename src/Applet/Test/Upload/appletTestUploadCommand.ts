@@ -27,13 +27,43 @@ const OPTION_LIST = [
 	{
 		name: 'verbose',
 		type: Boolean,
-		description: `outputs all files to upload`,
+		description: `Outputs all files to upload`,
 	},
 ] as const;
 
+/**
+ * Uploads test files for remote execution on signageOS devices. Test files are
+ * identified based on the test configuration in package.json and uploaded to
+ * the platform for automated testing. Supports incremental uploads with
+ * change detection and confirmation prompts.
+ *
+ * @group Development:1
+ *
+ * @example
+ * ```bash
+ * # Upload applet tests
+ * sos applet test upload
+ *
+ * # Upload tests with confirmation skip
+ * sos applet test upload --yes
+ *
+ * # Upload tests with verbose output
+ * sos applet test upload --verbose
+ *
+ * # Upload tests for specific applet
+ * sos applet test upload --applet-uid my-applet-uid
+ * ```
+ *
+ * @throws {Error} When package.json is missing or test configuration is invalid
+ * @throws {Error} When test files cannot be found or read
+ * @throws {Error} When applet or organization access is denied
+ * @throws {Error} When test upload confirmation is denied
+ *
+ * @since 0.10.0
+ */
 export const appletTestUpload = createCommandDefinition({
 	name: 'upload',
-	description: 'Uploads applet test',
+	description: 'Upload applet tests to the signageOS platform',
 	optionList: OPTION_LIST,
 	commands: [],
 	async run(options: CommandLineOptions<typeof OPTION_LIST>) {

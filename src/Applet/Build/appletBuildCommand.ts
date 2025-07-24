@@ -16,9 +16,35 @@ const Debug = debug('@signageos/cli:Applet:Build:appletBuildCommand');
 
 export const OPTION_LIST = [NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION, APPLET_UID_OPTION] as const;
 
+/**
+ * Builds the applet into a distributable package using the signageOS SDK build system.
+ * The build process compiles and bundles the applet code, assets, and dependencies
+ * into a zip archive ready for upload to the signageOS platform.
+ *
+ * @group Development:2
+ *
+ * @example
+ * ```bash
+ * # Build applet in current directory
+ * sos applet build
+ *
+ * # Build with specific organization
+ * sos applet build --organization-uid abc123def456
+ *
+ * # Build with specific applet UID
+ * sos applet build --applet-uid my-applet-uid
+ * ```
+ *
+ * @throws {Error} When applet path is invalid or build process fails
+ *
+ * @throws {Error} When organization or applet cannot be found
+ * @throws {Error} When package.json is missing or invalid
+ *
+ * @since 1.2.0
+ */
 export const appletBuild = createCommandDefinition({
 	name: 'build',
-	description: 'Build applet locally. The result is a zip file in the /tmp/signageos directory.',
+	description: 'Build applet locally for production deployment.',
 	optionList: OPTION_LIST,
 	commands: [],
 	async run(options: CommandLineOptions<typeof OPTION_LIST>) {

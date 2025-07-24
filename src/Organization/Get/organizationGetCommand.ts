@@ -11,9 +11,38 @@ const Debug = debug('@signageos/cli:Organization:get');
 
 const OPTION_LIST = [NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION] as const;
 
+/**
+ * Retrieves and displays detailed information about a specific organization
+ * by its UID. If no organization UID is provided, uses the default organization
+ * or prompts for selection from available organizations.
+ *
+ * @group Management:2
+ *
+ * @example
+ * ```bash
+ * # Get default organization details
+ * sos organization get
+ *
+ * # Get specific organization by UID
+ * sos organization get --organization-uid abc123def456
+ *
+ * # Force organization selection (skip default)
+ * sos organization get --no-default-organization
+ * ```
+ *
+ * @throws {Error} When organization UID cannot be found or accessed
+ * @throws {Error} When authentication is not valid or has expired
+ * @throws {Error} When no organizations are available for selection
+ *
+ * @see {@link ../list/ List organizations for selection}
+ *
+ * @see {@link ../ Organization management commands}
+ *
+ * @since 0.3.0
+ */
 export const organizationGet = createCommandDefinition({
 	name: 'get',
-	description: 'Get one organization by UID',
+	description: 'Get detailed information about a specific organization',
 	optionList: OPTION_LIST,
 	commands: [],
 	async run(options: CommandLineOptions<typeof OPTION_LIST>) {

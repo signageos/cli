@@ -16,9 +16,39 @@ const Debug = debug('@signageos/cli:CustomScript:Upload:Command');
 
 export const OPTION_LIST = [NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION] as const;
 
+/**
+ * Uploads custom script code and configuration to the signageOS platform based on
+ * the .sosconfig.json configuration file. Custom Scripts enable advanced device
+ * functionality beyond standard applets, including system-level operations and
+ * device-specific configurations for multiple platforms.
+ *
+ * @group Development:2
+ *
+ * @example
+ * ```bash
+ * # Upload custom script from current directory
+ * sos custom-script upload
+ *
+ * # Upload with specific organization
+ * sos custom-script upload --organization-uid abc123def456
+ * ```
+ *
+ * @throws {Error} When .sosconfig.json is missing or invalid
+ * @throws {Error} When script platform configuration is missing
+ * @throws {Error} When organization access is denied
+ * @throws {Error} When script upload fails
+ *
+ * @see {@link https://developers.signageos.io/docs/custom-scripts/ Custom Scripts Documentation}
+ *
+ * @see {@link ../generate/ Generate custom script project}
+ *
+ * @see {@link ../ Custom Script management commands}
+ *
+ * @since 1.8.0
+ */
 export const customScriptUpload = createCommandDefinition({
 	name: 'upload',
-	description: 'Uploads current custom script version',
+	description: 'Upload custom script to the signageOS platform',
 	optionList: OPTION_LIST,
 	commands: [],
 	async run(options: CommandLineOptions<typeof OPTION_LIST>) {

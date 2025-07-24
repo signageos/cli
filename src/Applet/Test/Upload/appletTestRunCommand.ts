@@ -34,9 +34,32 @@ const OPTION_LIST = [
 	},
 ] as const;
 
+/**
+ * Executes previously uploaded applet tests on remote signageOS devices. This command
+ * triggers test execution and provides real-time feedback on test progress and results.
+ * Tests can be run on specific devices or across multiple devices for comprehensive testing.
+ *
+ * @group Development:2
+ *
+ * @example
+ * ```bash
+ * # Run all applet tests
+ * sos applet test run --applet-uid my-applet --device-uid device123
+ *
+ * # Run specific tests
+ * sos applet test run --applet-uid my-applet --device-uid device123 --test "test1,test2"
+ *
+ * # Run without confirmation
+ * sos applet test run --applet-uid my-applet --device-uid device123 --yes
+ * ```
+ *
+ * @see {@link ../upload/ Upload test configuration command}
+ *
+ * @since 0.10.0
+ */
 export const appletTestRun = createCommandDefinition({
 	name: 'run',
-	description: 'Runs applet tests',
+	description: 'Run applet tests on signageOS devices',
 	optionList: OPTION_LIST,
 	commands: [],
 	async run(options: CommandLineOptions<typeof OPTION_LIST>) {

@@ -20,7 +20,7 @@ export const ORGANIZATION_UID_OPTION = { name: 'organization-uid', type: String,
 export const NO_DEFAULT_ORGANIZATION_OPTION = {
 	name: 'no-default-organization',
 	type: Boolean,
-	description: 'Prevent using the defaultOrganizationUid from ~/.sosrc which were set using command sos organization set-default',
+	description: 'Prevent using the defaultOrganizationUid from ~/.sosrc',
 } as const;
 
 export const ORGANIZATION_OPTIONS = [ORGANIZATION_UID_OPTION, NO_DEFAULT_ORGANIZATION_OPTION];
