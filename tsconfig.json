@@ -2,7 +2,6 @@
     "extends": "@signageos/codestyle/tsconfig-strict",
     "compilerOptions": {
         "outDir": "dist",
-        "rootDir": "src",
         "typeRoots": [
             "node_modules/@types/"
         ],
@@ -16,11 +15,11 @@
     "include": [
         "src/**/*.ts",
         "tools/**/*.js",
+        "tools/docs/**/*.ts"
     ],
     "exclude": [
         "tests/output/*.{js,ts}",
         "postinstall.js",
-        ".prettierrc.mjs",
-        "tools/docs/**/*"
+        ".prettierrc.mjs"
     ]
 }

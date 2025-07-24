@@ -22,6 +22,8 @@
 		"cross-env",
 		"eslint",
 		"typescript-eslint",
-		"markdown-table"
+		"typescript",
+		"markdown-table",
+		"tsx"
 	]
 }

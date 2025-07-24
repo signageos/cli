@@ -15,10 +15,10 @@
     "type": "git"
   },
   "scripts": {
-    "clean": "rm -rf dist/* && npm run docs:clean",
+    "clean": "rm -rf dist/*",
     "build": "npx check-engine@latest && tsc && npm run build:templates && npm run docs",
     "build:templates": "node tools/include-templates.mjs",
-    "clean-build": "npm run clean && npm run build && chmod +x dist/index.js",
+    "clean-build": "npm run clean && npm run build",
     "watch": "tsc --watch",
     "check-types": "tsc --noEmit",
     "test": "env NODE_ENV=test mocha",
@@ -33,11 +33,9 @@
     "check": "npm run depcheck && npx --userconfig ./.npmrc @signageos/lib-ci check-deps && npm run check-circular-deps && npm run check-types",
     "check-circular-deps": "npx madge@5 --circular --extensions ts ./src/",
     "depcheck": "depcheck --config .depcheckrc.json",
-    "docs": "npm run docs:clean && npm run docs:build && npm run docs:generate && npm run docs:validate",
-    "docs:build": "npx tsc -p tools/docs/tsconfig.json && chmod +x tools/docs/dist/validate/validate-docs-links.js",
-    "docs:clean": "rm -rf tools/docs/dist",
-    "docs:generate": "node --enable-source-maps tools/docs/dist/generate.js --action=generate --filePath=src/index.ts",
-    "docs:validate": "node tools/docs/dist/validate/validate-docs-links.js",
+    "docs": "npm run docs:generate && npm run docs:validate",
+    "docs:generate": "tsx tools/docs/generate.ts --action=generate --filePath=src/index.ts",
+    "docs:validate": "tsx tools/docs/validate/validate-docs-links.ts",
     "postinstall": "node -e \"try{require('./postinstall.js')}catch(e){}\""
   },
   "license": "MIT",
@@ -76,12 +74,13 @@
     "should": "13.2.3",
     "sinon": "20.0.0",
     "ts-node": "10.9.2",
+    "tsx": "4.20.3",
     "typescript": "5.8.3",
     "unzipper": "0.12.3"
   },
   "overrides": {
     "cross-spawn": "^7.0.6",
-    "got": "^12.6.1",
+    "got": "^11.8.6",
     "http-cache-semantics": "^4.1.1"
   },
   "dependencies": {

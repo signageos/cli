@@ -3,7 +3,7 @@ import codestyle from '@signageos/codestyle/eslint.config.mjs';
 
 export default [
 	{
-		ignores: ['dist/**', 'tools/docs/dist/**', 'tools/**/*.mjs', 'tools/**/*.d.ts', '**/*.config.{js,mjs}', './postinstall.js', '.prettierrc.mjs', 'tests/output/**/*',],
+		ignores: ['dist/**', 'tools/*.{js,mjs}', '**/*.config.{js,mjs}', './postinstall.js', '.prettierrc.mjs', 'tests/output/**/*',],
 	},
 	...codestyle,
 	{

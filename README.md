@@ -275,7 +275,7 @@ sos device power-action
 | reboot       | System reboot                                   |
 | refresh      | Applet Refresh                                  |
 
-#### Device Set-Content
+#### Device Deploy Applet
 ```bash
 sos device set-content
 ```
@@ -307,6 +307,32 @@ sos device connect
 | --forward-server-url *(optional)* | Custom forward server URL. | https://forward.signageos.io |
 | --hot-reload *(optional)* | Enable hot reload and build of applet | false |
 
+### Custom Script
+```bash
+sos custom-script --help
+```
+
+#### Custom Script Generate
+```bash
+sos custom-script generate
+```
+Generate a new custom script project with boilerplate code.
+
+| Argument                    | Description                     | Default value  |
+|-----------------------------|---------------------------------|----------------|
+| --name *(required)*         | Name for the custom script      | STDIN          |
+| --target-dir *(optional)*   | Generate script to directory    | ${PWD}/${name} |
+
+#### Custom Script Upload
+```bash
+sos custom-script upload
+```
+Upload custom script to the signageOS platform.
+
+| Argument                        | Description                  | Default value  |
+|---------------------------------|------------------------------|----------------|
+| --organization-uid *(required)* | Organization UID             | STDIN          |
+| --script-path *(optional)*      | Path to script file          | ${PWD}         |
 
 ## Debugging
 
