@@ -96,7 +96,7 @@ export const login = createCommandDefinition({
 
 		log(
 			'info',
-			`User ${chalk.green(identification!)} has been logged in with token "${name}". Credentials are stored in ${chalk.blue(
+			`User ${chalk.green(identification)} has been logged in with token "${name}". Credentials are stored in ${chalk.blue(
 				getConfigFilePath(),
 			)}`,
 		);

@@ -554,7 +554,7 @@ always-auth=true
  * Check if the value is present and is one of the supported options
  * @param propName - The name of the property to check
  * @param value - The value to check
- * @param options - The supported options
+ * @param {Object} options - The supported options
  * @throws Will throw an error if the value is not present or not one of the supported options
  */
 function checkSupport<T extends string>(propName: string, value: unknown, options: T[]): asserts value is T {

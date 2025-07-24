@@ -9,15 +9,18 @@
         "lib": ["dom", "es5", "scripthost", "esnext"],
         "downlevelIteration": true,
         "declaration": true,
-        "allowJs": true
+        "allowJs": true,
+        "checkJs": true,
+        "noImplicitReturns": false
     },
     "include": [
-        "src/**/*.ts"
+        "src/**/*.ts",
+        "tools/**/*.js",
     ],
     "exclude": [
-        "tools/**/*.js",
+        "tests/output/*.{js,ts}",
         "postinstall.js",
         ".prettierrc.mjs",
-        "tools/**/*.mjs",
+        "tools/docs/**/*"
     ]
 }

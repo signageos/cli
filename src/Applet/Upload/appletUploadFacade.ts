@@ -44,8 +44,8 @@ export const updateMultiFileApplet = async (parameters: {
 	const currentAppletFiles = await getAppletFilesDictionary(restApi, applet.uid, applet.version);
 	let changedFilesCounter = 0;
 
-	for (let index = 0; index < applet.files.length; index++) {
-		const fileAbsolutePath = applet.files[index];
+	for (const element of applet.files) {
+		const fileAbsolutePath = element;
 		if (!fileAbsolutePath) {
 			continue;
 		}

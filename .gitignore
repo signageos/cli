@@ -9,3 +9,6 @@ pnpm-lock.yaml
 # Test
 coverage/*
 tests/output
+docs/*
+*.d.ts
+tools/docs/dist
