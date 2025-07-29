@@ -80,8 +80,7 @@
   },
   "overrides": {
     "cross-spawn": "^7.0.6",
-    "got": "^11.8.6",
-    "http-cache-semantics": "^4.1.1"
+    "http-cache-semantics": "^4.2.0"
   },
   "dependencies": {
     "@signageos/file": "1.0.1",
