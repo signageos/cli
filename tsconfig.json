@@ -2,6 +2,7 @@
     "extends": "@signageos/codestyle/tsconfig-strict",
     "compilerOptions": {
         "outDir": "dist",
+        "rootDir": "src",
         "typeRoots": [
             "node_modules/@types/"
         ],
@@ -13,9 +14,7 @@
         "noImplicitReturns": false
     },
     "include": [
-        "src/**/*.ts",
-        "tools/**/*.js",
-        "tools/docs/**/*.ts"
+        "src/**/*.ts"
     ],
     "exclude": [
         "tests/output/*.{js,ts}",
