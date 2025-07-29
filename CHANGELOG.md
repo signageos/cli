@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Logic for automatic `/docs` generation - documentation available online at `https://developers.signageos.io`
 
+### Security
+- FIxed security issue when `sos login` authentication fails
+- Audit fixes and dependency updates based on `npm audit`
+
 ## [2.4.0] - 2025-05-29
 ### Fixed
 - Issue when using flag `--no-default-organization`, where user was prompted to make selection as default

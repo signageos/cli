@@ -156,24 +156,29 @@ async function getOrCreateApiSecurityToken({
 		version: ApiVersions.V1,
 	};
 	const tokenName = generateTokenName();
-	const query = {
+
+	const requestBody = {
 		identification,
 		password,
 		name: tokenName,
 		...(isAuth0Enabled !== undefined ? { isAuth0AuthenticationEnabled: isAuth0Enabled } : {}),
 		...(isLegacyEnabled !== undefined ? { isLegacyAuthenticationEnabled: isLegacyEnabled } : {}),
 	};
-	const responseOfPost = await postResource(options, ACCOUNT_SECURITY_TOKEN_RESOURCE, query);
-	const bodyOfPost = JSON.parse(await responseOfPost.text(), deserializeJSON);
 
-	Debug('POST security-token response', bodyOfPost);
+	const response = await postResource(options, ACCOUNT_SECURITY_TOKEN_RESOURCE, null, requestBody);
+	const responseBody = JSON.parse(await response.text(), deserializeJSON);
 
-	if (responseOfPost.status === 201) {
-		return bodyOfPost;
-	} else if (responseOfPost.status === 403) {
+	// Don't log sensitive response data
+	Debug('POST security-token response status', response.status);
+
+	if (response.status === 201) {
+		return responseBody;
+	} else if (response.status === 403) {
 		throw new Error(`Incorrect username or password`);
 	} else {
-		throw new Error('Unknown error: ' + (bodyOfPost?.message ? bodyOfPost.message : responseOfPost.status));
+		// Ensure password is not logged in error messages
+		const errorMessage = responseBody?.message ?? `HTTP status ${response.status}`;
+		throw new Error('Unknown error: ' + errorMessage);
 	}
 }
 
