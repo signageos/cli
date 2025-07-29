@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Upgrade underlying SDK
 
+### Added
+- Logic for automatic `/docs` generation - documentation available online at `https://developers.signageos.io`
+
 ## [2.4.0] - 2025-05-29
 ### Fixed
 - Issue when using flag `--no-default-organization`, where user was prompted to make selection as default
@@ -23,7 +26,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Issue with `sos device connect --hot-reload` command for older devices (e.g.: Tizen 2.4) with initial build
 
 ## [2.3.0] - 2025-04-17
-
 ### Added
 - Added support for preferred package manager (npm, pnpm, bun, yarn)
 - Updated project dependencies
@@ -271,7 +273,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [0.9.0] - 2021-02-02
 ### Added
-- Deploy applet do device using `sos device set-content --applet-uid < > --device-uid < >`
+- Deploy applet to device using `sos device set-content --applet-uid < > --device-uid < >`
 - New command for Applet reload `sos device power-action`
 - Connecting to device and upload applet from local computer
 - One emulator per account is used and its uid is stored in .sosrc file

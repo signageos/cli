@@ -7,7 +7,8 @@
     ".env",
     "dist",
     "README.md",
-    "package.json"
+    "package.json",
+    "docs"
   ],
   "repository": {
     "url": "https://github.com/signageos/cli",
@@ -15,9 +16,9 @@
   },
   "scripts": {
     "clean": "rm -rf dist/*",
-    "build": "npx check-engine@latest && tsc && npm run build:templates",
+    "build": "npx check-engine@latest && tsc && npm run build:templates && npm run docs",
     "build:templates": "node tools/include-templates.mjs",
-    "clean-build": "npm run clean && npm run build && chmod +x dist/index.js",
+    "clean-build": "npm run clean && npm run build",
     "watch": "tsc --watch",
     "check-types": "tsc --noEmit",
     "test": "env NODE_ENV=test mocha",
@@ -32,6 +33,9 @@
     "check": "npm run depcheck && npx --userconfig ./.npmrc @signageos/lib-ci check-deps && npm run check-circular-deps && npm run check-types",
     "check-circular-deps": "npx madge@5 --circular --extensions ts ./src/",
     "depcheck": "depcheck --config .depcheckrc.json",
+    "docs": "npm run docs:generate && npm run docs:validate",
+    "docs:generate": "tsx tools/docs/generate.ts --action=generate --filePath=src/index.ts",
+    "docs:validate": "tsx tools/docs/validate/validate-docs-links.ts",
     "postinstall": "node -e \"try{require('./postinstall.js')}catch(e){}\""
   },
   "license": "MIT",
@@ -66,16 +70,21 @@
     "cross-env": "7.0.3",
     "depcheck": "1.4.7",
     "mocha": "11.2.2",
-    "rewiremock": "3.14.5",
+    "rewiremock": "3.14.6",
     "should": "13.2.3",
     "sinon": "20.0.0",
     "ts-node": "10.9.2",
+    "tsx": "4.20.3",
     "typescript": "5.8.3",
     "unzipper": "0.12.3"
   },
+  "overrides": {
+    "cross-spawn": "^7.0.6",
+    "http-cache-semantics": "^4.2.0"
+  },
   "dependencies": {
     "@signageos/file": "1.0.1",
-    "@signageos/sdk": "1.28.0",
+    "@signageos/sdk": "1.28.1",
     "archiver": "7.0.1",
     "chalk": "2.4.2",
     "child-process-promise": "2.2.1",
@@ -88,6 +97,7 @@
     "express": "5.1.0",
     "fs-extra": "11.3.0",
     "internal-ip": "8.0.0",
+    "markdown-table": "3.0.4",
     "mime": "2.4.4",
     "prompts": "2.4.2",
     "semver": "7.7.1",

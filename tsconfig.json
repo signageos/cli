@@ -2,22 +2,24 @@
     "extends": "@signageos/codestyle/tsconfig-strict",
     "compilerOptions": {
         "outDir": "dist",
-        "rootDir": "src",
         "typeRoots": [
             "node_modules/@types/"
         ],
         "lib": ["dom", "es5", "scripthost", "esnext"],
         "downlevelIteration": true,
         "declaration": true,
-        "allowJs": true
+        "allowJs": true,
+        "checkJs": true,
+        "noImplicitReturns": false
     },
     "include": [
-        "src/**/*.ts"
+        "src/**/*.ts",
+        "tools/**/*.js",
+        "tools/docs/**/*.ts"
     ],
     "exclude": [
-        "tools/**/*.js",
+        "tests/output/*.{js,ts}",
         "postinstall.js",
-        ".prettierrc.mjs",
-        "tools/**/*.mjs",
+        ".prettierrc.mjs"
     ]
 }

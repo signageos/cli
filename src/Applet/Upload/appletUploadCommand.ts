@@ -50,10 +50,52 @@ export const OPTION_LIST = [
 	{
 		name: 'verbose',
 		type: Boolean,
-		description: `outputs all files to upload`,
+		description: `Outputs all files to upload`,
 	},
 ] as const;
 
+/**
+ * Uploads the current applet version to the signageOS platform, making it available
+ * for deployment to devices. The command supports both single-file and multi-file applets,
+ * with automatic version management and conflict detection.
+ *
+ * The upload process validates package.json requirements, creates or updates applet versions,
+ * and handles file packaging according to .sosignore, .npmignore, and .gitignore rules.
+ *
+ * @group Development:5
+ *
+ * @example
+ * ```bash
+ * # Upload applet from current directory
+ * sos applet upload
+ *
+ * # Upload with specific applet path
+ * sos applet upload --applet-path ./dist
+ *
+ * # Upload with custom entry file
+ * sos applet upload --entry-file-path src/main.js
+ *
+ * # Upload with organization override
+ * sos applet upload --organization-uid abc123def456
+ *
+ * # Skip confirmation prompts
+ * sos applet upload --yes
+ *
+ * # Verbose output with detailed file information
+ * sos applet upload --verbose
+ *
+ * # Update package.json with new applet UID
+ * sos applet upload --update-package-config
+ * ```
+ *
+ * @throws {Error} When package.json is missing or invalid
+ * @throws {Error} When applet path or entry file cannot be found
+ * @throws {Error} When organization or applet access is denied
+ * @throws {GatewayError} When upload fails due to server issues
+ * @throws {NotFoundError} When specified applet or organization doesn't exist
+ *
+ * @since 0.4.0
+ */
 export const appletUpload = createCommandDefinition({
 	name: 'upload',
 	description: 'Uploads current applet version',
@@ -94,9 +136,13 @@ export const appletUpload = createCommandDefinition({
 			if (!(error instanceof AppletDoesNotExistError)) {
 				throw error;
 			}
-			log('info', chalk.yellow(`applet uid is not present in package file, adding one.`));
 			const createdApplet = await restApi.applet.create({ name: appletName });
 			appletUid = createdApplet.uid;
+			log(
+				'info',
+				chalk.yellow(`Applet uid is not present in package file.`, chalk.blue(`\nCreated new uid:`), chalk.green(appletUid)),
+				`\n`,
+			);
 		} finally {
 			if (updatePackageConfig) {
 				await saveToPackage(currentDirectory, { sos: { appletUid } });

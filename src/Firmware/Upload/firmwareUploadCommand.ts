@@ -31,16 +31,50 @@ const fwTypeQuestion = [
 const applicationTypesRequiringType = ['linux', 'android'];
 
 const OPTION_LIST = [
-	{ name: 'application-type', alias: 'a', type: String },
-	{ name: 'firmware-version', alias: 'f', type: String },
-	{ name: 'firmware-type', type: String },
-	{ name: 'src', type: String, multiple: true },
+	{ name: 'application-type', alias: 'a', type: String, description: 'Application type for the firmware (e.g., linux, android, webos)' },
+	{ name: 'firmware-version', alias: 'f', type: String, description: 'Version identifier for the firmware package' },
+	{ name: 'firmware-type', type: String, description: 'Device model prefixed with brand (e.g., "benq_sl550", "rpi4", "rpi")' },
+	{ name: 'src', type: String, multiple: true, description: 'Path(s) to firmware file(s) to upload' },
 	{ name: 'force', type: Boolean, description: 'When firmware cannot be uploaded due to invalid firmware "type", do it anyways.' },
 ] as const;
 
+/**
+ * Uploads firmware files for specific device types and application platforms.
+ * Supports various device architectures including Linux, Android, WebOS, and others.
+ * The command validates firmware files and creates versioned firmware packages
+ * that can be deployed to compatible devices.
+ *
+ * @group Private
+ *
+ * @example
+ * ```bash
+ * # Upload firmware interactively
+ * sos firmware upload
+ *
+ * # Upload firmware with command line options
+ * sos firmware upload --application-type linux --firmware-version 1.2.3 --src /path/to/firmware.tar.gz
+ *
+ * # Upload Android firmware with type specification
+ * sos firmware upload --application-type android --firmware-type rpi4 --firmware-version 1.0.0 --src /path/to/firmware.apk
+ *
+ * # Force upload when type validation fails
+ * sos firmware upload --application-type linux --firmware-type custom_device --firmware-version 1.0.0 --src /path/to/firmware.tar.gz --force
+ * ```
+ *
+ * @throws {Error} When required parameters are missing
+ * @throws {Error} When firmware files cannot be found or validated
+ * @throws {RequestError} When firmware type is invalid for the platform
+ * @throws {Error} When upload confirmation is denied
+ *
+ * @see {@link ../ Firmware upload command}
+ *
+ * @see {@link ../../ Firmware management commands}
+ *
+ * @since 0.6.0
+ */
 export const firmwareUpload = createCommandDefinition({
 	name: 'upload',
-	description: 'Uploads selected firmware version',
+	description: 'Upload firmware version to the signageOS platform',
 	optionList: OPTION_LIST,
 	commands: [],
 	async run(options: CommandLineOptions<typeof OPTION_LIST>) {

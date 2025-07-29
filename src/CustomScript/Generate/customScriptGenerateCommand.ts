@@ -5,9 +5,28 @@ import { addToConfigFile } from '../customScriptFacade';
 import { askForParameters, downloadBoilerplateCode } from './customScriptGenerateFacade';
 import { throwErrorIfGitNotInstalled } from '../../Lib/git';
 
+/**
+ * Creates a new custom script project with boilerplate code and configuration files.
+ * This command sets up a complete development environment for custom script development,
+ * including necessary dependencies and project structure.
+ *
+ * @group Development:1
+ *
+ * @example
+ * ```bash
+ * # Generate custom script project
+ * sos custom-script generate
+ * ```
+ *
+ * @see {@link https://developers.signageos.io/docs/custom-scripts/ Custom Scripts Documentation}
+ *
+ * @see {@link ../upload/ Upload custom script command}
+ *
+ * @since 2.2.0
+ */
 export const customScriptGenerate = createCommandDefinition({
 	name: 'generate',
-	description: 'Generates a local repository for developing a Custom Script',
+	description: 'Generate a local repository for developing a Custom Script',
 	optionList: [],
 	commands: [],
 	async run() {

@@ -1,0 +1,474 @@
+import { readStaticTemplate } from '../process/utils/constants.js';
+import { markdownTable } from 'markdown-table';
+import { convertLinkToPath } from '../process/utils/symbolResolver.js';
+import type { CliCommand, CliCommandOption as CommandOption, JSDocInfo, LinkInfo } from '../core/domain-types.js';
+import { DOCS_CONFIG } from '../config.js';
+
+function formatDefaultValue(option: CommandOption): string {
+	if (option.default === undefined || option.default === null) {
+		return '';
+	}
+	const stringified = safeStringify(option.default);
+	return stringified ? `\`${stringified}\`` : '';
+}
+
+function isRootCommand(command: CliCommand): boolean {
+	return command.name === DOCS_CONFIG.commands.rootCommandName;
+}
+
+export function generateTitle(command: CliCommand): string {
+	const { name } = command;
+
+	// For root command, just use the name
+	if (isRootCommand(command)) {
+		return `# ${name}`;
+	}
+
+	// For subcommands, use only the command name
+	return `# ${name}`;
+}
+
+export async function generateDescription(command: CliCommand): Promise<string> {
+	const { description, jsDoc } = command;
+
+	const getDescriptionSection = (): string[] => {
+		if (description) {
+			return [description, ''];
+		}
+		return [];
+	};
+
+	const sections = [
+		...(jsDoc?.deprecated ? [createAdmonition('warning', jsDoc.deprecated, 'Deprecated'), ''] : []),
+		...getDescriptionSection(),
+	];
+
+	// Enhanced content for root command
+	if (isRootCommand(command)) {
+		const overviewContent = await readStaticTemplate('index.md');
+		if (overviewContent) {
+			sections.push('', overviewContent);
+		}
+	}
+
+	// Long description
+	if (jsDoc?.longDescription) {
+		sections.push('', '## Description', '', jsDoc.longDescription);
+	}
+
+	return sections.join('\n');
+}
+
+export function generateUsage(command: CliCommand): string {
+	const { fullPath, subcommands, options } = command;
+
+	if (!isRootCommand(command)) {
+		const commandPath = fullPath || command.name;
+		let usagePattern = `${DOCS_CONFIG.commands.rootCommandName} ${commandPath}`;
+
+		// Check if command has subcommands (like custom-script, applet, etc.)
+		if (subcommands && subcommands.length > 0) {
+			usagePattern += ' <subcommand>';
+		}
+		// Check if command expects action types (like power-action)
+		else if (isActionTypeCommand(commandPath, options)) {
+			usagePattern += ' <actionType>';
+		}
+
+		usagePattern += ' [options]';
+
+		return ['## Usage', '', '```bash', usagePattern, '```'].join('\n');
+	}
+
+	return '';
+}
+
+/**
+ * Check if a command expects action types
+ */
+function isActionTypeCommand(commandPath: string, options: CommandOption[]): boolean {
+	// Add logic to detect if this is an action type command
+	return commandPath.includes('power-action') || options.some((opt) => opt.name === 'action' || opt.name === 'actionType');
+}
+
+/**
+ * Safely convert a value to string for display
+ */
+function safeStringify(value: unknown): string {
+	if (value === null) {
+		return 'null';
+	}
+	if (value === undefined) {
+		return '';
+	}
+	if (typeof value === 'string') {
+		return value;
+	}
+	if (typeof value === 'number' || typeof value === 'boolean') {
+		return String(value);
+	}
+	if (typeof value === 'object') {
+		return JSON.stringify(value);
+	}
+	// For other types, just return empty string to avoid [object Object]
+	return '';
+}
+
+/**
+ * Generate options table
+ */
+export function generateOptionsTable(options: CommandOption[]): string {
+	if (!options || options.length === 0) {
+		return '';
+	}
+
+	// Check which columns have actual values
+	const hasAliases = options.some((option) => option.alias && option.alias.trim() !== '');
+	const hasDefaults = options.some((option) => {
+		const defaultValue = formatDefaultValue(option);
+		return defaultValue && defaultValue.trim() !== '';
+	});
+
+	// Build headers dynamically
+	const headers = ['Option'];
+	if (hasAliases) {
+		headers.push('Alias');
+	}
+	headers.push('Description');
+	if (hasDefaults) {
+		headers.push('Default');
+	}
+
+	// Build data rows dynamically
+	const data = options.map((option) => {
+		const optionName = `\`--${option.name}\``;
+		const alias = option.alias ? `\`-${option.alias}\`` : '';
+		const typeDisplay = option.type.toLowerCase();
+		const description = option.description || '';
+		const fullDescription = typeDisplay ? `${description} (${typeDisplay})` : description;
+		const defaultValue = formatDefaultValue(option);
+
+		const row = [optionName];
+		if (hasAliases) {
+			row.push(alias);
+		}
+		row.push(fullDescription);
+		if (hasDefaults) {
+			row.push(defaultValue);
+		}
+
+		return row;
+	});
+
+	const table = markdownTable([headers, ...data]);
+
+	return ['## Options', '', table].join('\n');
+}
+
+/**
+ * Generate parameters section from TypeScript function signatures
+ */
+export function generateParameters(command: CliCommand): string {
+	if (!command.parameters || command.parameters.length === 0) {
+		return '';
+	}
+
+	// If we have command options available, always skip parameters section to avoid duplication
+	// The options table will be generated by generateOptionsTable instead
+	if (command.options && command.options.length > 0) {
+		return '';
+	}
+
+	return [
+		'## Parameters',
+		'',
+		...command.parameters.flatMap((param) => {
+			const typeInfo = `**Type:** \`${param.type}\`${!param.required ? ' (optional)' : ''}`;
+
+			return [`### ${param.name}`, '', typeInfo, '', param.description || `${param.name} parameter`, ''];
+		}),
+	].join('\n');
+}
+
+/**
+ * Generate subcommands section
+ */
+export function generateSubcommands(command: CliCommand): string {
+	if (!command.subcommands || command.subcommands.length === 0) {
+		return '';
+	}
+
+	// Filter out private commands
+	const publicSubcommands = filterPublicSubcommands(command.subcommands);
+
+	if (publicSubcommands.length === 0) {
+		return '';
+	}
+
+	// For root command, use overview style
+	if (isRootCommand(command)) {
+		return generateRootSubcommands(command);
+	}
+
+	return generateStandardSubcommands(command);
+}
+
+/**
+ * Filter out private subcommands
+ */
+function filterPublicSubcommands(subcommands: CliCommand[]): CliCommand[] {
+	return subcommands.filter((sub) => sub.jsDoc?.group !== DOCS_CONFIG.commands.privateGroupMarker);
+}
+
+function generateRootSubcommands(command: CliCommand): string {
+	const categoryOrder = DOCS_CONFIG.commands.categoryOrder;
+
+	// Filter out private commands first
+	const publicSubcommands = filterPublicSubcommands(command.subcommands);
+
+	// Group commands by category from JSDoc @group tags
+	const categorizedCommands = publicSubcommands.reduce(
+		(acc: Record<string, CliCommand[]>, subcommand: CliCommand) => {
+			const category = subcommand.jsDoc?.group || 'Other';
+			acc[category] ??= [];
+			acc[category].push(subcommand);
+			return acc;
+		},
+		{} as Record<string, CliCommand[]>,
+	);
+
+	return [
+		'## Commands',
+		'',
+		...categoryOrder
+			.filter((categoryName) => (categorizedCommands[categoryName]?.length ?? 0) > 0)
+			.flatMap((categoryName) => [
+				`### ${categoryName}`,
+				'',
+				...categorizedCommands[categoryName]!.flatMap((subcommand: CliCommand) => {
+					const availableCommands = getAvailableCommandsList(subcommand);
+
+					return [
+						`#### \`${DOCS_CONFIG.commands.rootCommandName} ${subcommand.name}\``,
+						'',
+						subcommand.description || '',
+						'',
+						...(availableCommands ? [availableCommands, ''] : []),
+						`[→ See detailed documentation](${getCommandFilePath(subcommand.name)})`,
+						'',
+					];
+				}),
+			]),
+	].join('\n');
+}
+
+/**
+ * Get available commands list for a subcommand
+ */
+function getAvailableCommandsList(subcommand: CliCommand): string | null {
+	if (!subcommand.subcommands || subcommand.subcommands.length === 0) {
+		return null;
+	}
+
+	const publicSubcommands = filterPublicSubcommands(subcommand.subcommands);
+	if (publicSubcommands.length === 0) {
+		return null;
+	}
+	const commandList = publicSubcommands.map((s) => `\`${DOCS_CONFIG.commands.rootCommandName} ${subcommand.name} ${s.name}\``).join(', ');
+	return `**Available commands**: ${commandList}`;
+}
+
+/**
+ * Generate standard subcommands section
+ */
+function generateStandardSubcommands(command: CliCommand): string {
+	const publicSubcommands = filterPublicSubcommands(command.subcommands);
+	const { name, fullPath } = command;
+
+	return [
+		'## Subcommands',
+		'',
+		...publicSubcommands.flatMap((subcommand) => {
+			const subDescription = subcommand.description || '';
+			const commandPath = fullPath || name;
+			const subPath = isRootCommand(command) ? subcommand.name : `${commandPath} ${subcommand.name}`;
+			const linkPath = getCommandFilePath(subcommand.name);
+			const usagePattern = `${DOCS_CONFIG.commands.rootCommandName} ${subPath}${getUsageSuffix(subPath, subcommand)} [options]`;
+
+			return [
+				`### ${subcommand.name}`,
+				'',
+				...(subDescription ? [subDescription, ''] : []),
+				'```bash',
+				usagePattern,
+				'```',
+				'',
+				`[→ See detailed documentation](${linkPath})`,
+				'',
+			];
+		}),
+	].join('\n');
+}
+
+/**
+ * Get usage suffix for subcommand
+ */
+function getUsageSuffix(subPath: string, subcommand: CliCommand): string {
+	if (subcommand.subcommands?.length) {
+		return ' <subcommand>';
+	}
+	if (isActionTypeCommand(subPath, subcommand.options)) {
+		return ' <actionType>';
+	}
+	return '';
+}
+
+/**
+ * Generate examples section
+ */
+export function generateExamples(command: CliCommand, additionalExamples: string = ''): string {
+	const sections: string[] = [];
+
+	// JSDoc examples
+	if (command.jsDoc?.examples) {
+		const examplesContent = Array.isArray(command.jsDoc.examples) ? command.jsDoc.examples.join('\n\n') : command.jsDoc.examples;
+		sections.push('## Examples', '', examplesContent as string);
+	}
+
+	// Command examples
+	if (command.examples) {
+		if (sections.length === 0) {
+			sections.push('## Examples', '');
+		}
+		sections.push('', command.examples);
+	}
+
+	// Additional examples from static files
+	if (additionalExamples) {
+		if (sections.length === 0) {
+			sections.push('## Examples', '');
+		}
+		sections.push('', additionalExamples);
+	}
+
+	return sections.join('\n');
+}
+
+/**
+ * Generate remarks section
+ */
+export function generateRemarks(jsDoc?: JSDocInfo): string {
+	if (!jsDoc?.remarks) {
+		return '';
+	}
+
+	return createAdmonition('tip', jsDoc.remarks, 'Remarks');
+}
+
+/**
+ * Generate metadata sections
+ */
+export function generateMetadata(jsDoc?: JSDocInfo): string {
+	if (!jsDoc) {
+		return '';
+	}
+
+	const sections: string[] = [];
+
+	if (jsDoc.version) {
+		sections.push('## Version', '', jsDoc.version);
+	}
+
+	if (jsDoc.since) {
+		sections.push('## Since', '', jsDoc.since);
+	}
+
+	if (jsDoc.author) {
+		sections.push('## Author', '', jsDoc.author);
+	}
+
+	return sections.length > 0 ? sections.join('\n') : '';
+}
+
+/**
+ * Generate global options section
+ */
+export async function generateGlobalOptions(commandName: string): Promise<string> {
+	// Skip global options for root command since its options table already shows the global options
+	if (commandName === DOCS_CONFIG.commands.rootCommandName) {
+		return '';
+	}
+
+	const globalOptionsContent = await readStaticTemplate(DOCS_CONFIG.templates.staticFiles.globalOptions);
+	return globalOptionsContent || '';
+}
+
+/**
+ * Generate related commands section
+ */
+export function generateRelatedCommands(command: CliCommand): string {
+	const { subcommands, fullPath } = command;
+
+	if (!subcommands || subcommands.length === 0) {
+		return '';
+	}
+
+	// Filter out private commands
+	const publicSubcommands = filterPublicSubcommands(subcommands);
+
+	if (publicSubcommands.length === 0) {
+		return '';
+	}
+
+	return [
+		'## Related Commands',
+		'',
+		...publicSubcommands.map((subcommand) => {
+			const subDescription = subcommand.description || '';
+			const subcommandPath = getCommandFilePath(subcommand.name);
+			const commandPath = fullPath ? `${fullPath} ${subcommand.name}` : subcommand.name;
+
+			return `- [\`${DOCS_CONFIG.commands.rootCommandName} ${commandPath}\`](${subcommandPath}) - ${subDescription}`;
+		}),
+	].join('\n');
+}
+
+/**
+ * Generate see also section
+ */
+export async function generateSeeAlso(jsDoc?: JSDocInfo, pathname: string = ''): Promise<string> {
+	if (!jsDoc?.see || jsDoc.see.length === 0) {
+		return '';
+	}
+
+	const links = jsDoc.see
+		.map((linkInfo: LinkInfo) => {
+			const path = convertLinkToPath(linkInfo.url, pathname);
+			// Clean up any errant ': ' prefix in text
+			const cleanText = linkInfo.text.replace(/^:\s*/, '').trim();
+			return `- [${cleanText}](${path})`;
+		})
+		.join('\n');
+
+	return ['## See Also', '', links].join('\n');
+}
+
+/**
+ * Create an admonition block
+ */
+function createAdmonition(type: string, content: string, title?: string): string {
+	const titleStr = title ? ` ${title}` : '';
+	return `:::${type}${titleStr}\n${content}\n:::`;
+}
+
+/**
+ * Get the correct file path for a command
+ */
+function getCommandFilePath(commandName: string): string {
+	return `${commandName}/`;
+}
+
+/**
+ * Stack items with proper spacing
+ */
+export const stack = (...items: (string | number | null | undefined)[]): string => items.filter(Boolean).join('\n\n');

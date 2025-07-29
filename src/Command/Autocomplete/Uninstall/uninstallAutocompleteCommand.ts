@@ -4,6 +4,23 @@ import { createCommandDefinition } from '../../commandDefinition';
 
 export const OPTION_LIST = [] as const;
 
+/**
+ * Removes the signageOS CLI auto-completion functionality from the user's shell configuration.
+ * This command reverses the changes made by the install command, removing auto-completion
+ * scripts and configuration entries from shell profile files.
+ *
+ * @group Tools:2
+ *
+ * @example
+ * ```bash
+ * # Uninstall auto-completion
+ * sos autocomplete uninstall
+ * ```
+ *
+ * @see {@link ../install/ Install auto-completion command}
+ *
+ * @since 2.4.0
+ */
 export const uninstallAutocomplete = createCommandDefinition({
 	name: 'uninstall',
 	description: 'Uninstall command auto-completion for bash/zsh shells',

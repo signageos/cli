@@ -21,10 +21,9 @@
 		"@istanbuljs/nyc-config-typescript",
 		"cross-env",
 		"eslint",
-		"eslint-config-prettier",
-		"eslint-plugin-no-null",
-		"eslint-plugin-prettier",
-		"eslint-plugin-unused-imports",
-		"typescript-eslint"
+		"typescript-eslint",
+		"typescript",
+		"markdown-table",
+		"tsx"
 	]
 }

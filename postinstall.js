@@ -30,14 +30,14 @@ function isBannerRequired() {
 		if (now - lastDisplayed < 86400000) {
 			return false;
 		}
-	} catch (_error) {
+	} catch {
 		// File doesn't exist or can't be read, show the banner
 	}
 
 	try {
 		// Update the timestamp
 		fs.writeFileSync(file, version, 'utf8');
-	} catch (_error) {
+	} catch {
 		// Fail silently if we can't write
 	}
 
@@ -56,7 +56,7 @@ function printWelcomeMessage() {
 	const message = [
 		'╔══════════════════════════════════════════════════════════════════════════════╗',
 		'║' + formatLine('') + '║',
-		'║' + formatLine(`  ${chalk('signageOS CLI').bold} v${version}`) + '║',
+		'║' + formatLine(`  ${chalk.bold('signageOS CLI')} v${version}`) + '║',
 		'║' + formatLine('') + '║',
 		'║' + formatLine('  ╭──────────────────────────────────╮') + '║',
 		'║' + formatLine('  │ $ sos <tab>                      │') + '║',
@@ -103,7 +103,7 @@ if (isBannerRequired()) {
 	try {
 		printSignageosLogo();
 		printWelcomeMessage();
-	} catch (_error) {
+	} catch {
 		// Fail silently in case of errors
 	}
 }

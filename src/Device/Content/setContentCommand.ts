@@ -13,9 +13,35 @@ import { DEVICE_UID_OPTION, getDeviceUid } from '../deviceFacade';
 
 const OPTION_LIST = [NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION, APPLET_UID_OPTION, DEVICE_UID_OPTION] as const;
 
+/**
+ * Deploys an applet to a specific device by creating a timing configuration
+ * that activates the specified applet version on the target device. This command
+ * establishes the applet-to-device relationship for production deployment.
+ *
+ * @group Management:3
+ *
+ * @example
+ * ```bash
+ * # Deploy applet to device
+ * sos device set-content --device-uid device123 --applet-uid my-applet
+ *
+ * # Deploy with organization override
+ * sos device set-content --device-uid device123 --applet-uid my-applet --organization-uid org456
+ * ```
+ *
+ * @throws {Error} When device or applet cannot be found or accessed
+ *
+ * @throws {Error} When timing configuration creation fails
+ *
+ * @throws {Error} When organization access is denied
+ *
+ * @throws {Error} When applet version cannot be determined
+ *
+ * @since 0.9.0
+ */
 export const setContent = createCommandDefinition({
 	name: 'set-content',
-	description: 'Set content for device',
+	description: 'Deploy applet to device',
 	optionList: OPTION_LIST,
 	commands: [],
 	async run(options: CommandLineOptions<typeof OPTION_LIST>) {

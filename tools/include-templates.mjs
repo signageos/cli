@@ -14,7 +14,7 @@ const AUTOCOMPLETE_SOURCE_DIR = path.resolve(__dirname, '../src/Command/Autocomp
 const AUTOCOMPLETE_DEST_DIR = path.resolve(__dirname, '../dist/Command/Autocomplete/Install');
 
 // Self-executing async function to copy templates
-(async function() {
+(async function () {
 	try {
 		// Ensure the destination directories exist
 		await fs.ensureDir(TEMPLATE_DEST_DIR);
@@ -31,4 +31,7 @@ const AUTOCOMPLETE_DEST_DIR = path.resolve(__dirname, '../dist/Command/Autocompl
 		console.error('Error copying files:', err);
 		process.exit(1);
 	}
-})();
+})().catch((err) => {
+	console.error('Unhandled error in template copying:', err);
+	process.exit(1);
+});

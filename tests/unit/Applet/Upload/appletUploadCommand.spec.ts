@@ -195,5 +195,16 @@ describe('unit.appletUploadCommand', () => {
 
 	beforeEach(() => {
 		sinon.reset();
+		// Reset individual sinon fakes in the mocks
+		appletUploadFacadeMock.updateSingleFileApplet.resetHistory();
+		appletUploadFacadeMock.updateMultiFileApplet.resetHistory();
+		appletUploadFacadeMock.createSingleFileApplet.resetHistory();
+		appletUploadFacadeMock.createMultiFileFileApplet.resetHistory();
+
+		appletUploadCommandHelperMock.getAppletBinaryFileAbsolutePath.resetHistory();
+		appletUploadCommandHelperMock.getAppletDirectoryAbsolutePath.resetHistory();
+		appletUploadCommandHelperMock.getAppletEntryFileAbsolutePath.resetHistory();
+		appletUploadCommandHelperMock.getAppletEntryFileRelativePath.resetHistory();
+		appletUploadCommandHelperMock.saveToPackage.resetHistory();
 	});
 });

@@ -11,6 +11,23 @@ export const setRootCommand = (rootCommand: ICommand<string, OptionList>): void 
 	rootCommandRef = rootCommand;
 };
 
+/**
+ * Enables auto-completion functionality for the signageOS CLI in supported shells.
+ * This command adds auto-completion scripts and configuration to the user's shell
+ * profile, allowing tab completion for commands and sub-commands.
+ *
+ * @group Tools:1
+ *
+ * @example
+ * ```bash
+ * # Install auto-completion
+ * sos autocomplete install
+ * ```
+ *
+ * @see {@link ../uninstall/ Uninstall auto-completion command}
+ *
+ * @since 2.4.0
+ */
 export const installAutocomplete = createCommandDefinition({
 	name: 'install',
 	description: 'Install command auto-completion for bash/zsh shells',

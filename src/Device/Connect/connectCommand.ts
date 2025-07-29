@@ -48,9 +48,58 @@ const OPTION_LIST = [
 	APPLET_PATH_OPTION,
 ] as const;
 
+/**
+ * Establishes a connection between a signageOS device and the local development environment,
+ * allowing real-time testing and debugging of applets during development. Supports both
+ * local network (LAN) and forward server connections for different network configurations.
+ *
+ * The command sets up a development server and configures the device to load the applet
+ * from the local machine, enabling hot reload and live debugging capabilities.
+ *
+ * @group Management:1
+ *
+ * @example
+ * ```bash
+ * # Connect device with basic configuration
+ * sos device connect --device-uid device123 --applet-uid my-applet
+ *
+ * # Connect with custom server port
+ * sos device connect --device-uid device123 --server-port 8080
+ *
+ * # Connect using forward server (for remote devices)
+ * sos device connect --device-uid device123 --use-forward-server
+ *
+ * # Connect with hot reload enabled
+ * sos device connect --device-uid device123 --hot-reload
+ *
+ * # Connect with custom organization
+ * sos device connect --device-uid device123 --organization-uid org456
+ *
+ * # Connect with custom public URL
+ * sos device connect --device-uid device123 --server-public-url https://my-domain.com
+ *
+ * # Connect and run in background
+ * sos device connect --device-uid device123 --detach
+ *
+ * # Force connection (terminate existing servers)
+ * sos device connect --device-uid device123 --force
+ * ```
+ *
+ * @throws {Error} When device or applet cannot be found or accessed
+ *
+ * @throws {Error} When network connection to device fails
+ *
+ * @throws {Error} When development server cannot be started
+ *
+ * @throws {Error} When hot reload configuration is invalid
+ *
+ * @see {@link https://developers.signageos.io/docs/applets/connect-to-device-cli/ Device Connection and Development Documentation}
+ *
+ * @since 0.9.0
+ */
 export const connect = createCommandDefinition({
 	name: 'connect',
-	description: 'Set ip for device',
+	description: 'Connect device to local development server',
 	optionList: OPTION_LIST,
 	commands: [],
 	run: async function (options: CommandLineOptions<typeof OPTION_LIST>) {
