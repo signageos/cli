@@ -58,12 +58,6 @@ export const getIsAuth0OrLegacyEnabled = (options: any) => {
  *
  * # Login with username specified
  * sos login --username user@example.com
- *
- * # Enable Auth0 authentication
- * sos login --auth0-enabled
- *
- * # Enable legacy authentication
- * sos login --legacy-enabled
  * ```
  *
  * @throws {Error} When username is missing and not provided interactively
