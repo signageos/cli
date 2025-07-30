@@ -22,11 +22,11 @@ const AUTOCOMPLETE_DEST_DIR = path.resolve(__dirname, '../dist/Command/Autocompl
 
 		// Copy all contents from the template directory
 		await fs.copy(TEMPLATE_SOURCE_DIR, TEMPLATE_DEST_DIR);
-		console.info(`Applet templates copied successfully!`);
+		console.info('Applet templates copied successfully!');
 
 		// Copy the autocomplete script
 		await fs.copy(AUTOCOMPLETE_SOURCE_DIR, AUTOCOMPLETE_DEST_DIR);
-		console.info(`Autocomplete scripts copied successfully!`);
+		console.info('Autocomplete scripts copied successfully!');
 	} catch (err) {
 		console.error('Error copying files:', err);
 		process.exit(1);
