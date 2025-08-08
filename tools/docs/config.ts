@@ -15,6 +15,8 @@ export const DOCS_CONFIG = {
 		staticTemplatesDir: 'tools/docs/templates/static',
 		/** Main entry file name to look for */
 		indexFileName: 'index.ts',
+		/** Base path for internal CLI documentation links (e.g., '/cli/') */
+		cliDocsBasePath: '/cli/',
 	},
 
 	/**

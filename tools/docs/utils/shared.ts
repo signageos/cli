@@ -1,7 +1,8 @@
-import { promises as fs, existsSync } from 'fs';
+import { promises as fs, existsSync, statSync } from 'fs';
 import * as path from 'path';
 import type { LinkValidationResult } from '../core/domain-types.js';
 import { LINK_VALIDATION } from '../process/utils/constants.js';
+import { DOCS_CONFIG } from '../config.js';
 
 export const logger = {
 	info: (message: string) => console.info(message),
@@ -90,9 +91,45 @@ export function validateLink(link: string, currentFile: string): LinkValidationR
 	} catch {
 		// Not an absolute URL, treat as relative/internal
 		try {
+			let resolvedPath: string;
+
+			// Handle CLI documentation absolute paths (e.g., /cli/applet/)
+			if (link.startsWith(DOCS_CONFIG.paths.cliDocsBasePath)) {
+				// Convert CLI paths to local docs paths
+				const cliPath = link.replace(DOCS_CONFIG.paths.cliDocsBasePath, '');
+				const docsDir = path.resolve('./docs');
+				resolvedPath = path.join(docsDir, cliPath);
+
+				// If it ends with /, check for index.md
+				if (cliPath.endsWith('/')) {
+					const indexPath = path.join(resolvedPath, 'index.md');
+					const dirExists = existsSync(resolvedPath) && statSync(resolvedPath).isDirectory();
+					const indexExists = existsSync(indexPath);
+
+					return {
+						type: 'internal',
+						resolved: indexPath,
+						exists: dirExists && indexExists,
+					};
+				} else {
+					return {
+						type: 'internal',
+						resolved: resolvedPath,
+						exists: existsSync(resolvedPath),
+					};
+				}
+			}
+
+			// Handle regular relative paths
 			const baseUrl = `file://${currentFile}`;
 			const resolvedUrl = new URL(link, baseUrl);
-			const resolvedPath = resolvedUrl.pathname.split('#')[0]; // Remove anchor
+			const pathname = resolvedUrl.pathname;
+
+			if (!pathname) {
+				return { type: 'invalid', resolved: link };
+			}
+
+			resolvedPath = (pathname || '').split('#')[0]; // Remove anchor
 
 			if (!resolvedPath) {
 				return { type: 'invalid', resolved: link };

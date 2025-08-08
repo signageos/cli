@@ -1,4 +1,5 @@
 import * as ts from 'typescript';
+import { DOCS_CONFIG } from '../../config.js';
 
 /**
  * Resolves aliased symbols (imports) to their actual definitions
@@ -75,32 +76,89 @@ export function convertLinkToPath(linkReference: string, currentPath: string = '
 }
 
 /**
+ * Convert a target path to an absolute CLI docs path
+ * @param targetPath - Target path to convert
+ * @returns Absolute CLI docs path
+ */
+function toAbsoluteCliDocsPath(targetPath: string): string {
+	return `${DOCS_CONFIG.paths.cliDocsBasePath}${targetPath}`;
+}
+
+/**
+ * Check if a path should be treated as an absolute CLI command path
+ * @param targetPath - Path to check
+ * @returns True if path should be made absolute
+ */
+function isAbsolutePath(targetPath: string): boolean {
+	return targetPath.endsWith('/') && !targetPath.startsWith('./') && !targetPath.startsWith('../');
+}
+
+/**
+ * Check if a path is already a relative path
+ * @param targetPath - Path to check
+ * @returns True if path starts with ./ or ../
+ */
+function isRelativePath(targetPath: string): boolean {
+	return targetPath.startsWith('./') || targetPath.startsWith('../');
+}
+
+/**
+ * Check if a path is a plain path (no special prefixes or suffixes)
+ * @param targetPath - Path to check
+ * @returns True if path is neither absolute CLI path nor relative path
+ */
+function isPlainPath(targetPath: string): boolean {
+	return !isAbsolutePath(targetPath) && !isRelativePath(targetPath);
+}
+
+/**
+ * Build a relative path string based on directory depth
+ * @param targetPath - Target path to link to
+ * @param currentPath - Current document path
+ * @returns Relative path string
+ */
+function buildRelativePath(targetPath: string, currentPath: string): string {
+	// Remove '/index' suffix to get the actual directory path
+	const currentDirectoryPath = currentPath.replace(/\/index$/, '');
+
+	// Calculate how many levels up we need to go
+	const directoryDepth = currentDirectoryPath.split('/').length;
+	if (directoryDepth > 0) {
+		const upDirectoryLevels = '../'.repeat(directoryDepth);
+		return `${upDirectoryLevels}${targetPath}`;
+	}
+
+	return targetPath;
+}
+
+/**
  * Calculate relative path based on current document location
  * @param targetPath - Target markdown file path
  * @param currentPath - Current document location (e.g., 'applet/upload/index')
- * @returns Relative path to target
+ * @returns Absolute or relative path to target
  */
 function getRelativePath(targetPath: string, currentPath: string): string {
-	// If no current path, return as-is
-	if (!currentPath) {
+	// Handle paths that should be made absolute (nested CLI command paths)
+	if (isAbsolutePath(targetPath)) {
+		return toAbsoluteCliDocsPath(targetPath);
+	}
+
+	// Keep existing relative paths as-is
+	if (isRelativePath(targetPath)) {
 		return targetPath;
 	}
 
-	// If the targetPath is already a relative path (starts with ./ or ../),
-	// return it as-is since it's already relative to the command structure
-	if (targetPath.startsWith('./') || targetPath.startsWith('../')) {
-		return targetPath;
+	// Handle plain paths (files, simple directory names without special prefixes/suffixes)
+	if (isPlainPath(targetPath)) {
+		// If no current path context, return target path as-is
+		if (!currentPath) {
+			return targetPath;
+		}
+
+		// Build relative path based on current document location
+		return buildRelativePath(targetPath, currentPath);
 	}
 
-	// Remove '/index' suffix if present to get the actual directory path
-	const cleanCurrentPath = currentPath.replace(/\/index$/, '');
-
-	// Calculate relative path based on current depth for absolute paths
-	const currentDepth = cleanCurrentPath.split('/').length;
-	if (currentDepth > 0) {
-		const upLevels = '../'.repeat(currentDepth);
-		return `${upLevels}${targetPath}`;
-	}
-
+	// Fallback for any unhandled cases
 	return targetPath;
 }
