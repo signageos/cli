@@ -292,7 +292,7 @@ function generateStandardSubcommands(command: CliCommand): string {
 			const subDescription = subcommand.description || '';
 			const commandPath = fullPath || name;
 			const subPath = isRootCommand(command) ? subcommand.name : `${commandPath} ${subcommand.name}`;
-			const linkPath = getCommandFilePath(subcommand.name);
+			const linkPath = getCommandFilePath(subcommand.name, commandPath);
 			const usagePattern = `${DOCS_CONFIG.commands.rootCommandName} ${subPath}${getUsageSuffix(subPath, subcommand)} [options]`;
 
 			return [
@@ -425,7 +425,7 @@ export function generateRelatedCommands(command: CliCommand): string {
 		'',
 		...publicSubcommands.map((subcommand) => {
 			const subDescription = subcommand.description || '';
-			const subcommandPath = getCommandFilePath(subcommand.name);
+			const subcommandPath = getCommandFilePath(subcommand.name, fullPath);
 			const commandPath = fullPath ? `${fullPath} ${subcommand.name}` : subcommand.name;
 
 			return `- [\`${DOCS_CONFIG.commands.rootCommandName} ${commandPath}\`](${subcommandPath}) - ${subDescription}`;
@@ -463,9 +463,15 @@ function createAdmonition(type: string, content: string, title?: string): string
 
 /**
  * Get the correct file path for a command
+ * Uses absolute paths from the CLI documentation root to ensure proper navigation regardless of trailing slashes
  */
-function getCommandFilePath(commandName: string): string {
-	return `${commandName}/`;
+function getCommandFilePath(commandName: string, parentPath?: string): string {
+	if (parentPath && !isRootCommand({ name: parentPath } as CliCommand)) {
+		// Convert CLI command format (with spaces) to file path format (with slashes)
+		const pathFormat = parentPath.replace(/\s+/g, '/');
+		return `${DOCS_CONFIG.paths.cliDocsBasePath}${pathFormat}/${commandName}/`;
+	}
+	return `${DOCS_CONFIG.paths.cliDocsBasePath}${commandName}/`;
 }
 
 /**

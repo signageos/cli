@@ -82,7 +82,7 @@ const DEPENDENCIES = {
 		'@babel/core@7',
 		'@babel/preset-env@7',
 	],
-	rspack: ['@rspack/core@latest', '@rspack/cli@latest'],
+	rspack: ['@rspack/core@^1.4.11', '@rspack/cli@^1.4.11'],
 };
 
 const RUNSCRIPTS = {
