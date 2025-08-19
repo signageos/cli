@@ -13,7 +13,6 @@ import {
 import { ensureRunnerVersion, loadSchemas, uploadCode } from '../runnerFacede';
 import { getConfig } from '../../CustomScript/customScriptFacade';
 
-
 const Debug = debug('@signageos/cli:Runner:Upload:Command');
 
 export const OPTION_LIST = [NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION] as const;
@@ -31,7 +30,7 @@ export const runnerUpload = createCommandDefinition({
 
 		const config = await getConfig(currentDirectory);
 		const schema = await loadSchemas(currentDirectory);
-		
+
 		const runnerVersion = await ensureRunnerVersion(restApi, config, schema);
 
 		for (const platform of Object.keys(config.platforms)) {
@@ -55,8 +54,8 @@ export const runnerUpload = createCommandDefinition({
 				runnerUid: runnerVersion.runnerUid,
 				version: runnerVersion.version,
 				configDefinition: config.configDefinition,
-				input: schema['input'],
-				output: schema['output'],
+				input: schema.input,
+				output: schema.output,
 				description: config.description!,
 			});
 		} else {
