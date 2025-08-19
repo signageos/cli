@@ -60,7 +60,7 @@ export async function askForParameters() {
  * Downloads the latest version of the boilerplate code from the GitHub repository.
  */
 export async function downloadBoilerplateCode(targetDir: string) {
-	const URL = 'https://github.com/patrik-bily/custm-plugins.git';
+	const URL = 'https://github.com/signageos/plugins-boilerplate';
 	await cloneGitRepository(URL, targetDir);
 
 	// we just want the code, not the git history

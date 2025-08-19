@@ -61,7 +61,7 @@ export async function askForParameters() {
  */
 export async function downloadBoilerplateCode(targetDir: string) {
 	// TODO: Update this URL to point to the actual runner boilerplate repository
-	const URL = 'https://github.com/signageos/custom-scripts-boilerplate.git';
+	const URL = 'https://github.com/signageos/runners-boilerplate';
 	await cloneGitRepository(URL, targetDir);
 
 	// we just want the code, not the git history
