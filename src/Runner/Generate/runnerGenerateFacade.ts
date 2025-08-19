@@ -36,7 +36,7 @@ export async function askForParameters() {
 		`Generating Runner with these parameters:\n` +
 			`  - Directory: ${chalk.green(targetDir)}\n` +
 			`  - Name: ${chalk.green(name)}\n` +
-			`  - Description: ${chalk.green(description)}\n`
+			`  - Description: ${chalk.green(description)}\n`,
 	);
 
 	const { confirm } = await prompts({

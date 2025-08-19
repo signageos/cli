@@ -9,7 +9,7 @@ import { log } from '@signageos/sdk/dist/Console/log';
 import { generateZip } from '../Lib/archive';
 import { getFileMD5Checksum } from '../Lib/fileSystem';
 import { RUNTIME_DIRNAME } from '@signageos/sdk/dist/Development/runtimeFileSystem';
-import { IPluginVersion } from "@signageos/sdk/dist/RestApi/Plugin/Version/IPluginVersion";
+import { IPluginVersion } from '@signageos/sdk/dist/RestApi/Plugin/Version/IPluginVersion';
 import { addToConfigFile, PlatformConfig, CodeArchive, PlatformSchema } from '../CustomScript/customScriptFacade';
 
 const PLUGIN_BUILDS_DIRNAME = 'plugin_builds';
@@ -41,7 +41,7 @@ export async function ensurePluginVersion(restApi: RestApi, config: PluginConfig
 	return await restApi.plugin.version.create({
 		pluginUid: plugin.uid,
 		version: config.version,
-		description: "testts",
+		description: 'testts',
 		schema: schema.schema,
 		configDefinition: config.configDefinition,
 	});
@@ -87,7 +87,6 @@ async function ensurePlugin(restApi: RestApi, config: PluginConfig) {
 	return createdPlugin;
 }
 
-
 export async function uploadCode({
 	restApi,
 	workDir,
@@ -125,7 +124,6 @@ export async function uploadCode({
 			platform,
 			codeArchive,
 		});
-
 
 		await restApi.plugin.version.platform.update({
 			pluginUid: pluginVersion.pluginUid,
@@ -218,7 +216,6 @@ async function ensureRuntimeDir() {
 	return runtimeDir;
 }
 
-
 export async function loadSchemas(workDir: string) {
 	const filePath = getConfigFilePath(workDir);
 
@@ -233,7 +230,6 @@ export async function loadSchemas(workDir: string) {
 function getConfigFilePath(workDir: string) {
 	return path.join(workDir, 'schema.json');
 }
-
 
 export const ConfigSchema = z.object({
 	uid: z.string().optional(),
@@ -251,5 +247,3 @@ export const ConfigSchema = z.object({
 });
 
 export type PluginConfig = z.infer<typeof ConfigSchema>;
-
-

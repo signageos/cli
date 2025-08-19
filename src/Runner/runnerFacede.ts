@@ -8,7 +8,7 @@ import { log } from '@signageos/sdk/dist/Console/log';
 import { generateZip } from '../Lib/archive';
 import { getFileMD5Checksum } from '../Lib/fileSystem';
 import { RUNTIME_DIRNAME } from '@signageos/sdk/dist/Development/runtimeFileSystem';
-import { addToConfigFile, CodeArchive, PlatformConfig } from "../CustomScript/customScriptFacade";
+import { addToConfigFile, CodeArchive, PlatformConfig } from '../CustomScript/customScriptFacade';
 import { IRunnerVersion } from '@signageos/sdk/dist/RestApi/Runner/Version/IRunnerVersion';
 import z from 'zod';
 import { ConfigSchema } from '../Plugin/pluginFacade';
@@ -36,14 +36,13 @@ export async function ensureRunnerVersion(restApi: RestApi, config: RunnerConfig
 
 	log('info', chalk.yellow(`Creating Runner version ${config.version}`));
 
-
 	return await restApi.runner.version.create({
 		runnerUid: runner.uid,
 		version: config.version,
-		description: "testts",
-		input: schema['input'],
-		output: schema['output'],
-		telemetry: schema['telemetry'],
+		description: config.description!,
+		input: schema.input,
+		output: schema.output,
+		telemetry: schema.telemetry,
 		configDefinition: config.configDefinition,
 	});
 }
@@ -54,7 +53,7 @@ async function ensureRunner(restApi: RestApi, config: RunnerConfig) {
 		if (runner) {
 			await restApi.runner.update(runner.uid, {
 				name: config.name,
-				title: config.name, 
+				title: config.name,
 				description: config.description,
 			});
 			return runner;
@@ -73,7 +72,7 @@ async function ensureRunner(restApi: RestApi, config: RunnerConfig) {
 		throw new Error('Runner upload was canceled.');
 	}
 
-	log('info', chalk.yellow(`Creating Runner ss "${config.name}"`));
+	log('info', chalk.yellow(`Creating Runner "${config.name}"`));
 
 	const createdRunner = await restApi.runner.create({
 		name: config.name,
@@ -87,7 +86,6 @@ async function ensureRunner(restApi: RestApi, config: RunnerConfig) {
 
 	return createdRunner;
 }
-
 
 export async function uploadCode({
 	restApi,
@@ -112,7 +110,6 @@ export async function uploadCode({
 		platform,
 	});
 
-
 	if (runnerVersionPlatform?.md5Checksum === codeArchive.md5Checksum) {
 		log('info', chalk.yellow(`Skipping upload for ${platform} - no changes detected`));
 		return;
@@ -128,7 +125,6 @@ export async function uploadCode({
 			codeArchive,
 		});
 
-
 		await restApi.runner.version.platform.update({
 			runnerUid: runnerVersion.runnerUid,
 			version: runnerVersion.version,
@@ -136,7 +132,7 @@ export async function uploadCode({
 			mainFile,
 			runtime,
 			md5Checksum: codeArchive.md5Checksum,
-		})
+		});
 	} finally {
 		await codeArchive.delete();
 	}
@@ -220,7 +216,6 @@ async function ensureRuntimeDir() {
 	return runtimeDir;
 }
 
-
 export async function loadSchemas(workDir: string) {
 	const filePath = getConfigFilePath(workDir);
 
@@ -236,6 +231,4 @@ function getConfigFilePath(workDir: string) {
 	return path.join(workDir, 'schema.json');
 }
 
-
 export type RunnerConfig = z.infer<typeof ConfigSchema>;
-

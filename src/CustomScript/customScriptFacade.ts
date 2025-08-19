@@ -149,7 +149,7 @@ async function ensureCustomScript(restApi: RestApi, config: CustomScriptConfig) 
 		name: config.name,
 		title: config.name, // TODO change
 		description: config.description,
-		dangerLevel: config.dangerLevel? config.dangerLevel : 'normal', // default to 'normal' if not provided
+		dangerLevel: config.dangerLevel ? config.dangerLevel : 'normal', // default to 'normal' if not provided
 	});
 
 	// TODO ask for permission or read from CLI arg
