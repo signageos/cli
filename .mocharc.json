@@ -1,5 +1,6 @@
 {
 	"require": ["should", "ts-node/register"],
 	"spec": "tests/unit/**/*.spec.ts",
-	"timeout": 30e3
+	"timeout": 30e3,
+	"loader": "ts-node/esm"
 }

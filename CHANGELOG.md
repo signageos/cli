@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - New commands `sos runner generate` to generate local repository with Runner boilerplate and `sos plugin generate` to generate local repository with Plugin boilerplate
 
+### Security
+- Zero audit issues in CLI
+- Zero audit issues in plain generated applet
+
 ## [2.5.0] - 2025-07-30
 ### Fixed
 - Upgrade underlying SDK
