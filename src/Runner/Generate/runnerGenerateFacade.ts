@@ -19,11 +19,13 @@ export async function askForParameters() {
 				type: 'text',
 				name: 'name',
 				message: 'Type name',
+				min: 1,
 			},
 			{
 				type: 'text',
 				name: 'description',
 				message: 'Type description',
+				min: 1,
 			},
 		],
 		{ onCancel: throwCanceledError },
@@ -60,7 +62,6 @@ export async function askForParameters() {
  * Downloads the latest version of the boilerplate code from the GitHub repository.
  */
 export async function downloadBoilerplateCode(targetDir: string) {
-	// TODO: Update this URL to point to the actual runner boilerplate repository
 	const URL = 'https://github.com/signageos/runners-boilerplate';
 	await cloneGitRepository(URL, targetDir);
 

@@ -19,11 +19,13 @@ export async function askForParameters() {
 				type: 'text',
 				name: 'name',
 				message: 'Type name',
+				min: 1,
 			},
 			{
 				type: 'text',
 				name: 'description',
 				message: 'Type description',
+				min: 1,
 			},
 		],
 		{ onCancel: throwCanceledError },

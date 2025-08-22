@@ -41,7 +41,7 @@ export async function ensurePluginVersion(restApi: RestApi, config: PluginConfig
 	return await restApi.plugin.version.create({
 		pluginUid: plugin.uid,
 		version: config.version,
-		description: 'testts',
+		description: config.description,
 		schema: schema.schema,
 		configDefinition: config.configDefinition,
 	});
