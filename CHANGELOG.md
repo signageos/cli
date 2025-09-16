@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Improved security and updated dependencies for generated applet
 
 ### Fixed
-- Upgrade underlying SDK to `@signageos/sdk@2.0.1`
+- Upgrade underlying SDK to latest `@signageos/sdk`
 
 ## [2.5.0] - 2025-07-30
 ### Fixed
