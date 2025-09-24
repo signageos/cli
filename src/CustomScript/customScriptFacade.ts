@@ -85,8 +85,8 @@ function getConfigFilePath(workDir: string) {
 	return path.join(workDir, CONFIG_FILE_NAME);
 }
 
-export async function ensureCustomScriptVersion(restApi: RestApi, config: CustomScriptConfig) {
-	const customScript = await ensureCustomScript(restApi, config);
+export async function ensureCustomScriptVersion(restApi: RestApi, config: CustomScriptConfig, skipConfirmation?: boolean) {
+	const customScript = await ensureCustomScript(restApi, config, skipConfirmation);
 
 	const customScriptVersion = await restApi.customScript.version.get({
 		customScriptUid: customScript.uid,
@@ -97,17 +97,21 @@ export async function ensureCustomScriptVersion(restApi: RestApi, config: Custom
 		return customScriptVersion;
 	}
 
-	const response: prompts.Answers<'newVersion'> = await prompts({
-		type: 'confirm',
-		name: 'newVersion',
-		message: `Do you want to create new custom script version ${config.version}?`,
-	});
+	if (skipConfirmation) {
+		log('info', chalk.yellow(`Creating Custom Script version ${config.version}`));
+	} else {
+		const response: prompts.Answers<'newVersion'> = await prompts({
+			type: 'confirm',
+			name: 'newVersion',
+			message: `Do you want to create new custom script version ${config.version}?`,
+		});
 
-	if (!response.newVersion) {
-		throw new Error('Custom Script version creation was canceled.');
+		if (!response.newVersion) {
+			throw new Error('Custom Script version creation was canceled.');
+		}
+
+		log('info', chalk.yellow(`Creating Custom Script version ${config.version}`));
 	}
-
-	log('info', chalk.yellow(`Creating Custom Script version ${config.version}`));
 
 	return await restApi.customScript.version.create({
 		customScriptUid: customScript.uid,
@@ -116,7 +120,7 @@ export async function ensureCustomScriptVersion(restApi: RestApi, config: Custom
 	});
 }
 
-async function ensureCustomScript(restApi: RestApi, config: CustomScriptConfig) {
+async function ensureCustomScript(restApi: RestApi, config: CustomScriptConfig, skipConfirmation?: boolean) {
 	if (config.uid) {
 		const customScript = await restApi.customScript.get(config.uid);
 		if (customScript) {
@@ -133,17 +137,21 @@ async function ensureCustomScript(restApi: RestApi, config: CustomScriptConfig) 
 		throw new Error(`Custom Script with uid "${config.uid}" not found`);
 	}
 
-	const response = await prompts({
-		type: 'confirm',
-		name: 'create',
-		message: `Custom Script "${config.name}" does not exist. Do you want to create it?`,
-	});
+	if (skipConfirmation) {
+		log('info', chalk.yellow(`Creating Custom Script "${config.name}"`));
+	} else {
+		const response = await prompts({
+			type: 'confirm',
+			name: 'create',
+			message: `Custom Script "${config.name}" does not exist. Do you want to create it?`,
+		});
 
-	if (!response.create) {
-		throw new Error('Custom Script upload was canceled.');
+		if (!response.create) {
+			throw new Error('Custom Script upload was canceled.');
+		}
+
+		log('info', chalk.yellow(`Creating Custom Script "${config.name}"`));
 	}
-
-	log('info', chalk.yellow(`Creating Custom Script "${config.name}"`));
 
 	const createdCustomScript = await restApi.customScript.create({
 		name: config.name,

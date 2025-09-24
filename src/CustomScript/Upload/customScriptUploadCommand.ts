@@ -14,7 +14,15 @@ import { ensureCustomScriptVersion, getConfig, uploadCode } from '../customScrip
 
 const Debug = debug('@signageos/cli:CustomScript:Upload:Command');
 
-export const OPTION_LIST = [NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION] as const;
+export const OPTION_LIST = [
+	NO_DEFAULT_ORGANIZATION_OPTION,
+	ORGANIZATION_UID_OPTION,
+	{
+		name: 'yes',
+		type: Boolean,
+		description: `Allow to upload new custom script or create new version without confirmation step`,
+	},
+] as const;
 
 /**
  * Uploads custom script code and configuration to the signageOS platform based on
@@ -31,6 +39,9 @@ export const OPTION_LIST = [NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPT
  *
  * # Upload with specific organization
  * sos custom-script upload --organization-uid abc123def456
+ *
+ * # Skip confirmation prompts (useful for CI/CD)
+ * sos custom-script upload --yes
  * ```
  *
  * @throws {Error} When .sosconfig.json is missing or invalid
@@ -59,7 +70,8 @@ export const customScriptUpload = createCommandDefinition({
 
 		const config = await getConfig(currentDirectory);
 
-		const customScriptVersion = await ensureCustomScriptVersion(restApi, config);
+		const skipConfirmation = options.yes;
+		const customScriptVersion = await ensureCustomScriptVersion(restApi, config, skipConfirmation);
 
 		for (const platform of Object.keys(config.platforms)) {
 			const platformConfig = config.platforms[platform];
