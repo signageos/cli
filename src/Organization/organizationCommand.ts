@@ -7,7 +7,7 @@ import { createCommandDefinition } from '../Command/commandDefinition';
  * Provides commands to manage signageOS organizations including listing available organizations,
  * retrieving organization details, and setting default organization for CLI operations.
  *
- * @group Management:6
+ * @group Management:201
  *
  * @subcommands
  * - `list` - List all organizations accessible to the current user

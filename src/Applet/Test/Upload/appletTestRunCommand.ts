@@ -39,7 +39,7 @@ const OPTION_LIST = [
  * triggers test execution and provides real-time feedback on test progress and results.
  * Tests can be run on specific devices or across multiple devices for comprehensive testing.
  *
- * @group Development:2
+ * @group Development:142
  *
  * @example
  * ```bash

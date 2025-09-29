@@ -7,7 +7,7 @@ import { createCommandDefinition } from '../Command/commandDefinition';
  * Provides commands for managing signageOS devices, including connecting to devices
  * for development, controlling device power states, and managing applet deployment.
  *
- * @group Management:3
+ * @group Management:200
  *
  * @example
  * ```bash

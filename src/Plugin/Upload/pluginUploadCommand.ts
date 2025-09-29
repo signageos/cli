@@ -24,6 +24,27 @@ export const OPTION_LIST = [
 		description: 'Skip confirmation prompts for plugin or version creation',
 	},
 ] as const;
+
+/**
+ * Uploads current plugin version to the signageOS platform based on configuration
+ * and schema files in the current directory. Handles plugin and version management automatically.
+ *
+ * May prompt for confirmation when creating new plugins or versions.
+ * Use `--yes` to skip confirmation prompts for automated deployments.
+ *
+ * @group Development:32
+ *
+ * @example
+ * ```bash
+ * # Upload plugin from current directory
+ * sos plugin upload
+ *
+ * # Upload with specific organization, skip prompts
+ * sos plugin upload --organization-uid abc123def456 --yes
+ * ```
+ *
+ * @since 2.6.0
+ */
 export const pluginUpload = createCommandDefinition({
 	name: 'upload',
 	description: 'Uploads current plugin version',

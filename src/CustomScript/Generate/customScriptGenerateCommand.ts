@@ -8,20 +8,25 @@ import { OPTION_LIST } from './customScriptGenerateOptions';
 
 /**
  * Creates a new custom script project with boilerplate code and configuration files.
- * This command sets up a complete development environment for custom script development,
- * including necessary dependencies and project structure.
+ * Generates `.sosconfig.json`, platform directories, and sample implementations.
  *
- * @group Development:1
+ * Requires: name, description, dangerLevel (low/medium/high/critical).
+ *
+ * @group Development:21
  *
  * @example
  * ```bash
- * # Generate custom script project
+ * # Interactive generation
  * sos custom-script generate
+ *
+ * # Non-interactive (CI/CD)
+ * sos custom-script generate --name brightness-control --description "Device brightness" --danger-level low --yes
  * ```
  *
- * @see {@link https://developers.signageos.io/docs/custom-scripts/ Custom Scripts Documentation}
+ * @throws {Error} When git is not installed or parameters missing in non-interactive mode
  *
- * @see {@link ../upload/ Upload custom script command}
+ * @see {@link https://developers.signageos.io/docs/custom-scripts/ Documentation}
+ * @see {@link ../upload/ Upload command}
  *
  * @since 2.2.0
  */

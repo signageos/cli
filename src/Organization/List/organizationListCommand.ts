@@ -9,7 +9,7 @@ const Debug = debug('@signageos/cli:Organization:list');
  * account has access to. This command helps users understand which organizations
  * they can work with and select appropriate targets for other CLI operations.
  *
- * @group Management:1
+ * @group Management:21
  *
  * @example
  * ```bash

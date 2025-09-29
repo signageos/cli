@@ -6,7 +6,7 @@ import { appletTestUpload } from './Upload/appletTestUploadCommand';
  * Provides commands for testing applets on the signageOS platform, including
  * uploading test configurations and running remote tests on actual devices.
  *
- * @group Development:4
+ * @group Development:14
  *
  * @example
  * ```bash

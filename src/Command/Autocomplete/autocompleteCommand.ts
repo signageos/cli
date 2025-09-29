@@ -14,7 +14,7 @@ export const initializeAutocomplete = (rootCommand: ICommand<string, OptionList>
  * Auto-completion enhances developer productivity by providing intelligent command and
  * sub-command suggestions in supported shells (bash, zsh, fish).
  *
- * @group Tools:7
+ * @group Tools:300
  *
  * @example
  * ```bash

@@ -62,7 +62,7 @@ export const OPTION_LIST = [
  * The upload process validates package.json requirements, creates or updates applet versions,
  * and handles file packaging according to .sosignore, .npmignore, and .gitignore rules.
  *
- * @group Development:5
+ * @group Development:15
  *
  * @example
  * ```bash

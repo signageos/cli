@@ -3,22 +3,23 @@ import { customScriptUpload } from './Upload/customScriptUploadCommand';
 import { customScriptGenerate } from './Generate/customScriptGenerateCommand';
 
 /**
- * Provides commands for developing and deploying custom scripts to signageOS devices.
- * Custom Scripts enable advanced device functionality beyond standard applets,
- * including system-level operations and device-specific configurations.
+ * Custom Scripts management for advanced device operations.
  *
- * @group Development:5
+ * Allows sending OS-specific scripts with native API access to signageOS devices.
+ * Supports JavaScript (browser), PowerShell (Windows), Bash/Shell (Linux/Android).
+ *
+ * @group Development:101
  *
  * @example
  * ```bash
- * # Generate new custom script project
+ * # Generate new project
  * sos custom-script generate
  *
- * # Upload custom script to platform
+ * # Upload to platform
  * sos custom-script upload
  * ```
  *
- * @see {@link https://developers.signageos.io/docs/custom-scripts/ Custom Scripts Documentation}
+ * @see {@link https://developers.signageos.io/docs/custom-scripts/ Documentation}
  *
  * @since 1.8.0
  */

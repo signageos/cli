@@ -6,7 +6,7 @@ import { timingList } from './List/timingListCommand';
  * applets are displayed on signageOS devices. Timing configurations define the
  * relationship between devices, applets, and scheduling parameters.
  *
- * @group Management:4
+ * @group Management:202
  *
  * @example
  * ```bash

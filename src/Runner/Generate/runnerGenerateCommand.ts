@@ -5,6 +5,27 @@ import { throwErrorIfGitNotInstalled } from '../../Lib/git';
 import { addToConfigFile } from '../../CustomScript/customScriptFacade';
 import { askForParameters, downloadBoilerplateCode } from './runnerGenerateFacade';
 import { OPTION_LIST } from './runnerGenerateOptions';
+
+/**
+ * Generates a local repository for developing a Runner with boilerplate code and configuration files.
+ * Sets up complete development environment with necessary dependencies and project structure.
+ *
+ * Runs interactively by default or non-interactively with `--yes` option.
+ * Requires Git to be installed and accessible.
+ *
+ * @group Development:41
+ *
+ * @example
+ * ```bash
+ * # Generate runner project interactively
+ * sos runner generate
+ *
+ * # Generate non-interactively (suitable for CI/CD)
+ * sos runner generate --name my-runner --description "My custom runner" --yes
+ * ```
+ *
+ * @since 2.6.0
+ */
 export const runnerGenerate = createCommandDefinition({
 	name: 'generate',
 	description: 'Generates a local repository for developing a Runner',

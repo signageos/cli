@@ -16,7 +16,7 @@ export const setRootCommand = (rootCommand: ICommand<string, OptionList>): void 
  * This command adds auto-completion scripts and configuration to the user's shell
  * profile, allowing tab completion for commands and sub-commands.
  *
- * @group Tools:1
+ * @group Tools:11
  *
  * @example
  * ```bash

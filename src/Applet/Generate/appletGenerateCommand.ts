@@ -121,7 +121,7 @@ const importFileAsString = (relativePath: string): string => {
  * (webpack/rspack), various package managers (npm/pnpm/yarn/bun), and includes
  * git repository initialization.
  *
- * @group Development:1
+ * @group Development:11
  *
  * @example
  * ```bash
