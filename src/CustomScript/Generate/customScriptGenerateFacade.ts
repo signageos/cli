@@ -26,56 +26,69 @@ export async function askForParameters(options?: CommandLineOptions<typeof OPTIO
 		throw new Error(`Invalid danger level '${dangerLevel}'. Must be one of: ${validDangerLevels.join(', ')}`);
 	}
 
-	// Only prompt for missing values
-	const promptQuestions: prompts.PromptObject[] = [];
+	// If --yes is used, validate all required fields are present without prompting
+	if (skipConfirmation) {
+		if (!name) {
+			throw new Error('Name is required when using --yes. Provide it via --name option.');
+		}
+		if (!description) {
+			throw new Error('Description is required when using --yes. Provide it via --description option.');
+		}
+		if (!dangerLevel) {
+			throw new Error('Danger level is required when using --yes. Provide it via --danger-level option.');
+		}
+	} else {
+		// Only prompt for missing values when not using --yes
+		const promptQuestions: prompts.PromptObject[] = [];
 
-	if (!name) {
-		promptQuestions.push({
-			type: 'text',
-			name: 'name',
-			message: 'Type name',
-		});
-	}
+		if (!name) {
+			promptQuestions.push({
+				type: 'text',
+				name: 'name',
+				message: 'Type name',
+			});
+		}
 
-	if (!description) {
-		promptQuestions.push({
-			type: 'text',
-			name: 'description',
-			message: 'Type description',
-		});
-	}
+		if (!description) {
+			promptQuestions.push({
+				type: 'text',
+				name: 'description',
+				message: 'Type description',
+			});
+		}
 
-	if (!dangerLevel) {
-		promptQuestions.push({
-			type: 'select',
-			name: 'dangerLevel',
-			message: 'Select danger level',
-			choices: [
-				{ title: 'Low', value: 'low' },
-				{ title: 'Medium', value: 'medium' },
-				{ title: 'High', value: 'high' },
-				{ title: 'Critical', value: 'critical' },
-			],
-		});
-	}
+		if (!dangerLevel) {
+			promptQuestions.push({
+				type: 'select',
+				name: 'dangerLevel',
+				message: 'Select danger level',
+				choices: [
+					{ title: 'Low', value: 'low' },
+					{ title: 'Medium', value: 'medium' },
+					{ title: 'High', value: 'high' },
+					{ title: 'Critical', value: 'critical' },
+				],
+			});
+		}
 
-	// Only prompt if there are questions to ask
-	if (promptQuestions.length > 0) {
-		const responses = await prompts(promptQuestions, { onCancel: throwCanceledError });
-		name = name || responses.name;
-		description = description || responses.description;
-		dangerLevel = dangerLevel || responses.dangerLevel;
-	}
+		// Only prompt if there are questions to ask
+		if (promptQuestions.length > 0) {
+			const responses = await prompts(promptQuestions, { onCancel: throwCanceledError });
+			name = name || responses.name;
+			description = description || responses.description;
+			dangerLevel = dangerLevel || responses.dangerLevel;
+		}
 
-	// Validate all required fields are present
-	if (!name) {
-		throw new Error('Name is required. Provide it via --name option or interactively.');
-	}
-	if (!description) {
-		throw new Error('Description is required. Provide it via --description option or interactively.');
-	}
-	if (!dangerLevel) {
-		throw new Error('Danger level is required. Provide it via --danger-level option or interactively.');
+		// Validate all required fields are present after prompting
+		if (!name) {
+			throw new Error('Name is required. Provide it via --name option or interactively.');
+		}
+		if (!description) {
+			throw new Error('Description is required. Provide it via --description option or interactively.');
+		}
+		if (!dangerLevel) {
+			throw new Error('Danger level is required. Provide it via --danger-level option or interactively.');
+		}
 	}
 
 	const targetDir = name;

@@ -20,6 +20,7 @@ import { customScriptGenerate } from './Generate/customScriptGenerateCommand';
  * ```
  *
  * @see {@link https://developers.signageos.io/docs/custom-scripts/ Documentation}
+ * @see {@link https://developers.signageos.io/docs/custom-scripts/#config-file Config File}
  *
  * @since 1.8.0
  */

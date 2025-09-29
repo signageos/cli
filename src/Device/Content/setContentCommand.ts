@@ -28,10 +28,6 @@ const OPTION_LIST = [
  * that activates the specified applet version on the target device. This command
  * establishes the applet-to-device relationship for production deployment.
  *
- * Requires explicit `--device-uid` and `--applet-uid` arguments for safety.
- * The `--yes` option only skips selection prompts when multiple options exist,
- * but will not auto-select devices or applets to prevent accidental deployments.
- *
  * @group Management:13
  *
  * @example

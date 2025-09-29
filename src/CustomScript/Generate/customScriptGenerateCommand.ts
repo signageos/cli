@@ -26,6 +26,7 @@ import { OPTION_LIST } from './customScriptGenerateOptions';
  * @throws {Error} When git is not installed or parameters missing in non-interactive mode
  *
  * @see {@link https://developers.signageos.io/docs/custom-scripts/ Documentation}
+ * @see {@link https://developers.signageos.io/docs/custom-scripts/#config-file Config File}
  * @see {@link ../upload/ Upload command}
  *
  * @since 2.2.0
