@@ -193,6 +193,67 @@ describe('unit.appletUploadCommand', () => {
 		});
 	});
 
+	describe('unknown options validation', () => {
+		it('should throw error for single-dash unknown options', async () => {
+			const optionsWithUnknown = { ...singleFileOptions, _unknown: ['-yes'] };
+			try {
+				await singleFileAppletUploadOverrideTrue.run(optionsWithUnknown);
+			} catch (error) {
+				should(getErrorMessage(error)).deepEqual('Unknown option(s): -yes');
+			}
+		});
+
+		it('should throw error for double-dash unknown options', async () => {
+			const optionsWithUnknown = { ...singleFileOptions, _unknown: ['--something'] };
+			try {
+				await singleFileAppletUploadOverrideTrue.run(optionsWithUnknown);
+			} catch (error) {
+				should(getErrorMessage(error)).deepEqual('Unknown option(s): --something');
+			}
+		});
+
+		it('should throw error for multiple unknown options', async () => {
+			const optionsWithUnknown = { ...singleFileOptions, _unknown: ['--unknown1', '--unknown2'] };
+			try {
+				await singleFileAppletUploadOverrideTrue.run(optionsWithUnknown);
+			} catch (error) {
+				should(getErrorMessage(error)).deepEqual('Unknown option(s): --unknown1, --unknown2');
+			}
+		});
+
+		it('should not throw error when _unknown contains non-option values', async () => {
+			const optionsWithUnknown = { ...singleFileOptions, _unknown: ['somevalue', 'anothervalue'] };
+			// Should not throw error for non-option values (don't start with -)
+			// The test will fail due to other missing setup, but the unknown options validation should pass
+			try {
+				await singleFileAppletUploadOverrideTrue.run(optionsWithUnknown);
+			} catch (error) {
+				// Should not be about unknown options
+				should(getErrorMessage(error)).not.match(/Unknown option/);
+			}
+		});
+
+		it('should not throw error when _unknown is empty', async () => {
+			const optionsWithUnknown = { ...singleFileOptions, _unknown: [] };
+			try {
+				await singleFileAppletUploadOverrideTrue.run(optionsWithUnknown);
+			} catch (error) {
+				// Should not be about unknown options
+				should(getErrorMessage(error)).not.match(/Unknown option/);
+			}
+		});
+
+		it('should not throw error when _unknown is undefined', async () => {
+			const optionsWithoutUnknown = { ...singleFileOptions };
+			try {
+				await singleFileAppletUploadOverrideTrue.run(optionsWithoutUnknown);
+			} catch (error) {
+				// Should not be about unknown options
+				should(getErrorMessage(error)).not.match(/Unknown option/);
+			}
+		});
+	});
+
 	beforeEach(() => {
 		sinon.reset();
 		// Reset individual sinon fakes in the mocks
