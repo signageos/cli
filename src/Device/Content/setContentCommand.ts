@@ -11,7 +11,17 @@ import {
 } from '../../Organization/organizationFacade';
 import { DEVICE_UID_OPTION, getDeviceUid } from '../deviceFacade';
 
-const OPTION_LIST = [NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION, APPLET_UID_OPTION, DEVICE_UID_OPTION] as const;
+const OPTION_LIST = [
+	NO_DEFAULT_ORGANIZATION_OPTION,
+	ORGANIZATION_UID_OPTION,
+	APPLET_UID_OPTION,
+	DEVICE_UID_OPTION,
+	{
+		name: 'yes',
+		type: Boolean,
+		description: 'Skip selection prompts (requires explicit device-uid and applet-uid for safety)',
+	},
+] as const;
 
 /**
  * Deploys an applet to a specific device by creating a timing configuration
@@ -48,9 +58,10 @@ export const setContent = createCommandDefinition({
 		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
 		const organization = await getOrganization(organizationUid);
 		const restApi = await createOrganizationRestApi(organization);
-		const appletUid = await getAppletUid(restApi, options);
-		const appletVersion = await getAppletVersionFromApi(restApi, appletUid);
-		const deviceUid = await getDeviceUid(restApi, options);
+		const skipConfirmation = !!options.yes;
+		const appletUid = await getAppletUid(restApi, options, skipConfirmation);
+		const appletVersion = await getAppletVersionFromApi(restApi, appletUid, skipConfirmation);
+		const deviceUid = await getDeviceUid(restApi, options, skipConfirmation);
 		await restApi.timing.create({
 			deviceUid: deviceUid,
 			appletUid: appletUid,

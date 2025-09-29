@@ -15,8 +15,15 @@ import debug from 'debug';
 
 const Debug = debug('@signageos/cli:Plugin:Upload:Command');
 
-export const OPTION_LIST = [NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION] as const;
-
+export const OPTION_LIST = [
+	NO_DEFAULT_ORGANIZATION_OPTION,
+	ORGANIZATION_UID_OPTION,
+	{
+		name: 'yes',
+		type: Boolean,
+		description: 'Skip confirmation prompts for plugin or version creation',
+	},
+] as const;
 export const pluginUpload = createCommandDefinition({
 	name: 'upload',
 	description: 'Uploads current plugin version',
@@ -31,7 +38,8 @@ export const pluginUpload = createCommandDefinition({
 		const config = await getConfig(currentDirectory);
 		const schema = await loadSchemas(currentDirectory);
 
-		const pluginVersion = await ensurePluginVersion(restApi, config, schema);
+		const skipConfirmation = !!options.yes;
+		const pluginVersion = await ensurePluginVersion(restApi, config, schema, skipConfirmation);
 
 		for (const platform of Object.keys(config.platforms)) {
 			const platformConfig = config.platforms[platform];

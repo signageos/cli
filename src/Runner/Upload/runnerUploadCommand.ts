@@ -15,8 +15,15 @@ import { getConfig } from '../../CustomScript/customScriptFacade';
 
 const Debug = debug('@signageos/cli:Runner:Upload:Command');
 
-export const OPTION_LIST = [NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION] as const;
-
+export const OPTION_LIST = [
+	NO_DEFAULT_ORGANIZATION_OPTION,
+	ORGANIZATION_UID_OPTION,
+	{
+		name: 'yes',
+		type: Boolean,
+		description: 'Skip confirmation prompts for runner or version creation',
+	},
+] as const;
 export const runnerUpload = createCommandDefinition({
 	name: 'upload',
 	description: 'Uploads current runner version',
@@ -31,7 +38,8 @@ export const runnerUpload = createCommandDefinition({
 		const config = await getConfig(currentDirectory);
 		const schema = await loadSchemas(currentDirectory);
 
-		const runnerVersion = await ensureRunnerVersion(restApi, config, schema);
+		const skipConfirmation = !!options.yes;
+		const runnerVersion = await ensureRunnerVersion(restApi, config, schema, skipConfirmation);
 
 		for (const platform of Object.keys(config.platforms)) {
 			const platformConfig = config.platforms[platform];

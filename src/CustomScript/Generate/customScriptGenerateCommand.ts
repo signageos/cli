@@ -1,9 +1,10 @@
 import chalk from 'chalk';
 import { log } from '@signageos/sdk/dist/Console/log';
-import { createCommandDefinition } from '../../Command/commandDefinition';
+import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
 import { addToConfigFile } from '../customScriptFacade';
 import { askForParameters, downloadBoilerplateCode } from './customScriptGenerateFacade';
 import { throwErrorIfGitNotInstalled } from '../../Lib/git';
+import { OPTION_LIST } from './customScriptGenerateOptions';
 
 /**
  * Creates a new custom script project with boilerplate code and configuration files.
@@ -27,12 +28,13 @@ import { throwErrorIfGitNotInstalled } from '../../Lib/git';
 export const customScriptGenerate = createCommandDefinition({
 	name: 'generate',
 	description: 'Generate a local repository for developing a Custom Script',
-	optionList: [],
+	optionList: OPTION_LIST,
 	commands: [],
-	async run() {
+	async run(options: CommandLineOptions<typeof OPTION_LIST>) {
 		await throwErrorIfGitNotInstalled();
 
-		const { targetDir, name, description, dangerLevel } = await askForParameters();
+		const skipConfirmation = !!options.yes;
+		const { targetDir, name, description, dangerLevel } = await askForParameters(options, skipConfirmation);
 
 		await downloadBoilerplateCode(targetDir);
 		await addToConfigFile(targetDir, { name, description, dangerLevel });

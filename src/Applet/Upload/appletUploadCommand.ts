@@ -162,7 +162,7 @@ export const appletUpload = createCommandDefinition({
 		}
 
 		const verbose = 'verbose';
-		const allowVerbose = options[verbose] as boolean | undefined;
+		const allowVerbose = options[verbose];
 		const appletFiles: string[] = [];
 
 		if (!isSingleFileApplet) {
@@ -178,7 +178,7 @@ export const appletUpload = createCommandDefinition({
 		}
 
 		const yes = 'yes';
-		const skipConfirmation = options[yes] as boolean | undefined;
+		const skipConfirmation = options[yes];
 
 		if (specificAppletVersion) {
 			if (specificAppletVersion.publishedSince) {
