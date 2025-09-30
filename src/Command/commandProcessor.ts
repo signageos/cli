@@ -8,7 +8,7 @@ import { log } from '@signageos/sdk/dist/Console/log';
 const Debug = debug('@signageos/cli:Command:processor');
 
 // Preprocess argv to detect and handle multi-character single-dash options
-function preprocessArgv(argv: string[]): string[] {
+export function preprocessArgv(argv: string[]): string[] {
 	// Common multi-character options that users might accidentally use with single dash
 	const commonMultiCharOptions = ['yes', 'help', 'version', 'force', 'verbose'];
 
