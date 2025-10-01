@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Fixed CLI argument validation, making command to fail if contains invalid arguments (e.g.`sos runner generate --invalid`)
 - Removed support for `--legacy-enabled` authentication flag from `sos login` command
+- Pinned `es-check` to `9.4.0` (9.4.1 introduced parsing bug)
 
 ## [2.6.0] - 2025-09-23
 ### Added

@@ -90,7 +90,7 @@ const RUNSCRIPTS = {
 		prepare: 'npm run clean && npm run build',
 		upload: 'sos applet upload',
 		clean: 'npx rimraf dist',
-		escheck: 'npx es-check --module es5 dist/**/*.js',
+		escheck: 'npx es-check@9.4.0 --module es5 "./dist/**/*.js"',
 		postbuild: 'npm run escheck',
 	},
 	webpack: {
@@ -288,7 +288,7 @@ export const appletGenerate = createCommandDefinition({
 					prepare: 'pnpm run clean && pnpm run build',
 					upload: 'sos applet upload',
 					clean: 'pnpx rimraf dist',
-					escheck: 'pnpx es-check --module es5 "./dist/**/*.js"',
+					escheck: 'pnpx es-check@9.4.0 --module es5 "./dist/**/*.js"',
 					postbuild: 'pnpm run escheck',
 				};
 				break;
@@ -298,7 +298,7 @@ export const appletGenerate = createCommandDefinition({
 					prepare: 'yarn run clean && yarn run build',
 					upload: 'sos applet upload',
 					clean: 'npx rimraf dist',
-					escheck: 'npx es-check --module es5 "./dist/**/*.js"',
+					escheck: 'npx es-check@9.4.0 --module es5 "./dist/**/*.js"',
 					postbuild: 'npm run escheck',
 				};
 				break;
@@ -308,7 +308,7 @@ export const appletGenerate = createCommandDefinition({
 					prepare: 'bun run clean && bun run build',
 					upload: 'sos applet upload',
 					clean: 'bunx rimraf dist',
-					escheck: 'bunx es-check --module es5 "./dist/**/*.js"',
+					escheck: 'bunx es-check@9.4.0 --module es5 "./dist/**/*.js"',
 					postbuild: 'bun run escheck',
 				};
 				break;
