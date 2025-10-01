@@ -66,7 +66,7 @@ const DEPENDENCIES = {
 		'@signageos/front-applet@latest',
 		'@signageos/front-display@latest',
 		'@signageos/webpack-plugin@latest',
-		'es-check@9',
+		'es-check@9.4.0',
 
 		/* required for transpilation to ES5 */
 		'css-loader@7',
