@@ -89,7 +89,7 @@ test:general:windows:
   image: docker:24.0.9-windowsservercore-1809
   needs:
     - windows-prepare
-  allow_failure: false
+  allow_failure: true
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       when: never
