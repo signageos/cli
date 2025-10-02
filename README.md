@@ -334,6 +334,60 @@ Upload custom script to the signageOS platform.
 | --organization-uid *(required)* | Organization UID             | STDIN          |
 | --script-path *(optional)*      | Path to script file          | ${PWD}         |
 
+### Plugin
+```bash
+sos plugin --help
+```
+
+#### Plugin Generate
+```bash
+sos plugin generate
+```
+Generate a new plugin project with boilerplate code.
+
+| Argument                    | Description                     | Default value  |
+|-----------------------------|---------------------------------|----------------|
+| --name *(required)*         | Name for the plugin             | STDIN          |
+| --target-dir *(optional)*   | Generate plugin to directory    | ${PWD}/${name} |
+
+#### Plugin Upload
+```bash
+sos plugin upload
+```
+Upload plugin to the signageOS platform.
+
+| Argument                        | Description                  | Default value  |
+|---------------------------------|------------------------------|----------------|
+| --organization-uid *(required)* | Organization UID             | STDIN          |
+| --script-path *(optional)*      | Path to script file          | ${PWD}         |
+
+### Runner
+```bash
+sos runner --help
+```
+
+#### Runner Generate
+```bash
+sos runner generate
+```
+Generate a new runner project with boilerplate code.
+
+| Argument                    | Description                     | Default value  |
+|-----------------------------|---------------------------------|----------------|
+| --name *(required)*         | Name for the runner             | STDIN          |
+| --target-dir *(optional)*   | Generate runner to directory    | ${PWD}/${name} |
+
+#### Runner Upload
+```bash
+sos runner upload
+```
+Upload runner to the signageOS platform.
+
+| Argument                        | Description                  | Default value  |
+|---------------------------------|------------------------------|----------------|
+| --organization-uid *(required)* | Organization UID             | STDIN          |
+| --script-path *(optional)*      | Path to script file          | ${PWD}         |
+
 ## Debugging
 
 To enable debugging for the `@signageos/cli:Applet:Upload:appletUploadFacade` module, use:
