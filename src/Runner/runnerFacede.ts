@@ -15,8 +15,8 @@ import { ConfigSchema } from '../Plugin/pluginFacade';
 
 const PLUGIN_BUILDS_DIRNAME = 'plugin_builds';
 
-export async function ensureRunnerVersion(restApi: RestApi, config: RunnerConfig, schema: any) {
-	const runner = await ensureRunner(restApi, config);
+export async function ensureRunnerVersion(restApi: RestApi, config: RunnerConfig, schema: any, skipConfirmation?: boolean) {
+	const runner = await ensureRunner(restApi, config, skipConfirmation);
 
 	const runnerVersion = await restApi.runner.version.get({ runnerUid: runner.uid, version: config.version });
 
@@ -24,17 +24,21 @@ export async function ensureRunnerVersion(restApi: RestApi, config: RunnerConfig
 		return runnerVersion;
 	}
 
-	const response: prompts.Answers<'newVersion'> = await prompts({
-		type: 'confirm',
-		name: 'newVersion',
-		message: `Do you want to create new runner version ${config.version}?`,
-	});
+	if (skipConfirmation) {
+		log('info', chalk.yellow(`Creating Runner version ${config.version}`));
+	} else {
+		const response: prompts.Answers<'newVersion'> = await prompts({
+			type: 'confirm',
+			name: 'newVersion',
+			message: `Do you want to create new runner version ${config.version}?`,
+		});
 
-	if (!response.newVersion) {
-		throw new Error('Runner version creation was canceled.');
+		if (!response.newVersion) {
+			throw new Error('Runner version creation was canceled.');
+		}
+
+		log('info', chalk.yellow(`Creating Runner version ${config.version}`));
 	}
-
-	log('info', chalk.yellow(`Creating Runner version ${config.version}`));
 
 	return await restApi.runner.version.create({
 		runnerUid: runner.uid,
@@ -47,7 +51,7 @@ export async function ensureRunnerVersion(restApi: RestApi, config: RunnerConfig
 	});
 }
 
-async function ensureRunner(restApi: RestApi, config: RunnerConfig) {
+async function ensureRunner(restApi: RestApi, config: RunnerConfig, skipConfirmation?: boolean) {
 	if (config.uid) {
 		const runner = await restApi.runner.get(config.uid);
 		if (runner) {
@@ -62,17 +66,21 @@ async function ensureRunner(restApi: RestApi, config: RunnerConfig) {
 		throw new Error(`Runner with uid "${config.uid}" not found`);
 	}
 
-	const response = await prompts({
-		type: 'confirm',
-		name: 'create',
-		message: `Runner "${config.name}" does not exist. Do you want to create it?`,
-	});
+	if (skipConfirmation) {
+		log('info', chalk.yellow(`Creating Runner "${config.name}"`));
+	} else {
+		const response = await prompts({
+			type: 'confirm',
+			name: 'create',
+			message: `Runner "${config.name}" does not exist. Do you want to create it?`,
+		});
 
-	if (!response.create) {
-		throw new Error('Runner upload was canceled.');
+		if (!response.create) {
+			throw new Error('Runner upload was canceled.');
+		}
+
+		log('info', chalk.yellow(`Creating Runner "${config.name}"`));
 	}
-
-	log('info', chalk.yellow(`Creating Runner "${config.name}"`));
 
 	const createdRunner = await restApi.runner.create({
 		name: config.name,

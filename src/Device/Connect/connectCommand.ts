@@ -56,7 +56,7 @@ const OPTION_LIST = [
  * The command sets up a development server and configures the device to load the applet
  * from the local machine, enabling hot reload and live debugging capabilities.
  *
- * @group Management:1
+ * @group Management:11
  *
  * @example
  * ```bash

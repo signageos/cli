@@ -18,7 +18,7 @@ const OPTION_LIST = [NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION, DE
  * to a specific device. Timing configurations define when and how content
  * (applets) should be displayed on devices, including scheduling and duration settings.
  *
- * @group Management:1
+ * @group Management:31
  *
  * @example
  * ```bash

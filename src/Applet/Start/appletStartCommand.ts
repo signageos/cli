@@ -56,7 +56,7 @@ export const OPTION_LIST = [
  * to preview their applets in a browser-based emulator. Supports both local development
  * and device connection for testing on actual signageOS devices.
  *
- * @group Development:3
+ * @group Development:13
  *
  * @example
  * ```bash

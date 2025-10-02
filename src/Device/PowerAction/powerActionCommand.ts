@@ -18,7 +18,7 @@ const OPTION_LIST = [NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION, DE
  * This command provides remote device management capabilities for troubleshooting
  * and maintenance operations.
  *
- * @group Management:2
+ * @group Management:12
  *
  * @example
  * ```bash

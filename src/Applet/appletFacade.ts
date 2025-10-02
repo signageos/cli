@@ -54,7 +54,11 @@ export async function getAppletVersion(directoryPath: string): Promise<string> {
 	return applet.version;
 }
 
-export async function getAppletUid(restApi: RestApi, options: CommandLineOptions<[typeof APPLET_UID_OPTION]>) {
+export async function getAppletUid(
+	restApi: RestApi,
+	options: CommandLineOptions<[typeof APPLET_UID_OPTION]>,
+	skipConfirmation: boolean = false,
+) {
 	const currentDirectory = process.cwd();
 	const currentApplet = await getApplet(currentDirectory);
 
@@ -66,16 +70,22 @@ export async function getAppletUid(restApi: RestApi, options: CommandLineOptions
 		if (candidatesOfApplets.length === 0) {
 			appletUid = undefined;
 		} else if (candidatesOfApplets.length > 1) {
-			const response = await prompts({
-				type: 'autocomplete',
-				name: 'appletUid',
-				message: `Select applet to use`,
-				choices: candidatesOfApplets.map((applet: ISdkApplet) => ({
-					title: `${applet.name} (${applet.uid})`,
-					value: applet.uid,
-				})),
-			});
-			appletUid = response.appletUid;
+			if (skipConfirmation) {
+				throw new AppletDoesNotExistError(
+					`Multiple applets found with name "${currentApplet.name}". Please specify --applet-uid argument to avoid ambiguity.`,
+				);
+			} else {
+				const response = await prompts({
+					type: 'autocomplete',
+					name: 'appletUid',
+					message: `Select applet to use`,
+					choices: candidatesOfApplets.map((applet: ISdkApplet) => ({
+						title: `${applet.name} (${applet.uid})`,
+						value: applet.uid,
+					})),
+				});
+				appletUid = response.appletUid;
+			}
 		} else {
 			appletUid = candidatesOfApplets[0]?.uid;
 		}
@@ -89,12 +99,14 @@ export async function getAppletUid(restApi: RestApi, options: CommandLineOptions
 	return appletUid;
 }
 
-export async function getAppletVersionFromApi(restApi: RestApi, appletUid: string) {
+export async function getAppletVersionFromApi(restApi: RestApi, appletUid: string, skipConfirmation: boolean = false) {
 	let appletVersion: string;
 
 	const appletVersions = await restApi.applet.version.list(appletUid);
 	if (appletVersions.length === 1 && appletVersions[0]?.version) {
 		appletVersion = appletVersions[0].version;
+	} else if (skipConfirmation) {
+		throw new Error('Multiple applet versions found. Please specify the exact version or use interactive mode to select.');
 	} else {
 		const response = await prompts({
 			type: 'autocomplete',

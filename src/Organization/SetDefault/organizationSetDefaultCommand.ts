@@ -13,7 +13,7 @@ const OPTION_LIST = [ORGANIZATION_UID_OPTION] as const;
  * that require an organization context. This eliminates the need to specify the organization
  * UID for each command. The default organization is stored in the ~/.sosrc configuration file.
  *
- * @group Management:3
+ * @group Management:23
  *
  * @example
  * ```bash

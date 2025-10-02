@@ -62,7 +62,7 @@ export const OPTION_LIST = [
  * The upload process validates package.json requirements, creates or updates applet versions,
  * and handles file packaging according to .sosignore, .npmignore, and .gitignore rules.
  *
- * @group Development:5
+ * @group Development:15
  *
  * @example
  * ```bash
@@ -162,7 +162,7 @@ export const appletUpload = createCommandDefinition({
 		}
 
 		const verbose = 'verbose';
-		const allowVerbose = options[verbose] as boolean | undefined;
+		const allowVerbose = options[verbose];
 		const appletFiles: string[] = [];
 
 		if (!isSingleFileApplet) {
@@ -178,7 +178,7 @@ export const appletUpload = createCommandDefinition({
 		}
 
 		const yes = 'yes';
-		const skipConfirmation = options[yes] as boolean | undefined;
+		const skipConfirmation = options[yes];
 
 		if (specificAppletVersion) {
 			if (specificAppletVersion.publishedSince) {

@@ -14,8 +14,8 @@ import { addToConfigFile, PlatformConfig, CodeArchive, PlatformSchema } from '..
 
 const PLUGIN_BUILDS_DIRNAME = 'plugin_builds';
 
-export async function ensurePluginVersion(restApi: RestApi, config: PluginConfig, schema: any) {
-	const plugin = await ensurePlugin(restApi, config);
+export async function ensurePluginVersion(restApi: RestApi, config: PluginConfig, schema: any, skipConfirmation?: boolean) {
+	const plugin = await ensurePlugin(restApi, config, skipConfirmation);
 
 	const pluginVersion = await restApi.plugin.version.get({
 		pluginUid: plugin.uid,
@@ -26,17 +26,21 @@ export async function ensurePluginVersion(restApi: RestApi, config: PluginConfig
 		return pluginVersion;
 	}
 
-	const response: prompts.Answers<'newVersion'> = await prompts({
-		type: 'confirm',
-		name: 'newVersion',
-		message: `Do you want to create new plugin version ${config.version}?`,
-	});
+	if (skipConfirmation) {
+		log('info', chalk.yellow(`Creating Plugin version ${config.version}`));
+	} else {
+		const response: prompts.Answers<'newVersion'> = await prompts({
+			type: 'confirm',
+			name: 'newVersion',
+			message: `Do you want to create new plugin version ${config.version}?`,
+		});
 
-	if (!response.newVersion) {
-		throw new Error('Plugin version creation was canceled.');
+		if (!response.newVersion) {
+			throw new Error('Plugin version creation was canceled.');
+		}
+
+		log('info', chalk.yellow(`Creating Plugin version ${config.version}`));
 	}
-
-	log('info', chalk.yellow(`Creating Plugin version ${config.version}`));
 
 	return await restApi.plugin.version.create({
 		pluginUid: plugin.uid,
@@ -47,7 +51,7 @@ export async function ensurePluginVersion(restApi: RestApi, config: PluginConfig
 	});
 }
 
-async function ensurePlugin(restApi: RestApi, config: PluginConfig) {
+async function ensurePlugin(restApi: RestApi, config: PluginConfig, skipConfirmation?: boolean) {
 	if (config.uid) {
 		const plugin = await restApi.plugin.get(config.uid);
 		if (plugin) {
@@ -62,17 +66,21 @@ async function ensurePlugin(restApi: RestApi, config: PluginConfig) {
 		throw new Error(`Plugin with uid "${config.uid}" not found`);
 	}
 
-	const response = await prompts({
-		type: 'confirm',
-		name: 'create',
-		message: `Plugin "${config.name}" does not exist. Do you want to create it?`,
-	});
+	if (skipConfirmation) {
+		log('info', chalk.yellow(`Creating Plugin "${config.name}"`));
+	} else {
+		const response = await prompts({
+			type: 'confirm',
+			name: 'create',
+			message: `Plugin "${config.name}" does not exist. Do you want to create it?`,
+		});
 
-	if (!response.create) {
-		throw new Error('Plugin upload was canceled.');
+		if (!response.create) {
+			throw new Error('Plugin upload was canceled.');
+		}
+
+		log('info', chalk.yellow(`Creating Plugin "${config.name}"`));
 	}
-
-	log('info', chalk.yellow(`Creating Plugin "${config.name}"`));
 
 	const createdPlugin = await restApi.plugin.create({
 		name: config.name,

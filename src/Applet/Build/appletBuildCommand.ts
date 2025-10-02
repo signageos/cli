@@ -21,7 +21,7 @@ export const OPTION_LIST = [NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPT
  * The build process compiles and bundles the applet code, assets, and dependencies
  * into a zip archive ready for upload to the signageOS platform.
  *
- * @group Development:2
+ * @group Development:12
  *
  * @example
  * ```bash
@@ -36,7 +36,6 @@ export const OPTION_LIST = [NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPT
  * ```
  *
  * @throws {Error} When applet path is invalid or build process fails
- *
  * @throws {Error} When organization or applet cannot be found
  * @throws {Error} When package.json is missing or invalid
  *

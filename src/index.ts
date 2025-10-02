@@ -50,5 +50,6 @@ const index = createCommandDefinition({
 initializeAutocomplete(index);
 
 processCommand(index).catch((err) => {
-	throw new Error('Unknown error:', err);
+	console.error(err.message || err);
+	process.exit(1);
 });

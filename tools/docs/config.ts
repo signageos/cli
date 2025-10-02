@@ -30,7 +30,7 @@ export const DOCS_CONFIG = {
 		/** JSDoc group marker for private commands to exclude from docs */
 		privateGroupMarker: 'Private',
 		/** Order of command categories in documentation */
-		categoryOrder: ['Development', 'Authentication', 'Management', 'Tools'],
+		categoryOrder: ['Authentication', 'Development', 'Management', 'Tools'],
 	},
 
 	/**

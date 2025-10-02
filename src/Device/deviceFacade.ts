@@ -30,21 +30,29 @@ export const typeMap = new Map<string, ActionData>([
 export const DEVICE_UID_OPTION = { name: 'device-uid', type: String, description: 'Device UID' } as const;
 export const POWER_ACTION_TYPE_OPTION = { name: 'type', type: String, description: `Type of device power action` } as const;
 
-export async function getDeviceUid(restApi: RestApi, options: CommandLineOptions<[typeof DEVICE_UID_OPTION]>) {
+export async function getDeviceUid(
+	restApi: RestApi,
+	options: CommandLineOptions<[typeof DEVICE_UID_OPTION]>,
+	skipConfirmation: boolean = false,
+) {
 	let deviceUid: string | undefined = options['device-uid'];
 	if (!deviceUid) {
-		const devices = await restApi.device.list();
-		const response = await prompts({
-			type: 'autocomplete',
-			name: 'deviceUid',
-			message: `Select device to use`,
-			choices: devices.map((dev: IDeviceReadOnly) => ({
-				title: `${dev.name ?? `Unnamed device, created ${dev.createdAt.toString()}`} (${dev.uid})`,
-				value: dev.uid,
-			})),
-		});
-		Debug('Device selected', response.deviceUid);
-		deviceUid = response.deviceUid;
+		if (skipConfirmation) {
+			throw new Error('Device UID is required. Please specify --device-uid argument.');
+		} else {
+			const devices = await restApi.device.list();
+			const response = await prompts({
+				type: 'autocomplete',
+				name: 'deviceUid',
+				message: `Select device to use`,
+				choices: devices.map((dev: IDeviceReadOnly) => ({
+					title: `${dev.name ?? `Unnamed device, created ${dev.createdAt.toString()}`} (${dev.uid})`,
+					value: dev.uid,
+				})),
+			});
+			Debug('Device selected', response.deviceUid);
+			deviceUid = response.deviceUid;
+		}
 	}
 	if (!deviceUid) {
 		throw new Error('Missing argument --device-uid <string>');

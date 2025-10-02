@@ -36,8 +36,6 @@ export function getGlobalApiUrl(): string | undefined {
  * # Use staging profile
  * sos --profile staging device connect
  * ```
- *
- * @since 1.0.0
  */
 export function getGlobalProfile(): string {
 	const options = cliArgs([PROFILE_OPTION], { partial: true });

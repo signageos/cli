@@ -9,7 +9,7 @@ export const OPTION_LIST = [] as const;
  * This command reverses the changes made by the install command, removing auto-completion
  * scripts and configuration entries from shell profile files.
  *
- * @group Tools:2
+ * @group Tools:12
  *
  * @example
  * ```bash

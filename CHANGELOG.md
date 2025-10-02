@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Added
+- Added `--yes` flag and CLI options to eliminate interactive prompts in CI/CD automation
+- `sos custom-script generate` now supports `--name`, `--description`, `--danger-level`, and `--yes` options for non-interactive generation
+- `sos runner generate` now supports `--name`, `--description`, and `--yes` options for non-interactive generation
+- `sos plugin generate` now supports `--name`, `--description`, and `--yes` options for non-interactive generation
+- `sos runner upload` now supports `--yes` flag to skip confirmation prompts for runner/version creation
+- `sos plugin upload` now supports `--yes` flag to skip confirmation prompts for plugin/version creation
+- Enhanced JSDoc documentation with comprehensive CI/CD usage examples for all automation-enabled commands
+
+### Fixed
+- Fixed CLI argument validation, making command to fail if contains invalid arguments (e.g.`sos runner generate --invalid`)
+- Removed support for `--legacy-enabled` authentication flag from `sos login` command
+- Pinned `es-check` to `9.4.0` (9.4.1 introduced parsing bug)
+
 ## [2.6.0] - 2025-09-23
 ### Added
 - New commands `sos runner generate` to generate local repository with Runner boilerplate and `sos plugin generate` to generate local repository with Plugin boilerplate

@@ -25,35 +25,31 @@ export const OPTION_LIST = [
 ] as const;
 
 /**
- * Uploads custom script code and configuration to the signageOS platform based on
- * the .sosconfig.json configuration file. Custom Scripts enable advanced device
- * functionality beyond standard applets, including system-level operations and
- * device-specific configurations for multiple platforms.
+ * Uploads custom script code and configuration to signageOS platform from `.sosconfig.json`.
+ * Creates/updates script, uploads platform-specific files, and provides script UID for execution.
  *
- * @group Development:2
+ * May prompt for confirmation when creating new scripts or versions.
+ * Use `--yes` to skip prompts for automated deployments.
+ *
+ * @group Development:22
  *
  * @example
  * ```bash
- * # Upload custom script from current directory
+ * # Upload interactively
  * sos custom-script upload
  *
- * # Upload with specific organization
- * sos custom-script upload --organization-uid abc123def456
- *
- * # Skip confirmation prompts (useful for CI/CD)
+ * # Skip confirmations (CI/CD)
  * sos custom-script upload --yes
+ *
+ * # Specific organization
+ * sos custom-script upload --organization-uid abc123def456
  * ```
  *
- * @throws {Error} When .sosconfig.json is missing or invalid
- * @throws {Error} When script platform configuration is missing
- * @throws {Error} When organization access is denied
- * @throws {Error} When script upload fails
+ * @throws {Error} When `.sosconfig.json` missing/invalid or upload fails
  *
- * @see {@link https://developers.signageos.io/docs/custom-scripts/ Custom Scripts Documentation}
- *
- * @see {@link ../generate/ Generate custom script project}
- *
- * @see {@link ../ Custom Script management commands}
+ * @see {@link https://developers.signageos.io/docs/custom-scripts/ Documentation}
+ * @see {@link https://developers.signageos.io/api/#tag/DeviceCustom-Script REST API}
+ * @see {@link ../generate/ Generate command}
  *
  * @since 1.8.0
  */

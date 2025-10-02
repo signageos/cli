@@ -16,7 +16,7 @@ const OPTION_LIST = [NO_DEFAULT_ORGANIZATION_OPTION, ORGANIZATION_UID_OPTION] as
  * by its UID. If no organization UID is provided, uses the default organization
  * or prompts for selection from available organizations.
  *
- * @group Management:2
+ * @group Management:22
  *
  * @example
  * ```bash

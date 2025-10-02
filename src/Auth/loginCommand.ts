@@ -17,28 +17,14 @@ const OPTION_LIST = [{ name: 'username', type: String, description: `Username or
 /**
  * To explicitly enable auth0 authentication add flag --auth0-enabled to command line options
  * { _unknown: [ '--auth0-enabled' ], command: [ 'login' ] }
- *
- * To explicitly enable legacy authentication add flag --legacy-enabled to command line options
- * { _unknown: [ '--legacy-enabled' ], command: [ 'login' ] }
- *
- * Only one from auth0 and legacy authentication can be active at the moment
  */
-export const getIsAuth0OrLegacyEnabled = (options: any) => {
+export const getIsAuth0Enabled = (options: any) => {
 	const queryParams: {
 		isAuth0Enabled?: boolean;
-		isLegacyEnabled?: boolean;
 	} = {};
 
 	if (options._unknown?.includes('--auth0-enabled')) {
 		queryParams.isAuth0Enabled = true;
-	}
-
-	if (options._unknown?.includes('--legacy-enabled')) {
-		queryParams.isLegacyEnabled = true;
-	}
-
-	if (queryParams.isAuth0Enabled !== undefined && queryParams.isLegacyEnabled !== undefined) {
-		throw new Error('Only one override from auth0 and legacy authentication options can be active at the moment.');
 	}
 
 	return queryParams;
@@ -46,8 +32,8 @@ export const getIsAuth0OrLegacyEnabled = (options: any) => {
 
 /**
  * Handles user authentication using username/email and password credentials.
- * Supports both Auth0 and legacy authentication methods. Stores credentials
- * securely in the ~/.sosrc configuration file for subsequent CLI operations.
+ * Supports Auth0 authentication method. Stores credentials securely in the
+ * ~/.sosrc configuration file for subsequent CLI operations.
  *
  * @group Authentication:1
  *
@@ -61,7 +47,6 @@ export const getIsAuth0OrLegacyEnabled = (options: any) => {
  * ```
  *
  * @throws {Error} When username is missing and not provided interactively
- * @throws {Error} When both Auth0 and legacy authentication flags are specified
  *
  * @since 0.3.0
  */
@@ -96,7 +81,7 @@ export const login = createCommandDefinition({
 			message: `Type your password used for ${hostToDisplay}`,
 		});
 
-		const authQueryParams = getIsAuth0OrLegacyEnabled(options);
+		const authQueryParams = getIsAuth0Enabled(options);
 
 		const {
 			id: tokenId,
@@ -135,13 +120,11 @@ async function getOrCreateApiSecurityToken({
 	password,
 	apiUrl,
 	isAuth0Enabled,
-	isLegacyEnabled,
 }: {
 	identification: string;
 	password: string;
 	apiUrl: string;
 	isAuth0Enabled?: boolean;
-	isLegacyEnabled?: boolean;
 }): Promise<ILoginResponseBody> {
 	const ACCOUNT_SECURITY_TOKEN_RESOURCE = 'account/security-token';
 	const options = {
@@ -156,7 +139,6 @@ async function getOrCreateApiSecurityToken({
 		password,
 		name: tokenName,
 		...(isAuth0Enabled !== undefined ? { isAuth0AuthenticationEnabled: isAuth0Enabled } : {}),
-		...(isLegacyEnabled !== undefined ? { isLegacyAuthenticationEnabled: isLegacyEnabled } : {}),
 	};
 
 	const response = await postResource(options, ACCOUNT_SECURITY_TOKEN_RESOURCE, null, requestBody);

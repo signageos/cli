@@ -9,7 +9,7 @@ import { appletBuild } from './Build/appletBuildCommand';
  * Provides comprehensive commands for the complete applet development lifecycle including
  * project generation, development, building, testing, uploading, and deployment to signageOS devices.
  *
- * @group Development:2
+ * @group Development:100
  *
  * @subcommands
  * - `generate` - Create a new applet project with boilerplate code
