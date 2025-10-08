@@ -30,6 +30,7 @@
     "lint:prettier:fix": "prettier  \"(src|tests|tools)/**/*.+(ts|tsx|json|js)\" --write",
     "test:node-versions": "./tests/integration/test-node-versions.sh",
     "test:integration:node-versions": "env NODE_ENV=test mocha --config .mocharc.node-versions.json",
+    "generate:dummy-applet": "node ./tools/generate-dummy-applet.mjs",
     "check": "npm run depcheck && npx --userconfig ./.npmrc @signageos/lib-ci check-deps && npm run check-circular-deps && npm run check-types",
     "check-circular-deps": "npx madge@5 --circular --extensions ts ./src/",
     "depcheck": "depcheck --config .depcheckrc.json",
