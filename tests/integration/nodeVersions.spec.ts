@@ -1,6 +1,6 @@
 import should from 'should';
 import * as path from 'path';
-import * as fs from 'fs-extra';
+import fs from 'fs-extra';
 import { exec } from 'child_process';
 import * as util from 'util';
 

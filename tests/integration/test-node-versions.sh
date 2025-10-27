@@ -58,6 +58,14 @@ test_node_version() {
     
     # Run the commands with unset npm_config_prefix to avoid nvm issues
     echo "Running: nvm use $VERSION && npm install && npm run clean-build && node ./dist/index.js --version"
+    
+    # Temporarily move .npmrc if it exists to avoid URL placeholder issues
+    NPMRC_MOVED=false
+    if [ -f ".npmrc" ]; then
+        mv .npmrc .npmrc.tmp
+        NPMRC_MOVED=true
+    fi
+    
     source ~/.nvm/nvm.sh && \
     echo "Node.js environment info:" && \
     nvm --version && \
@@ -68,6 +76,11 @@ test_node_version() {
     echo "Testing CLI..." && \
     node ./dist/index.js --version > "$OUTPUT_FILE" 2> "$ERROR_FILE"
     RESULT_CODE=$?
+    
+    # Restore .npmrc if it was moved
+    if [ "$NPMRC_MOVED" = true ]; then
+        mv .npmrc.tmp .npmrc
+    fi
     
     # Check if the result matches expectations
     if [ "$SHOULD_SUCCEED" = "true" ] && [ $RESULT_CODE -ne 0 ]; then
