@@ -405,12 +405,16 @@ export const appletGenerate = createCommandDefinition({
 			path: path.join(appletRootDirectory, '.sosignore'),
 			content: 'node_modules/\n',
 		});
+		generateFiles.push({
+			path: path.join(appletRootDirectory, 'sos.config.local.json'),
+			content: '{}\n',
+		});
 
 		// Initialise git repository
 		if (git === GitOptions.Yes && gitFound) {
 			generateFiles.push({
 				path: path.join(appletRootDirectory, '.gitignore'),
-				content: 'node_modules/\n./dist',
+				content: 'node_modules/\n./dist\nsos.config.local.json',
 			});
 
 			await initGitRepository(appletRootDirectory, true).catch((error) => {

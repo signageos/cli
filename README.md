@@ -175,6 +175,18 @@ sos applet start
 | --detach *(optional)* | Run the applet HTTP server in the background (detached process) | false |
 | --forward-server-url *(optional)* | Custom forward server URL for `sos device connect` command. | https://forward.signageos.io |
 
+##### Local Configuration
+You can create a `sos.config.local.json` file in your applet directory to provide configuration values during local development. This file is automatically loaded when running `sos applet start` and passed to your applet as configuration.
+
+```json
+{
+  "myConfigKey": "myConfigValue",
+  "anotherSetting": true
+}
+```
+
+This is useful for testing your applet with different configuration values without having to deploy it to a device.
+
 #### Applet Tests Upload
 ```bash
 sos applet test upload

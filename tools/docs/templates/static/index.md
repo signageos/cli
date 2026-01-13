@@ -22,6 +22,19 @@ npm install -g @signageos/cli
 2. **Generate a new applet**: `sos applet generate --name my-applet`
 3. **Start development**: `cd my-applet && sos applet start`
 
+### Local Configuration
+
+You can create a `sos.config.local.json` file in your applet directory to provide configuration values during local development:
+
+```json
+{
+  "myConfigKey": "myConfigValue",
+  "anotherSetting": true
+}
+```
+
+This configuration is automatically loaded when running `sos applet start` and passed to your applet, making it easy to test different configuration scenarios without deploying to a device.
+
 ## Usage
 
 ```bash

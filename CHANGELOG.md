@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Added
+- Support for `sos.config.local.json` file in applet directory for local development configuration
+- Generated applets now include a blank `sos.config.local.json` file for easier local configuration testing
+- Added `sos.config.local.json` to `.gitignore` in generated applets to keep local configuration private
+
 ## [2.7.1] - 2025-10-20
 ### Fixed
 - Typo in device power action type `display0ff` to `displayOff`

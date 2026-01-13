@@ -11,6 +11,7 @@ import { IEmulator } from './IEmulator';
 import { log } from '@signageos/sdk/dist/Console/log';
 import { Development } from '@signageos/sdk/dist/Development/Development';
 import { isPathIncluded } from '../Lib/fileSystem';
+import { getErrorMessageFromUnknownError } from '../helper';
 
 export interface ICreateEmulatorParams {
 	appletUid: string | undefined;
@@ -23,6 +24,7 @@ export interface ICreateEmulatorParams {
 
 const DUMMY_CHECKSUM = '0000000000ffffffffff';
 const APPLET_DIRECTORY_PATH = '/applet';
+const SOS_CONFIG_LOCAL_FILENAME = 'sos.config.local.json';
 
 type IEnvVars = {
 	frontAppletVersion: string;
@@ -63,6 +65,7 @@ export async function createEmulator(params: ICreateEmulatorParams, organization
 		if (!req.query.duid) {
 			res.redirect(`${req.originalUrl}${req.originalUrl.includes('?') ? '&' : '?'}duid=${params.emulatorUid}`);
 		} else {
+			const localConfig = loadSosLocalConfig(appletPath);
 			const page = fsExtra.readFileSync(path.join(frontDisplayDistPath, 'index.html')).toString();
 			const script = `
 <script>
@@ -70,6 +73,7 @@ export async function createEmulator(params: ICreateEmulatorParams, organization
 	window.__SOS_BUNDLED_APPLET.binaryFile = location.origin + ${JSON.stringify(envVars.binaryFilePath)};
 	window.__SOS_BUNDLED_APPLET.uid = ${JSON.stringify(envVars.uid)};
 	window.__SOS_BUNDLED_APPLET.version = ${JSON.stringify(envVars.version)};
+	window.__SOS_BUNDLED_APPLET.config = ${JSON.stringify(localConfig)};
 	window.__SOS_BUNDLED_APPLET.checksum = ${JSON.stringify(envVars.checksum)};
 	window.__SOS_BUNDLED_APPLET.frontAppletVersion = ${JSON.stringify(envVars.frontAppletVersion)};
 	window.__SOS_BUNDLED_APPLET.frontAppletBinaryFile = ${JSON.stringify(envVars.frontAppletBinaryFile)};
@@ -123,4 +127,18 @@ export async function createEmulator(params: ICreateEmulatorParams, organization
 			await new Promise<void>((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())));
 		},
 	};
+}
+
+function loadSosLocalConfig(appletPath: string): Record<string, unknown> {
+	const sosConfigLocalPath = path.join(appletPath, SOS_CONFIG_LOCAL_FILENAME);
+	if (fsExtra.existsSync(sosConfigLocalPath)) {
+		try {
+			const configContent = fsExtra.readFileSync(sosConfigLocalPath, 'utf8');
+			log('info', `Loaded local config from ${SOS_CONFIG_LOCAL_FILENAME}`);
+			return JSON.parse(configContent);
+		} catch (error) {
+			log('warning', `Failed to load ${SOS_CONFIG_LOCAL_FILENAME}: ${getErrorMessageFromUnknownError(error)}`);
+		}
+	}
+	return {};
 }

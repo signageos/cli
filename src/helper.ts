@@ -123,3 +123,15 @@ export function deserializeJSON(_key: string, value: any) {
 	}
 	return value;
 }
+
+export function getErrorMessageFromUnknownError(error: unknown) {
+	if (error) {
+		if (typeof error === 'object' && 'message' in error) {
+			return error.message;
+		} else {
+			return `${error}`;
+		}
+	} else {
+		return null;
+	}
+}
