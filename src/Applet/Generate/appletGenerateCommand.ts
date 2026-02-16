@@ -414,7 +414,7 @@ export const appletGenerate = createCommandDefinition({
 		if (git === GitOptions.Yes && gitFound) {
 			generateFiles.push({
 				path: path.join(appletRootDirectory, '.gitignore'),
-				content: 'node_modules/\n./dist\nsos.config.local.json',
+				content: 'node_modules/\n/dist/\nsos.config.local.json',
 			});
 
 			await initGitRepository(appletRootDirectory, true).catch((error) => {
