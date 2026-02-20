@@ -7,6 +7,7 @@ import { ApiVersions } from '@signageos/sdk/dist/RestApi/apiVersions';
 import { createClientVersions, getApiUrl, autocompleteSuggest } from '../helper';
 import { log } from '@signageos/sdk/dist/Console/log';
 import { IConfig } from '@signageos/sdk/dist/SosHelper/sosControlHelper';
+import { getAllPages } from '../helper/paginationHelper';
 
 interface IEmulatorData {
 	uid: string;
@@ -30,7 +31,8 @@ const createRestApi = (config: IConfig) => {
 
 async function getListOfEmulators(restApi: RestApi, organizationUid: string) {
 	try {
-		const emulators = await restApi.emulator.list({ organizationUid });
+		// Fetch all pages to ensure we get all emulators
+		const emulators = await getAllPages(await restApi.emulator.list({ organizationUid }));
 		return emulators;
 	} catch (e: any) {
 		if (e instanceof AuthenitcationError) {
