@@ -28,6 +28,7 @@ import {
 } from '../appletServerHelper';
 import { log } from '@signageos/sdk/dist/Console/log';
 import { parameters } from '../../parameters';
+import { validateAppletDirectory } from '../appletValidation';
 
 const DEFAULT_PORT = 8090;
 const PORT_OPTION = {
@@ -102,8 +103,10 @@ export const appletStart = createCommandDefinition({
 		const currentDirectory = process.cwd();
 
 		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
-		const entryFileAbsolutePath = await getAppletEntryFileAbsolutePath(currentDirectory, options);
 		const appletPath = await getAppletDirectoryAbsolutePath(currentDirectory, options);
+		await validateAppletDirectory(appletPath);
+
+		const entryFileAbsolutePath = await getAppletEntryFileAbsolutePath(currentDirectory, options);
 		const entryFileRelativePath = getAppletEntryFileRelativePath(entryFileAbsolutePath, appletPath);
 		const emulatorUid = await loadEmulatorOrCreateNewAndReturnUid(organizationUid);
 		const dev = createDevelopment({

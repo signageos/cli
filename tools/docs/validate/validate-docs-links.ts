@@ -17,7 +17,10 @@ interface ProcessFileResult {
  * Process a single file's links
  */
 async function processFileLinks(filePath: string, docsDir: string): Promise<ProcessFileResult> {
-	const relativePath = filePath.replace(docsDir, '').replace(/^\//, '');
+	// Normalize paths to use forward slashes for cross-platform compatibility
+	const normalizedFilePath = filePath.replace(/\\/g, '/');
+	const normalizedDocsDir = docsDir.replace(/\\/g, '/');
+	const relativePath = normalizedFilePath.replace(normalizedDocsDir, '').replace(/^\//, '');
 	const content = await readFileSafe(filePath);
 
 	if (!content) {

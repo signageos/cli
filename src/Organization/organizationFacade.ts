@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import debug from 'debug';
 import prompts from 'prompts';
-import { getResource, deserializeJSON, getApiUrl } from '../helper';
+import { getResource, deserializeJSON, getApiUrl, autocompleteSuggest } from '../helper';
 import { loadConfig, updateConfig } from '../RunControl/runControlHelper';
 import { CommandLineOptions } from '../Command/commandDefinition';
 import { ApiVersions } from '@signageos/sdk/dist/RestApi/apiVersions';
@@ -27,6 +27,7 @@ export const ORGANIZATION_OPTIONS = [ORGANIZATION_UID_OPTION, NO_DEFAULT_ORGANIZ
 
 export async function getOrganizationUidOrDefaultOrSelect(
 	options: CommandLineOptions<[typeof ORGANIZATION_UID_OPTION, typeof NO_DEFAULT_ORGANIZATION_OPTION]>,
+	skipPrompts: boolean = false,
 ): Promise<string> {
 	const config = await loadConfig();
 	let organizationUid: string | undefined = options['organization-uid'];
@@ -36,18 +37,54 @@ export async function getOrganizationUidOrDefaultOrSelect(
 	}
 
 	if (!organizationUid) {
-		organizationUid = await selectOrganizationUid(options);
-		if (organizationUid && !options['no-default-organization']) {
-			const response = await prompts({
-				type: 'confirm',
-				name: 'setDefault',
-				message: `Do you want to set the organization as a default for current profile?`,
-				initial: false,
-			});
-			if (response.setDefault) {
-				await updateConfig({
-					defaultOrganizationUid: organizationUid,
+		// If skipPrompts is true (e.g., --yes flag), try to auto-select
+		if (skipPrompts) {
+			const organizations = await getOrganizations();
+
+			if (organizations.length === 0) {
+				throw new Error('No organizations available. Please ensure you have access to at least one organization.');
+			}
+
+			if (organizations.length === 1) {
+				// Auto-select the only available organization
+				const org = organizations[0]!; // Safe: we just checked length === 1
+				organizationUid = org.uid;
+				console.info(chalk.yellow(`Auto-selected organization: ${org.title} (${org.name}, ${org.uid})`));
+
+				// Set as default to avoid prompts in future
+				if (!options['no-default-organization']) {
+					await updateConfig({
+						defaultOrganizationUid: organizationUid,
+					});
+					console.info(chalk.green('Organization has been set as default for current profile.'));
+				}
+			} else {
+				// Multiple organizations available - cannot auto-select safely
+				throw new Error(
+					`Cannot auto-select organization: Multiple organizations available (${organizations.length} found).\n` +
+						`Please specify one of the following:\n` +
+						`  1. Use --organization-uid <uid> flag\n` +
+						`  2. Set default organization: sos organization set-default\n` +
+						`  3. Remove --yes flag for interactive selection\n\n` +
+						`Available organizations:\n` +
+						organizations.map((org) => `  - ${org.title} (${org.name}, ${org.uid})`).join('\n'),
+				);
+			}
+		} else {
+			// Interactive mode - prompt user to select
+			organizationUid = await selectOrganizationUid(options);
+			if (organizationUid && !options['no-default-organization']) {
+				const response = await prompts({
+					type: 'confirm',
+					name: 'setDefault',
+					message: `Do you want to set the organization as a default for current profile?`,
+					initial: false,
 				});
+				if (response.setDefault) {
+					await updateConfig({
+						defaultOrganizationUid: organizationUid,
+					});
+				}
 			}
 		}
 	}
@@ -67,7 +104,11 @@ export async function selectOrganizationUid(options: CommandLineOptions<[typeof 
 				title: `${org.title} (${org.name}, ${org.uid})`,
 				value: org.uid,
 			})),
+			suggest: autocompleteSuggest,
 		});
+		if (!response.organizationUid) {
+			throw new Error('Organization selection was cancelled');
+		}
 		Debug('Organization selected', response.organizationUid);
 		organizationUid = response.organizationUid;
 	}

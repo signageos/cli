@@ -52,7 +52,8 @@ export const pluginUpload = createCommandDefinition({
 	commands: [],
 	async run(options: CommandLineOptions<typeof OPTION_LIST>) {
 		const currentDirectory = process.cwd();
-		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
+		const skipPrompts = options.yes as boolean;
+		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options, skipPrompts);
 		const organization = await getOrganization(organizationUid);
 		const restApi = await createOrganizationRestApi(organization);
 

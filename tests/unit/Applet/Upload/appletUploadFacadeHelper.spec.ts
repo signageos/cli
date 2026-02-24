@@ -1,15 +1,15 @@
 import should from 'should';
 import { getAppletFileRelativePath } from '../../../../src/Applet/Upload/appletUploadFacadeHelper';
 
-describe('unit.appletUploadFacadeHelper', () => {
-	describe('getAppletFileRelativePath', () => {
-		it('should return relative file path', async () => {
+describe('unit.appletUploadFacadeHelper', function () {
+	describe('getAppletFileRelativePath', function () {
+		it('should return relative file path', async function () {
 			const actualRelativePath = await getAppletFileRelativePath('/path/file.js', '/path');
 
 			should.deepEqual(actualRelativePath, 'file.js');
 		});
 
-		it('should fail if file in not in the dir', async () => {
+		it('should fail if file in not in the dir', async function () {
 			let failed = false;
 			try {
 				await getAppletFileRelativePath('/path/file.js', '/path/path');
@@ -20,7 +20,7 @@ describe('unit.appletUploadFacadeHelper', () => {
 			should.deepEqual(failed, true);
 		});
 
-		it('should fail if file path is relative', async () => {
+		it('should fail if file path is relative', async function () {
 			let failed = false;
 			try {
 				await getAppletFileRelativePath('path/file.js', '/path');
@@ -31,7 +31,7 @@ describe('unit.appletUploadFacadeHelper', () => {
 			should.deepEqual(failed, true);
 		});
 
-		it('should fail if dir path is relative', async () => {
+		it('should fail if dir path is relative', async function () {
 			let failed = false;
 			try {
 				await getAppletFileRelativePath('/path/file.js', 'path');
@@ -42,7 +42,7 @@ describe('unit.appletUploadFacadeHelper', () => {
 			should.deepEqual(failed, true);
 		});
 
-		it('should fail if dir and file path is relative', async () => {
+		it('should fail if dir and file path is relative', async function () {
 			let failed = false;
 			try {
 				await getAppletFileRelativePath('path/file.js', 'path');

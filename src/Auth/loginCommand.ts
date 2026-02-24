@@ -2,12 +2,14 @@ import chalk from 'chalk';
 import prompts from 'prompts';
 import debug from 'debug';
 import * as os from 'os';
+import fs from 'fs-extra';
 import { ApiVersions } from '@signageos/sdk/dist/RestApi/apiVersions';
 import { log } from '@signageos/sdk/dist/Console/log';
 import { getConfigFilePath } from '@signageos/sdk/dist/SosHelper/sosControlHelper';
 import { deserializeJSON, getApiUrl, postResource } from '../helper';
 import { saveConfig, loadConfig } from '../RunControl/runControlHelper';
 import { parameters } from '../parameters';
+import { getGlobalProfile } from '../Command/globalArgs';
 import { CommandLineOptions, createCommandDefinition } from '../Command/commandDefinition';
 
 const Debug = debug('@signageos/cli:Auth:login');
@@ -57,11 +59,38 @@ export const login = createCommandDefinition({
 	commands: [],
 	async run(options: CommandLineOptions<typeof OPTION_LIST>) {
 		let identification: string | undefined = options.username;
+		const profile = getGlobalProfile();
+		const configFilePath = getConfigFilePath();
+
+		// Detect a new (non-existent) named profile and prompt for the API URL
+		let promptedApiUrl: string | undefined;
+		if (profile) {
+			let profileExists = false;
+			if (await fs.pathExists(configFilePath)) {
+				const content = (await fs.readFile(configFilePath)).toString();
+				profileExists = content.includes(`[profile ${profile}]`);
+			}
+			if (!profileExists) {
+				log('info', `Profile "${profile}" does not exist in ${configFilePath}. Please enter the server API URL to create it.`);
+				const { inputApiUrl } = await prompts({
+					type: 'text',
+					name: 'inputApiUrl',
+					message: 'Server API URL',
+					initial: 'https://api.signageos.io',
+					validate: (v: string) => (v.startsWith('http') ? true : 'Must be a valid URL starting with http'),
+				});
+				if (!inputApiUrl) {
+					throw new Error('API URL is required to log in.');
+				}
+				promptedApiUrl = inputApiUrl.replace(/\/+$/, '');
+			}
+		}
+
 		const config = await loadConfig();
-		const apiUrl = getApiUrl(config);
+		const apiUrl = promptedApiUrl ?? getApiUrl(config);
+
 		// Extract domain from API URL to show in prompts
-		const apiUrlObj = new URL(apiUrl);
-		const hostToDisplay = apiUrlObj.hostname;
+		const hostToDisplay = new URL(apiUrl).hostname;
 
 		if (!identification) {
 			const response = await prompts({
@@ -95,7 +124,7 @@ export const login = createCommandDefinition({
 		});
 
 		await saveConfig({
-			apiUrl: apiUrl !== parameters.apiUrl ? apiUrl : undefined,
+			apiUrl: profile || apiUrl !== parameters.apiUrl ? apiUrl : undefined,
 			identification: tokenId,
 			apiSecurityToken,
 		});

@@ -1,4 +1,5 @@
 import { stringify } from 'querystring';
+import prompts from 'prompts';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import IRestApiOptions from '@signageos/sdk/dist/RestApi/IOptions';
 import { loadConfig } from './RunControl/runControlHelper';
@@ -19,11 +20,18 @@ export async function loadApiUrl() {
 }
 
 export function getApiUrl(config: IConfig) {
-	const apiUrl = getGlobalApiUrl() || config.apiUrl;
-	if (!apiUrl) {
+	// Precedence:
+	// 1. Explicit global CLI argument (--api-url)
+	// 2. Environment variable (SOS_API_URL) - for CI/CD and testing
+	// 3. Stored profile configuration (config.apiUrl from ~/.sosrc)
+	const cliUrl = getGlobalApiUrl();
+	const profileUrl = config.apiUrl;
+	const rawApiUrl = cliUrl || profileUrl;
+	if (!rawApiUrl) {
 		throw new Error(`No API URL is defined. Please use --api-url or set SOS_API_URL environment variable.`);
 	}
-	return apiUrl;
+	// Normalize: remove trailing slashes to avoid double '//'
+	return rawApiUrl.replace(/\/+$/, '');
 }
 
 export function createClientVersions() {
@@ -134,4 +142,27 @@ export function getErrorMessageFromUnknownError(error: unknown) {
 	} else {
 		return null;
 	}
+}
+
+/**
+ * Custom suggest function for autocomplete prompts.
+ * Searches in both the title (display text) and value (actual value) fields.
+ * This allows users to search by UID even when it's shown in parentheses in the title.
+ *
+ * @example
+ * ```typescript
+ * const response = await prompts({
+ *     type: 'autocomplete',
+ *     name: 'deviceUid',
+ *     message: 'Select device',
+ *     choices: devices.map(d => ({ title: `${d.name} (${d.uid})`, value: d.uid })),
+ *     suggest: autocompleteSuggest,
+ * });
+ * ```
+ */
+export function autocompleteSuggest<T extends prompts.Choice>(input: string, choices: T[]): Promise<T[]> {
+	const searchTerm = input.toLowerCase();
+	return Promise.resolve(
+		choices.filter((choice) => choice.title?.toLowerCase().includes(searchTerm) || choice.value?.toLowerCase().includes(searchTerm)),
+	);
 }

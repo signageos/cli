@@ -124,7 +124,7 @@ describe('Node.js Version Compatibility Tests', function () {
 	this.timeout(600000); // 10 minutes
 
 	// Create output directory
-	before(() => {
+	before(function () {
 		const outputDir = path.join(__dirname, '..', 'output', 'node_versions');
 		fs.ensureDirSync(outputDir);
 	});

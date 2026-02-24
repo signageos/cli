@@ -45,12 +45,6 @@ sos autocomplete uninstall
 This will remove the completion script and the source line from your shell configuration file.
 
 
-## Test
-```bash
-cp .env.amy .env
-npm test
-```
-
 ## API reference
 ### General
 | Argument                   | Description                     | Default value                                     |

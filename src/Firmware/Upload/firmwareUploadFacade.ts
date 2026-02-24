@@ -4,6 +4,7 @@ import { ProgressBar } from '../../CommandLine/IProgressBar';
 import { IFirmwareVersionCreatable } from '@signageos/sdk/dist/RestApi/Firmware/Version/IFirmwareVersion';
 import * as fs from 'fs-extra';
 import { getFileMD5Checksum } from '../../Lib/fileSystem';
+import chalk from 'chalk';
 
 export async function uploadFirmwareVersion(parameters: {
 	restApi: RestApi;
@@ -20,19 +21,25 @@ export async function uploadFirmwareVersion(parameters: {
 			return stat.size;
 		}),
 	);
-	const totalSize = sizes.reduce((sum: number, size) => sum + size, 0);
 
-	if (progressBar) {
-		progressBar.init({ size: totalSize, name: pathArr.join(',') });
-	}
-
+	// Process each file sequentially for cleaner output
 	for (const index in pathArr) {
 		const filePath = pathArr[index];
 		if (!filePath) {
 			continue;
 		}
-		const fileSize = sizes[parseInt(index)];
+		const fileSize = sizes[Number.parseInt(index)];
+		if (fileSize === undefined) {
+			continue;
+		}
 		const fileName = path.basename(filePath);
+
+		// Log with newline for cleaner output
+		console.info(chalk.yellow(`Uploading ${filePath}\n`));
+
+		if (progressBar) {
+			progressBar.init({ size: fileSize, name: fileName });
+		}
 
 		const md5Hash = await getFileMD5Checksum(filePath);
 
@@ -47,7 +54,7 @@ export async function uploadFirmwareVersion(parameters: {
 		firmware.files.push({
 			hash: md5Hash,
 			content: stream,
-			size: fileSize ?? 0,
+			size: fileSize,
 		});
 	}
 	try {

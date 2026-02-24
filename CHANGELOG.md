@@ -6,8 +6,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Fixed
+- `sos applet upload` now correctly show progress, file size, ETA, box url
+- Fixed `--profile` selection flag feature for edge-cases
 - Applet Generate `.gitignore` file content is updated to ignore `/dist` directory instead of `./dist`
 
+### Added
+- Enhanced autocomplete search to match both names and UIDs
+- Applet directory validation to prevent accidental wrong uploads of non-applet projects (respects `--applet-path` option)
+- Graceful cancellation handling for all interactive prompts
+  
 ## [2.8.0] - 2026-01-15
 ### Added
 - Support for `sos.config.local.json` file in applet directory for local development configuration

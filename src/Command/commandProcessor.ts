@@ -5,6 +5,7 @@ import cliArgs from 'command-line-args';
 import { printVersion, newVersionAvailable, getUpdateVersionMessage } from '../Cli/packageVersion';
 import { ICommand, ICommandOption, OptionList } from './commandDefinition';
 import { log } from '@signageos/sdk/dist/Console/log';
+import { validateProfileAndApiUrl } from './globalArgs';
 const Debug = debug('@signageos/cli:Command:processor');
 
 // Preprocess argv to detect and handle multi-character single-dash options
@@ -33,6 +34,11 @@ export async function processCommand(
 	parentOptionList: ICommandOption[] = [],
 	commandIndex: number = 0,
 ) {
+	// Validate mutually exclusive global options once at the root invocation
+	if (commandIndex === 0) {
+		validateProfileAndApiUrl();
+	}
+
 	const nestedOptionList = [...parentOptionList, ...currentCommand.optionList];
 
 	// Preprocess argv to handle multi-character single-dash options that should be treated as unknown

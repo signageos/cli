@@ -1,6 +1,6 @@
 import debug from 'debug';
 import prompts from 'prompts';
-import { deserializeJSON, getApiUrl, postResource } from '../helper';
+import { deserializeJSON, getApiUrl, postResource, autocompleteSuggest } from '../helper';
 import { IOrganization } from '../Organization/organizationFacade';
 import { DevicePowerAction } from '@signageos/sdk/dist/RestApi/Device/PowerAction/IPowerAction';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
@@ -49,7 +49,11 @@ export async function getDeviceUid(
 					title: `${dev.name ?? `Unnamed device, created ${dev.createdAt.toString()}`} (${dev.uid})`,
 					value: dev.uid,
 				})),
+				suggest: autocompleteSuggest,
 			});
+			if (!response.deviceUid) {
+				throw new Error('Device selection was cancelled');
+			}
 			Debug('Device selected', response.deviceUid);
 			deviceUid = response.deviceUid;
 		}
@@ -72,7 +76,11 @@ export async function getActionType(options: CommandLineOptions<[typeof POWER_AC
 				title: item[1].name,
 				value: item[0],
 			})),
+			suggest: autocompleteSuggest,
 		});
+		if (!response.type) {
+			throw new Error('Power action selection was cancelled');
+		}
 		action = response.type;
 	}
 	if (!action) {

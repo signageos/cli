@@ -4,7 +4,7 @@ import { loadConfig, updateConfig } from '../RunControl/runControlHelper';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import AuthenitcationError from '@signageos/sdk/dist/RestApi/Error/AuthenticationError';
 import { ApiVersions } from '@signageos/sdk/dist/RestApi/apiVersions';
-import { createClientVersions, getApiUrl } from '../helper';
+import { createClientVersions, getApiUrl, autocompleteSuggest } from '../helper';
 import { log } from '@signageos/sdk/dist/Console/log';
 import { IConfig } from '@signageos/sdk/dist/SosHelper/sosControlHelper';
 
@@ -30,7 +30,8 @@ const createRestApi = (config: IConfig) => {
 
 async function getListOfEmulators(restApi: RestApi, organizationUid: string) {
 	try {
-		return await restApi.emulator.list({ organizationUid });
+		const emulators = await restApi.emulator.list({ organizationUid });
+		return emulators;
 	} catch (e: any) {
 		if (e instanceof AuthenitcationError) {
 			throw new Error(`Authentication error. Try to login using ${chalk.green('sos login')}`);
@@ -70,14 +71,18 @@ export async function loadEmulatorOrCreateNewAndReturnUid(organizationUid: strin
 		log('info', `One valid emulator ${chalk.green(emulatorName)} fetched and saved into .sosrc`);
 	} else if (listOfEmulatorsResponse.length > 1) {
 		const selectedEmulator = await prompts({
-			type: 'select',
+			type: 'autocomplete',
 			name: 'duid',
 			message: 'Select emulator to use',
 			choices: listOfEmulatorsResponse.map((emu: IEmulatorData) => ({
 				title: `${emu.name} (${emu.duid})`,
 				value: emu.duid,
 			})),
+			suggest: autocompleteSuggest,
 		});
+		if (!selectedEmulator.duid) {
+			throw new Error('Emulator selection was cancelled');
+		}
 		emulatorUid = selectedEmulator.duid;
 	} else {
 		log('warning', 'No valid emulator assigned to your account found via API thus newone will be created');

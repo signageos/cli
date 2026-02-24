@@ -128,7 +128,7 @@ function extractJSDoc(node: ts.Node): any {
 		} else if (line.startsWith('@group ')) {
 			result.group = line.substring(7).trim();
 		} else if (line.startsWith('@groupPriority ')) {
-			result.groupPriority = parseInt(line.substring(15).trim()) || 0;
+			result.groupPriority = Number.parseInt(line.substring(15).trim()) || 0;
 		} else if (line.startsWith('@see ')) {
 			result.see.push(line.substring(5).trim());
 		} else if (line.startsWith('@throws ')) {
@@ -147,11 +147,13 @@ function extractJSDoc(node: ts.Node): any {
 describe('Documentation Generator Features', () => {
 	let sandbox: sinon.SinonSandbox;
 
-	beforeEach(() => {
+	// eslint-disable-next-line mocha/no-top-level-hooks
+	beforeEach(function () {
 		sandbox = sinon.createSandbox();
 	});
 
-	afterEach(() => {
+	// eslint-disable-next-line mocha/no-top-level-hooks
+	afterEach(function () {
 		sandbox.restore();
 	});
 

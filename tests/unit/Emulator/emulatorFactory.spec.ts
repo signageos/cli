@@ -6,17 +6,17 @@ import { createEmulator } from '../../../src/Emulator/emulatorFactory';
 import { useTmpFiles } from '../../lib/tmpFiles';
 import type { Development } from '@signageos/sdk/dist/Development/Development';
 
-describe('Emulator.emulatorFactory', () => {
+describe('Emulator.emulatorFactory', function () {
 	const tmpDir = useTmpFiles();
 
-	describe('loadSosLocalConfig', () => {
+	describe('loadSosLocalConfig', function () {
 		// We need to test the internal loadSosLocalConfig function through createEmulator
 		// Since loadSosLocalConfig is not exported, we'll test it indirectly through the emulator behavior
 
 		let logStub: sinon.SinonStub;
 		let devMock: Partial<Development>;
 
-		beforeEach(() => {
+		beforeEach(function () {
 			// Mock the log function to capture warnings
 			logStub = sinon.stub(require('@signageos/sdk/dist/Console/log'), 'log');
 
@@ -30,11 +30,11 @@ describe('Emulator.emulatorFactory', () => {
 			} as any;
 		});
 
-		afterEach(() => {
+		afterEach(function () {
 			logStub.restore();
 		});
 
-		it('should load valid JSON from sos.config.local.json', async () => {
+		it('should load valid JSON from sos.config.local.json', async function () {
 			const appletPath = path.join(tmpDir, 'test-applet-valid');
 			await fs.ensureDir(appletPath);
 
@@ -87,7 +87,7 @@ describe('Emulator.emulatorFactory', () => {
 			await emulator.stop();
 		});
 
-		it('should return empty object when sos.config.local.json does not exist', async () => {
+		it('should return empty object when sos.config.local.json does not exist', async function () {
 			const appletPath = path.join(tmpDir, 'test-applet-no-config');
 			await fs.ensureDir(appletPath);
 
@@ -129,7 +129,7 @@ describe('Emulator.emulatorFactory', () => {
 			await emulator.stop();
 		});
 
-		it('should return empty object and log warning when JSON is invalid', async () => {
+		it('should return empty object and log warning when JSON is invalid', async function () {
 			const appletPath = path.join(tmpDir, 'test-applet-invalid-json');
 			await fs.ensureDir(appletPath);
 
@@ -181,7 +181,7 @@ describe('Emulator.emulatorFactory', () => {
 			await emulator.stop();
 		});
 
-		it('should return empty object when sos.config.local.json is empty', async () => {
+		it('should return empty object when sos.config.local.json is empty', async function () {
 			const appletPath = path.join(tmpDir, 'test-applet-empty-json');
 			await fs.ensureDir(appletPath);
 
@@ -229,7 +229,7 @@ describe('Emulator.emulatorFactory', () => {
 			await emulator.stop();
 		});
 
-		it('should handle nested configuration objects', async () => {
+		it('should handle nested configuration objects', async function () {
 			const appletPath = path.join(tmpDir, 'test-applet-nested');
 			await fs.ensureDir(appletPath);
 

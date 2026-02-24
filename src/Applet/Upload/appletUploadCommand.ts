@@ -1,7 +1,8 @@
 import chalk from 'chalk';
 import prompts from 'prompts';
+import * as path from 'path';
+import * as fs from 'fs-extra';
 import { createOrganizationRestApi } from '../../helper';
-import { parameters } from '../../parameters';
 import {
 	getOrganization,
 	getOrganizationUidOrDefaultOrSelect,
@@ -28,6 +29,7 @@ import { dev } from '@signageos/sdk';
 import GatewayError from '@signageos/sdk/dist/RestApi/Error/GatewayError';
 import IAppletVersion from '@signageos/sdk/dist/RestApi/Applet/Version/IAppletVersion';
 import NotFoundError from '@signageos/sdk/dist/RestApi/Error/NotFoundError';
+import { validateAppletDirectory } from '../appletValidation';
 
 export const OPTION_LIST = [
 	APPLET_PATH_OPTION,
@@ -78,14 +80,28 @@ export const OPTION_LIST = [
  * # Upload with organization override
  * sos applet upload --organization-uid abc123def456
  *
- * # Skip confirmation prompts
+ * # Skip confirmation prompts (auto-selects if only 1 org available)
  * sos applet upload --yes
+ *
+ * # CI/CD: Non-interactive upload with specific organization
+ * sos applet upload --yes --organization-uid abc123def456
  *
  * # Verbose output with detailed file information
  * sos applet upload --verbose
  *
  * # Update package.json with new applet UID
  * sos applet upload --update-package-config
+ *
+ * # Complete CI/CD example
+ * sos applet upload --yes --organization-uid abc123def456 --update-package-config
+ * ```
+ *
+ * **Note for CI/CD and --yes flag:**
+ * When using `--yes` with multiple organizations:
+ * - If you have only 1 organization: it will be auto-selected
+ * - If you have multiple organizations: you MUST specify `--organization-uid`
+ * - Alternative: Set a default organization with `sos organization set-default`
+ *
  * ```
  *
  * @throws {Error} When package.json is missing or invalid
@@ -103,28 +119,49 @@ export const appletUpload = createCommandDefinition({
 	commands: [],
 	async run(options: CommandLineOptions<typeof OPTION_LIST>) {
 		const currentDirectory = process.cwd();
-		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
+		const skipPrompts = options.yes as boolean;
+		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options, skipPrompts);
 		const organization = await getOrganization(organizationUid);
+
 		const restApi = await createOrganizationRestApi(organization);
 
-		const { name: appletName, version: appletVersion, frontAppletVersion } = await getApplet(currentDirectory);
-
-		const appletPathOption = options['applet-path'] as string | undefined;
-		const appletEntryOption = options['entry-file-path'] as string | undefined;
-		const updatePackageConfig = options['update-package-config'] as boolean;
+		const appletPathOption = options['applet-path'];
+		const appletEntryOption = options['entry-file-path'];
+		const updatePackageConfig = options['update-package-config'];
 
 		let appletBinaryFilePath: string | undefined = undefined;
 		let appletDirectoryPath: string | undefined = undefined;
 		let appletEntryFilePath: string | undefined = undefined;
 
-		const isSingleFileApplet = !!(appletPathOption && !appletEntryOption);
+		// Determine if this is a single file applet by checking if applet-path points to a file
+		let isSingleFileApplet = false;
+		if (appletPathOption) {
+			const appletPath = path.isAbsolute(appletPathOption) ? appletPathOption : path.join(currentDirectory, appletPathOption);
+
+			if (await fs.pathExists(appletPath)) {
+				const stats = await fs.stat(appletPath);
+				isSingleFileApplet = stats.isFile();
+			} else {
+				// If path doesn't exist, fall back to the original logic
+				isSingleFileApplet = !appletEntryOption;
+			}
+		}
 		if (isSingleFileApplet) {
 			displaySingleFileAppletDeprecationNote();
 			appletBinaryFilePath = await getAppletBinaryFileAbsolutePath(currentDirectory, options);
 		} else {
 			appletDirectoryPath = await getAppletDirectoryAbsolutePath(currentDirectory, options);
-			appletEntryFilePath = await getAppletEntryFileAbsolutePath(currentDirectory, options);
+			// For multi-file applets, use the applet directory as the base for resolving the entry file
+			appletEntryFilePath = await getAppletEntryFileAbsolutePath(appletDirectoryPath, options);
 		}
+
+		// Validate that the applet directory contains a valid applet
+		// For multi-file applets, validate the resolved applet directory
+		// For single-file applets (deprecated), validate the current directory
+		const directoryToValidate = appletDirectoryPath ?? currentDirectory;
+		await validateAppletDirectory(directoryToValidate);
+
+		const { name: appletName, version: appletVersion, frontAppletVersion } = await getApplet(directoryToValidate);
 
 		let overrideAppletVersionConfirmed = false;
 		let createNewAppletVersionConfirmed = false;
@@ -145,7 +182,10 @@ export const appletUpload = createCommandDefinition({
 			);
 		} finally {
 			if (updatePackageConfig) {
-				await saveToPackage(currentDirectory, { sos: { appletUid } });
+				// For multi-file applets, save to the applet directory's package.json
+				// For single-file applets, save to the current directory's package.json
+				const packageConfigDirectory = isSingleFileApplet ? currentDirectory : appletDirectoryPath || currentDirectory;
+				await saveToPackage(packageConfigDirectory, { sos: { appletUid } });
 			}
 		}
 
@@ -169,6 +209,7 @@ export const appletUpload = createCommandDefinition({
 			const appletFilePaths = await dev.applet.files.listAppletFiles({
 				appletPath: appletDirectoryPath!,
 			});
+
 			await validateAllFormalities(appletDirectoryPath!, appletEntryFilePath!, appletFilePaths);
 			appletFiles.push(...appletFilePaths);
 		}
@@ -251,7 +292,7 @@ export const appletUpload = createCommandDefinition({
 						progressBar: progressBar,
 					});
 				}
-				displaySuccessMessage(applet.uid, applet.name!, appletVersion, parameters.boxHost);
+				displaySuccessMessage(applet.uid, applet.name!, appletVersion);
 			} else if (createNewAppletVersionConfirmed) {
 				if (isSingleFileApplet) {
 					await createSingleFileApplet({
@@ -278,7 +319,7 @@ export const appletUpload = createCommandDefinition({
 						progressBar,
 					});
 				}
-				displaySuccessMessage(applet.uid, applet.name!, appletVersion, parameters.boxHost);
+				displaySuccessMessage(applet.uid, applet.name!, appletVersion);
 			}
 		} catch (error) {
 			if (error instanceof GatewayError) {
@@ -289,10 +330,11 @@ export const appletUpload = createCommandDefinition({
 	},
 });
 
-function displaySuccessMessage(appletUid: string, appletName: string, appletVersion: string, boxHost: string) {
-	log('info', `Applet ${chalk.green(appletName)} version ${chalk.green(appletVersion)} has been uploaded.`);
-	const appletBoxUri = `https://${boxHost}/applet/${appletUid}/${appletVersion}/build`;
-	log('info', `To build specific applications (Tizen, WebOS, SSSP, BrightSign, RPi, Android etc.) go to ${chalk.blue(appletBoxUri)}`);
+function displaySuccessMessage(appletUid: string, appletName: string, appletVersion: string) {
+	log(
+		'info',
+		`\nApplet ${chalk.green(appletName)} version ${chalk.green(appletVersion)} (${chalk.blue(appletUid)}) uploaded successfully.`,
+	);
 }
 
 function displaySingleFileAppletDeprecationNote() {

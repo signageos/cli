@@ -11,7 +11,7 @@ import fs from 'fs-extra';
 import { createWriteStream } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { $ } from 'zx';
+import { execSync } from 'child_process';
 import { parseArgs } from 'node:util';
 
 // Get the directory name in ESM
@@ -29,8 +29,8 @@ const { values: args } = parseArgs({
 
 // Configuration with CLI overrides
 const config = {
-	LARGE_SIZE: parseInt(args.size, 10) || 100, 
-	NUM_FILES: parseInt(args.files, 10) || 64,
+	LARGE_SIZE: Number.parseInt(args.size, 10) || 100, 
+	NUM_FILES: Number.parseInt(args.files, 10) || 64,
 	OUTPUT_NAME: args.name || 'uploadTest',
 	get OUTPUT_DIR() { return path.join(__dirname, '..', 'tests', 'output', this.OUTPUT_NAME); },
 	get SRC_DIR() { return path.join(this.OUTPUT_DIR, 'src'); },
@@ -104,7 +104,7 @@ async function generateLargeSvg(targetSizeMB = config.LARGE_SIZE) {
 				
 				// Add more text elements with longer strings
 				if (j % 5 === 0) {
-					const randomText = [...Array(32)].map(() => Math.random().toString(36)[2]).join('');
+					const randomText = Array.from({ length: 32 }, () => Math.random().toString(36)[2]).join('');
 					batchContent += `<text x="${Math.random() * 4900}" y="${Math.random() * 4900}" font-size="10">${randomText}</text>`;
 				}
 				
@@ -217,7 +217,7 @@ function createAssetElements() {
 	// Add the large file first
 	const largeAssetDiv = document.createElement('div');
 	largeAssetDiv.className = 'asset-large';
-	largeAssetDiv.style.backgroundImage = 'url(\"./assets/large-file.svg\")';
+	largeAssetDiv.style.backgroundImage = 'url("./assets/large-file.svg")';
 	largeAssetDiv.title = 'Large SVG Asset (~${config.LARGE_SIZE}MB)';
 	container.appendChild(largeAssetDiv);
 	
@@ -339,7 +339,7 @@ async function generateAssets() {
 /**
  * Main execution function
  */
-void async function main() {
+async function main() {
 	try {
 		console.info(`Starting applet generation with ${config.NUM_FILES} files and ${config.LARGE_SIZE}MB large file in ${config.OUTPUT_NAME}`);
 		
@@ -348,7 +348,13 @@ void async function main() {
 		
 		// Generate applet template
 		console.info('Generating applet template...');
-		await $`npx tsx ./src/index.ts applet generate --name ${config.OUTPUT_NAME} --target-dir ${config.OUTPUT_DIR} --language javascript --bundler rspack --packager npm`;
+		// Use proper path escaping for cross-platform compatibility
+		// On Windows, backslashes in paths need to be preserved, not escaped
+		const targetDir = config.OUTPUT_DIR;
+		execSync(
+			`npx tsx ./src/index.ts applet generate --name ${config.OUTPUT_NAME} --target-dir "${targetDir}" --language javascript --bundler rspack --packager npm`,
+			{ stdio: 'inherit', encoding: 'utf8', shell: true }
+		);
 		console.info('✅ Applet template generated successfully');
 
 		// Update rspack config to copy assets
@@ -364,8 +370,11 @@ void async function main() {
 
 		// Build the applet
 		console.info('Building applet...');
-		// Run build command in the target directory using zx's cwd option
-		await $({cwd: config.OUTPUT_DIR})`npm run build`;
+		execSync('npm run build', {
+			cwd: config.OUTPUT_DIR,
+			stdio: 'inherit',
+			encoding: 'utf8'
+		});
 		console.info('✅ Applet built successfully');
 
 		console.info('✨ All files generated successfully!');
@@ -374,4 +383,6 @@ void async function main() {
 		console.error(error.stack);
 		process.exit(1);
 	}
-}();
+}
+
+await main();

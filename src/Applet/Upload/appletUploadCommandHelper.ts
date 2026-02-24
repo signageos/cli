@@ -40,7 +40,7 @@ export async function getAppletDirectoryAbsolutePath(
 		appletDirectoryPath = appletDirectoryPath.slice(0, -1);
 	}
 
-	log('info', `\nUse applet project directory path: ${appletDirectoryPath}`);
+	log('info', chalk.white(`Use applet project directory path: ${appletDirectoryPath}`) + '\n');
 
 	const appletDirectoryPathExists = await fs.pathExists(appletDirectoryPath);
 	if (!appletDirectoryPathExists) {
@@ -72,7 +72,7 @@ export async function getAppletBinaryFileAbsolutePath(
 	// Normalize the path for cross-platform compatibility
 	appletBinaryFilePath = path.normalize(appletBinaryFilePath);
 
-	log('info', `\nUse applet binary file: ${appletBinaryFilePath}`);
+	log('info', chalk.white(`Use applet binary file: ${appletBinaryFilePath}` + '\n'));
 
 	const appletBinaryFilePathExists = await fs.pathExists(appletBinaryFilePath);
 	if (!appletBinaryFilePathExists) {
@@ -109,7 +109,7 @@ export async function getAppletEntryFileAbsolutePath(
 	// Normalize the path for cross-platform compatibility
 	appletEntryFilePath = path.normalize(appletEntryFilePath);
 
-	log('info', `\nUse applet entry file: ${appletEntryFilePath}`);
+	log('info', chalk.white(`Use applet entry file: ${appletEntryFilePath}`) + '\n');
 
 	const appletEntryFilePathExists = await fs.pathExists(appletEntryFilePath);
 	if (!appletEntryFilePathExists) {

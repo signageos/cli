@@ -1,6 +1,6 @@
 import should from 'should';
 import * as pathTool from 'path';
-import rewireMock from 'rewiremock';
+const rewireMock = require('rewiremock').default;
 
 // Define path constants - platform neutral
 const EXISTING_RELATIVE_DIR_PATH = 'existingRelativeDirPath';
@@ -77,9 +77,9 @@ import {
 import { generalOptions } from '../../helperMock';
 rewireMock.disable();
 
-describe('unit.appletUploadCommandHelper', () => {
-	describe('getAppletDirectoryAbsolutePath', () => {
-		it('should use default applet directory', async () => {
+describe('unit.appletUploadCommandHelper', function () {
+	describe('getAppletDirectoryAbsolutePath', function () {
+		it('should use default applet directory', async function () {
 			const actualAbsolutePath = await getAppletDirectoryAbsolutePath(ROOT_DIR, {
 				...generalOptions,
 				'applet-path': DEFAULT_APPLET_DIR_PATH,
@@ -90,7 +90,7 @@ describe('unit.appletUploadCommandHelper', () => {
 			assertPathsEqual(actualAbsolutePath, ROOT_DIR);
 		});
 
-		it('should not change absolute path', async () => {
+		it('should not change absolute path', async function () {
 			const actualAbsolutePath = await getAppletDirectoryAbsolutePath(ROOT_DIR, {
 				...generalOptions,
 				'applet-path': EXISTING_ABSOLUTE_DIR_PATH,
@@ -99,7 +99,7 @@ describe('unit.appletUploadCommandHelper', () => {
 			assertPathsEqual(actualAbsolutePath, EXISTING_ABSOLUTE_DIR_PATH);
 		});
 
-		it('should change relative path to absolute', async () => {
+		it('should change relative path to absolute', async function () {
 			const actualAbsolutePath = await getAppletDirectoryAbsolutePath(ROOT_DIR, {
 				...generalOptions,
 				'applet-path': EXISTING_RELATIVE_DIR_PATH,
@@ -108,7 +108,7 @@ describe('unit.appletUploadCommandHelper', () => {
 			assertPathsEqual(actualAbsolutePath, pathTool.join(ROOT_DIR, EXISTING_RELATIVE_DIR_PATH));
 		});
 
-		it('should remove trailing slash - relative path', async () => {
+		it('should remove trailing slash - relative path', async function () {
 			const actualAbsolutePath = await getAppletDirectoryAbsolutePath(ROOT_DIR, {
 				...generalOptions,
 				'applet-path': EXISTING_RELATIVE_DIR_PATH + '/',
@@ -117,7 +117,7 @@ describe('unit.appletUploadCommandHelper', () => {
 			assertPathsEqual(actualAbsolutePath, pathTool.join(ROOT_DIR, EXISTING_RELATIVE_DIR_PATH));
 		});
 
-		it('should remove trailing slash - absolute path', async () => {
+		it('should remove trailing slash - absolute path', async function () {
 			const actualAbsolutePath = await getAppletDirectoryAbsolutePath(ROOT_DIR, {
 				...generalOptions,
 				'applet-path': EXISTING_ABSOLUTE_DIR_PATH + '/',
@@ -126,7 +126,7 @@ describe('unit.appletUploadCommandHelper', () => {
 			assertPathsEqual(actualAbsolutePath, EXISTING_ABSOLUTE_DIR_PATH);
 		});
 
-		it('should fail if the absolute path does not exist', async () => {
+		it('should fail if the absolute path does not exist', async function () {
 			let failed = false;
 			try {
 				await getAppletDirectoryAbsolutePath(ROOT_DIR, {
@@ -140,7 +140,7 @@ describe('unit.appletUploadCommandHelper', () => {
 			should.equal(failed, true);
 		});
 
-		it('should fail if the absolute path is not a directory', async () => {
+		it('should fail if the absolute path is not a directory', async function () {
 			let failed = false;
 			try {
 				await getAppletDirectoryAbsolutePath(ROOT_DIR, {
@@ -154,7 +154,7 @@ describe('unit.appletUploadCommandHelper', () => {
 			should.equal(failed, true);
 		});
 
-		it('should fail if the relative path is not a directory', async () => {
+		it('should fail if the relative path is not a directory', async function () {
 			let failed = false;
 			try {
 				await getAppletDirectoryAbsolutePath(ROOT_DIR, {
@@ -169,8 +169,8 @@ describe('unit.appletUploadCommandHelper', () => {
 		});
 	});
 
-	describe('getAppletBinaryFileAbsolutePath', () => {
-		it('should use default applet binary file', async () => {
+	describe('getAppletBinaryFileAbsolutePath', function () {
+		it('should use default applet binary file', async function () {
 			const actualAbsolutePath = await getAppletBinaryFileAbsolutePath(ROOT_DIR, {
 				...generalOptions,
 				'applet-path': DEFAULT_APPLET_BINARY_FILE_PATH,
@@ -179,7 +179,7 @@ describe('unit.appletUploadCommandHelper', () => {
 			assertPathsEqual(actualAbsolutePath, pathTool.join(ROOT_DIR, DEFAULT_APPLET_BINARY_FILE_PATH));
 		});
 
-		it('should not change absolute path', async () => {
+		it('should not change absolute path', async function () {
 			const actualAbsolutePath = await getAppletBinaryFileAbsolutePath(ROOT_DIR, {
 				...generalOptions,
 				'applet-path': EXISTING_ABSOLUTE_FILE_PATH,
@@ -188,7 +188,7 @@ describe('unit.appletUploadCommandHelper', () => {
 			assertPathsEqual(actualAbsolutePath, EXISTING_ABSOLUTE_FILE_PATH);
 		});
 
-		it('should change relative path to absolute', async () => {
+		it('should change relative path to absolute', async function () {
 			const actualAbsolutePath = await getAppletBinaryFileAbsolutePath(ROOT_DIR, {
 				...generalOptions,
 				'applet-path': EXISTING_RELATIVE_FILE_PATH,
@@ -197,7 +197,7 @@ describe('unit.appletUploadCommandHelper', () => {
 			assertPathsEqual(actualAbsolutePath, pathTool.join(ROOT_DIR, EXISTING_RELATIVE_FILE_PATH));
 		});
 
-		it('should fail if the absolute path does not exist', async () => {
+		it('should fail if the absolute path does not exist', async function () {
 			let failed = false;
 			try {
 				await getAppletBinaryFileAbsolutePath(ROOT_DIR, {
@@ -211,7 +211,7 @@ describe('unit.appletUploadCommandHelper', () => {
 			should.equal(failed, true);
 		});
 
-		it('should fail if the absolute path is not a file', async () => {
+		it('should fail if the absolute path is not a file', async function () {
 			let failed = false;
 			try {
 				await getAppletBinaryFileAbsolutePath(ROOT_DIR, {
@@ -225,7 +225,7 @@ describe('unit.appletUploadCommandHelper', () => {
 			should.equal(failed, true);
 		});
 
-		it('should fail if the relative path is not a file', async () => {
+		it('should fail if the relative path is not a file', async function () {
 			let failed = false;
 			try {
 				await getAppletBinaryFileAbsolutePath(ROOT_DIR, {
@@ -240,8 +240,8 @@ describe('unit.appletUploadCommandHelper', () => {
 		});
 	});
 
-	describe('getAppletEntryFileAbsolutePath', () => {
-		it('should use default applet binary file', async () => {
+	describe('getAppletEntryFileAbsolutePath', function () {
+		it('should use default applet binary file', async function () {
 			const actualAbsolutePath = await getAppletEntryFileAbsolutePath(ROOT_DIR, {
 				...generalOptions,
 				'entry-file-path': DEFAULT_APPLET_ENTRY_FILE_PATH,
@@ -250,7 +250,7 @@ describe('unit.appletUploadCommandHelper', () => {
 			assertPathsEqual(actualAbsolutePath, pathTool.join(ROOT_DIR, DEFAULT_APPLET_BINARY_FILE_PATH));
 		});
 
-		it('should not change absolute path', async () => {
+		it('should not change absolute path', async function () {
 			const actualAbsolutePath = await getAppletEntryFileAbsolutePath(ROOT_DIR, {
 				...generalOptions,
 				'entry-file-path': EXISTING_ABSOLUTE_FILE_PATH,
@@ -259,7 +259,7 @@ describe('unit.appletUploadCommandHelper', () => {
 			assertPathsEqual(actualAbsolutePath, EXISTING_ABSOLUTE_FILE_PATH);
 		});
 
-		it('should change relative path to absolute', async () => {
+		it('should change relative path to absolute', async function () {
 			const actualAbsolutePath = await getAppletEntryFileAbsolutePath(ROOT_DIR, {
 				...generalOptions,
 				'entry-file-path': EXISTING_RELATIVE_FILE_PATH,
@@ -268,7 +268,7 @@ describe('unit.appletUploadCommandHelper', () => {
 			assertPathsEqual(actualAbsolutePath, pathTool.join(ROOT_DIR, EXISTING_RELATIVE_FILE_PATH));
 		});
 
-		it('should fail if the absolute path does not exist', async () => {
+		it('should fail if the absolute path does not exist', async function () {
 			let failed = false;
 			try {
 				await getAppletEntryFileAbsolutePath(ROOT_DIR, {
@@ -282,7 +282,7 @@ describe('unit.appletUploadCommandHelper', () => {
 			should.equal(failed, true);
 		});
 
-		it('should fail if the absolute path is not a file', async () => {
+		it('should fail if the absolute path is not a file', async function () {
 			let failed = false;
 			try {
 				await getAppletEntryFileAbsolutePath(ROOT_DIR, {
@@ -296,7 +296,7 @@ describe('unit.appletUploadCommandHelper', () => {
 			should.equal(failed, true);
 		});
 
-		it('should fail if the relative path is not a file', async () => {
+		it('should fail if the relative path is not a file', async function () {
 			let failed = false;
 			try {
 				await getAppletEntryFileAbsolutePath(ROOT_DIR, {
@@ -311,20 +311,20 @@ describe('unit.appletUploadCommandHelper', () => {
 		});
 	});
 
-	describe('getAppletEntryFileRelativePath', () => {
-		it('should return relative path - sub folder', async () => {
+	describe('getAppletEntryFileRelativePath', function () {
+		it('should return relative path - sub folder', async function () {
 			const actualRelativePath = getAppletEntryFileRelativePath('/applet/src/index.js', '/applet');
 
 			should.equal(actualRelativePath, 'src/index.js');
 		});
 
-		it('should return relative path - the same folder', async () => {
+		it('should return relative path - the same folder', async function () {
 			const actualRelativePath = getAppletEntryFileRelativePath('/applet/index.js', '/applet');
 
 			should.equal(actualRelativePath, 'index.js');
 		});
 
-		it('should fail - different folders', async () => {
+		it('should fail - different folders', async function () {
 			let failed = false;
 			try {
 				getAppletEntryFileRelativePath('/applet/index.js', '/src');
@@ -335,7 +335,7 @@ describe('unit.appletUploadCommandHelper', () => {
 			should.equal(failed, true);
 		});
 
-		it('should fail - more inner folder', async () => {
+		it('should fail - more inner folder', async function () {
 			let failed = false;
 			try {
 				getAppletEntryFileRelativePath('/applet/index.js', '/applet/src');

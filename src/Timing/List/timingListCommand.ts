@@ -48,9 +48,7 @@ export const timingList = createCommandDefinition({
 		const organization = await getOrganization(organizationUid);
 		const restApi = await createOrganizationRestApi(organization);
 		const deviceUid = await getDeviceUid(restApi, options);
-		const timings = await restApi.timing.getList({
-			deviceUid,
-		});
+		const timings = await restApi.timing.getList({ deviceUid });
 		console.info(chalk.yellow(JSON.stringify(timings, undefined, 2)));
 	},
 });

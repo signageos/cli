@@ -1,3 +1,4 @@
+/* eslint-disable mocha/no-exports, mocha/no-top-level-hooks */
 import * as fs from 'fs-extra';
 
 /**
@@ -10,11 +11,11 @@ import * as fs from 'fs-extra';
 export function useTmpFiles() {
 	const TMP_DIR = 'tmp';
 
-	before('ensure tmp directory', async () => {
+	before('ensure tmp directory', async function () {
 		await fs.ensureDir(TMP_DIR);
 	});
 
-	after('remove tmp directory', async () => {
+	after('remove tmp directory', async function () {
 		await fs.remove(TMP_DIR);
 	});
 

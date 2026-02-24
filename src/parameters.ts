@@ -6,7 +6,9 @@ const packageConfig = require('../package.json');
 const environment = process.env.NODE_ENV || 'dev';
 const rootPath = path.normalize(__dirname + '/..');
 
-dotenv.config({ path: path.join(rootPath, '.env') });
+// Load environment-specific .env file
+const envFile = environment === 'test' ? '.env.test' : '.env';
+dotenv.config({ path: path.join(rootPath, envFile) });
 
 const configurableEnvVars = [
 	'SOS_PROFILE',
@@ -25,13 +27,9 @@ for (const envVar of configurableEnvVars) {
 }
 
 const apiUrl = process.env.SOS_API_URL;
-const boxHost = process.env.SOS_BOX_HOST;
 
 if (!apiUrl) {
 	throw new Error(`Environment variable SOS_API_URL is required`);
-}
-if (!boxHost) {
-	throw new Error(`Environment variable SOS_BOX_HOST is required`);
 }
 
 export const parameters = {
@@ -40,7 +38,6 @@ export const parameters = {
 	version: packageConfig.version,
 	profile: process.env.SOS_PROFILE,
 	apiUrl,
-	boxHost,
 	forwardServerUrl: process.env.SOS_FORWARD_SERVER_URL,
 	applet: {
 		uid: process.env.SOS_APPLET_UID,

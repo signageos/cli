@@ -9,9 +9,18 @@ import NotFoundError from '@signageos/sdk/dist/RestApi/Error/NotFoundError';
 import IAppletVersion from '@signageos/sdk/dist/RestApi/Applet/Version/IAppletVersion';
 import wait from '../../../../src/Timer/wait';
 
-describe('Applet.Upload.appletUploadFacade', () => {
-	describe('updateMultiFileApplet', async () => {
-		it('should update multi file applet, upload new files and remove old files', async () => {
+function createMockPaginatedList<T>(items: T[]) {
+	return {
+		[Symbol.iterator]: function* () {
+			yield* items;
+		},
+		getNextPage: async () => null,
+	};
+}
+
+describe('Applet.Upload.appletUploadFacade', function () {
+	describe('updateMultiFileApplet', function () {
+		it('should update multi file applet, upload new files and remove old files', async function () {
 			const tmpDir = await makeTempDir();
 			try {
 				const newFile1 = path.join(tmpDir, 'newFile1.txt');
@@ -34,7 +43,7 @@ describe('Applet.Upload.appletUploadFacade', () => {
 							file: {
 								async list(uid: string, version: string) {
 									if (uid === 'test1' && version === '1.0.0') {
-										return [{ path: 'oldFile1.txt' }, { path: 'oldFile2.txt' }];
+										return createMockPaginatedList([{ path: 'oldFile1.txt' }, { path: 'oldFile2.txt' }]);
 									}
 								},
 								update: sinon.stub().resolves(),
@@ -43,7 +52,6 @@ describe('Applet.Upload.appletUploadFacade', () => {
 						},
 					},
 				};
-
 				await updateMultiFileApplet({
 					restApi: mockRestApi as unknown as RestApi,
 					applet: {
@@ -92,7 +100,7 @@ describe('Applet.Upload.appletUploadFacade', () => {
 			}
 		});
 
-		it('should update multi file applet and overwrite old file with new file', async () => {
+		it('should update multi file applet and overwrite old file with new file', async function () {
 			const tmpDir = await makeTempDir();
 			try {
 				const file1 = path.join(tmpDir, 'file1.txt');
@@ -115,10 +123,10 @@ describe('Applet.Upload.appletUploadFacade', () => {
 							file: {
 								async list(uid: string, version: string) {
 									if (uid === 'test1' && version === '1.0.0') {
-										return [
+										return createMockPaginatedList([
 											{ path: 'file1.txt', hash: 'rBbIaPCdjijQ6pia8/+HvQ==', type: 'text/plain' },
 											{ path: 'file2.txt', hash: 'gM8xgBx343vsB9udhJNRXw==', type: 'text/plain' },
-										];
+										]);
 									}
 								},
 								update: sinon.stub().resolves(),
@@ -127,7 +135,6 @@ describe('Applet.Upload.appletUploadFacade', () => {
 						},
 					},
 				};
-
 				await updateMultiFileApplet({
 					restApi: mockRestApi as unknown as RestApi,
 					applet: {
@@ -174,7 +181,7 @@ describe('Applet.Upload.appletUploadFacade', () => {
 			}
 		});
 
-		it("should not update multi file applet and ignore uploading files that didn't change", async () => {
+		it("should not update multi file applet and ignore uploading files that didn't change", async function () {
 			const tmpDir = await makeTempDir();
 			try {
 				const file1 = path.join(tmpDir, 'file1.txt');
@@ -194,7 +201,7 @@ describe('Applet.Upload.appletUploadFacade', () => {
 							file: {
 								async list(uid: string, version: string) {
 									if (uid === 'test1' && version === '1.0.0') {
-										return [{ path: 'file1.txt', hash: '1vwgbAV9J16slyAIMpq/vA==', type: 'text/plain' }];
+										return createMockPaginatedList([{ path: 'file1.txt', hash: '1vwgbAV9J16slyAIMpq/vA==', type: 'text/plain' }]);
 									}
 								},
 								update: sinon.stub().resolves(),
@@ -203,7 +210,6 @@ describe('Applet.Upload.appletUploadFacade', () => {
 						},
 					},
 				};
-
 				await updateMultiFileApplet({
 					restApi: mockRestApi as unknown as RestApi,
 					applet: {
@@ -223,7 +229,7 @@ describe('Applet.Upload.appletUploadFacade', () => {
 			}
 		});
 
-		it('should ignore when remove old file fails with NotFoundError and resolve anyway', async () => {
+		it('should ignore when remove old file fails with NotFoundError and resolve anyway', async function () {
 			const tmpDir = await makeTempDir();
 			try {
 				const newFile1 = path.join(tmpDir, 'newFile1.txt');
@@ -243,7 +249,7 @@ describe('Applet.Upload.appletUploadFacade', () => {
 							file: {
 								async list(uid: string, version: string) {
 									if (uid === 'test1' && version === '1.0.0') {
-										return [{ path: 'oldFile1.txt', hash: '1vwgbAV9J16slyAIMpq/vA==', type: 'text/plain' }];
+										return createMockPaginatedList([{ path: 'oldFile1.txt', hash: '1vwgbAV9J16slyAIMpq/vA==', type: 'text/plain' }]);
 									}
 								},
 								update: sinon.stub().resolves(),
@@ -252,7 +258,6 @@ describe('Applet.Upload.appletUploadFacade', () => {
 						},
 					},
 				};
-
 				await updateMultiFileApplet({
 					restApi: mockRestApi as unknown as RestApi,
 					applet: {
@@ -270,7 +275,7 @@ describe('Applet.Upload.appletUploadFacade', () => {
 			}
 		});
 
-		it('should reject if remove old file rejects with any other error than NotFoundError', async () => {
+		it('should reject if remove old file rejects with any other error than NotFoundError', async function () {
 			const tmpDir = await makeTempDir();
 			try {
 				const newFile1 = path.join(tmpDir, 'newFile1.txt');
@@ -290,7 +295,7 @@ describe('Applet.Upload.appletUploadFacade', () => {
 							file: {
 								async list(uid: string, version: string) {
 									if (uid === 'test1' && version === '1.0.0') {
-										return [{ path: 'oldFile1.txt', hash: '1vwgbAV9J16slyAIMpq/vA==', type: 'text/plain' }];
+										return createMockPaginatedList([{ path: 'oldFile1.txt', hash: '1vwgbAV9J16slyAIMpq/vA==', type: 'text/plain' }]);
 									}
 								},
 								update: sinon.stub().resolves(),
@@ -299,7 +304,6 @@ describe('Applet.Upload.appletUploadFacade', () => {
 						},
 					},
 				};
-
 				await should(
 					updateMultiFileApplet({
 						restApi: mockRestApi as unknown as RestApi,
