@@ -3,10 +3,12 @@ import prompts from 'prompts';
 import chalk from 'chalk';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import ISdkApplet from '@signageos/sdk/dist/RestApi/Applet/IApplet';
+import IAppletVersion from '@signageos/sdk/dist/RestApi/Applet/Version/IAppletVersion';
 import { parameters } from '../parameters';
 import { loadPackage } from '@signageos/sdk/dist/FileSystem/packageConfig';
 import { CommandLineOptions } from '../Command/commandDefinition';
-import { AppletDoesNotExistError } from './appletErrors';
+import { AppletDoesNotExistError, AppletSelectionCancelledError } from './appletErrors';
+import { autocompleteSuggest } from '../helper';
 
 export interface IApplet {
 	uid?: string;
@@ -66,7 +68,7 @@ export async function getAppletUid(
 
 	if (!appletUid) {
 		const applets = await restApi.applet.list();
-		const candidatesOfApplets = applets.filter((applet) => applet.name === currentApplet.name);
+		const candidatesOfApplets = applets.filter((applet: ISdkApplet) => applet.name === currentApplet.name);
 		if (candidatesOfApplets.length === 0) {
 			appletUid = undefined;
 		} else if (candidatesOfApplets.length > 1) {
@@ -83,7 +85,11 @@ export async function getAppletUid(
 						title: `${applet.name} (${applet.uid})`,
 						value: applet.uid,
 					})),
+					suggest: autocompleteSuggest,
 				});
+				if (!response.appletUid) {
+					throw new AppletSelectionCancelledError();
+				}
 				appletUid = response.appletUid;
 			}
 		} else {
@@ -112,11 +118,15 @@ export async function getAppletVersionFromApi(restApi: RestApi, appletUid: strin
 			type: 'autocomplete',
 			name: 'appletVersion',
 			message: `Select applet version to use`,
-			choices: appletVersions.map((applet) => ({
+			choices: appletVersions.map((applet: IAppletVersion) => ({
 				title: applet.version,
 				value: applet.version,
 			})),
+			suggest: autocompleteSuggest,
 		});
+		if (!response.appletVersion) {
+			throw new Error('Applet version selection was cancelled');
+		}
 		appletVersion = response.appletVersion;
 	}
 

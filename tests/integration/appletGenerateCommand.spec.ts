@@ -1,18 +1,20 @@
 import should from 'should';
-import * as fs from 'fs-extra';
+import fs from 'fs-extra';
 import * as path from 'path';
 import { execSync } from 'child_process';
 import which from 'which';
 
-// Use path.resolve to ensure the rootPath is always correct
-const rootPath = path.resolve(__dirname, '../../../../');
+// Use process.cwd() as the base path (should be the project root when running tests)
+const rootPath = process.cwd();
 const outputDir = path.join(process.cwd(), './tests/output');
 
-const baseCommand = 'npx ts-node ./src/index.ts applet generate ';
+// Use ts-node to run from source (same as master branch approach)
+const CLI_COMMAND = `ts-node ${path.join(process.cwd(), 'src', 'index.ts')}`;
+const baseCommand = `${CLI_COMMAND} --version && ${CLI_COMMAND} applet generate `;
 
-describe('unit.appletGenerateCommand', async () => {
-	describe('generate applets - all bundler types', async () => {
-		it('should generate default applet (TypeScript, Webpack, Npm, git option ommited)', async () => {
+describe('integration.appletGenerateCommand', function () {
+	describe('generate applets - all bundler types', function () {
+		it('should generate default applet (TypeScript, Webpack, Npm, git option ommited)', async function () {
 			const targetDir = 'tests/output/default';
 			const command =
 				baseCommand + `--bundler webpack --name default --packager npm --language typescript --target-dir ${getAbsolutePath(targetDir)}`;
@@ -23,7 +25,7 @@ describe('unit.appletGenerateCommand', async () => {
 			should(await fs.pathExists(path.join(targetDir, './node_modules'))).be.true();
 		}).timeout(180000);
 
-		it('should generate JavaScript applet with webpack', async () => {
+		it('should generate JavaScript applet with webpack', async function () {
 			const targetDir = 'tests/output/webpack_js';
 			const command =
 				baseCommand +
@@ -35,7 +37,7 @@ describe('unit.appletGenerateCommand', async () => {
 			should(await fs.pathExists(path.join(targetDir, './node_modules'))).be.true();
 		}).timeout(180000);
 
-		it('should generate JavaScript applet with rspack', async () => {
+		it('should generate JavaScript applet with rspack', async function () {
 			const targetDir = 'tests/output/rspack_js';
 			const command =
 				baseCommand +
@@ -54,22 +56,22 @@ describe('unit.appletGenerateCommand', async () => {
 	 * We are not generating applets every time, but using genearted ones from previous tests.
 	 * This is violating test isolation, but significantly speeds up test completion.
 	 */
-	describe('build applets - all bundler types', async () => {
-		it('should build default webpack/typescript applet', async () => {
+	describe('build applets - all bundler types', function () {
+		it('should build default webpack/typescript applet', async function () {
 			await buildApplet('tests/output/default', 'npm run build');
 		}).timeout(180000);
 
-		it('should build webpack_js applet', async () => {
+		it('should build webpack_js applet', async function () {
 			await buildApplet('tests/output/webpack_js', 'npm run build');
 		}).timeout(180000);
 
-		it('should build rspack_js applet', async () => {
+		it('should build rspack_js applet', async function () {
 			await buildApplet('tests/output/rspack_js', 'npm run build');
 		}).timeout(180000);
 	});
 
-	describe('generate applets - all packager types', async () => {
-		it('should generate applet with yarn packager', async () => {
+	describe('generate applets - all packager types', function () {
+		it('should generate applet with yarn packager', async function () {
 			process.chdir(path.join(rootPath));
 			console.info('Current working directory:', process.cwd());
 			const targetDir = 'tests/output/rspack_yarn';
@@ -88,7 +90,7 @@ describe('unit.appletGenerateCommand', async () => {
 			should(await fs.pathExists(path.join(targetDir, './node_modules'))).be.true();
 		}).timeout(180000);
 
-		it('should generate applet with pnpm packager', async () => {
+		it('should generate applet with pnpm packager', async function () {
 			const targetDir = 'tests/output/rspack_pnpm';
 			const command = [
 				baseCommand,
@@ -105,7 +107,7 @@ describe('unit.appletGenerateCommand', async () => {
 			should(await fs.pathExists(path.join(targetDir, './node_modules'))).be.true();
 		}).timeout(180000);
 
-		it('should generate applet with bun packager', async () => {
+		it('should generate applet with bun packager', async function () {
 			const targetDir = 'tests/output/rspack_bun';
 			const command = [
 				baseCommand,
@@ -122,7 +124,7 @@ describe('unit.appletGenerateCommand', async () => {
 			should(await fs.pathExists(path.join(targetDir, './node_modules'))).be.true();
 		}).timeout(180000);
 
-		it('should generate applet with npm packager and git init', async () => {
+		it('should generate applet with npm packager and git init', async function () {
 			const targetDir = 'tests/output/rspack_npm_git';
 			const command = [
 				baseCommand,
@@ -147,23 +149,23 @@ describe('unit.appletGenerateCommand', async () => {
 	 * We are not generating applets every time, but using genearted ones from previous tests.
 	 * This is violating test isolation, but significantly speeds up test completion.
 	 */
-	describe('build applets - all packager types', async () => {
-		it('should build rspack_yarn applet', async () => {
+	describe('build applets - all packager types', function () {
+		it('should build rspack_yarn applet', async function () {
 			await checkPackage('yarn');
 			await buildApplet('tests/output/rspack_yarn', 'yarn run build');
 		}).timeout(180000);
 
-		it('should build rspack_pnpm applet', async () => {
+		it('should build rspack_pnpm applet', async function () {
 			await checkPackage('pnpm');
 			await buildApplet('tests/output/rspack_pnpm', 'pnpm run build');
 		}).timeout(180000);
 
-		it('should build rspack_bun applet', async () => {
+		it('should build rspack_bun applet', async function () {
 			await checkPackage('bun');
 			await buildApplet('tests/output/rspack_bun', 'bun run build');
 		}).timeout(180000);
 
-		it('should build rspack_npm_git applet', async () => {
+		it('should build rspack_npm_git applet', async function () {
 			await buildApplet('tests/output/rspack_npm_git', 'npm run build');
 		}).timeout(180000);
 	});

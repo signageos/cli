@@ -11,6 +11,7 @@ import { createDevelopment } from '@signageos/sdk/dist';
 import { APPLET_UID_OPTION, getAppletUid, getAppletVersion } from '../appletFacade';
 import { log } from '@signageos/sdk/dist/Console/log';
 import debug from 'debug';
+import { validateAppletDirectory } from '../appletValidation';
 
 const Debug = debug('@signageos/cli:Applet:Build:appletBuildCommand');
 
@@ -48,6 +49,8 @@ export const appletBuild = createCommandDefinition({
 	commands: [],
 	async run(options: CommandLineOptions<typeof OPTION_LIST>) {
 		const currentDirectory = process.cwd();
+		await validateAppletDirectory(currentDirectory);
+
 		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
 		const organization = await getOrganization(organizationUid);
 		const restApi = await createOrganizationRestApi(organization);

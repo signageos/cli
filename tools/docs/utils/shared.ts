@@ -121,18 +121,14 @@ export function validateLink(link: string, currentFile: string): LinkValidationR
 			}
 
 			// Handle regular relative paths
-			const baseUrl = `file://${currentFile}`;
-			const resolvedUrl = new URL(link, baseUrl);
-			const pathname = resolvedUrl.pathname;
+			// Use path.resolve for cross-platform relative path resolution
+			const currentDir = path.dirname(currentFile);
+			resolvedPath = path.resolve(currentDir, link);
 
-			if (!pathname) {
-				return { type: 'invalid', resolved: link };
-			}
-
-			resolvedPath = (pathname || '').split('#')[0]; // Remove anchor
-
-			if (!resolvedPath) {
-				return { type: 'invalid', resolved: link };
+			// Remove anchor if present
+			const anchorIndex = resolvedPath.indexOf('#');
+			if (anchorIndex !== -1) {
+				resolvedPath = resolvedPath.substring(0, anchorIndex);
 			}
 
 			return {

@@ -1,0 +1,12 @@
+{
+	"require": ["should", "tsx/cjs", "tests/setup.ts"],
+	"spec": [
+		"tests/integration/appletUploadTest.spec.ts",
+		"tests/integration/appletGenerateCommand.spec.ts",
+		"tests/integration/globalArgs.spec.ts",
+		"tests/integration/nodeVersions.spec.ts"
+	],
+	"timeout": 600000,
+	"grep": "Node.js Version Compatibility Tests",
+	"invert": true
+}

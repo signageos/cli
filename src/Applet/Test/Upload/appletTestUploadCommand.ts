@@ -14,6 +14,7 @@ import { loadPackage } from '@signageos/sdk/dist/FileSystem/packageConfig';
 import IAppletTestSuite from '@signageos/sdk/dist/RestApi/Applet/Version/IAppletTestSuite';
 import { CommandLineOptions, createCommandDefinition } from '../../../Command/commandDefinition';
 import { log } from '@signageos/sdk/dist/Console/log';
+import { validateAppletDirectory } from '../../appletValidation';
 
 const OPTION_LIST = [
 	NO_DEFAULT_ORGANIZATION_OPTION,
@@ -71,7 +72,9 @@ export const appletTestUpload = createCommandDefinition({
 		const skipConfirmation = !!options.yes;
 
 		const currentDirectory = process.cwd();
-		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
+		await validateAppletDirectory(currentDirectory);
+
+		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options, skipConfirmation);
 		const organization = await getOrganization(organizationUid);
 		const restApi = await createOrganizationRestApi(organization);
 
@@ -153,8 +156,8 @@ export const appletTestUpload = createCommandDefinition({
 });
 
 function displaySuccessMessage(appletName: string, appletVersion: string) {
-	log('info', `Applet ${chalk.green(appletName)} version ${chalk.green(appletVersion)} tests has been uploaded.`);
-	log('info', `To run the tests, use command ${chalk.blue(`sos applet test run`)}`);
+	log('info', `\nApplet ${chalk.green(appletName)} version ${chalk.green(appletVersion)} tests has been uploaded.`);
+	log('info', `To run the tests, use command ${chalk.green(`sos applet test run`)}`);
 }
 
 function printMatchedFiles(testFiles: string[]): void {

@@ -3,11 +3,11 @@ import * as fs from 'fs-extra';
 import { useTmpFiles } from '../../lib/tmpFiles';
 import { getFileMD5Checksum } from '../../../src/Lib/fileSystem';
 
-describe('Lib.FileSystem', () => {
+describe('Lib.FileSystem', function () {
 	const tmpDir = useTmpFiles();
 
-	describe('getFileMD5Checksum', () => {
-		it('should calculate checksum of a file', async () => {
+	describe('getFileMD5Checksum', function () {
+		it('should calculate checksum of a file', async function () {
 			const filePath = path.join(tmpDir, 'file.txt');
 			await fs.writeFile(filePath, 'file content');
 			const checksum = await getFileMD5Checksum(filePath);

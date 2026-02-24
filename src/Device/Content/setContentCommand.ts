@@ -57,10 +57,10 @@ export const setContent = createCommandDefinition({
 	optionList: OPTION_LIST,
 	commands: [],
 	async run(options: CommandLineOptions<typeof OPTION_LIST>) {
-		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
+		const skipConfirmation = !!options.yes;
+		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options, skipConfirmation);
 		const organization = await getOrganization(organizationUid);
 		const restApi = await createOrganizationRestApi(organization);
-		const skipConfirmation = !!options.yes;
 		const appletUid = await getAppletUid(restApi, options, skipConfirmation);
 		const appletVersion = await getAppletVersionFromApi(restApi, appletUid, skipConfirmation);
 		const deviceUid = await getDeviceUid(restApi, options, skipConfirmation);

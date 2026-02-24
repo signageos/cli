@@ -132,7 +132,7 @@ function parsePriorityFromGroupTag(tag: ts.JSDocTag): number | undefined {
 	const groupParts = comment.split(':');
 
 	if (groupParts.length === 2) {
-		const priority = parseInt(groupParts[1]?.trim() || '', 10);
+		const priority = Number.parseInt(groupParts[1]?.trim() || '', 10);
 		if (!isNaN(priority)) {
 			return priority;
 		}

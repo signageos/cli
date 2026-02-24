@@ -31,14 +31,16 @@ export async function getAppletFilesDictionary(
 	restApi: RestApi,
 	appletUid: string,
 	appletVersion: string,
-): Promise<{ [fileRelativePath: string]: IAppletVersionFile }> {
-	const filesDictionary: { [fileRelativePath: string]: IAppletVersionFile } = {};
+): Promise<{
+	[path: string]: IAppletVersionFile;
+}> {
+	const filesDictionary: { [path: string]: IAppletVersionFile } = {};
 
-	const currentAppletFiles = await restApi.applet.version.file.list(appletUid, appletVersion);
+	const files = await restApi.applet.version.file.list(appletUid, appletVersion);
 
-	currentAppletFiles.forEach((file: IAppletVersionFile) => {
+	for (const file of files) {
 		filesDictionary[file.path] = file;
-	});
+	}
 
 	return filesDictionary;
 }

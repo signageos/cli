@@ -1,9 +1,9 @@
-import * as fs from 'fs-extra';
-import * as path from 'path';
+import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs-extra';
 
-// Get the directory path equivalent to __dirname in ESM
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Template directories
 const TEMPLATE_SOURCE_DIR = path.resolve(__dirname, '../src/Applet/Generate/Templates');

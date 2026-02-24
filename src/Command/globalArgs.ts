@@ -41,3 +41,35 @@ export function getGlobalProfile(): string {
 	const options = cliArgs([PROFILE_OPTION], { partial: true });
 	return options[PROFILE_OPTION.name];
 }
+
+/**
+ * Validate that --profile and --api-url are not used together.
+ * These options are mutually exclusive: --profile selects a fully pre-configured
+ * connection from ~/.sosrc (which already includes an api-url), while --api-url
+ * overrides the endpoint directly (implying the default profile).
+ *
+ * @throws {Error} When both --profile and --api-url are present on the command line
+ *
+ * @example
+ * ```bash
+ * # Valid: only --profile
+ * sos --profile staging login
+ *
+ * # Valid: only --api-url
+ * sos --api-url https://custom-api.com login
+ *
+ * # Invalid: both together
+ * sos --profile staging --api-url https://custom-api.com login
+ * ```
+ */
+export function validateProfileAndApiUrl(): void {
+	const profile = getGlobalProfile();
+	const apiUrl = getGlobalApiUrl();
+	if (profile !== undefined && apiUrl !== undefined) {
+		throw new Error(
+			`Options --profile and --api-url are mutually exclusive. ` +
+				`--profile selects a pre-configured connection from ~/.sosrc (which already includes an API URL), ` +
+				`while --api-url overrides the API endpoint directly. Use one or the other, not both.`,
+		);
+	}
+}

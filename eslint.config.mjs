@@ -1,5 +1,6 @@
 // eslint.config.js
 import codestyle from '@signageos/codestyle/eslint.config.mjs';
+import globals from 'globals';
 
 export default [
 	{
@@ -18,10 +19,10 @@ export default [
 		files: ['**/*.{ts,tsx,mts,cts}']
 	})),
 	{
-		files: ['./src/**/*.{ts,tsx,mts,cts}', './tests/**/*.{ts,tsx,mts,cts}', './tools/**/*.{ts,tsx,mts,cts}'],
+		files: ['./src/**/*.{ts,tsx,mts,cts}', './tools/**/*.{ts,tsx,mts,cts}', './tests/**/*.{ts,tsx,mts,cts}'],
 		languageOptions: {
 			parserOptions: {
-				project: ['./tsconfig.json', './tests/tsconfig.json', './tools/docs/tsconfig.json'],
+				project: ['./tsconfig.json', './tools/docs/tsconfig.json', './tsconfig.test.json'],
 				tsconfigRootDir: '.',
 			},
 		},

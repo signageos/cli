@@ -1,6 +1,6 @@
 import should from 'should';
 import * as sinon from 'sinon';
-import rewireMock from 'rewiremock';
+const rewireMock = require('rewiremock').default;
 import firmwareUploadFacadeMock from './firmwareUploadFacadeMock';
 import validateFileExistenceSync from './firmwareUploadHelperMock';
 import createFirmwareVersionRestApi from './firmwareUploadRestApiMock';
@@ -15,11 +15,12 @@ import { generalOptions } from '../helperMock';
 
 rewireMock.disable();
 
-describe('unit.firmwareUploadCommand', () => {
-	beforeEach(() => {
+describe('unit.firmwareUploadCommand', function () {
+	beforeEach(function () {
 		sinon.reset();
 	});
-	it('should upload firmware version: Task succeeded', async () => {
+
+	it('should upload firmware version: Task succeeded', async function () {
 		await firmwareUploadMock.run({
 			...generalOptions,
 			'firmware-type': undefined,
@@ -30,7 +31,8 @@ describe('unit.firmwareUploadCommand', () => {
 		});
 		should(firmwareUploadFacadeMock.uploadFirmwareVersion.calledOnce).be.true();
 	});
-	it('should not upload firmware version because of invalid files: Task failed', async () => {
+
+	it('should not upload firmware version because of invalid files: Task failed', async function () {
 		try {
 			await firmwareUploadMock.run({
 				...generalOptions,

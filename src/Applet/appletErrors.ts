@@ -4,3 +4,10 @@ export class AppletDoesNotExistError extends Error {
 		Object.setPrototypeOf(this, AppletDoesNotExistError.prototype);
 	}
 }
+
+export class AppletSelectionCancelledError extends Error {
+	constructor(message: string = 'Applet selection was cancelled') {
+		super(message);
+		Object.setPrototypeOf(this, AppletSelectionCancelledError.prototype);
+	}
+}

@@ -3,5 +3,8 @@
 	"include": [
 		"../src/**/*.ts",
 		"**/*.ts"
+	],
+	"exclude": [
+		"output/**"
 	]
 }

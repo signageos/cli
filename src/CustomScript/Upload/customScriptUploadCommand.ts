@@ -60,13 +60,13 @@ export const customScriptUpload = createCommandDefinition({
 	commands: [],
 	async run(options: CommandLineOptions<typeof OPTION_LIST>) {
 		const currentDirectory = process.cwd();
-		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
+		const skipConfirmation = options.yes;
+		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options, skipConfirmation);
 		const organization = await getOrganization(organizationUid);
 		const restApi = await createOrganizationRestApi(organization);
 
 		const config = await getConfig(currentDirectory);
 
-		const skipConfirmation = options.yes;
 		const customScriptVersion = await ensureCustomScriptVersion(restApi, config, skipConfirmation);
 
 		for (const platform of Object.keys(config.platforms)) {

@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-
 import { applet } from './Applet/appletCommand';
 import { login } from './Auth/loginCommand';
 import { organization } from './Organization/organizationCommand';

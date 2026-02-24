@@ -163,14 +163,12 @@ export const firmwareUpload = createCommandDefinition({
 			});
 		}
 
-		try {
-			await uploadFirmwareVersion({
-				restApi,
-				firmware: data,
-				pathArr: Array.from(pathSet),
-				progressBar: createProgressBar(),
-			});
-		} catch (error) {
+		await uploadFirmwareVersion({
+			restApi,
+			firmware: data,
+			pathArr: Array.from(pathSet),
+			progressBar: createProgressBar(),
+		}).catch(async (error) => {
 			if (error instanceof RequestError && error.errorName === 'INVALID_TYPE_TO_FIRMWARE_VERSION_UPLOAD') {
 				const promptOverride = () =>
 					prompts({
@@ -194,6 +192,6 @@ export const firmwareUpload = createCommandDefinition({
 			} else {
 				throw error;
 			}
-		}
+		});
 	},
 });

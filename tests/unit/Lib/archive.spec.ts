@@ -5,8 +5,8 @@ import should from 'should';
 import { generateZip } from '../../../src/Lib/archive';
 import { useTmpFiles } from '../../lib/tmpFiles';
 
-describe('Lib.Archive', () => {
-	describe('generateZip', () => {
+describe('Lib.Archive', function () {
+	describe('generateZip', function () {
 		const tmpDir = useTmpFiles();
 		const rootDir = 'root';
 		const extractedDir = path.join(tmpDir, 'extracted');
@@ -15,7 +15,7 @@ describe('Lib.Archive', () => {
 			return path.join(tmpDir, rootDir, filePath);
 		}
 
-		it('should generate zip file from files and directories', async () => {
+		it('should generate zip file from files and directories', async function () {
 			const dir1 = 'dir1';
 			const dir2 = 'dir2';
 

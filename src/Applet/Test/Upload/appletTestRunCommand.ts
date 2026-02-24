@@ -13,8 +13,10 @@ import { DEVICE_UID_OPTION, getDeviceUid } from '../../../Device/deviceFacade';
 import { validateTestIdentifiers } from './appletTestRunFacade';
 import wait from '../../../Timer/wait';
 import IDeviceAppletTest from '@signageos/sdk/dist/RestApi/Device/AppletTest/IDeviceAppletTest';
+import IAppletTestSuite from '@signageos/sdk/dist/RestApi/Applet/Version/IAppletTestSuite';
 import { CommandLineOptions, createCommandDefinition } from '../../../Command/commandDefinition';
 import { log } from '@signageos/sdk/dist/Console/log';
+import { validateAppletDirectory } from '../../appletValidation';
 
 const OPTION_LIST = [
 	NO_DEFAULT_ORGANIZATION_OPTION,
@@ -67,7 +69,9 @@ export const appletTestRun = createCommandDefinition({
 		let tests = options.test;
 
 		const currentDirectory = process.cwd();
-		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
+		await validateAppletDirectory(currentDirectory);
+
+		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options, skipConfirmation);
 		const organization = await getOrganization(organizationUid);
 		const restApi = await createOrganizationRestApi(organization);
 		const deviceUid = await getDeviceUid(restApi, options);
@@ -80,12 +84,16 @@ export const appletTestRun = createCommandDefinition({
 		const appletVersion = await restApi.applet.version.get(appletUid, version);
 
 		const testSuites = await restApi.applet.tests.list(applet.uid, appletVersion.version);
+
 		if (!tests || tests.length === 0) {
-			tests = testSuites.map((testSuite) => testSuite.identifier);
+			tests = testSuites.map((testSuite: IAppletTestSuite) => testSuite.identifier);
 		}
 
-		validateTestIdentifiers(tests, testSuites);
-		printRunTests(tests);
+		// At this point tests should be defined, but TypeScript doesn't know that
+		const testsToRun: string[] = tests || [];
+
+		validateTestIdentifiers(testsToRun, testSuites);
+		printRunTests(testsToRun);
 
 		if (!skipConfirmation) {
 			const response: prompts.Answers<'continue'> = await prompts({
@@ -103,11 +111,11 @@ export const appletTestRun = createCommandDefinition({
 		const progressBar = createProgressBar();
 		try {
 			progressBar.init({
-				size: tests.length,
+				size: testsToRun.length,
 				name: RUNNING_TEST_TITLE,
 			});
 
-			await restApi.device.appletTest.run(device.uid, applet.uid, appletVersion.version, tests);
+			await restApi.device.appletTest.run(device.uid, applet.uid, appletVersion.version, testsToRun);
 
 			let deviceAppletTest: IDeviceAppletTest | undefined;
 			do {
