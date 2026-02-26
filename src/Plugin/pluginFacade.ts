@@ -2,6 +2,8 @@ import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs-extra';
 import z from 'zod';
+
+const CONFIG_FILE_NAME = '.sosconfig.json';
 import prompts from 'prompts';
 import chalk from 'chalk';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
@@ -48,6 +50,7 @@ export async function ensurePluginVersion(restApi: RestApi, config: PluginConfig
 		description: config.description,
 		schema: schema.schema,
 		configDefinition: config.configDefinition,
+		jsApiVersion: config.sos?.['@signageos/front-applet'],
 	});
 }
 
@@ -244,6 +247,11 @@ export const ConfigSchema = z.object({
 	name: z.string(),
 	version: z.string(),
 	description: z.string().optional(),
+	sos: z
+		.object({
+			'@signageos/front-applet': z.string().optional(),
+		})
+		.optional(),
 	/**
 	 * Config of individual plugin script implementations for each target platform.
 	 *
@@ -255,3 +263,12 @@ export const ConfigSchema = z.object({
 });
 
 export type PluginConfig = z.infer<typeof ConfigSchema>;
+
+export async function getPluginConfig(workDir: string): Promise<PluginConfig> {
+	const filePath = path.join(workDir, CONFIG_FILE_NAME);
+	if (!(await fs.pathExists(filePath))) {
+		throw new Error(`Config file ${CONFIG_FILE_NAME} not found`);
+	}
+	const fileContent = fs.readFileSync(filePath, 'utf-8');
+	return ConfigSchema.parse(JSON.parse(fileContent));
+}

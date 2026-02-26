@@ -11,7 +11,7 @@ import { RUNTIME_DIRNAME } from '@signageos/sdk/dist/Development/runtimeFileSyst
 import { addToConfigFile, CodeArchive, PlatformConfig } from '../CustomScript/customScriptFacade';
 import { IRunnerVersion } from '@signageos/sdk/dist/RestApi/Runner/Version/IRunnerVersion';
 import z from 'zod';
-import { ConfigSchema } from '../Plugin/pluginFacade';
+import { ConfigSchema, getPluginConfig } from '../Plugin/pluginFacade';
 
 const PLUGIN_BUILDS_DIRNAME = 'plugin_builds';
 
@@ -48,6 +48,7 @@ export async function ensureRunnerVersion(restApi: RestApi, config: RunnerConfig
 		output: schema.output,
 		telemetry: schema.telemetry,
 		configDefinition: config.configDefinition,
+		jsApiVersion: config.sos?.['@signageos/front-applet'],
 	});
 }
 
@@ -240,3 +241,7 @@ function getConfigFilePath(workDir: string) {
 }
 
 export type RunnerConfig = z.infer<typeof ConfigSchema>;
+
+export async function getRunnerConfig(workDir: string): Promise<RunnerConfig> {
+	return getPluginConfig(workDir);
+}

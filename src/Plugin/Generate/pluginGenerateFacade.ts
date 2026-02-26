@@ -7,6 +7,8 @@ import { cloneGitRepository } from '../../Lib/git';
 import { CommandLineOptions } from '../../Command/commandDefinition';
 import { OPTION_LIST } from './pluginGenerateOptions';
 
+const CONFIG_FILE_NAME = '.sosconfig.json';
+
 /**
  * Prompts the user for the parameters needed to generate a custom script.
  */
@@ -92,4 +94,17 @@ export async function downloadBoilerplateCode(targetDir: string) {
 
 	// we just want the code, not the git history
 	await fs.remove(path.join(targetDir, '.git'));
+}
+
+/**
+ * Writes the latest @signageos/front-applet version into the .sosconfig.json of the generated project.
+ */
+export async function addFrontAppletVersionToConfigFile(targetDir: string, frontAppletVersion: string) {
+	const configPath = path.join(targetDir, CONFIG_FILE_NAME);
+	if (!(await fs.pathExists(configPath))) {
+		return;
+	}
+	const content = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+	content.sos = { ...content.sos, '@signageos/front-applet': frontAppletVersion };
+	await fs.writeFile(configPath, JSON.stringify(content, undefined, '\t') + '\n');
 }

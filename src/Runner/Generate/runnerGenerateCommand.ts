@@ -3,8 +3,9 @@ import { log } from '@signageos/sdk/dist/Console/log';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
 import { throwErrorIfGitNotInstalled } from '../../Lib/git';
 import { addToConfigFile } from '../../CustomScript/customScriptFacade';
-import { askForParameters, downloadBoilerplateCode } from './runnerGenerateFacade';
+import { askForParameters, downloadBoilerplateCode, addFrontAppletVersionToConfigFile } from './runnerGenerateFacade';
 import { OPTION_LIST } from './runnerGenerateOptions';
+import { getLatestVersion } from '../../Cli/packageVersion';
 
 /**
  * Generates a local repository for developing a Runner with boilerplate code and configuration files.
@@ -39,6 +40,11 @@ export const runnerGenerate = createCommandDefinition({
 
 		await downloadBoilerplateCode(targetDir);
 		await addToConfigFile(targetDir, { name, description });
+
+		const frontAppletVersion = await getLatestVersion('@signageos/front-applet');
+		if (frontAppletVersion) {
+			await addFrontAppletVersionToConfigFile(targetDir, frontAppletVersion);
+		}
 
 		log('info', `Runner ${chalk.green(name)} has been generated in ${chalk.green(targetDir)}.`);
 		log('info', 'Next steps:');

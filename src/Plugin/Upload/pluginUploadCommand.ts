@@ -7,8 +7,7 @@ import {
 	NO_DEFAULT_ORGANIZATION_OPTION,
 	ORGANIZATION_UID_OPTION,
 } from '../../Organization/organizationFacade';
-import { getConfig } from '../../CustomScript/customScriptFacade';
-import { ensurePluginVersion, loadSchemas, uploadCode } from '../pluginFacade';
+import { ensurePluginVersion, getPluginConfig, loadSchemas, uploadCode } from '../pluginFacade';
 import { isDeepStrictEqual } from 'util';
 import { createOrganizationRestApi } from '../../helper';
 import debug from 'debug';
@@ -57,7 +56,7 @@ export const pluginUpload = createCommandDefinition({
 		const organization = await getOrganization(organizationUid);
 		const restApi = await createOrganizationRestApi(organization);
 
-		const config = await getConfig(currentDirectory);
+		const config = await getPluginConfig(currentDirectory);
 		const schema = await loadSchemas(currentDirectory);
 
 		const skipConfirmation = !!options.yes;
