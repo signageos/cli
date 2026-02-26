@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Enhanced autocomplete search to match both names and UIDs
 - Applet directory validation to prevent accidental wrong uploads of non-applet projects (respects `--applet-path` option)
 - Graceful cancellation handling for all interactive prompts
+- Support for `sos.config.local.json` on real connected devices (require support on Core App)
   
 ## [2.8.0] - 2026-01-15
 ### Added
