@@ -2,14 +2,12 @@ import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs-extra';
 import z from 'zod';
-
-const CONFIG_FILE_NAME = '.sosconfig.json';
+import { SOS_CONFIG_FILE_NAME, getFileMD5Checksum } from '../Lib/fileSystem';
 import prompts from 'prompts';
 import chalk from 'chalk';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import { log } from '@signageos/sdk/dist/Console/log';
 import { generateZip } from '../Lib/archive';
-import { getFileMD5Checksum } from '../Lib/fileSystem';
 import { RUNTIME_DIRNAME } from '@signageos/sdk/dist/Development/runtimeFileSystem';
 import { IPluginVersion } from '@signageos/sdk/dist/RestApi/Plugin/Version/IPluginVersion';
 import { addToConfigFile, PlatformConfig, CodeArchive, PlatformSchema } from '../CustomScript/customScriptFacade';
@@ -234,7 +232,7 @@ export async function loadSchemas(workDir: string) {
 		throw new Error(`Config file schema.json not found`);
 	}
 
-	const fileContent = fs.readFileSync(filePath, 'utf-8');
+	const fileContent = await fs.readFile(filePath, 'utf-8');
 	return JSON.parse(fileContent);
 }
 
@@ -265,10 +263,10 @@ export const ConfigSchema = z.object({
 export type PluginConfig = z.infer<typeof ConfigSchema>;
 
 export async function getPluginConfig(workDir: string): Promise<PluginConfig> {
-	const filePath = path.join(workDir, CONFIG_FILE_NAME);
+	const filePath = path.join(workDir, SOS_CONFIG_FILE_NAME);
 	if (!(await fs.pathExists(filePath))) {
-		throw new Error(`Config file ${CONFIG_FILE_NAME} not found`);
+		throw new Error(`Config file ${SOS_CONFIG_FILE_NAME} not found`);
 	}
-	const fileContent = fs.readFileSync(filePath, 'utf-8');
+	const fileContent = await fs.readFile(filePath, 'utf-8');
 	return ConfigSchema.parse(JSON.parse(fileContent));
 }

@@ -3,7 +3,8 @@ import { log } from '@signageos/sdk/dist/Console/log';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
 import { throwErrorIfGitNotInstalled } from '../../Lib/git';
 import { addToConfigFile } from '../../CustomScript/customScriptFacade';
-import { askForParameters, downloadBoilerplateCode, addFrontAppletVersionToConfigFile } from './pluginGenerateFacade';
+import { askForParameters, downloadBoilerplateCode } from './pluginGenerateFacade';
+import { addFrontAppletVersionToConfigFile } from '../../Lib/fileSystem';
 import { OPTION_LIST } from './pluginGenerateOptions';
 import { getLatestVersion } from '../../Cli/packageVersion';
 

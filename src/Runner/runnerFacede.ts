@@ -232,7 +232,7 @@ export async function loadSchemas(workDir: string) {
 		throw new Error(`Config file schema.json not found`);
 	}
 
-	const fileContent = fs.readFileSync(filePath, 'utf-8');
+	const fileContent = await fs.readFile(filePath, 'utf-8');
 	return JSON.parse(fileContent);
 }
 
