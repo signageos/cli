@@ -2,9 +2,9 @@ import should from 'should';
 import { getAllPages } from '../../../src/helper/paginationHelper';
 import { IPaginatedList } from '@signageos/sdk';
 
-describe('paginationHelper', () => {
-	describe('getAllPages', () => {
-		it('should return all items from a single page when no next page exists', async () => {
+describe('paginationHelper', function () {
+	describe('getAllPages', function () {
+		it('should return all items from a single page when no next page exists', async function () {
 			// Arrange
 			const items = [{ id: 1 }, { id: 2 }, { id: 3 }];
 			const mockPage: IPaginatedList<{ id: number }> = Object.assign(items, {
@@ -21,7 +21,7 @@ describe('paginationHelper', () => {
 			should(result[2]).have.property('id', 3);
 		});
 
-		it('should fetch and combine all pages when multiple pages exist', async () => {
+		it('should fetch and combine all pages when multiple pages exist', async function () {
 			// Arrange - Create page 3 (last page)
 			const page3Items = [{ id: 7 }, { id: 8 }, { id: 9 }];
 			const mockPage3: IPaginatedList<{ id: number }> = Object.assign(page3Items, {
@@ -51,7 +51,7 @@ describe('paginationHelper', () => {
 			should(result[8]).have.property('id', 9);
 		});
 
-		it('should handle empty first page', async () => {
+		it('should handle empty first page', async function () {
 			// Arrange
 			const mockPage: IPaginatedList<{ id: number }> = Object.assign([], {
 				getNextPage: async () => null,
@@ -64,7 +64,7 @@ describe('paginationHelper', () => {
 			should(result).have.length(0);
 		});
 
-		it('should handle more than 100 items across pages (simulating real pagination)', async () => {
+		it('should handle more than 100 items across pages (simulating real pagination)', async function () {
 			// Arrange - Simulate pagination with 100 items per page, 4 pages total
 			const page4Items = Array.from({ length: 100 }, (_, i) => ({ id: 301 + i }));
 			const mockPage4: IPaginatedList<{ id: number }> = Object.assign(page4Items, {

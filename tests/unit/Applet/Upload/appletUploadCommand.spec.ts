@@ -137,7 +137,7 @@ describe('unit.appletUploadCommand', function () {
 		];
 
 		testOptions.forEach(({ name, value }: { name: string; value: any }) => {
-			// eslint-disable-next-line mocha/consistent-spacing-between-blocks
+			// run test cases for each option type
 			it(`should update with override - ${name}`, async function () {
 				await singleFileAppletUploadOverrideTrue.run(value);
 				should(appletUploadFacadeMock.updateMultiFileApplet.calledOnce).true();
