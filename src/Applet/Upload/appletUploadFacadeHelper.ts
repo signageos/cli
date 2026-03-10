@@ -1,6 +1,7 @@
 import * as path from 'path';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import IAppletVersionFile from '@signageos/sdk/dist/RestApi/Applet/Version/File/IAppletVersionFile';
+import { getAllPages } from '../../helper/paginationHelper';
 
 export function getAppletFileRelativePath(fileAbsolutePath: string, directoryAbsolutePath: string) {
 	const directoryAbsolutePathNormalized = path.normalize(directoryAbsolutePath);
@@ -36,7 +37,8 @@ export async function getAppletFilesDictionary(
 }> {
 	const filesDictionary: { [path: string]: IAppletVersionFile } = {};
 
-	const files = await restApi.applet.version.file.list(appletUid, appletVersion);
+	const firstPage = await restApi.applet.version.file.list(appletUid, appletVersion);
+	const files = await getAllPages(firstPage);
 
 	for (const file of files) {
 		filesDictionary[file.path] = file;
