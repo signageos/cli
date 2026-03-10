@@ -110,7 +110,7 @@ export async function getAppletUid(
 export async function getAppletVersionFromApi(restApi: RestApi, appletUid: string, skipConfirmation: boolean = false) {
 	let appletVersion: string;
 
-	const appletVersions = await restApi.applet.version.list(appletUid);
+	const appletVersions = await getAllPages(await restApi.applet.version.list(appletUid));
 	if (appletVersions.length === 1 && appletVersions[0]?.version) {
 		appletVersion = appletVersions[0].version;
 	} else if (skipConfirmation) {

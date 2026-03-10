@@ -37,8 +37,7 @@ export async function getAppletFilesDictionary(
 }> {
 	const filesDictionary: { [path: string]: IAppletVersionFile } = {};
 
-	const firstPage = await restApi.applet.version.file.list(appletUid, appletVersion);
-	const files = await getAllPages(firstPage);
+	const files = await getAllPages(await restApi.applet.version.file.list(appletUid, appletVersion));
 
 	for (const file of files) {
 		filesDictionary[file.path] = file;
