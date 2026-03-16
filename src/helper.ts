@@ -57,27 +57,6 @@ export async function createOrganizationRestApi(credentials: ICredentials) {
 	return new RestApi(options, accountOptions);
 }
 
-export async function createFirmwareVersionRestApi() {
-	const config = await loadConfig();
-	if (!config.identification || !config.apiSecurityToken) {
-		throw new Error('Identification or token is missing.');
-	}
-	const options: IRestApiOptions = {
-		url: getApiUrl(config),
-		auth: {
-			clientId: config.identification,
-			secret: config.apiSecurityToken,
-		},
-		version: ApiVersions.V1,
-		clientVersions: createClientVersions(),
-	};
-	const accountOptions: IRestApiOptions = {
-		...options,
-	};
-
-	return new RestApi(options, accountOptions);
-}
-
 export const AUTH_HEADER = 'X-Auth';
 
 export interface IOptions {
