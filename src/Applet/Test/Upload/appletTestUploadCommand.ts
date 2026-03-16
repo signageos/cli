@@ -12,6 +12,7 @@ import { APPLET_UID_OPTION, getAppletUid, getAppletVersion } from '../../appletF
 import { createProgressBar } from '../../../CommandLine/progressBarFactory';
 import { loadPackage } from '@signageos/sdk/dist/FileSystem/packageConfig';
 import IAppletTestSuite from '@signageos/sdk/dist/RestApi/Applet/Version/IAppletTestSuite';
+import { getAllPages } from '../../../helper/paginationHelper';
 import { CommandLineOptions, createCommandDefinition } from '../../../Command/commandDefinition';
 import { log } from '@signageos/sdk/dist/Console/log';
 import { validateAppletDirectory } from '../../appletValidation';
@@ -95,7 +96,7 @@ export const appletTestUpload = createCommandDefinition({
 			printMatchedFiles(testFiles);
 		}
 
-		const testSuites = await restApi.applet.tests.list(applet.uid, appletVersion.version);
+		const testSuites = await getAllPages(await restApi.applet.tests.list(applet.uid, appletVersion.version));
 		const testSuitesMap: { [identifier: string]: IAppletTestSuite } = {};
 		for (const testSuite of testSuites) {
 			testSuitesMap[testSuite.identifier] = testSuite;

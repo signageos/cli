@@ -9,6 +9,7 @@ import { loadPackage } from '@signageos/sdk/dist/FileSystem/packageConfig';
 import { CommandLineOptions } from '../Command/commandDefinition';
 import { AppletDoesNotExistError, AppletSelectionCancelledError } from './appletErrors';
 import { autocompleteSuggest } from '../helper';
+import { getAllPages } from '../helper/paginationHelper';
 
 export interface IApplet {
 	uid?: string;
@@ -67,7 +68,8 @@ export async function getAppletUid(
 	let appletUid: string | undefined = options['applet-uid'] || currentApplet.uid;
 
 	if (!appletUid) {
-		const applets = await restApi.applet.list();
+		// Fetch all pages to ensure we don't miss any applets
+		const applets = await getAllPages(await restApi.applet.list());
 		const candidatesOfApplets = applets.filter((applet: ISdkApplet) => applet.name === currentApplet.name);
 		if (candidatesOfApplets.length === 0) {
 			appletUid = undefined;
@@ -108,7 +110,7 @@ export async function getAppletUid(
 export async function getAppletVersionFromApi(restApi: RestApi, appletUid: string, skipConfirmation: boolean = false) {
 	let appletVersion: string;
 
-	const appletVersions = await restApi.applet.version.list(appletUid);
+	const appletVersions = await getAllPages(await restApi.applet.version.list(appletUid));
 	if (appletVersions.length === 1 && appletVersions[0]?.version) {
 		appletVersion = appletVersions[0].version;
 	} else if (skipConfirmation) {

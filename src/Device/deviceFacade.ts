@@ -8,6 +8,7 @@ import { CommandLineOptions } from '../Command/commandDefinition';
 import IDeviceReadOnly from '@signageos/sdk/dist/RestApi/Device/IDevice';
 import { ApiVersions } from '@signageos/sdk/dist/RestApi/apiVersions';
 import { loadConfig } from '../RunControl/runControlHelper';
+import { getAllPages } from '../helper/paginationHelper';
 
 const Debug = debug('@signageos/cli:Device:facade');
 
@@ -40,7 +41,7 @@ export async function getDeviceUid(
 		if (skipConfirmation) {
 			throw new Error('Device UID is required. Please specify --device-uid argument.');
 		} else {
-			const devices = await restApi.device.list();
+			const devices = await getAllPages(await restApi.device.list());
 			const response = await prompts({
 				type: 'autocomplete',
 				name: 'deviceUid',

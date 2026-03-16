@@ -11,6 +11,7 @@ import { APPLET_UID_OPTION, getAppletUid, getAppletVersion } from '../../appletF
 import { createProgressBar } from '../../../CommandLine/progressBarFactory';
 import { DEVICE_UID_OPTION, getDeviceUid } from '../../../Device/deviceFacade';
 import { validateTestIdentifiers } from './appletTestRunFacade';
+import { getAllPages } from '../../../helper/paginationHelper';
 import wait from '../../../Timer/wait';
 import IDeviceAppletTest from '@signageos/sdk/dist/RestApi/Device/AppletTest/IDeviceAppletTest';
 import IAppletTestSuite from '@signageos/sdk/dist/RestApi/Applet/Version/IAppletTestSuite';
@@ -83,7 +84,7 @@ export const appletTestRun = createCommandDefinition({
 		const applet = await restApi.applet.get(appletUid);
 		const appletVersion = await restApi.applet.version.get(appletUid, version);
 
-		const testSuites = await restApi.applet.tests.list(applet.uid, appletVersion.version);
+		const testSuites = await getAllPages(await restApi.applet.tests.list(applet.uid, appletVersion.version));
 
 		if (!tests || tests.length === 0) {
 			tests = testSuites.map((testSuite: IAppletTestSuite) => testSuite.identifier);
