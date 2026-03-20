@@ -81,7 +81,11 @@ async function loadConfigFromFile(workDir: string) {
 	}
 
 	const fileContent = await fs.readFile(filePath, 'utf-8');
-	return JSON.parse(fileContent);
+	try {
+		return JSON.parse(fileContent);
+	} catch (error) {
+		throw new Error(`Invalid JSON in ${SOS_CONFIG_FILE_NAME}: ${error instanceof Error ? error.message : String(error)}`);
+	}
 }
 
 function getConfigFilePath(workDir: string) {
@@ -120,6 +124,7 @@ export async function ensureCustomScriptVersion(restApi: RestApi, config: Custom
 		customScriptUid: customScript.uid,
 		version: config.version,
 		configDefinition: config.configDefinition,
+		jsApiVersion: config.sos?.['@signageos/front-applet'],
 	});
 }
 

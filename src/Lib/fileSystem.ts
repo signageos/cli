@@ -58,9 +58,14 @@ export async function addFrontAppletVersionToConfigFile(targetDir: string, front
 	if (!(await fs.pathExists(configPath))) {
 		return;
 	}
-	const content = JSON.parse(await fs.readFile(configPath, 'utf-8'));
-	content.sos = { ...content.sos, '@signageos/front-applet': frontAppletVersion };
-	await fs.writeFile(configPath, JSON.stringify(content, undefined, '\t') + '\n');
+	const rawContent = await fs.readFile(configPath, 'utf-8');
+	try {
+		const content = JSON.parse(rawContent);
+		content.sos = { ...content.sos, '@signageos/front-applet': frontAppletVersion };
+		await fs.writeFile(configPath, JSON.stringify(content, undefined, '\t') + '\n');
+	} catch (error) {
+		throw new Error(`Invalid JSON in ${SOS_CONFIG_FILE_NAME}: ${error instanceof Error ? error.message : String(error)}`);
+	}
 }
 
 export async function getFileMD5Checksum(filePath: string) {

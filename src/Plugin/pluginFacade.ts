@@ -262,11 +262,15 @@ export const ConfigSchema = z.object({
 
 export type PluginConfig = z.infer<typeof ConfigSchema>;
 
-export async function getPluginConfig(workDir: string): Promise<PluginConfig> {
+export async function getSosConfig(workDir: string): Promise<PluginConfig> {
 	const filePath = path.join(workDir, SOS_CONFIG_FILE_NAME);
 	if (!(await fs.pathExists(filePath))) {
 		throw new Error(`Config file ${SOS_CONFIG_FILE_NAME} not found`);
 	}
 	const fileContent = await fs.readFile(filePath, 'utf-8');
-	return ConfigSchema.parse(JSON.parse(fileContent));
+	try {
+		return ConfigSchema.parse(JSON.parse(fileContent));
+	} catch (error) {
+		throw new Error(`Invalid JSON in ${SOS_CONFIG_FILE_NAME}: ${error instanceof Error ? error.message : String(error)}`);
+	}
 }
