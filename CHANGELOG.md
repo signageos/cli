@@ -5,14 +5,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-
 ### Fixed
-
-- All paginated list endpoints are now fully traversed - devices, applet versions, and applet test suites spanning multiple pages are no
-  longer silently truncated
+- All paginated list endpoints are now fully traversed - devices, applet versions, and applet test suites spanning multiple pages are no longer silently truncated
 - `sos applet upload` reupload correctly fetches all existing remote files across pages before diffing
 
-## [Unreleased]
 ### Removed
 - removed `sos firmware upload` feature
 
