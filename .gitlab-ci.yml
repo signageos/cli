@@ -58,6 +58,25 @@ prepare:
     - npm i @signageos/lib-ci --ignore-scripts --cache npm-cache --prefer-offline
     - npm i @signageos/file --cache npm-cache --prefer-offline
     - npx --userconfig ./.npmrc @signageos/lib-ci@latest version-upgrade $VERSION
+    - Invoke-WebRequest -Uri "https://github.com/git-for-windows/git/releases/download/v2.45.1.windows.1/Git-2.45.1-64-bit.exe" -OutFile "git-installer.exe"
+    - Start-Process -FilePath "git-installer.exe" -ArgumentList "/VERYSILENT /NORESTART" -Wait
+    - $env:PATH = "C:\Program Files\Git\bin;$env:PATH"
+    - git --version
+
+.windows_before_script_with_pm: &windows_before_script_with_pm
+  before_script:
+    - $VERSION = Get-Content VERSION | Out-String
+    - $VERSION = $VERSION.Trim()
+    - Invoke-WebRequest -Uri "https://nodejs.org/dist/v20.19.0/node-v20.19.0-x64.msi" -OutFile "node-x64.msi"
+    - Start-Process msiexec.exe -Wait -ArgumentList "/i","node-x64.msi","/norestart","ADDLOCAL=ALL"
+    - $env:PATH = "C:\Program Files\nodejs;$env:PATH"
+    - node --version
+    - npm --version
+    - New-Item -ItemType Directory -Force -Path "C:\Users\ContainerAdministrator\AppData\Roaming\npm"
+    - npm ci --cache npm-cache --prefer-offline --ignore-scripts
+    - npm i @signageos/lib-ci --ignore-scripts --cache npm-cache --prefer-offline
+    - npm i @signageos/file --cache npm-cache --prefer-offline
+    - npx --userconfig ./.npmrc @signageos/lib-ci@latest version-upgrade $VERSION
     - $env:PATH = "$(npm config get prefix)\;$env:PATH"
     - npm -g install yarn --force
     - yarn --version
@@ -80,6 +99,27 @@ test:general:windows:
     - if: $CI_COMMIT_TAG
       when: never
     - when: always
+  stage: test
+  tags:
+    - windows
+  script:
+    - Copy-Item .env.test .env
+    - npm install
+    - $env:NPM_REGISTRY_URL = "https://registry.npmjs.org/"
+    - $env:NPM_REGISTRY_HOST = "registry.npmjs.org"
+    - npm run test:unit:windows
+
+test:general:windows:package-managers:
+  <<: *windows_before_script_with_pm
+  image: docker:24.0.9-windowsservercore-1809
+  needs:
+    - prepare
+  allow_failure: true
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never
+    - when: manual
+      allow_failure: true
   stage: test
   tags:
     - windows
