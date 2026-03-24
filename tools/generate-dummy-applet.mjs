@@ -342,7 +342,15 @@ async function generateAssets() {
 async function main() {
 	try {
 		console.info(`Starting applet generation with ${config.NUM_FILES} files and ${config.LARGE_SIZE}MB large file in ${config.OUTPUT_NAME}`);
-		
+
+		// Fallback to public registry when NPM_REGISTRY_URL is not set (e.g. running locally without CI env).
+		// The project .npmrc uses registry=${NPM_REGISTRY_URL} which npm rejects as ERR_INVALID_URL when empty.
+		const npmEnv = {
+			...process.env,
+			NPM_REGISTRY_URL: process.env.NPM_REGISTRY_URL || 'https://registry.npmjs.org/',
+			NPM_REGISTRY_HOST: process.env.NPM_REGISTRY_HOST || 'registry.npmjs.org',
+		};
+
 		// Create output directory first
 		await fs.ensureDir(config.OUTPUT_DIR);
 		
@@ -353,7 +361,7 @@ async function main() {
 		const targetDir = config.OUTPUT_DIR;
 		execSync(
 			`npx tsx ./src/index.ts applet generate --name ${config.OUTPUT_NAME} --target-dir "${targetDir}" --language javascript --bundler rspack --packager npm`,
-			{ stdio: 'inherit', encoding: 'utf8', shell: true }
+			{ stdio: 'inherit', encoding: 'utf8', shell: true, env: npmEnv }
 		);
 		console.info('✅ Applet template generated successfully');
 
@@ -368,12 +376,24 @@ async function main() {
 			generateHtml()
 		]);
 
+		// Ensure generated project's dependencies are installed before building.
+		// applet generate spawns npm install asynchronously so it may not have
+		// finished by the time control returns here.
+		console.info('Installing generated applet dependencies...');
+		execSync('npm install --ignore-scripts', {
+			cwd: config.OUTPUT_DIR,
+			stdio: 'inherit',
+			encoding: 'utf8',
+			env: npmEnv,
+		});
+
 		// Build the applet
 		console.info('Building applet...');
 		execSync('npm run build', {
 			cwd: config.OUTPUT_DIR,
 			stdio: 'inherit',
-			encoding: 'utf8'
+			encoding: 'utf8',
+			env: npmEnv,
 		});
 		console.info('✅ Applet built successfully');
 
