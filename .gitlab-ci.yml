@@ -3,12 +3,10 @@ include:
     file: '/pipelines/ts-lib-public.yaml'
     ref: master
 
-# CLI has no Dockerfile — disable runtime:build
-runtime:build:
-  rules:
-    - when: never
+# ============================================================================
+# Windows support: prepare job provides auth tokens & version for Windows jobs
+# ============================================================================
 
-# Version, release tag, npm auth
 prepare:
   image: $ECR_REGISTRY/signageos/infra/gitlab-ci:master
   stage: runtime
@@ -36,13 +34,11 @@ prepare:
       - ./PRERELEASE
     reports:
       dotenv:
-       - build.env
+        - build.env
 
 # ============================================================================
-# Windows
+# Windows test jobs
 # ============================================================================
-
-.install_package_managers: &install_package_managers "npm -g install yarn bun pnpm --force"
 
 .windows_before_script: &windows_before_script
   before_script:
@@ -151,84 +147,22 @@ test:integration:windows:
     - npm run test:integration:windows
 
 # ============================================================================
-# Test Overrides (no docker-gitlabci-run — CLI has no Dockerfile)
+# CLI-specific test jobs
 # ============================================================================
 
-test:general:
+test:integration:
   extends: .test:general
-  image: $ECR_REGISTRY/signageos/docker-node:20-alpine-build
-  needs:
-    - prepare
-  script:
-    - cp .env.test .env
-    - *install_package_managers
-    - npm ci
-    - npm run clean-build
-    - npm install -g .
-    - export NPM_REGISTRY_URL=https://registry.npmjs.org/
-    - export NPM_REGISTRY_HOST=registry.npmjs.org
-    - npm run test:coverage
-
-test:lint:
-  extends: .test:lint
-  tags:
-    - large
-  needs:
-    - prepare
-  script:
-    - if [ $(find {test,tests} -name '*.ts' -type f -print0 | xargs -0 grep '\.only' | wc -l) -gt 0 ]; then echo "You forgot the .only in tests" && exit 1; fi
-    - npm ci
-    - NODE_OPTIONS=--max-old-space-size=2048 npm run lint
-
-test:check:
-  extends: .test:check
-  tags:
-    - medium
-  needs:
-    - prepare
-  script:
-    - npm ci
-    - npm run check
-
-test:types:
-  extends: .test:types
-  tags:
-    - small
-  needs:
-    - prepare
-  script:
-    - npm ci
-    - npm run check-types
-
-test:format:check:
-  extends: .test:format:check
-  tags:
-    - medium
-  needs:
-    - prepare
-  script:
-    - npm ci
-    - npm run lint:prettier
-
-# ============================================================================
-# CLI-Specific Test Jobs
-# ============================================================================
-
-test:public:
-  stage: test
   rules:
     - if: $CI_COMMIT_TAG
       when: never
-    - when: on_success
-  allow_failure: false
+    - when: manual
+      allow_failure: false
   script:
-    - echo "Attempting to install package without credentials to detect private dependencies..."
-    - |
-      npm install --registry https://registry.npmjs.org/ --production --no-package-lock --dry-run || (
-        echo "ERROR: Installation failed - this may indicate private dependencies"
-        exit 1
-      )
-    - echo "Installation successful - no private dependencies detected"
+    - mkdir -p ~/.signageos
+    - ln -s /.envs ~/.signageos/npm.env
+    - docker compose up -d
+    - ts-clean-install
+    - ts-compose-run test:integration
 
 test:changelog:
   image: $CI_REGISTRY/signageos/docker:master
@@ -240,75 +174,3 @@ test:changelog:
   allow_failure: true
   script:
     - ci-test-changelog
-
-test:integration:
-  image: $ECR_REGISTRY/signageos/docker-node:20-alpine-build
-  stage: test
-  rules:
-    - if: $CI_COMMIT_TAG
-      when: never
-    - when: manual
-      allow_failure: false
-  script:
-    - cp .env.test .env
-    - sed -i "s|^SOS_API_IDENTIFICATION=.*|SOS_API_IDENTIFICATION=${SOS_API_IDENTIFICATION}|" .env
-    - sed -i "s|^SOS_API_SECURITY_TOKEN=.*|SOS_API_SECURITY_TOKEN=${SOS_API_SECURITY_TOKEN}|" .env
-    - *install_package_managers
-    - npm ci
-    - export NPM_REGISTRY_URL=https://registry.npmjs.org/
-    - export NPM_REGISTRY_HOST=registry.npmjs.org
-    - npm run test:integration
-
-# ============================================================================
-# Build Overrides (no docker-gitlabci-run)
-# ============================================================================
-
-build:build-npm-package:
-  extends: .build:build-npm-package
-  tags:
-    - large
-  needs:
-    - prepare
-  script:
-    - cp .env.production .env
-    - npm install --ignore-scripts
-    - update-package-version "$(get-version)"
-    - npm run clean-build --production
-    - npm publish --tag "$(get-release-tag)" --"@signageos:registry=${NPM_REGISTRY_URL}" --//${NPM_REGISTRY_HOST}/:_authToken="${NPM_AUTH_TOKEN}"
-  artifacts:
-    when: on_success
-    paths:
-      - dist/
-      - docs/
-
-build:build-public-npm-package:
-  extends: .build:build-public-npm-package
-  tags:
-    - large
-  rules:
-    - if: "$CI_COMMIT_TAG"
-  needs:
-    - prepare
-  script:
-    - cp .env.production .env
-    - update-package-version "$(get-version)"
-    - npm install --ignore-scripts
-    - npm run clean-build --production
-    - export NPM_REGISTRY_URL=https://registry.npmjs.org/
-    - export NPM_REGISTRY_HOST=registry.npmjs.org
-    - export NPM_AUTH_TOKEN=$PUBLIC_NPM_AUTH_TOKEN
-    - npm publish --access=public --tag "$(get-release-tag)" --"@signageos:registry=${NPM_REGISTRY_URL}" --//${NPM_REGISTRY_HOST}/:_authToken="${NPM_AUTH_TOKEN}"
-
-# ============================================================================
-# Release — stable release requires tests to pass
-# ============================================================================
-
-release:tag-new-version:
-  needs:
-    - build:build-npm-package
-    - job: build:build-public-npm-package
-      optional: true
-    - test:general
-    - test:lint
-    - test:check
-    - test:changelog
