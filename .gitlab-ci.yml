@@ -178,7 +178,7 @@ test:lint:
   script:
     - if [ $(find {test,tests} -name '*.ts' -type f -print0 | xargs -0 grep '\.only' | wc -l) -gt 0 ]; then echo "You forgot the .only in tests" && exit 1; fi
     - npm ci
-    - NODE_OPTIONS=--max-old-space-size=3072 npm run lint
+    - NODE_OPTIONS=--max-old-space-size=2048 npm run lint
 
 test:check:
   extends: .test:check
