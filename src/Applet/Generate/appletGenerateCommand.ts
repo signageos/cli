@@ -442,9 +442,16 @@ export const appletGenerate = createCommandDefinition({
 			// Log the command being executed
 			console.info(`Installing dependencies: ${PACKAGER_EXECUTABLE} ${installCommand} --save-dev ${mergedDeps.join(' ')}`);
 
+			// Override registry env so the spawned process doesn't inherit a private
+			// registry from the parent project's .npmrc or global config.
+			// npm_config_registry is recognised by npm, bun and pnpm.
+			const registryUrl = typeof options['npm-registry'] === 'string' ? options['npm-registry'] : 'https://registry.npmjs.org/';
+			const spawnEnv = { ...process.env, npm_config_registry: registryUrl };
+
 			const child = child_process.spawn(PACKAGER_EXECUTABLE, [installCommand, '--save-dev', ...mergedDeps], {
 				stdio: 'pipe', // Use 'pipe' to capture stdout and stderr
 				shell: true,
+				env: spawnEnv,
 			});
 
 			// Capture and log stdout
