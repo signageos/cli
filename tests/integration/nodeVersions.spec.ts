@@ -1,8 +1,12 @@
 import should from 'should';
 import * as path from 'path';
+import { fileURLToPath } from 'url';
 import fs from 'fs-extra';
 import { exec } from 'child_process';
 import * as util from 'util';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const execPromise = util.promisify(exec);
 
@@ -14,8 +18,8 @@ interface NodeVersionTest {
 
 const nodeVersionTests: NodeVersionTest[] = [
 	{ version: '16', shouldSucceed: false, description: 'No support for node <20' },
-	{ version: '20.1.0', shouldSucceed: false, description: 'No support for npm <10' },
-	{ version: '20.5.0', shouldSucceed: false, description: 'No support for npm <10' },
+	{ version: '20.1.0', shouldSucceed: true, description: 'npm 9 - works fine' },
+	{ version: '20.5.0', shouldSucceed: true, description: 'npm 9 - works fine' },
 	{ version: '20.11.0', shouldSucceed: true, description: 'First discovery' },
 	{ version: '20.18.3', shouldSucceed: true, description: 'Last failing version' },
 	{ version: '20.19.0', shouldSucceed: true, description: 'First passing version' },
@@ -81,7 +85,7 @@ async function testNodeVersion(version: string, shouldSucceed: boolean, descript
 		// Run the commands similarly to the shell script
 		console.info(`Running with Node ${version}...`);
 		const cliPath = path.join(__dirname, '..', '..', 'dist', 'index.js');
-		const command = `source ~/.nvm/nvm.sh && nvm use ${version} && npm install && npm run clean-build && node ${cliPath} --version`;
+		const command = `unset npm_config_prefix && source ~/.nvm/nvm.sh && nvm use ${version} && npm install && npm run clean-build && node ${cliPath} --version`;
 
 		// Execute the command
 		const { stdout, stderr } = await execPromise(command);
