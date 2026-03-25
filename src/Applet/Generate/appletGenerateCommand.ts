@@ -478,12 +478,13 @@ export const appletGenerate = createCommandDefinition({
 				console.error(`${data.toString()}`);
 			});
 
-			// Handle errors
+			// Wait for the install process to finish before returning
+			await new Promise<void>((resolve, reject) => {
 			child.on('error', (error) => {
 				console.error(`Error executing command: ${error.message}`);
+					reject(error);
 			});
 
-			// Handle process exit
 			child.on('close', (code) => {
 				if (code === 0) {
 					log('info', `\nApplet ${chalk.green(appletName!)} created!`);
@@ -491,9 +492,12 @@ export const appletGenerate = createCommandDefinition({
 						'info',
 						`\nContinue with ${chalk.green(`cd ${appletRootDirectoryName}`!)} and ${chalk.green(`${PACKAGER_EXECUTABLE} start`)}`,
 					);
+						resolve();
 				} else {
 					console.error(`Command exited with code ${code}`);
+						resolve(); // Don't reject — let the CLI exit gracefully
 				}
+				});
 			});
 		} else {
 			log(
