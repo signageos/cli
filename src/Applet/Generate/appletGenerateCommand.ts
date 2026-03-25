@@ -316,7 +316,7 @@ export const appletGenerate = createCommandDefinition({
 		}
 		generateFiles.push({
 			path: path.join(appletRootDirectory, '.npmrc'),
-			content: 'registry=https://registry.npmjs.org/\nalways-auth=false',
+			content: 'registry=https://registry.npmjs.org/\n@signageos:registry=https://registry.npmjs.org/\nalways-auth=false',
 		});
 
 		// TypeScript or JavaScript
@@ -540,6 +540,7 @@ const createReadmeFile = () => importFileAsString('./Templates/README.md.templat
 
 const createNpmRunControl = (registryUrl: string) => `
 registry=${registryUrl}
+@signageos:registry=${registryUrl}
 always-auth=true
 `;
 
