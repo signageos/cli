@@ -437,33 +437,12 @@ export const appletGenerate = createCommandDefinition({
 			// Install dependencies
 			process.chdir(appletRootDirectory);
 
-			// Ensure the default .npmrc file will be loaded from project root
-			// Yarn 2+ uses .yarnrc.yml, but we can use this flag to override user's .npmrc
-			const packagerPrefix = ''; // 'NPM_CONFIG_USERCONFIG=/dev/null';
-
-			// Apply packager specific options
-			let configFlag: string = '';
-			switch (packager) {
-				case Packager.Yarn:
-					// Prevent Yarn from automatically detecting yarnrc and npmrc files
-					configFlag = '--no-default-rc';
-					break;
-				case Packager.Bun:
-					// Prevent Bun from failing on issues related to lockfile permissions
-					configFlag = '--frozen-lockfile';
-					break;
-				default:
-				// Other packagers (npm, pnpm) currently do not require any special config
-			}
-
 			const installCommand = packager === Packager.Yarn ? 'add' : 'install';
 
 			// Log the command being executed
-			console.info(
-				`Installing dependencies: ${packagerPrefix} ${PACKAGER_EXECUTABLE} ${installCommand} ${configFlag} --save-dev ${mergedDeps.join(' ')}`,
-			);
+			console.info(`Installing dependencies: ${PACKAGER_EXECUTABLE} ${installCommand} --save-dev ${mergedDeps.join(' ')}`);
 
-			const child = child_process.spawn(PACKAGER_EXECUTABLE, [packagerPrefix, installCommand, configFlag, '--save-dev', ...mergedDeps], {
+			const child = child_process.spawn(PACKAGER_EXECUTABLE, [installCommand, '--save-dev', ...mergedDeps], {
 				stdio: 'pipe', // Use 'pipe' to capture stdout and stderr
 				shell: true,
 			});
@@ -480,23 +459,23 @@ export const appletGenerate = createCommandDefinition({
 
 			// Wait for the install process to finish before returning
 			await new Promise<void>((resolve, reject) => {
-			child.on('error', (error) => {
-				console.error(`Error executing command: ${error.message}`);
+				child.on('error', (error) => {
+					console.error(`Error executing command: ${error.message}`);
 					reject(error);
-			});
+				});
 
-			child.on('close', (code) => {
-				if (code === 0) {
-					log('info', `\nApplet ${chalk.green(appletName!)} created!`);
-					log(
-						'info',
-						`\nContinue with ${chalk.green(`cd ${appletRootDirectoryName}`!)} and ${chalk.green(`${PACKAGER_EXECUTABLE} start`)}`,
-					);
+				child.on('close', (code) => {
+					if (code === 0) {
+						log('info', `\nApplet ${chalk.green(appletName!)} created!`);
+						log(
+							'info',
+							`\nContinue with ${chalk.green(`cd ${appletRootDirectoryName}`!)} and ${chalk.green(`${PACKAGER_EXECUTABLE} start`)}`,
+						);
 						resolve();
-				} else {
-					console.error(`Command exited with code ${code}`);
+					} else {
+						console.error(`Command exited with code ${code}`);
 						resolve(); // Don't reject — let the CLI exit gracefully
-				}
+					}
 				});
 			});
 		} else {
