@@ -34,36 +34,33 @@ prepare:windows:
 
 # ============================================================================
 # Windows test job (consolidated — only one Windows runner exists)
+# Uses Windows Server Core 1809 and installs Node in before_script.
+# A pre-built image is not possible because docker build (DinD) is unavailable
+# on the EC2 Windows runner (process isolation kernel mismatch).
 # ============================================================================
 
 test:windows:
+  image: docker:24.0.9-windowsservercore-1809
+  needs:
+    - prepare:windows
   before_script:
-    - $VERSION = Get-Content VERSION | Out-String
-    - $VERSION = $VERSION.Trim()
-    - Invoke-WebRequest -Uri "https://nodejs.org/dist/v20.19.0/node-v20.19.0-x64.msi" -OutFile "node-x64.msi"
-    - Start-Process msiexec.exe -Wait -ArgumentList "/i","node-x64.msi","/norestart","ADDLOCAL=ALL"
-    - $env:PATH = "C:\Program Files\nodejs;$env:PATH"
-    - node --version
-    - npm --version
-    - New-Item -ItemType Directory -Force -Path "C:\Users\ContainerAdministrator\AppData\Roaming\npm"
+    - $VERSION = Get-Content VERSION | Out-String; $VERSION = $VERSION.Trim()
+    - $nodeVersion = '20.19.0'
+    - Invoke-WebRequest -Uri "https://nodejs.org/dist/v$nodeVersion/node-v$nodeVersion-win-x64.zip" -OutFile node.zip
+    - Expand-Archive node.zip -DestinationPath $env:ProgramFiles
+    - Rename-Item "$env:ProgramFiles\node-v$nodeVersion-win-x64" node
+    - Remove-Item node.zip
+    - $env:PATH = "C:\Program Files\node;$env:PATH"
+    - $gitVersion = '2.45.1'
+    - Invoke-WebRequest -Uri "https://github.com/git-for-windows/git/releases/download/v$gitVersion.windows.1/Git-$gitVersion-64-bit.exe" -OutFile git-installer.exe
+    - Start-Process -FilePath 'git-installer.exe' -ArgumentList '/VERYSILENT', '/NORESTART', '/COMPONENTS=cmd' -Wait
+    - Remove-Item git-installer.exe
+    - $env:PATH = "C:\Program Files\Git\cmd;$env:PATH"
+    - npm install -g yarn pnpm bun
     - npm ci --cache npm-cache --prefer-offline --ignore-scripts
     - npm i @signageos/lib-ci --ignore-scripts --cache npm-cache --prefer-offline
     - npm i @signageos/file --cache npm-cache --prefer-offline
     - npx --userconfig ./.npmrc @signageos/lib-ci@latest version-upgrade $VERSION
-    - $env:PATH = "$(npm config get prefix)\;$env:PATH"
-    - npm -g install yarn --force
-    - yarn --version
-    - npm -g install bun
-    - bun --version
-    - npm -g install pnpm
-    - pnpm --version
-    - Invoke-WebRequest -Uri "https://github.com/git-for-windows/git/releases/download/v2.45.1.windows.1/Git-2.45.1-64-bit.exe" -OutFile "git-installer.exe"
-    - Start-Process -FilePath "git-installer.exe" -ArgumentList "/VERYSILENT /NORESTART" -Wait
-    - $env:PATH = "C:\Program Files\Git\bin;$env:PATH"
-    - git --version
-  image: docker:24.0.9-windowsservercore-1809
-  needs:
-    - prepare:windows
   allow_failure: true
   rules:
     - if: $CI_COMMIT_TAG
