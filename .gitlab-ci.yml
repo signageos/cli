@@ -56,7 +56,7 @@ test:windows:
     - Start-Process -FilePath 'git-installer.exe' -ArgumentList '/VERYSILENT', '/NORESTART', '/COMPONENTS=cmd' -Wait
     - Remove-Item git-installer.exe
     - $env:PATH = "C:\Program Files\Git\cmd;$env:PATH"
-    - npm install -g yarn pnpm bun
+    - npm install -g yarn pnpm
     - npm ci --cache npm-cache --prefer-offline --ignore-scripts
     - npm i @signageos/lib-ci --ignore-scripts --cache npm-cache --prefer-offline
     - npm i @signageos/file --cache npm-cache --prefer-offline
