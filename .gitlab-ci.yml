@@ -78,19 +78,8 @@ test:windows:
     - npm run test:unit:windows
     - npm run test:integration:windows
 
-# ============================================================================
-# CLI-specific test jobs
-# ============================================================================
-
+# CLI-specific override: run integration tests via docker-compose
 test:integration:
   extends: .test:general
-  rules:
-    - if: $CI_COMMIT_TAG
-      when: never
-    - when: on_success
-  script:
-    - mkdir -p ~/.signageos
-    - ln -s /.envs ~/.signageos/npm.env
-    - docker compose up -d
-    - ts-clean-install
-    - ts-compose-run test:integration
+  variables:
+    TEST_TARGET: integration
