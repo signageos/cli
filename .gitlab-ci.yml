@@ -82,4 +82,4 @@ test:windows:
 test:integration:
   extends: .test:general
   variables:
-    TEST_TARGET: integration
+    TEST_TARGET: test:integration
