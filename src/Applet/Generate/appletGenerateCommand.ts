@@ -1,7 +1,7 @@
 import * as fs from 'fs-extra';
-import * as child_process from 'child_process';
+import * as child_process from 'node:child_process';
 import chalk from 'chalk';
-import * as path from 'path';
+import * as path from 'node:path';
 import prompts from 'prompts';
 import { log } from '@signageos/sdk/dist/Console/log';
 import { initGitRepository } from '../../Lib/git';
@@ -51,7 +51,7 @@ interface ScriptDefinition {
 }
 
 const OPTION_LIST = [
-	{ name: 'name', type: String, description: `Applet name. Match RegExp: /^\\w(\\w|\\d|-)*\\w$/` },
+	{ name: 'name', type: String, description: String.raw`Applet name. Match RegExp: /^\w(\w|\d|-)*\w$/` },
 	{ name: 'applet-version', type: String, description: 'Applet initial version. Use semantic version', defaultValue: '0.0.0' },
 	{ name: 'target-dir', type: String, description: 'Directory where will be the applet generated to' },
 	{ name: 'git', type: String, description: 'Init applet as git repository "no" (default) or "yes"' },
@@ -96,7 +96,7 @@ const RUNSCRIPTS = {
 	webpack: {
 		start: 'webpack serve --mode development',
 		build: 'webpack --mode production',
-		connect: 'echo "Deprecated command \\"npm run connect\\". Use \\"npm run watch\\" instead." && npm run watch',
+		connect: String.raw`echo "Deprecated command \"npm run connect\". Use \"npm run watch\" instead." && npm run watch`,
 		watch: 'webpack --watch',
 	},
 	rspack: {
@@ -156,10 +156,10 @@ export const appletGenerate = createCommandDefinition({
 		const currentDirectory = process.cwd();
 
 		// Detect if the command has been called with optional parameters
-		const excludedKeys = ['command', 'applet-version'];
+		const excludedKeys = new Set(['command', 'applet-version']);
 		const argumentsFound =
 			Object.entries(options)
-				.filter(([key]) => !excludedKeys.includes(key))
+				.filter(([key]) => !excludedKeys.has(key))
 				.map(([key, value]) => ({ [key]: value })).length > 0;
 		console.info('sOS CLI started with params:', options);
 
@@ -316,19 +316,21 @@ export const appletGenerate = createCommandDefinition({
 		}
 		generateFiles.push({
 			path: path.join(appletRootDirectory, '.npmrc'),
-			content: 'registry=https://registry.npmjs.org/\n@signageos:registry=https://registry.npmjs.org/\nalways-auth=false',
+			content: 'registry=https://registry.npmjs.org/\nalways-auth=false',
 		});
 
 		// TypeScript or JavaScript
 		if (language === Language.TypeScript) {
-			generateFiles.push({
-				path: path.join(appletRootDirectory, 'src', 'index.ts'),
-				content: createIndexTs(),
-			});
-			generateFiles.push({
-				path: path.join(appletRootDirectory, 'tsconfig.json'),
-				content: createTsConfig(),
-			});
+			generateFiles.push(
+				{
+					path: path.join(appletRootDirectory, 'src', 'index.ts'),
+					content: createIndexTs(),
+				},
+				{
+					path: path.join(appletRootDirectory, 'tsconfig.json'),
+					content: createTsConfig(),
+				},
+			);
 			// Extend dependencies for Typescript
 			mergedDeps.push('typescript@5');
 
@@ -345,12 +347,10 @@ export const appletGenerate = createCommandDefinition({
 
 		// Create styles
 		// TODO sass support
-		{
-			generateFiles.push({
-				path: path.join(appletRootDirectory, 'src', 'index.css'),
-				content: createIndexCss(),
-			});
-		}
+		generateFiles.push({
+			path: path.join(appletRootDirectory, 'src', 'index.css'),
+			content: createIndexCss(),
+		});
 		// Create custom npm registry config
 		if (typeof options['npm-registry'] === 'string') {
 			generateFiles.push({
@@ -363,21 +363,21 @@ export const appletGenerate = createCommandDefinition({
 		}
 
 		// Add files to project
-		generateFiles.push({
-			path: path.join(appletRootDirectory, 'package.json'),
-			content:
-				JSON.stringify(await createPackageConfig(appletName, String(options['applet-version']), bundler, language), undefined, 2) + '\n',
-		});
-
-		generateFiles.push({
-			path: path.join(appletRootDirectory, 'CHANGELOG.md'),
-			content: createChangelogFile(),
-		});
-
-		generateFiles.push({
-			path: path.join(appletRootDirectory, 'README.md'),
-			content: createReadmeFile(),
-		});
+		generateFiles.push(
+			{
+				path: path.join(appletRootDirectory, 'package.json'),
+				content:
+					JSON.stringify(await createPackageConfig(appletName, String(options['applet-version']), bundler, language), undefined, 2) + '\n',
+			},
+			{
+				path: path.join(appletRootDirectory, 'CHANGELOG.md'),
+				content: createChangelogFile(),
+			},
+			{
+				path: path.join(appletRootDirectory, 'README.md'),
+				content: createReadmeFile(),
+			},
+		);
 
 		// Configure bundler
 		switch (bundler) {
@@ -397,18 +397,20 @@ export const appletGenerate = createCommandDefinition({
 				throw new Error('Argument --bundler is required');
 		}
 
-		generateFiles.push({
-			path: path.join(appletRootDirectory, 'public', 'index.html'),
-			content: createIndexHtml(appletName),
-		});
-		generateFiles.push({
-			path: path.join(appletRootDirectory, '.sosignore'),
-			content: 'node_modules/\n',
-		});
-		generateFiles.push({
-			path: path.join(appletRootDirectory, 'sos.config.local.json'),
-			content: '{}\n',
-		});
+		generateFiles.push(
+			{
+				path: path.join(appletRootDirectory, 'public', 'index.html'),
+				content: createIndexHtml(appletName),
+			},
+			{
+				path: path.join(appletRootDirectory, '.sosignore'),
+				content: 'node_modules/\n',
+			},
+			{
+				path: path.join(appletRootDirectory, 'sos.config.local.json'),
+				content: '{}\n',
+			},
+		);
 
 		// Initialise git repository
 		if (git === GitOptions.Yes && gitFound) {
@@ -473,11 +475,10 @@ export const appletGenerate = createCommandDefinition({
 
 				child.on('close', (code) => {
 					if (code === 0) {
-						log('info', `\nApplet ${chalk.green(appletName!)} created!`);
-						log(
-							'info',
-							`\nContinue with ${chalk.green(`cd ${appletRootDirectoryName}`!)} and ${chalk.green(`${PACKAGER_EXECUTABLE} start`)}`,
-						);
+						log('info', `\nApplet ${chalk.green(appletName)} created!`);
+						const cdCommand = chalk.green(`cd ${appletRootDirectoryName}`);
+						const startCommand = chalk.green(`${PACKAGER_EXECUTABLE} start`);
+						log('info', `\nContinue with ${cdCommand} and ${startCommand}`);
 						resolve();
 					} else {
 						console.error(`Command exited with code ${code}`);
@@ -486,11 +487,12 @@ export const appletGenerate = createCommandDefinition({
 				});
 			});
 		} else {
-			log(
-				'info',
-				`${chalk.red(`Please first install ${PACKAGER_EXECUTABLE} globally.`)}\nContinue with ${chalk.green(`cd ${appletRootDirectoryName}`!)}, ${chalk.green(`${PACKAGER_EXECUTABLE} install`)} and ${chalk.green(`${PACKAGER_EXECUTABLE} start`)}`,
-			);
-			log('info', `\nApplet ${chalk.white(appletName!)} created!`);
+			const installMessage = chalk.red(`Please first install ${PACKAGER_EXECUTABLE} globally.`);
+			const cdMessage = chalk.green(`cd ${appletRootDirectoryName}`);
+			const installCmd = chalk.green(`${PACKAGER_EXECUTABLE} install`);
+			const startCmd = chalk.green(`${PACKAGER_EXECUTABLE} start`);
+			log('info', `${installMessage}\nContinue with ${cdMessage}, ${installCmd} and ${startCmd}`);
+			log('info', `\nApplet ${chalk.white(appletName)} created!`);
 		}
 	},
 });
@@ -535,7 +537,7 @@ const createPackageConfig = async (name: string, version: string, bundler: Bundl
 const createWebpackConfig = () => importFileAsString('./Templates/webpack.config.js.template');
 const createRspackConfig = () => importFileAsString('./Templates/rspack.config.mjs.template');
 const createIndexHtml = (title: string): string => {
-	return importFileAsString('./Templates/index.html.template').replace(/\$\{title\}/g, title);
+	return importFileAsString('./Templates/index.html.template').replaceAll('${title}', title);
 };
 const createIndexCss = () => importFileAsString('./Templates/index.css.template');
 const createIndexJs = () => importFileAsString('./Templates/index.js.template');
@@ -547,7 +549,6 @@ const createReadmeFile = () => importFileAsString('./Templates/README.md.templat
 
 const createNpmRunControl = (registryUrl: string) => `
 registry=${registryUrl}
-@signageos:registry=${registryUrl}
 always-auth=true
 `;
 
