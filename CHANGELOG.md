@@ -5,12 +5,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-### Fixed
-- All paginated list endpoints are now fully traversed - devices, applet versions, and applet test suites spanning multiple pages are no longer silently truncated
-- `sos applet upload` reupload correctly fetches all existing remote files across pages before diffing
+### Added
+- Interactive lists (`emulator`, `applet`, or default `organization`), you can now type either the human-readable `name` or the `UID`; lookups are case-insensitive.
+- Validation for non-applet directory on `sos applet upload` (or `--applet-path`)
 
-### Removed
-- removed `sos firmware upload` feature
+### Fixed
+- Fixed file handling on `sos applet upload` for applets with many files
+- Priority for `--profile <name>` even when environment variables are present.
+- Graceful interactive prompt exits
 
 ## [2.9.0] - 2026-02-26
 ### Fixed
