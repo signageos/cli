@@ -3,6 +3,7 @@ import prompts from 'prompts';
 import { loadConfig, updateConfig } from '../RunControl/runControlHelper';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import AuthenitcationError from '@signageos/sdk/dist/RestApi/Error/AuthenticationError';
+import NotFoundError from '@signageos/sdk/dist/RestApi/Error/NotFoundError';
 import { ApiVersions } from '@signageos/sdk/dist/RestApi/apiVersions';
 import { createClientVersions, getApiUrl, autocompleteSuggest } from '../helper';
 import { log } from '@signageos/sdk/dist/Console/log';
@@ -37,6 +38,8 @@ async function getListOfEmulators(restApi: RestApi, organizationUid: string) {
 	} catch (e: any) {
 		if (e instanceof AuthenitcationError) {
 			throw new Error(`Authentication error. Try to login using ${chalk.green('sos login')}`);
+		} else if (e instanceof NotFoundError) {
+			throw new Error(`Organization with UID ${chalk.red(organizationUid)} was not found.`);
 		} else {
 			throw new Error('Unknown error: ' + e.message);
 		}
