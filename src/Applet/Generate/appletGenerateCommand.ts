@@ -288,7 +288,7 @@ export const appletGenerate = createCommandDefinition({
 					prepare: 'pnpm run clean && pnpm run build',
 					upload: 'sos applet upload',
 					clean: 'npx rimraf dist',
-					escheck: 'pnpm exec es-check --module es5 "./dist/**/*.js"',
+					escheck: 'pnpm es-check --module es5 "./dist/**/*.js"',
 					postbuild: 'pnpm run escheck',
 				};
 				break;
