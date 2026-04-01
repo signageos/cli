@@ -107,7 +107,8 @@ describe('integration.appletGenerateCommand', function () {
 			should(await fs.pathExists(path.join(targetDir, './node_modules'))).be.true();
 		}).timeout(180000);
 
-		it('should generate applet with bun packager', async function () {
+		// bun hangs during linking on Windows Server Core 1809; covered by Linux CI
+		(process.platform === 'win32' ? it.skip : it)('should generate applet with bun packager', async function () {
 			const targetDir = 'tests/output/rspack_bun';
 			const command = [
 				baseCommand,
@@ -160,7 +161,8 @@ describe('integration.appletGenerateCommand', function () {
 			await buildApplet('tests/output/rspack_pnpm', 'pnpm run build');
 		}).timeout(180000);
 
-		it('should build rspack_bun applet', async function () {
+		// bun hangs during linking on Windows Server Core 1809; covered by Linux CI
+		(process.platform === 'win32' ? it.skip : it)('should build rspack_bun applet', async function () {
 			await checkPackage('bun');
 			await buildApplet('tests/output/rspack_bun', 'bun run build');
 		}).timeout(180000);

@@ -1,80 +1,28 @@
-variables:
-  NODE_VERSION: 20
-  IMAGE_VARIANT: alpine-build
+include:
+  - project: 'signageos/infra/gitlab-ci'
+    file: '/pipelines/ts-lib-public.yaml'
+    ref: master
 
-image: $ECR_REGISTRY/signageos/docker-node:${NODE_VERSION}-${IMAGE_VARIANT}
+# ============================================================================
+# Windows support: prepare job provides auth tokens & version for Windows jobs
+# ============================================================================
 
-stages:
-  - prepare
-  - test
-  - build
-  - publish
-  - release
-
-cache:
-  untracked: true
-  key: '$CI_PROJECT_ID'
-  paths:
-    - node_modules/
-
-before_script:
-  - export VERSION=`cat ./VERSION`
-  - export TAG=`cat ./PRERELEASE`
-  - npx --userconfig ./.npmrc @signageos/lib-ci@latest version-upgrade $VERSION
-  - mkdir -p dist
-  - npm install
-
-prepare:
-  image: $CI_REGISTRY/signageos/docker:master
-  stage: prepare
-  before_script: []
-  script:
-    - ci-prepare
-  artifacts:
-    when: on_success
-    paths:
-      - ./VERSION
-      - ./PRERELEASE
-
-.windows_before_script: &windows_before_script
-  before_script:
-    - $VERSION = Get-Content VERSION | Out-String
-    - $VERSION = $VERSION.Trim()
-    # Download the correct x64 installer
-    - Invoke-WebRequest -Uri "https://nodejs.org/dist/v20.19.0/node-v20.19.0-x64.msi" -OutFile "node-x64.msi"
-    # Install Node.js with proper arguments format
-    - Start-Process msiexec.exe -Wait -ArgumentList "/i","node-x64.msi","/norestart","ADDLOCAL=ALL" # "/quiet",
-    # Update PATH and create a fresh PowerShell session to recognize the new PATH
-    - $env:PATH = "C:\Program Files\nodejs;$env:PATH"
-    # Output current versions to verify installation
-    - node --version
-    - npm --version
-    # Create npm global directory to fix ENOENT errors
-    - New-Item -ItemType Directory -Force -Path "C:\Users\ContainerAdministrator\AppData\Roaming\npm"
-    - npm ci --cache npm-cache --prefer-offline --ignore-scripts
-    - npm i @signageos/lib-ci --ignore-scripts --cache npm-cache --prefer-offline
-    - npm i @signageos/file --cache npm-cache --prefer-offline
-    - npx --userconfig ./.npmrc @signageos/lib-ci@latest version-upgrade $VERSION
-
-windows-prepare:
-  image: $CI_REGISTRY/signageos/docker:master
-  stage: prepare
+prepare:windows:
+  image: $ECR_REGISTRY/signageos/infra/gitlab-ci:master
+  stage: test
   before_script: []
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: $CI_COMMIT_TAG
       when: never
-    - when: always
+    - when: on_success
+  tags:
+    - small
   script:
-    - export NPM_AWS_DOMAIN='signageos'
-    - export NPM_AWS_DOMAIN_OWNER=524256255273
-    - export NPM_AWS_NAME='private'
-    - export NPM_AWS_HOST=signageos-${NPM_AWS_DOMAIN_OWNER}.d.codeartifact.eu-central-1.amazonaws.com/npm/${NPM_AWS_NAME}
-    - export NPM_AWS_URL="https://${NPM_AWS_HOST}/"
-    - export NPM_AWS_TOKEN=$(aws codeartifact get-authorization-token --domain ${NPM_AWS_DOMAIN} --domain-owner ${NPM_AWS_DOMAIN_OWNER} --query authorizationToken --output text)
-    - echo "NPM_REGISTRY_HOST=$NPM_AWS_HOST" >> build.env
-    - echo "NPM_REGISTRY_URL=$NPM_AWS_URL" >> build.env
-    - echo "NPM_AUTH_TOKEN=$NPM_AWS_TOKEN" >> build.env
-    - ci-prepare
+    - echo "NPM_REGISTRY_HOST=$NPM_REGISTRY_HOST" >> build.env
+    - echo "NPM_REGISTRY_URL=$NPM_REGISTRY_URL" >> build.env
+    - echo "NPM_AUTH_TOKEN=$NPM_AUTH_TOKEN" >> build.env
+    - get-version --no-build-info > VERSION
+    - get-release-tag > PRERELEASE
   artifacts:
     when: on_success
     paths:
@@ -82,231 +30,56 @@ windows-prepare:
       - ./PRERELEASE
     reports:
       dotenv:
-       - build.env
+        - build.env
 
-test:general:windows:
-  <<: *windows_before_script
+# ============================================================================
+# Windows test job (consolidated — only one Windows runner exists)
+# Uses Windows Server Core 1809 and installs Node in before_script.
+# A pre-built image is not possible because docker build (DinD) is unavailable
+# on the EC2 Windows runner (process isolation kernel mismatch).
+# ============================================================================
+
+test:windows:
   image: docker:24.0.9-windowsservercore-1809
   needs:
-    - windows-prepare
+    - prepare:windows
+  before_script:
+    - $VERSION = Get-Content VERSION | Out-String; $VERSION = $VERSION.Trim()
+    - $nodeVersion = '20.19.0'
+    - Invoke-WebRequest -Uri "https://nodejs.org/dist/v$nodeVersion/node-v$nodeVersion-win-x64.zip" -OutFile node.zip
+    - Expand-Archive node.zip -DestinationPath $env:ProgramFiles
+    - Rename-Item "$env:ProgramFiles\node-v$nodeVersion-win-x64" node
+    - Remove-Item node.zip
+    - $env:PATH = "C:\Program Files\node;$env:PATH"
+    - $gitVersion = '2.45.1'
+    - Invoke-WebRequest -Uri "https://github.com/git-for-windows/git/releases/download/v$gitVersion.windows.1/Git-$gitVersion-64-bit.exe" -OutFile git-installer.exe
+    - Start-Process -FilePath 'git-installer.exe' -ArgumentList '/VERYSILENT', '/NORESTART', '/COMPONENTS=cmd' -Wait
+    - Remove-Item git-installer.exe
+    - $env:PATH = "C:\Program Files\Git\cmd;$env:PATH"
+    - npm install -g yarn pnpm
+    - npm ci --cache npm-cache --prefer-offline --ignore-scripts
+    - npm i @signageos/lib-ci --ignore-scripts --cache npm-cache --prefer-offline
+    - npm i @signageos/file --cache npm-cache --prefer-offline
+    - npx --userconfig ./.npmrc @signageos/lib-ci@latest version-upgrade $VERSION
   allow_failure: true
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: $CI_COMMIT_TAG
       when: never
-    - when: always
+    - when: manual
+      allow_failure: true
   stage: test
   tags:
     - windows
   script:
     - Copy-Item .env.test .env
-    # Add npm's global bin directory to PATH
-    - $env:PATH = "$(npm config get prefix)\;$env:PATH"
-    # Install packagers for testing
-    - npm -g install yarn --force
-    - yarn --version
-    - npm -g install bun
-    - bun --version
-    - npm -g install pnpm
-    - pnpm --version
-    # Install Git using its official installer
-    - Invoke-WebRequest -Uri "https://github.com/git-for-windows/git/releases/download/v2.45.1.windows.1/Git-2.45.1-64-bit.exe" -OutFile "git-installer.exe"
-    - Start-Process -FilePath "git-installer.exe" -ArgumentList "/VERYSILENT /NORESTART" -Wait
-    - $env:PATH = "C:\Program Files\Git\bin;$env:PATH"
-    - git --version
-    # Install dependencies
     - npm install
     - $env:NPM_REGISTRY_URL = "https://registry.npmjs.org/"
     - $env:NPM_REGISTRY_HOST = "registry.npmjs.org"
     - npm run test:unit:windows
-
-test:general:
-  stage: test
-  except:
-    - tags
-  needs:
-    - prepare
-  artifacts:
-    expire_in: 1 week
-    name: tests-coverage
-    when: always
-    paths:
-      - coverage/
-    reports:
-      coverage_report:
-        coverage_format: cobertura
-        path: coverage/cobertura-coverage.xml
-  script:
-    - cp .env.test .env
-    - npm -g install yarn --force
-    - npm -g install bun
-    - npm -g install pnpm
-    - npm install
-    - npm run clean-build
-    - npm install -g .
-    - export NPM_REGISTRY_URL=https://registry.npmjs.org/
-    - export NPM_REGISTRY_HOST=registry.npmjs.org
-    - npm run test:unit
-
-test:public:
-  stage: test
-  except:
-    - tags
-  allow_failure: false
-  script:
-    - echo "Attempting to install package without credentials to detect private dependencies..."
-    - |
-      npm install --registry https://registry.npmjs.org/ --production --no-package-lock --dry-run || (
-        echo "ERROR: Installation failed - this may indicate private dependencies" 
-        exit 1
-      )
-    - echo "Installation successful - no private dependencies detected"
-
-test:lint:
-  stage: test
-  except:
-    - tags
-  needs:
-    - prepare
-  script:
-    - if [ `find test -name '*\.ts' -type f -print0 | xargs -0 grep "\.only" | wc -l` -gt 0 ]; then echo "You forgot the .only in tests" &&
-      exit 1; fi
-    - npm run lint
-
-test:changelog:
-  image: $CI_REGISTRY/signageos/docker:master
-  stage: test
-  except:
-    - tags
-  needs:
-    - prepare
-  allow_failure: true
-  script:
-    - ci-test-changelog
-
-test:check:
-  stage: test
-  except:
-    - tags
-  needs:
-    - prepare
-  script:
-    - npm run check
-
-test:integration:
-  stage: test
-  except:
-    - tags
-  needs:
-    - prepare
-  when: manual
-  allow_failure: false
-  script:
-    - cp .env.test .env
-    - npm -g install yarn --force
-    - npm -g install bun
-    - npm -g install pnpm
-    - npm install
-    - export NPM_REGISTRY_URL=https://registry.npmjs.org/
-    - export NPM_REGISTRY_HOST=registry.npmjs.org
-    - npm run test:integration
-
-test:integration:windows:
-  <<: *windows_before_script
-  image: docker:24.0.9-windowsservercore-1809
-  needs:
-    - windows-prepare
-  when: manual
-  allow_failure: false
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      when: never
-    - when: manual
-  stage: test
-  tags:
-    - windows
-  script:
-    - Copy-Item .env.test .env
-    # Add npm's global bin directory to PATH
-    - $env:PATH = "$(npm config get prefix)\;$env:PATH"
-    # Install packagers for testing
-    - npm -g install yarn --force
-    - yarn --version
-    - npm -g install bun
-    - bun --version
-    - npm -g install pnpm
-    - pnpm --version
-    # Install Git using its official installer
-    - Invoke-WebRequest -Uri "https://github.com/git-for-windows/git/releases/download/v2.45.1.windows.1/Git-2.45.1-64-bit.exe" -OutFile "git-installer.exe"
-    - Start-Process -FilePath "git-installer.exe" -ArgumentList "/VERYSILENT /NORESTART" -Wait
-    - $env:PATH = "C:\Program Files\Git\bin;$env:PATH"
-    - git --version
-    # Install dependencies
-    - npm install
-    - $env:NPM_REGISTRY_URL = "https://registry.npmjs.org/"
-    - $env:NPM_REGISTRY_HOST = "registry.npmjs.org"
     - npm run test:integration:windows
 
-build:
-  stage: build
-  needs:
-    - prepare
-  script:
-    - npm run clean-build --production
-  artifacts:
-    when: on_success
-    paths:
-      - dist/
-      - docs/
-
-publish:npm:
-  stage: publish
-  needs:
-    - prepare
-    - build
-  script:
-    - cp .env.production .env
-    - npm publish --tag $TAG
-
-publish:npm-public:
-  stage: publish
-  only:
-    - tags
-  needs:
-    - prepare
-    - build
-  script:
-    - cp .env.production .env
-    - export NPM_REGISTRY_URL=https://registry.npmjs.org/
-    - export NPM_REGISTRY_HOST=registry.npmjs.org
-    - export NPM_AUTH_TOKEN=$PUBLIC_NPM_AUTH_TOKEN
-    - tools/prepare-npm-public.sh
-    - npm publish --tag $TAG
-
-release:tag:
-  image: $CI_REGISTRY/signageos/docker:master
-  stage: release
-  only:
-    - master
-  needs:
-    - prepare
-    - build
-    - test:general
-    - test:lint
-    - test:check
-    - test:changelog
-  when: manual
-  allow_failure: false
-  before_script: []
-  script:
-    - ci-release-tag
-
-release:notes:
-  image: $CI_REGISTRY/signageos/docker:master
-  stage: release
-  only:
-    - tags
-  needs:
-    - prepare
-    - publish:npm
-  script:
-    - ci-release-notes
+# CLI-specific override: run integration tests via docker-compose
+test:integration:
+  extends: .test:general
+  variables:
+    TEST_TARGET: test:integration

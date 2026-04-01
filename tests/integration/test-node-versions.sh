@@ -66,6 +66,7 @@ test_node_version() {
         NPMRC_MOVED=true
     fi
     
+    unset npm_config_prefix && \
     source ~/.nvm/nvm.sh && \
     echo "Node.js environment info:" && \
     nvm --version && \
@@ -110,8 +111,8 @@ echo -e "${YELLOW}==================================================${NC}"
 
 # Run tests for different Node versions
 test_node_version "16" "false"      # No support for node <20
-test_node_version "20.1.0" "false"  # No support for npm <10
-test_node_version "20.5.0" "false"  # No support for npm <10
+test_node_version "20.1.0" "true"   # npm 9 - works fine
+test_node_version "20.5.0" "true"   # npm 9 - works fine
 test_node_version "20.11.0" "true"  # First discovery
 test_node_version "20.18.3" "true"  # Last failing version
 test_node_version "20.19.0" "true"  # First passing version

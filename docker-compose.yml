@@ -1,0 +1,16 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    volumes:
+      - .:/app:delegated
+    command: tail -f /dev/null
+    working_dir: /app
+    env_file:
+      - ~/.signageos/npm.env
+    environment:
+      - SOS_API_IDENTIFICATION=${SOS_API_IDENTIFICATION:-}
+      - SOS_API_SECURITY_TOKEN=${SOS_API_SECURITY_TOKEN:-}
+      - SOS_API_URL=${SOS_API_URL:-https://api.signageos.io}

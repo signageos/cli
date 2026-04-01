@@ -26,6 +26,7 @@
     "lint:prettier": "prettier  \"(src|tests|tools)/**/*.+(ts|tsx|json|js)\" --check",
     "lint:prettier:fix": "prettier  \"(src|tests|tools)/**/*.+(ts|tsx|json|js)\" --write",
     "test": "npm run test:unit && npm run test:integration",
+    "test:all": "npm run test:unit",
     "test:coverage": "c8 npm run test:all",
     "test:unit": "env NODE_ENV=test mocha",
     "test:unit:windows": "cross-env NODE_ENV=test mocha",
