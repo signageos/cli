@@ -6,6 +6,8 @@ import debug from 'debug';
 import { loadPackage } from '@signageos/sdk/dist/FileSystem/packageConfig';
 const Debug = debug('@signageos/cli:FileSystem:helper');
 
+export const SOS_CONFIG_FILE_NAME = '.sosconfig.json';
+
 const DEFAULT_FILE_TYPE = 'application/octet-stream';
 
 export async function getFileType(filePath: string) {
@@ -46,6 +48,24 @@ export function isPathIncluded(filePaths: string[], filePath: string) {
 	const sanitizedFilePath = filePath.replace(/\\/g, '/');
 	const sanitizedFilePaths = filePaths.map((filePathItem) => filePathItem.replace(/\\/g, '/'));
 	return sanitizedFilePaths.includes(sanitizedFilePath);
+}
+
+/**
+ * Writes the latest @signageos/front-applet version into the .sosconfig.json of the generated project.
+ */
+export async function addFrontAppletVersionToConfigFile(targetDir: string, frontAppletVersion: string) {
+	const configPath = path.join(targetDir, SOS_CONFIG_FILE_NAME);
+	if (!(await fs.pathExists(configPath))) {
+		return;
+	}
+	const rawContent = await fs.readFile(configPath, 'utf-8');
+	try {
+		const content = JSON.parse(rawContent);
+		content.sos = { ...content.sos, '@signageos/front-applet': frontAppletVersion };
+		await fs.writeFile(configPath, JSON.stringify(content, undefined, '\t') + '\n');
+	} catch (error) {
+		throw new Error(`Invalid JSON in ${SOS_CONFIG_FILE_NAME}: ${error instanceof Error ? error.message : String(error)}`);
+	}
 }
 
 export async function getFileMD5Checksum(filePath: string) {

@@ -2,12 +2,12 @@ import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs-extra';
 import z from 'zod';
+import { SOS_CONFIG_FILE_NAME, getFileMD5Checksum } from '../Lib/fileSystem';
 import prompts from 'prompts';
 import chalk from 'chalk';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import { log } from '@signageos/sdk/dist/Console/log';
 import { generateZip } from '../Lib/archive';
-import { getFileMD5Checksum } from '../Lib/fileSystem';
 import { RUNTIME_DIRNAME } from '@signageos/sdk/dist/Development/runtimeFileSystem';
 import { IPluginVersion } from '@signageos/sdk/dist/RestApi/Plugin/Version/IPluginVersion';
 import { addToConfigFile, PlatformConfig, CodeArchive, PlatformSchema } from '../CustomScript/customScriptFacade';
@@ -48,6 +48,7 @@ export async function ensurePluginVersion(restApi: RestApi, config: PluginConfig
 		description: config.description,
 		schema: schema.schema,
 		configDefinition: config.configDefinition,
+		jsApiVersion: config.sos?.['@signageos/front-applet'],
 	});
 }
 
@@ -231,7 +232,7 @@ export async function loadSchemas(workDir: string) {
 		throw new Error(`Config file schema.json not found`);
 	}
 
-	const fileContent = fs.readFileSync(filePath, 'utf-8');
+	const fileContent = await fs.readFile(filePath, 'utf-8');
 	return JSON.parse(fileContent);
 }
 
@@ -244,6 +245,11 @@ export const ConfigSchema = z.object({
 	name: z.string(),
 	version: z.string(),
 	description: z.string().optional(),
+	sos: z
+		.object({
+			'@signageos/front-applet': z.string().optional(),
+		})
+		.optional(),
 	/**
 	 * Config of individual plugin script implementations for each target platform.
 	 *
@@ -255,3 +261,16 @@ export const ConfigSchema = z.object({
 });
 
 export type PluginConfig = z.infer<typeof ConfigSchema>;
+
+export async function getSosConfig(workDir: string): Promise<PluginConfig> {
+	const filePath = path.join(workDir, SOS_CONFIG_FILE_NAME);
+	if (!(await fs.pathExists(filePath))) {
+		throw new Error(`Config file ${SOS_CONFIG_FILE_NAME} not found`);
+	}
+	const fileContent = await fs.readFile(filePath, 'utf-8');
+	try {
+		return ConfigSchema.parse(JSON.parse(fileContent));
+	} catch (error) {
+		throw new Error(`Invalid JSON in ${SOS_CONFIG_FILE_NAME}: ${error instanceof Error ? error.message : String(error)}`);
+	}
+}

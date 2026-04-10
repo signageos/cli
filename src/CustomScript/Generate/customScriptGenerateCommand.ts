@@ -3,6 +3,8 @@ import { log } from '@signageos/sdk/dist/Console/log';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
 import { addToConfigFile } from '../customScriptFacade';
 import { askForParameters, downloadBoilerplateCode } from './customScriptGenerateFacade';
+import { addFrontAppletVersionToConfigFile } from '../../Lib/fileSystem';
+import { getLatestVersion } from '../../Cli/packageVersion';
 import { throwErrorIfGitNotInstalled } from '../../Lib/git';
 import { OPTION_LIST } from './customScriptGenerateOptions';
 
@@ -44,6 +46,11 @@ export const customScriptGenerate = createCommandDefinition({
 
 		await downloadBoilerplateCode(targetDir);
 		await addToConfigFile(targetDir, { name, description, dangerLevel });
+
+		const frontAppletVersion = await getLatestVersion('@signageos/front-applet');
+		if (frontAppletVersion) {
+			await addFrontAppletVersionToConfigFile(targetDir, frontAppletVersion);
+		}
 
 		log('info', `Custom Script ${chalk.green(name)} has been generated in ${chalk.green(targetDir)}.`);
 		log('info', 'Next steps:');

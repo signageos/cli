@@ -10,8 +10,8 @@ import {
 	NO_DEFAULT_ORGANIZATION_OPTION,
 	ORGANIZATION_UID_OPTION,
 } from '../../Organization/organizationFacade';
-import { ensureRunnerVersion, loadSchemas, uploadCode } from '../runnerFacede';
-import { getConfig } from '../../CustomScript/customScriptFacade';
+import { ensureRunnerVersion, loadSchemas, uploadCode } from '../runnerFacade';
+import { getSosConfig } from '../../Plugin/pluginFacade';
 
 const Debug = debug('@signageos/cli:Runner:Upload:Command');
 
@@ -57,7 +57,7 @@ export const runnerUpload = createCommandDefinition({
 		const organization = await getOrganization(organizationUid);
 		const restApi = await createOrganizationRestApi(organization);
 
-		const config = await getConfig(currentDirectory);
+		const config = await getSosConfig(currentDirectory);
 		const schema = await loadSchemas(currentDirectory);
 
 		const skipConfirmation = !!options.yes;

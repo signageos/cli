@@ -4,7 +4,9 @@ import { CommandLineOptions, createCommandDefinition } from '../../Command/comma
 import { throwErrorIfGitNotInstalled } from '../../Lib/git';
 import { addToConfigFile } from '../../CustomScript/customScriptFacade';
 import { askForParameters, downloadBoilerplateCode } from './pluginGenerateFacade';
+import { addFrontAppletVersionToConfigFile } from '../../Lib/fileSystem';
 import { OPTION_LIST } from './pluginGenerateOptions';
+import { getLatestVersion } from '../../Cli/packageVersion';
 
 /**
  * Generates a local repository for developing a Plugin with boilerplate code and configuration files.
@@ -39,6 +41,11 @@ export const pluginGenerate = createCommandDefinition({
 
 		await downloadBoilerplateCode(targetDir);
 		await addToConfigFile(targetDir, { name, description });
+
+		const frontAppletVersion = await getLatestVersion('@signageos/front-applet');
+		if (frontAppletVersion) {
+			await addFrontAppletVersionToConfigFile(targetDir, frontAppletVersion);
+		}
 
 		log('info', `Plugin ${chalk.green(name)} has been generated in ${chalk.green(targetDir)}.`);
 		log('info', 'Next steps:');

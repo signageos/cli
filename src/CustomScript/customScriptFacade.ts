@@ -7,11 +7,9 @@ import chalk from 'chalk';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import { log } from '@signageos/sdk/dist/Console/log';
 import { generateZip } from '../Lib/archive';
-import { getFileMD5Checksum } from '../Lib/fileSystem';
+import { getFileMD5Checksum, SOS_CONFIG_FILE_NAME } from '../Lib/fileSystem';
 import { ICustomScriptVersion } from '@signageos/sdk/dist/RestApi/CustomScript/Version/ICustomScriptVersion';
 import { RUNTIME_DIRNAME } from '@signageos/sdk/dist/Development/runtimeFileSystem';
-
-const CONFIG_FILE_NAME = '.sosconfig.json';
 const CUSTOM_SCRIPTS_BUILDS_DIRNAME = 'custom_scripts_builds';
 
 export const PlatformSchema = z.strictObject({
@@ -31,6 +29,11 @@ const ConfigSchema = z.object({
 	version: z.string(),
 	description: z.string().optional(),
 	dangerLevel: z.string().optional(),
+	sos: z
+		.object({
+			'@signageos/front-applet': z.string().optional(),
+		})
+		.optional(),
 	/**
 	 * Config of individual custom script implementations for each target platform.
 	 *
@@ -74,15 +77,19 @@ async function loadConfigFromFile(workDir: string) {
 	const filePath = getConfigFilePath(workDir);
 
 	if (!(await fs.pathExists(filePath))) {
-		throw new Error(`Config file ${CONFIG_FILE_NAME} not found`);
+		throw new Error(`Config file ${SOS_CONFIG_FILE_NAME} not found`);
 	}
 
-	const fileContent = fs.readFileSync(filePath, 'utf-8');
-	return JSON.parse(fileContent);
+	const fileContent = await fs.readFile(filePath, 'utf-8');
+	try {
+		return JSON.parse(fileContent);
+	} catch (error) {
+		throw new Error(`Invalid JSON in ${SOS_CONFIG_FILE_NAME}: ${error instanceof Error ? error.message : String(error)}`);
+	}
 }
 
 function getConfigFilePath(workDir: string) {
-	return path.join(workDir, CONFIG_FILE_NAME);
+	return path.join(workDir, SOS_CONFIG_FILE_NAME);
 }
 
 export async function ensureCustomScriptVersion(restApi: RestApi, config: CustomScriptConfig, skipConfirmation?: boolean) {
@@ -117,6 +124,7 @@ export async function ensureCustomScriptVersion(restApi: RestApi, config: Custom
 		customScriptUid: customScript.uid,
 		version: config.version,
 		configDefinition: config.configDefinition,
+		jsApiVersion: config.sos?.['@signageos/front-applet'],
 	});
 }
 

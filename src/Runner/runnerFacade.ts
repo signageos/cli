@@ -48,6 +48,7 @@ export async function ensureRunnerVersion(restApi: RestApi, config: RunnerConfig
 		output: schema.output,
 		telemetry: schema.telemetry,
 		configDefinition: config.configDefinition,
+		jsApiVersion: config.sos?.['@signageos/front-applet'],
 	});
 }
 
@@ -231,7 +232,7 @@ export async function loadSchemas(workDir: string) {
 		throw new Error(`Config file schema.json not found`);
 	}
 
-	const fileContent = fs.readFileSync(filePath, 'utf-8');
+	const fileContent = await fs.readFile(filePath, 'utf-8');
 	return JSON.parse(fileContent);
 }
 
