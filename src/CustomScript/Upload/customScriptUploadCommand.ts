@@ -67,7 +67,7 @@ export const customScriptUpload = createCommandDefinition({
 
 		const config = await getConfig(currentDirectory);
 
-		const customScriptVersion = await ensureCustomScriptVersion(restApi, config, skipConfirmation);
+		const customScriptVersion = await ensureCustomScriptVersion(restApi, config, skipConfirmation, organizationUid);
 
 		for (const platform of Object.keys(config.platforms)) {
 			const platformConfig = config.platforms[platform];

@@ -78,6 +78,7 @@ export const setContent = createCommandDefinition({
 				type: 'DURATION',
 				data: '1000',
 			},
+			organizationUid,
 		});
 		log('info', chalk.green(`Applet ${appletUid} was set on device ${deviceUid}`));
 	},

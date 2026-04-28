@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ## [Unreleased]
 
+### Added
+- Auth0 Device Authorization Flow for `sos login` — replaces legacy username/password authentication
+- JWT access token support for all API interactions
+- Automatic token refresh on expiration
+- Browser auto-open during Auth0 login flow
+- `organizationUid` passthrough for plugin, custom script, runner, applet, and timing create operations (required for JWT auth)
+
+### Changed
+- Authentication now uses Auth0 Device Flow instead of legacy username/password login
+- SDK dependency updated to support JWT access tokens in `X-Auth` header
+
 ### Removed
 - removed `sos firmware upload` feature
 

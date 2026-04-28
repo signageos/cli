@@ -41,10 +41,8 @@ export function createClientVersions() {
 
 export async function createOrganizationRestApi(credentials: ICredentials) {
 	const config = await loadConfig();
-	// When JWT is available, use it instead of org OAuth credentials.
-	// The JWT carries the user's identity; the API determines permissions.
 	const auth = config.accessToken
-		? { clientId: config.accessToken, secret: '' }
+		? { accessToken: config.accessToken }
 		: { clientId: credentials.oauthClientId, secret: credentials.oauthClientSecret };
 	const options: IRestApiOptions = {
 		url: await loadApiUrl(),

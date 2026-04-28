@@ -61,7 +61,7 @@ export const runnerUpload = createCommandDefinition({
 		const schema = await loadSchemas(currentDirectory);
 
 		const skipConfirmation = !!options.yes;
-		const runnerVersion = await ensureRunnerVersion(restApi, config, schema, skipConfirmation);
+		const runnerVersion = await ensureRunnerVersion(restApi, config, schema, skipConfirmation, organizationUid);
 
 		for (const platform of Object.keys(config.platforms)) {
 			const platformConfig = config.platforms[platform];

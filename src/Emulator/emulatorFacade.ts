@@ -17,10 +17,8 @@ interface IEmulatorData {
 }
 
 const createRestApi = (config: IExtendedConfig) => {
-	// When JWT is available, pass it as clientId with empty secret.
-	// The SDK constructs `X-Auth: jwt:` (with trailing colon) which the API handles.
 	const auth = config.accessToken
-		? { clientId: config.accessToken, secret: '' }
+		? { accessToken: config.accessToken }
 		: { clientId: config.identification ?? '', secret: config.apiSecurityToken ?? '' };
 	const options = {
 		url: getApiUrl(config),

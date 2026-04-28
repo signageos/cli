@@ -1,3 +1,5 @@
+import { exec } from 'node:child_process';
+import { platform } from 'node:os';
 import chalk from 'chalk';
 import prompts from 'prompts';
 import fs from 'fs-extra';
@@ -13,6 +15,21 @@ import {
 import { getAuth0Settings } from './auth0Settings';
 import { getGlobalProfile } from '../Command/globalArgs';
 import { createCommandDefinition } from '../Command/commandDefinition';
+
+/** Best-effort attempt to open a URL in the user's default browser. */
+function openInBrowser(url: string): void {
+	const cmd =
+		platform() === 'darwin'
+			? `open ${JSON.stringify(url)}`
+			: platform() === 'win32'
+				? `start "" ${JSON.stringify(url)}`
+				: `xdg-open ${JSON.stringify(url)}`;
+	exec(cmd, (err) => {
+		if (err) {
+			// Silently ignore — the URL is already printed to the console as a fallback.
+		}
+	});
+}
 
 /**
  * Authenticates the user via the Auth0 Device Authorization Flow.
@@ -66,6 +83,9 @@ export const login = createCommandDefinition({
 		const deviceCode = await requestDeviceCode(auth0);
 
 		const verificationUrl = deviceCode.verification_uri_complete ?? deviceCode.verification_uri;
+
+		// Try to open the verification URL in the default browser
+		openInBrowser(verificationUrl);
 
 		console.info('');
 		console.info(chalk.bold('To authenticate, open this URL in your browser:'));

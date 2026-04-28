@@ -92,8 +92,13 @@ function getConfigFilePath(workDir: string) {
 	return path.join(workDir, SOS_CONFIG_FILE_NAME);
 }
 
-export async function ensureCustomScriptVersion(restApi: RestApi, config: CustomScriptConfig, skipConfirmation?: boolean) {
-	const customScript = await ensureCustomScript(restApi, config, skipConfirmation);
+export async function ensureCustomScriptVersion(
+	restApi: RestApi,
+	config: CustomScriptConfig,
+	skipConfirmation?: boolean,
+	organizationUid?: string,
+) {
+	const customScript = await ensureCustomScript(restApi, config, skipConfirmation, organizationUid);
 
 	const customScriptVersion = await restApi.customScript.version.get({
 		customScriptUid: customScript.uid,
@@ -128,7 +133,7 @@ export async function ensureCustomScriptVersion(restApi: RestApi, config: Custom
 	});
 }
 
-async function ensureCustomScript(restApi: RestApi, config: CustomScriptConfig, skipConfirmation?: boolean) {
+async function ensureCustomScript(restApi: RestApi, config: CustomScriptConfig, skipConfirmation?: boolean, organizationUid?: string) {
 	if (config.uid) {
 		const customScript = await restApi.customScript.get(config.uid);
 		if (customScript) {
@@ -166,6 +171,7 @@ async function ensureCustomScript(restApi: RestApi, config: CustomScriptConfig, 
 		title: config.name, // TODO change
 		description: config.description,
 		dangerLevel: config.dangerLevel ? config.dangerLevel : 'normal', // default to 'normal' if not provided
+		organizationUid,
 	});
 
 	// TODO ask for permission or read from CLI arg

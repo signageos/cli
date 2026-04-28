@@ -1,3 +1,4 @@
+import debug from 'debug';
 import {
 	IConfig,
 	loadConfig as loadConfigBase,
@@ -7,6 +8,8 @@ import {
 import { loadStoredTokens, isTokenExpired, refreshAccessToken, saveStoredTokens } from '@signageos/cli-common';
 import { getGlobalProfile } from '../Command/globalArgs';
 import { getAuth0Settings } from '../Auth/auth0Settings';
+
+const Debug = debug('@signageos/cli:RunControl');
 
 /**
  * Extended config interface that includes Auth0 JWT token alongside legacy fields.
@@ -43,6 +46,7 @@ export async function loadConfig(): Promise<IExtendedConfig> {
 	// Check for SOS_ACCESS_TOKEN env var (CI-friendly JWT override)
 	const envToken = process.env.SOS_ACCESS_TOKEN;
 	if (envToken) {
+		Debug('Using access token from SOS_ACCESS_TOKEN env var');
 		finalConfig.accessToken = envToken;
 		return finalConfig;
 	}
@@ -51,19 +55,28 @@ export async function loadConfig(): Promise<IExtendedConfig> {
 	const tokens = loadStoredTokens(profile);
 	if (tokens) {
 		if (isTokenExpired(tokens)) {
+			Debug('Stored access token is expired (expiresAt: %s)', tokens.expiresAt);
 			if (tokens.refreshToken) {
 				try {
+					Debug('Attempting token refresh via Auth0');
 					const auth0 = getAuth0Settings();
 					const refreshed = await refreshAccessToken(auth0, tokens.refreshToken);
 					saveStoredTokens(refreshed, profile);
 					finalConfig.accessToken = refreshed.accessToken;
-				} catch {
+					Debug('Token refreshed successfully (new expiresAt: %s)', refreshed.expiresAt);
+				} catch (error) {
+					Debug('Token refresh failed: %s', error instanceof Error ? error.message : String(error));
 					// Token refresh failed — fall through to legacy auth or require re-login
 				}
+			} else {
+				Debug('No refresh token available, cannot refresh');
 			}
 		} else {
+			Debug('Using stored access token (expiresAt: %s)', tokens.expiresAt);
 			finalConfig.accessToken = tokens.accessToken;
 		}
+	} else {
+		Debug('No stored Auth0 tokens found, using legacy auth');
 	}
 
 	return finalConfig;

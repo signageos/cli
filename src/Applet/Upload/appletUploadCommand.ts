@@ -173,7 +173,7 @@ export const appletUpload = createCommandDefinition({
 			if (!(error instanceof AppletDoesNotExistError)) {
 				throw error;
 			}
-			const createdApplet = await restApi.applet.create({ name: appletName });
+			const createdApplet = await restApi.applet.create({ name: appletName, organizationUid });
 			appletUid = createdApplet.uid;
 			log(
 				'info',
