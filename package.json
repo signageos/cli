@@ -68,7 +68,7 @@
     "@types/mocha": "10.0.10",
     "@types/node": "22.15.3",
     "@types/prompts": "2.4.9",
-    "@types/semver": "7.7.0",
+    "@types/semver": "7.7.1",
     "@types/sinon": "17.0.4",
     "@types/unzipper": "0.10.11",
     "@types/which": "3.0.4",
@@ -103,7 +103,7 @@
     "markdown-table": "3.0.4",
     "mime": "2.4.4",
     "prompts": "2.4.2",
-    "semver": "7.7.1",
+    "semver": "7.7.4",
     "serve-static": "2.2.0",
     "which": "5.0.0",
     "zod": "3.24.4"
