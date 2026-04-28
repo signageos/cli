@@ -127,6 +127,7 @@ export async function getOrganizations(): Promise<IOrganization[]> {
 			clientId: config.identification,
 			secret: config.apiSecurityToken,
 		},
+		accessToken: config.accessToken,
 		version: ApiVersions.V1,
 	};
 	const responseOfGet = await getResource(options, ORGANIZATION_RESOURCE);
@@ -150,6 +151,7 @@ export async function getOrganization(organizationUid: string): Promise<IOrganiz
 			clientId: config.identification,
 			secret: config.apiSecurityToken,
 		},
+		accessToken: config.accessToken,
 		version: ApiVersions.V1,
 	};
 	const responseOfGet = await getResource(options, ORGANIZATION_RESOURCE + '/' + organizationUid);

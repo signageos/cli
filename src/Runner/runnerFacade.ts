@@ -15,8 +15,14 @@ import { ConfigSchema } from '../Plugin/pluginFacade';
 
 const PLUGIN_BUILDS_DIRNAME = 'plugin_builds';
 
-export async function ensureRunnerVersion(restApi: RestApi, config: RunnerConfig, schema: any, skipConfirmation?: boolean) {
-	const runner = await ensureRunner(restApi, config, skipConfirmation);
+export async function ensureRunnerVersion(
+	restApi: RestApi,
+	config: RunnerConfig,
+	schema: any,
+	skipConfirmation?: boolean,
+	organizationUid?: string,
+) {
+	const runner = await ensureRunner(restApi, config, skipConfirmation, organizationUid);
 
 	const runnerVersion = await restApi.runner.version.get({ runnerUid: runner.uid, version: config.version });
 
@@ -52,7 +58,7 @@ export async function ensureRunnerVersion(restApi: RestApi, config: RunnerConfig
 	});
 }
 
-async function ensureRunner(restApi: RestApi, config: RunnerConfig, skipConfirmation?: boolean) {
+async function ensureRunner(restApi: RestApi, config: RunnerConfig, skipConfirmation?: boolean, organizationUid?: string) {
 	if (config.uid) {
 		const runner = await restApi.runner.get(config.uid);
 		if (runner) {
@@ -87,6 +93,7 @@ async function ensureRunner(restApi: RestApi, config: RunnerConfig, skipConfirma
 		name: config.name,
 		title: config.name,
 		description: config.description,
+		organizationUid,
 	});
 
 	// TODO ask for permission or read from CLI arg

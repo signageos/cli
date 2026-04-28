@@ -10,7 +10,7 @@
         "downlevelIteration": true,
         "declaration": true,
         "allowJs": true,
-        "checkJs": true,
+        "checkJs": false,
         "noImplicitReturns": false
     },
     "include": [

@@ -1,13 +1,12 @@
 import chalk from 'chalk';
 import prompts from 'prompts';
-import { loadConfig, updateConfig } from '../RunControl/runControlHelper';
+import { loadConfig, updateConfig, IExtendedConfig } from '../RunControl/runControlHelper';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import AuthenitcationError from '@signageos/sdk/dist/RestApi/Error/AuthenticationError';
 import NotFoundError from '@signageos/sdk/dist/RestApi/Error/NotFoundError';
 import { ApiVersions } from '@signageos/sdk/dist/RestApi/apiVersions';
 import { createClientVersions, getApiUrl, autocompleteSuggest } from '../helper';
 import { log } from '@signageos/sdk/dist/Console/log';
-import { IConfig } from '@signageos/sdk/dist/SosHelper/sosControlHelper';
 import { getAllPages } from '../helper/paginationHelper';
 
 interface IEmulatorData {
@@ -17,13 +16,13 @@ interface IEmulatorData {
 	createdAt: Date;
 }
 
-const createRestApi = (config: IConfig) => {
+const createRestApi = (config: IExtendedConfig) => {
+	const auth = config.accessToken
+		? { accessToken: config.accessToken }
+		: { clientId: config.identification ?? '', secret: config.apiSecurityToken ?? '' };
 	const options = {
 		url: getApiUrl(config),
-		auth: {
-			clientId: config.identification ?? '',
-			secret: config.apiSecurityToken ?? '',
-		},
+		auth,
 		version: ApiVersions.V1,
 		clientVersions: createClientVersions(),
 	};
@@ -56,7 +55,7 @@ async function createNewEmulator(restApi: RestApi, organizationUid: string) {
 
 export async function loadEmulatorOrCreateNewAndReturnUid(organizationUid: string) {
 	const config = await loadConfig();
-	if (!config.identification || !config.apiSecurityToken) {
+	if (!config.accessToken && (!config.identification || !config.apiSecurityToken)) {
 		throw new Error(`No authenticized account found. Try to login using ${chalk.green('sos login')}`);
 	}
 	const restApi = createRestApi(config);

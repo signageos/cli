@@ -1,76 +1,67 @@
+import { exec } from 'node:child_process';
+import { platform } from 'node:os';
 import chalk from 'chalk';
 import prompts from 'prompts';
-import debug from 'debug';
-import * as os from 'os';
 import fs from 'fs-extra';
-import { ApiVersions } from '@signageos/sdk/dist/RestApi/apiVersions';
 import { log } from '@signageos/sdk/dist/Console/log';
 import { getConfigFilePath } from '@signageos/sdk/dist/SosHelper/sosControlHelper';
-import { deserializeJSON, getApiUrl, postResource } from '../helper';
-import { saveConfig, loadConfig } from '../RunControl/runControlHelper';
-import { parameters } from '../parameters';
+import {
+	requestDeviceCode,
+	pollForToken,
+	saveStoredTokens,
+	writeProfileField,
+	profileExists as checkProfileExists,
+} from '@signageos/cli-common';
+import { getAuth0Settings } from './auth0Settings';
 import { getGlobalProfile } from '../Command/globalArgs';
-import { CommandLineOptions, createCommandDefinition } from '../Command/commandDefinition';
+import { createCommandDefinition } from '../Command/commandDefinition';
 
-const Debug = debug('@signageos/cli:Auth:login');
-
-const OPTION_LIST = [{ name: 'username', type: String, description: `Username or e-mail used for authentication` }] as const;
-
-/**
- * To explicitly enable auth0 authentication add flag --auth0-enabled to command line options
- * { _unknown: [ '--auth0-enabled' ], command: [ 'login' ] }
- */
-export const getIsAuth0Enabled = (options: any) => {
-	const queryParams: {
-		isAuth0Enabled?: boolean;
-	} = {};
-
-	if (options._unknown?.includes('--auth0-enabled')) {
-		queryParams.isAuth0Enabled = true;
-	}
-
-	return queryParams;
-};
+/** Best-effort attempt to open a URL in the user's default browser. */
+function openInBrowser(url: string): void {
+	const cmd =
+		platform() === 'darwin'
+			? `open ${JSON.stringify(url)}`
+			: platform() === 'win32'
+				? `start "" ${JSON.stringify(url)}`
+				: `xdg-open ${JSON.stringify(url)}`;
+	exec(cmd, (err) => {
+		if (err) {
+			// Silently ignore — the URL is already printed to the console as a fallback.
+		}
+	});
+}
 
 /**
- * Handles user authentication using username/email and password credentials.
- * Supports Auth0 authentication method. Stores credentials securely in the
- * ~/.sosrc configuration file for subsequent CLI operations.
+ * Authenticates the user via the Auth0 Device Authorization Flow.
+ * Opens a browser-based verification page where the user logs in,
+ * then stores the resulting JWT tokens in `~/.sosrc`.
  *
  * @group Authentication:1
  *
  * @example
  * ```bash
- * # Interactive login (prompts for username and password)
+ * # Interactive login (opens browser for Auth0 authentication)
  * sos login
  *
- * # Login with username specified
- * sos login --username user@example.com
+ * # Login with a specific profile
+ * sos --profile staging login
  * ```
  *
- * @throws {Error} When username is missing and not provided interactively
- *
- * @since 0.3.0
+ * @since 4.0.0
  */
 export const login = createCommandDefinition({
 	name: 'login',
-	description: 'Authenticate user with signageOS',
-	optionList: OPTION_LIST,
+	description: 'Authenticate user with signageOS via Auth0',
+	optionList: [],
 	commands: [],
-	async run(options: CommandLineOptions<typeof OPTION_LIST>) {
-		let identification: string | undefined = options.username;
+	async run() {
 		const profile = getGlobalProfile();
 		const configFilePath = getConfigFilePath();
 
 		// Detect a new (non-existent) named profile and prompt for the API URL
-		let promptedApiUrl: string | undefined;
 		if (profile) {
-			let profileExists = false;
-			if (await fs.pathExists(configFilePath)) {
-				const content = (await fs.readFile(configFilePath)).toString();
-				profileExists = content.includes(`[profile ${profile}]`);
-			}
-			if (!profileExists) {
+			const exists = (await fs.pathExists(configFilePath)) && checkProfileExists(profile);
+			if (!exists) {
 				log('info', `Profile "${profile}" does not exist in ${configFilePath}. Please enter the server API URL to create it.`);
 				const { inputApiUrl } = await prompts({
 					type: 'text',
@@ -82,115 +73,34 @@ export const login = createCommandDefinition({
 				if (!inputApiUrl) {
 					throw new Error('API URL is required to log in.');
 				}
-				promptedApiUrl = inputApiUrl.replace(/\/+$/, '');
+				writeProfileField('apiUrl', inputApiUrl.replace(/\/+$/, ''), profile);
 			}
 		}
 
-		const config = await loadConfig();
-		const apiUrl = promptedApiUrl ?? getApiUrl(config);
+		const auth0 = getAuth0Settings();
 
-		// Extract domain from API URL to show in prompts
-		const hostToDisplay = new URL(apiUrl).hostname;
+		log('info', 'Starting Auth0 Device Authorization Flow...');
+		const deviceCode = await requestDeviceCode(auth0);
 
-		if (!identification) {
-			const response = await prompts({
-				type: 'text',
-				name: 'username',
-				message: `Type your username or e-mail used for ${hostToDisplay}`,
-			});
-			identification = response.username;
+		const verificationUrl = deviceCode.verification_uri_complete ?? deviceCode.verification_uri;
+
+		// Try to open the verification URL in the default browser
+		openInBrowser(verificationUrl);
+
+		console.info('');
+		console.info(chalk.bold('To authenticate, open this URL in your browser:'));
+		console.info(chalk.cyan.underline(verificationUrl));
+		console.info('');
+		if (!deviceCode.verification_uri_complete) {
+			console.info(`Then enter this code: ${chalk.bold.yellow(deviceCode.user_code)}`);
+			console.info('');
 		}
+		console.info(chalk.dim(`Waiting for authorization (expires in ${Math.round(deviceCode.expires_in / 60)} minutes)...`));
 
-		if (!identification) {
-			throw new Error('Missing argument --username <string>');
-		}
-		const { password } = await prompts({
-			type: 'password',
-			name: 'password',
-			message: `Type your password used for ${hostToDisplay}`,
-		});
+		const tokens = await pollForToken(auth0, deviceCode.device_code, deviceCode.interval, deviceCode.expires_in);
 
-		const authQueryParams = getIsAuth0Enabled(options);
+		saveStoredTokens(tokens, profile);
 
-		const {
-			id: tokenId,
-			securityToken: apiSecurityToken,
-			name,
-		} = await getOrCreateApiSecurityToken({
-			identification,
-			password,
-			apiUrl,
-			...authQueryParams,
-		});
-
-		await saveConfig({
-			apiUrl: profile || apiUrl !== parameters.apiUrl ? apiUrl : undefined,
-			identification: tokenId,
-			apiSecurityToken,
-		});
-
-		log(
-			'info',
-			`User ${chalk.green(identification)} has been logged in with token "${name}". Credentials are stored in ${chalk.blue(
-				getConfigFilePath(),
-			)}`,
-		);
+		log('info', `Successfully authenticated. Credentials are stored in ${chalk.blue(configFilePath)}`);
 	},
 });
-
-interface ILoginResponseBody {
-	id: string;
-	securityToken: string;
-	name: string;
-}
-
-async function getOrCreateApiSecurityToken({
-	identification,
-	password,
-	apiUrl,
-	isAuth0Enabled,
-}: {
-	identification: string;
-	password: string;
-	apiUrl: string;
-	isAuth0Enabled?: boolean;
-}): Promise<ILoginResponseBody> {
-	const ACCOUNT_SECURITY_TOKEN_RESOURCE = 'account/security-token';
-	const options = {
-		url: apiUrl,
-		auth: { clientId: undefined, secret: undefined },
-		version: ApiVersions.V1,
-	};
-	const tokenName = generateTokenName();
-
-	const requestBody = {
-		identification,
-		password,
-		name: tokenName,
-		...(isAuth0Enabled !== undefined ? { isAuth0AuthenticationEnabled: isAuth0Enabled } : {}),
-	};
-
-	const response = await postResource(options, ACCOUNT_SECURITY_TOKEN_RESOURCE, null, requestBody);
-	const responseBody = JSON.parse(await response.text(), deserializeJSON);
-
-	// Don't log sensitive response data
-	Debug('POST security-token response status', response.status);
-
-	if (response.status === 201) {
-		return responseBody;
-	} else if (response.status === 403) {
-		throw new Error(`Incorrect username or password`);
-	} else {
-		// Ensure password is not logged in error messages
-		const errorMessage = responseBody?.message ?? `HTTP status ${response.status}`;
-		throw new Error('Unknown error: ' + errorMessage);
-	}
-}
-
-function generateTokenName() {
-	const hostname = os.hostname();
-	const shortHostname = hostname.split('.')[0];
-	const userInfo = os.userInfo();
-
-	return `${userInfo.username}@${shortHostname}`;
-}

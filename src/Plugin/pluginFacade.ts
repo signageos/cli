@@ -14,8 +14,14 @@ import { addToConfigFile, PlatformConfig, CodeArchive, PlatformSchema } from '..
 
 const PLUGIN_BUILDS_DIRNAME = 'plugin_builds';
 
-export async function ensurePluginVersion(restApi: RestApi, config: PluginConfig, schema: any, skipConfirmation?: boolean) {
-	const plugin = await ensurePlugin(restApi, config, skipConfirmation);
+export async function ensurePluginVersion(
+	restApi: RestApi,
+	config: PluginConfig,
+	schema: any,
+	skipConfirmation?: boolean,
+	organizationUid?: string,
+) {
+	const plugin = await ensurePlugin(restApi, config, skipConfirmation, organizationUid);
 
 	const pluginVersion = await restApi.plugin.version.get({
 		pluginUid: plugin.uid,
@@ -52,7 +58,7 @@ export async function ensurePluginVersion(restApi: RestApi, config: PluginConfig
 	});
 }
 
-async function ensurePlugin(restApi: RestApi, config: PluginConfig, skipConfirmation?: boolean) {
+async function ensurePlugin(restApi: RestApi, config: PluginConfig, skipConfirmation?: boolean, organizationUid?: string) {
 	if (config.uid) {
 		const plugin = await restApi.plugin.get(config.uid);
 		if (plugin) {
@@ -87,6 +93,7 @@ async function ensurePlugin(restApi: RestApi, config: PluginConfig, skipConfirma
 		name: config.name,
 		title: config.name,
 		description: config.description,
+		organizationUid,
 	});
 
 	// TODO ask for permission or read from CLI arg

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { applet } from './Applet/appletCommand';
 import { login } from './Auth/loginCommand';
+import { logout } from './Auth/logoutCommand';
 import { organization } from './Organization/organizationCommand';
 import { timing } from './Timing/timingCommand';
 import { processCommand } from './Command/commandProcessor';
@@ -38,7 +39,7 @@ const index = createCommandDefinition({
 	name: 'sos',
 	description: 'SignageOS CLI - The central command-line tool for deploying, managing, and debugging signageOS projects and devices',
 	optionList: GENERAL_OPTION_LIST,
-	commands: [applet, login, organization, timing, device, customScript, plugin, runner, autocomplete],
+	commands: [applet, login, logout, organization, timing, device, customScript, plugin, runner, autocomplete],
 	async run() {
 		throw new Error('Unknown command');
 	},

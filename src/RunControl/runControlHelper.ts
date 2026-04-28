@@ -1,20 +1,33 @@
+import debug from 'debug';
 import {
 	IConfig,
 	loadConfig as loadConfigBase,
 	saveConfig as saveConfigBase,
 	updateConfig as updateConfigBase,
 } from '@signageos/sdk/dist/SosHelper/sosControlHelper';
+import { loadStoredTokens, isTokenExpired, refreshAccessToken, saveStoredTokens } from '@signageos/cli-common';
 import { getGlobalProfile } from '../Command/globalArgs';
+import { getAuth0Settings } from '../Auth/auth0Settings';
 
-/** The same as loadConfig in SDK, but respect CLI --profile argument */
-export async function loadConfig() {
+const Debug = debug('@signageos/cli:RunControl');
+
+/**
+ * Extended config interface that includes Auth0 JWT token alongside legacy fields.
+ * When `accessToken` is present, it takes precedence over `identification`/`apiSecurityToken`.
+ */
+export interface IExtendedConfig extends IConfig {
+	accessToken?: string;
+}
+
+/** The same as loadConfig in SDK, but respect CLI --profile argument and Auth0 tokens */
+export async function loadConfig(): Promise<IExtendedConfig> {
 	const profile = getGlobalProfile();
 	const config = await loadConfigBase({ profile });
 
 	// Override with environment variables if they exist.
 	// When --profile is explicitly given, skip the SOS_API_URL override so the
 	// profile's own apiUrl is used instead of the ambient environment variable.
-	const envOverride: Partial<IConfig> = {};
+	const envOverride: Partial<IExtendedConfig> = {};
 	if (process.env.SOS_API_IDENTIFICATION) {
 		envOverride.identification = process.env.SOS_API_IDENTIFICATION;
 	}
@@ -28,7 +41,43 @@ export async function loadConfig() {
 		envOverride.apiUrl = process.env.SOS_API_URL;
 	}
 
-	const finalConfig = { ...config, ...envOverride };
+	const finalConfig: IExtendedConfig = { ...config, ...envOverride };
+
+	// Check for SOS_ACCESS_TOKEN env var (CI-friendly JWT override)
+	const envToken = process.env.SOS_ACCESS_TOKEN;
+	if (envToken) {
+		Debug('Using access token from SOS_ACCESS_TOKEN env var');
+		finalConfig.accessToken = envToken;
+		return finalConfig;
+	}
+
+	// Try to load Auth0 tokens from ~/.sosrc
+	const tokens = loadStoredTokens(profile);
+	if (tokens) {
+		if (isTokenExpired(tokens)) {
+			Debug('Stored access token is expired (expiresAt: %s)', tokens.expiresAt);
+			if (tokens.refreshToken) {
+				try {
+					Debug('Attempting token refresh via Auth0');
+					const auth0 = getAuth0Settings();
+					const refreshed = await refreshAccessToken(auth0, tokens.refreshToken);
+					saveStoredTokens(refreshed, profile);
+					finalConfig.accessToken = refreshed.accessToken;
+					Debug('Token refreshed successfully (new expiresAt: %s)', refreshed.expiresAt);
+				} catch (error) {
+					Debug('Token refresh failed: %s', error instanceof Error ? error.message : String(error));
+					// Token refresh failed — fall through to legacy auth or require re-login
+				}
+			} else {
+				Debug('No refresh token available, cannot refresh');
+			}
+		} else {
+			Debug('Using stored access token (expiresAt: %s)', tokens.expiresAt);
+			finalConfig.accessToken = tokens.accessToken;
+		}
+	} else {
+		Debug('No stored Auth0 tokens found, using legacy auth');
+	}
 
 	return finalConfig;
 }

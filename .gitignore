@@ -11,4 +11,5 @@ coverage/*
 tests/output
 docs/*
 *.d.ts
-tools/docs/dist
+tools/docs/dist.pnpm-store/
+.pnpm-store/
