@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ## [Unreleased]
 
+## [4.0.0] - 2026-04-28
+
 ### Added
 - Auth0 Device Authorization Flow for `sos login` — replaces legacy username/password authentication
 - JWT access token support for all API interactions
