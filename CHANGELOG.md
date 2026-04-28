@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ## [Unreleased]
 
+### Removed
+- removed `sos firmware upload` feature
+
+### Fixed
+
+- All paginated list endpoints are now fully traversed - devices, applet versions, and applet test suites spanning multiple pages are no
+  longer silently truncated
+- `sos applet upload` reupload correctly fetches all existing remote files across pages before diffing
+
 ## [3.0.0] - 2026-04-10
 ### Added
 - Interactive lists (`emulator`, `applet`, or default `organization`), you can now type either the human-readable `name` or the `UID`; lookups are case-insensitive.

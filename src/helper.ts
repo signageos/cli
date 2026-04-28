@@ -2,11 +2,10 @@ import { stringify } from 'querystring';
 import prompts from 'prompts';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import IRestApiOptions from '@signageos/sdk/dist/RestApi/IOptions';
-import { loadConfig } from './RunControl/runControlHelper';
+import { loadConfig, IExtendedConfig } from './RunControl/runControlHelper';
 import { ApiVersions } from '@signageos/sdk/dist/RestApi/apiVersions';
 import { parameters } from './parameters';
 import { getGlobalApiUrl } from './Command/globalArgs';
-import { IConfig } from '@signageos/sdk/dist/SosHelper/sosControlHelper';
 
 type RequestInit = globalThis.RequestInit;
 interface ICredentials {
@@ -19,7 +18,7 @@ export async function loadApiUrl() {
 	return getApiUrl(config);
 }
 
-export function getApiUrl(config: IConfig) {
+export function getApiUrl(config: IExtendedConfig) {
 	// Precedence:
 	// 1. Explicit global CLI argument (--api-url)
 	// 2. Environment variable (SOS_API_URL) - for CI/CD and testing
@@ -41,12 +40,15 @@ export function createClientVersions() {
 }
 
 export async function createOrganizationRestApi(credentials: ICredentials) {
+	const config = await loadConfig();
+	// When JWT is available, use it instead of org OAuth credentials.
+	// The JWT carries the user's identity; the API determines permissions.
+	const auth = config.accessToken
+		? { clientId: config.accessToken, secret: '' }
+		: { clientId: credentials.oauthClientId, secret: credentials.oauthClientSecret };
 	const options: IRestApiOptions = {
 		url: await loadApiUrl(),
-		auth: {
-			clientId: credentials.oauthClientId,
-			secret: credentials.oauthClientSecret,
-		},
+		auth,
 		version: ApiVersions.V1,
 		clientVersions: createClientVersions(),
 	};
@@ -65,15 +67,19 @@ export interface IOptions {
 		clientId: string | undefined;
 		secret: string | undefined;
 	};
+	/** JWT access token — when set, used as `X-Auth: <token>` (takes precedence over clientId:secret) */
+	accessToken?: string;
 	version: ApiVersions;
 	headers?: { [name: string]: string };
 }
 
 export function createOptions(method: 'POST' | 'GET' | 'PUT' | 'DELETE', options: IOptions, data?: any): RequestInit {
+	// Prefer JWT accessToken when available; fall back to legacy clientId:secret
+	const authValue = options.accessToken ? options.accessToken : (options.auth.clientId ?? '') + ':' + (options.auth.secret ?? '');
 	return {
 		headers: {
 			'Content-Type': 'application/json',
-			[AUTH_HEADER]: options.auth.clientId + ':' + options.auth.secret,
+			[AUTH_HEADER]: authValue,
 			...(options.headers || {}),
 		},
 		method,

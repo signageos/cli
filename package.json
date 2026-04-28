@@ -54,7 +54,7 @@
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "1.0.2",
-    "@signageos/codestyle": "2.1.0",
+    "@signageos/codestyle": "2.3.0",
     "@types/archiver": "6.0.3",
     "@types/child-process-promise": "2.2.6",
     "@types/cli-progress": "3.11.6",
@@ -85,6 +85,7 @@
     "unzipper": "0.12.3"
   },
   "dependencies": {
+    "@signageos/cli-common": "0.1.0-dami-initial-package.5",
     "@signageos/file": "2.0.1",
     "@signageos/sdk": "2.5.0",
     "archiver": "7.0.1",

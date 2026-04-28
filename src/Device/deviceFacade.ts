@@ -103,6 +103,7 @@ export async function disconnectDevice(organization: IOrganization, deviceUid: s
 			clientId: organization.oauthClientId,
 			secret: organization.oauthClientSecret,
 		},
+		accessToken: config.accessToken,
 		version: ApiVersions.V1,
 	};
 	const responseOfPost = await postResource(options, DEVICE_RESOURCE, null, { deviceUid: `${deviceUid}` });
