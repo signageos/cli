@@ -3,9 +3,10 @@ import * as path from 'path';
 import * as ts from 'typescript';
 import { cliRouter } from './router/cliRouter.js';
 import { cliCommandTemplate } from './templates/cliCommandTemplate.js';
-import { buildStaticTemplatePath } from './process/utils/constants.js';
+import { buildStaticTemplatePath, getStaticTemplatesPath } from './process/utils/constants.js';
 import { logger, readFileSafe, ensureDir } from './utils/shared.js';
 import type { CliCommand } from './core/domain-types.js';
+import { DOCS_CONFIG } from './config.js';
 
 (async () => {
 	// remove the existing docs directory if it exists
@@ -50,6 +51,24 @@ import type { CliCommand } from './core/domain-types.js';
 		const promises = pages.map(([pathname, command]) => generateCommandDocs(pathname, command));
 
 		await Promise.all(promises);
+
+		// Copy standalone guide pages from static/guides/ to docs/
+		const guidesDir = path.join(getStaticTemplatesPath(), 'guides');
+		try {
+			const guideFiles = await fs.readdir(guidesDir);
+			for (const file of guideFiles) {
+				if (file.endsWith('.md')) {
+					const guideName = path.basename(file, '.md');
+					const outputDir = path.join(DOCS_CONFIG.paths.outputDir, guideName);
+					await ensureDir(outputDir);
+					await fs.copyFile(path.join(guidesDir, file), path.join(outputDir, 'index.md'));
+					logger.info(`Copied standalone guide: ${guideName}`);
+				}
+			}
+		} catch {
+			// No guides directory — skip silently
+		}
+
 		logger.success('CLI documentation generated successfully!');
 	} catch (error) {
 		logger.error('Error generating CLI documentation:');

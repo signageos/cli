@@ -50,6 +50,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - Applet Generate `.gitignore` file content is updated to ignore `/dist` directory instead of `./dist`
 
 ### Added
+- CI/CD pipeline setup guide documentation page with GitLab CI and GitHub Actions examples
 - Enhanced autocomplete search to match both names and UIDs
 - Applet directory validation to prevent accidental wrong uploads of non-applet projects (respects `--applet-path` option)
 - Graceful cancellation handling for all interactive prompts
