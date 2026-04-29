@@ -24,7 +24,7 @@ describe('Auth.auth0Settings', function () {
 
 	it('should return default Auth0 settings when no env vars are set', function () {
 		const settings = getAuth0Settings();
-		should(settings).have.property('domain', 'sos-production.us.auth0.com');
+		should(settings).have.property('domain', 'auth0.signageos.io');
 		should(settings).have.property('clientId', '8AU8D3zJ4mK8gszZP3gZO0nv9DusSNjV');
 		should(settings).have.property('audience', 'https://sos-production.us.auth0.com/api/v2/');
 		should(settings).have.property('scope', 'openid profile email offline_access');
