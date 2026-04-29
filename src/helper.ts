@@ -49,6 +49,7 @@ export async function createOrganizationRestApi(credentials: ICredentials) {
 		auth,
 		version: ApiVersions.V1,
 		clientVersions: createClientVersions(),
+		organizationUid: config.defaultOrganizationUid,
 	};
 	const accountOptions: IRestApiOptions = {
 		...options,
