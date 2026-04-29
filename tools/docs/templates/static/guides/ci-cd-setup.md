@@ -18,7 +18,7 @@ In a **CI/CD pipeline**, there is no interactive terminal. Instead, you generate
 Before configuring your pipeline, generate a personal API security token:
 
 1. Log in to [signageOS Box](https://box.signageos.io)
-2. Navigate to **Settings** → **Profile** → **API Tkens**
+2. Navigate to **Settings** → **Profile** → **API Tokens**
 3. Create a new token (account-wide or organization-scoped, depending on your needs)
 4. Copy the **Token ID** (identification) and **Token secret** values — you will need both
 
