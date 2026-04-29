@@ -8,7 +8,7 @@ import { Auth0Settings } from '@signageos/cli-common';
  */
 export function getAuth0Settings(): Auth0Settings {
 	return {
-		domain: process.env.SOS_AUTH0_DOMAIN ?? 'sos-production.us.auth0.com',
+		domain: process.env.SOS_AUTH0_DOMAIN ?? 'auth0.signageos.io',
 		clientId: process.env.SOS_AUTH0_CLIENT_ID ?? '8AU8D3zJ4mK8gszZP3gZO0nv9DusSNjV',
 		audience: process.env.SOS_AUTH0_AUDIENCE ?? 'https://sos-production.us.auth0.com/api/v2/',
 		scope: process.env.SOS_AUTH0_SCOPE ?? 'openid profile email offline_access',
