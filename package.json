@@ -104,7 +104,7 @@
     "mime": "2.4.4",
     "prompts": "2.4.2",
     "semver": "7.7.1",
-    "serve-static": "2.2.0",
+    "serve-static": "2.2.1",
     "which": "5.0.0",
     "zod": "3.24.4"
   }
