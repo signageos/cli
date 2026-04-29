@@ -25,6 +25,7 @@ const createRestApi = (config: IExtendedConfig) => {
 		auth,
 		version: ApiVersions.V1,
 		clientVersions: createClientVersions(),
+		organizationUid: config.defaultOrganizationUid,
 	};
 	return new RestApi(options, options);
 };

@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ## [Unreleased]
 
+### Fixed
+- Pass `organizationUid` as query parameter on all SDK requests to support JWT auth with organization-authenticated API endpoints (applet versions, device settings, etc.)
+
 ## [4.0.0] - 2026-04-28
 
 ### Added

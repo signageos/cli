@@ -87,7 +87,7 @@
   "dependencies": {
     "@signageos/cli-common": "0.1.0",
     "@signageos/file": "2.0.1",
-    "@signageos/sdk": "2.6.0",
+    "@signageos/sdk": "2.6.1",
     "archiver": "7.0.1",
     "chalk": "2.4.2",
     "child-process-promise": "2.1.3",
