@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- `sos device connect`, `sos applet start`, and `sos applet build` now work with Auth0 JWT authentication (pass `accessToken` to SDK `createDevelopment()`)
+- `sos device set-content` no longer fails with `INVALID_BODY_PROPERTIES` error (SDK strips `organizationUid` from timing POST body)
 
 ## [4.0.2] - 2026-04-29
 
