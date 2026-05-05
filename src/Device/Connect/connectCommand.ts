@@ -6,10 +6,11 @@ import {
 	ORGANIZATION_UID_OPTION,
 } from '../../Organization/organizationFacade';
 import { APPLET_UID_OPTION, getAppletUid, getAppletVersion } from '../../Applet/appletFacade';
-import { createOrganizationRestApi } from '../../helper';
+import { createOrganizationRestApi, getApiUrl } from '../../helper';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
 import { createDevelopment } from '@signageos/sdk';
 import wait from '../../Timer/wait';
+import { loadConfig } from '../../RunControl/runControlHelper';
 import {
 	DETACH_PROCESS_OPTION,
 	FORWARD_SERVER_URL_OPTION,
@@ -107,8 +108,11 @@ export const connect = createCommandDefinition({
 		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
 		const organization = await getOrganization(organizationUid);
 		const restApi = await createOrganizationRestApi(organization);
+		const config = await loadConfig();
 		const dev = createDevelopment({
 			organizationUid: organization.uid,
+			url: getApiUrl(config),
+			accessToken: config.accessToken,
 		});
 
 		const appletUid = await getAppletUid(restApi, options);

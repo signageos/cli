@@ -79,7 +79,9 @@ test:windows:
     - npm run test:integration:windows
 
 # CLI-specific override: run integration tests via docker-compose
+# allow_failure: test environment (api.automated.test.signageos.io) is intermittently unavailable
 test:integration:
   extends: .test:general
+  allow_failure: true
   variables:
     TEST_TARGET: test:integration

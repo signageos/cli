@@ -17,6 +17,8 @@ import {
 import { createDevelopment } from '@signageos/sdk/dist';
 import { AppletHotReload } from '@signageos/sdk/dist/Development/Applet/AppletHotReload';
 import wait from '../../Timer/wait';
+import { loadConfig } from '../../RunControl/runControlHelper';
+import { getApiUrl } from '../../helper';
 import {
 	killAppletServerIfRunningAndForceOption,
 	SERVER_FORCE_OPTION,
@@ -109,8 +111,11 @@ export const appletStart = createCommandDefinition({
 		const entryFileAbsolutePath = await getAppletEntryFileAbsolutePath(currentDirectory, options);
 		const entryFileRelativePath = getAppletEntryFileRelativePath(entryFileAbsolutePath, appletPath);
 		const emulatorUid = await loadEmulatorOrCreateNewAndReturnUid(organizationUid);
+		const config = await loadConfig();
 		const dev = createDevelopment({
 			organizationUid,
+			url: getApiUrl(config),
+			accessToken: config.accessToken,
 		});
 
 		const emulatorServerPort = options[PORT_OPTION.name] ?? DEFAULT_PORT;
