@@ -1,16 +1,27 @@
-import { Auth0Settings } from '@signageos/cli-common';
+import { Auth0Settings, readProfileField } from '@signageos/cli-common';
+import { getGlobalProfile } from '../Command/globalArgs';
 
 /**
  * Auth0 settings for the signageOS CLI tool (regular API).
  *
  * These connect to the regular signageOS API (not admin API).
- * Override with environment variables for testing or custom Auth0 tenants.
+ * Precedence: environment variable > profile field in ~/.sosrc > .env default.
  */
 export function getAuth0Settings(): Auth0Settings {
+	const profile = getGlobalProfile();
 	return {
-		domain: process.env.SOS_AUTH0_DOMAIN ?? 'auth0.signageos.io',
-		clientId: process.env.SOS_AUTH0_CLIENT_ID ?? '8AU8D3zJ4mK8gszZP3gZO0nv9DusSNjV',
-		audience: process.env.SOS_AUTH0_AUDIENCE ?? 'https://sos-production.us.auth0.com/api/v2/',
-		scope: process.env.SOS_AUTH0_SCOPE ?? 'openid profile email offline_access',
+		domain: readProfileField('auth0Domain', profile) ?? process.env.SOS_AUTH0_DOMAIN ?? '',
+		clientId: readProfileField('auth0ClientId', profile) ?? process.env.SOS_AUTH0_CLIENT_ID ?? '',
+		audience: readProfileField('auth0Audience', profile) ?? process.env.SOS_AUTH0_AUDIENCE ?? '',
+		scope: readProfileField('auth0Scope', profile) ?? process.env.SOS_AUTH0_SCOPE ?? '',
 	};
+}
+
+/**
+ * Read the Box URL from the active profile.
+ * Precedence: profile field in ~/.sosrc > environment variable (.env default).
+ */
+export function getBoxUrl(): string {
+	const profile = getGlobalProfile();
+	return readProfileField('boxUrl', profile) ?? process.env.SOS_BOX_HOST ?? '';
 }

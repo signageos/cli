@@ -2,16 +2,9 @@ import { exec } from 'node:child_process';
 import { platform } from 'node:os';
 import chalk from 'chalk';
 import prompts from 'prompts';
-import fs from 'fs-extra';
 import { log } from '@signageos/sdk/dist/Console/log';
 import { getConfigFilePath } from '@signageos/sdk/dist/SosHelper/sosControlHelper';
-import {
-	requestDeviceCode,
-	pollForToken,
-	saveStoredTokens,
-	writeProfileField,
-	profileExists as checkProfileExists,
-} from '@signageos/cli-common';
+import { requestDeviceCode, pollForToken, saveStoredTokens, writeProfileField } from '@signageos/cli-common';
 import { getAuth0Settings } from './auth0Settings';
 import { getGlobalProfile } from '../Command/globalArgs';
 import { createCommandDefinition } from '../Command/commandDefinition';
@@ -31,6 +24,14 @@ function openInBrowser(url: string): void {
 	});
 }
 
+const LOGIN_OPTION_LIST = [
+	{
+		name: 'interactive-profile',
+		type: Boolean,
+		description: 'Prompt for custom Auth0 and connection settings (for custom deployments)',
+	},
+] as const;
+
 /**
  * Authenticates the user via the Auth0 Device Authorization Flow.
  * Opens a browser-based verification page where the user logs in,
@@ -43,6 +44,9 @@ function openInBrowser(url: string): void {
  * # Interactive login (opens browser for Auth0 authentication)
  * sos login
  *
+ * # Login with custom configuration (prompts for Auth0 and connection settings)
+ * sos login --interactive-profile
+ *
  * # Login with a specific profile
  * sos --profile staging login
  * ```
@@ -52,28 +56,66 @@ function openInBrowser(url: string): void {
 export const login = createCommandDefinition({
 	name: 'login',
 	description: 'Authenticate user with signageOS via Auth0',
-	optionList: [],
+	optionList: LOGIN_OPTION_LIST,
 	commands: [],
-	async run() {
+	async run(options) {
 		const profile = getGlobalProfile();
 		const configFilePath = getConfigFilePath();
+		const interactiveProfile = options['interactive-profile'];
 
-		// Detect a new (non-existent) named profile and prompt for the API URL
-		if (profile) {
-			const exists = (await fs.pathExists(configFilePath)) && checkProfileExists(profile);
-			if (!exists) {
-				log('info', `Profile "${profile}" does not exist in ${configFilePath}. Please enter the server API URL to create it.`);
-				const { inputApiUrl } = await prompts({
-					type: 'text',
-					name: 'inputApiUrl',
-					message: 'Server API URL',
-					initial: 'https://api.signageos.io',
-					validate: (v: string) => (v.startsWith('http') ? true : 'Must be a valid URL starting with http'),
-				});
-				if (!inputApiUrl) {
-					throw new Error('API URL is required to log in.');
-				}
-				writeProfileField('apiUrl', inputApiUrl.replace(/\/+$/, ''), profile);
+		if (interactiveProfile) {
+			log('info', `Setting up custom connection settings in ${configFilePath}.`);
+
+			const { inputApiUrl } = await prompts({
+				type: 'text',
+				name: 'inputApiUrl',
+				message: 'Server API URL',
+				initial: process.env.SOS_API_URL ?? 'https://api.signageos.io',
+				validate: (v: string) => (v.startsWith('http') ? true : 'Must be a valid URL starting with http'),
+			});
+			if (!inputApiUrl) {
+				throw new Error('API URL is required to log in.');
+			}
+			writeProfileField('apiUrl', inputApiUrl.replace(/\/+$/, ''), profile);
+
+			const { inputBoxUrl } = await prompts({
+				type: 'text',
+				name: 'inputBoxUrl',
+				message: 'Box URL',
+				initial: process.env.SOS_BOX_HOST ?? 'box.signageos.io',
+			});
+			if (inputBoxUrl) {
+				writeProfileField('boxUrl', inputBoxUrl.replace(/\/+$/, ''), profile);
+			}
+
+			const { inputAuth0Domain } = await prompts({
+				type: 'text',
+				name: 'inputAuth0Domain',
+				message: 'Auth0 domain',
+				initial: process.env.SOS_AUTH0_DOMAIN ?? 'auth0.signageos.io',
+			});
+			if (inputAuth0Domain) {
+				writeProfileField('auth0Domain', inputAuth0Domain, profile);
+			}
+
+			const { inputAuth0ClientId } = await prompts({
+				type: 'text',
+				name: 'inputAuth0ClientId',
+				message: 'Auth0 client ID',
+				initial: process.env.SOS_AUTH0_CLIENT_ID ?? '',
+			});
+			if (inputAuth0ClientId) {
+				writeProfileField('auth0ClientId', inputAuth0ClientId, profile);
+			}
+
+			const { inputAuth0Audience } = await prompts({
+				type: 'text',
+				name: 'inputAuth0Audience',
+				message: 'Auth0 audience',
+				initial: process.env.SOS_AUTH0_AUDIENCE ?? '',
+			});
+			if (inputAuth0Audience) {
+				writeProfileField('auth0Audience', inputAuth0Audience, profile);
 			}
 		}
 
