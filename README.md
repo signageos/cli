@@ -80,6 +80,42 @@ identification=xxxxxxxxxxxxxxxxxxxx
 apiSecurityToken=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
+#### Custom deployment
+
+When connecting to a non-default signageOS deployment, use the `--interactive-profile` flag during login. This will interactively prompt for connection settings:
+
+```bash
+sos login --interactive-profile
+# You will be prompted to enter:
+#   Server API URL: https://api.example.com
+#   Box URL: box.example.com
+#   Auth0 domain: auth0.example.com
+#   Auth0 client ID: <your-client-id>
+#   Auth0 audience: https://auth0.example.com/api/v2/
+```
+
+The settings are saved to `~/.sosrc` and used for all subsequent commands automatically.
+
+Alternatively, you can configure the settings directly in `~/.sosrc`:
+```ini
+apiUrl=https://api.example.com
+boxUrl=box.example.com
+auth0Domain=auth0.example.com
+auth0ClientId=<your-client-id>
+auth0Audience=https://auth0.example.com/api/v2/
+```
+
+All settings can also be overridden with environment variables (useful for CI/CD):
+
+| Environment Variable | Config Field |
+|---------------------|---------------|
+| `SOS_API_URL` | `apiUrl` |
+| `SOS_BOX_HOST` | `boxUrl` |
+| `SOS_AUTH0_DOMAIN` | `auth0Domain` |
+| `SOS_AUTH0_CLIENT_ID` | `auth0ClientId` |
+| `SOS_AUTH0_AUDIENCE` | `auth0Audience` |
+| `SOS_AUTH0_SCOPE` | `auth0Scope` |
+
 ### Applet
 ```bash
 sos applet --help

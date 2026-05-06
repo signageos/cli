@@ -9,11 +9,13 @@ describe('Auth.loginCommand', function () {
 		should(login).have.property('run').which.is.a.Function();
 	});
 
-	it('should have an empty optionList', async function () {
+	it('should expose the interactive-profile option', async function () {
 		const mod = await import('../../../src/Auth/loginCommand.js');
 		const { login } = mod.default ?? mod;
 		should(login).have.property('optionList').which.is.an.Array();
-		should(login.optionList).have.length(0);
+		should(login.optionList).have.length(1);
+		should(login.optionList[0]).have.property('name', 'interactive-profile');
+		should(login.optionList[0]).have.property('type', Boolean);
 	});
 
 	it('should have a description mentioning Auth0', async function () {
