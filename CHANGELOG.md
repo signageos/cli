@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ## [Unreleased]
 
+## [4.0.4] - 2026-05-06
+
 ## [4.0.3] - 2026-05-05
 ### Fixed
 - `sos device connect`, `sos applet start`, and `sos applet build` now work with Auth0 JWT authentication (pass `accessToken` to SDK `createDevelopment()`)
