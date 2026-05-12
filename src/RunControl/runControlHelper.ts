@@ -23,10 +23,13 @@ export interface IExtendedConfig extends IConfig {
 export async function loadConfig(): Promise<IExtendedConfig> {
 	const profile = getGlobalProfile();
 	const config = await loadConfigBase({ profile });
+	Debug('Loaded base config from .sosrc (profile=%o): apiUrl=%o', profile ?? '<default>', config.apiUrl);
 
 	// Override with environment variables if they exist.
-	// When --profile is explicitly given, skip the SOS_API_URL override so the
-	// profile's own apiUrl is used instead of the ambient environment variable.
+	// Note: SOS_API_URL is intentionally NOT applied here — it is resolved together
+	// with --api-url and SOS_DEFAULT_API_URL in helper.getApiUrl(), so the full
+	// precedence chain (cli > SOS_API_URL > .sosrc > SOS_DEFAULT_API_URL) is honored
+	// in a single place.
 	const envOverride: Partial<IExtendedConfig> = {};
 	if (process.env.SOS_API_IDENTIFICATION) {
 		envOverride.identification = process.env.SOS_API_IDENTIFICATION;
@@ -37,11 +40,10 @@ export async function loadConfig(): Promise<IExtendedConfig> {
 	if (process.env.SOS_ORGANIZATION_UID) {
 		envOverride.defaultOrganizationUid = process.env.SOS_ORGANIZATION_UID;
 	}
-	if (process.env.SOS_API_URL && !profile) {
-		envOverride.apiUrl = process.env.SOS_API_URL;
-	}
+	Debug('Env overrides applied: %o', Object.keys(envOverride));
 
 	const finalConfig: IExtendedConfig = { ...config, ...envOverride };
+	Debug('Final config: apiUrl=%o defaultOrganizationUid=%o', finalConfig.apiUrl, finalConfig.defaultOrganizationUid);
 
 	// Check for SOS_ACCESS_TOKEN env var (CI-friendly JWT override)
 	const envToken = process.env.SOS_ACCESS_TOKEN;
