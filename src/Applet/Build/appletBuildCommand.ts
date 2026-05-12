@@ -7,7 +7,7 @@ import {
 	ORGANIZATION_UID_OPTION,
 } from '../../Organization/organizationFacade';
 import { createOrganizationRestApi, getApiUrl } from '../../helper';
-import { createDevelopment } from '@signageos/sdk/dist';
+import { createDevelopmentWithOptions } from '../../Development/developmentFactory';
 import { APPLET_UID_OPTION, getAppletUid, getAppletVersion } from '../appletFacade';
 import { log } from '@signageos/sdk/dist/Console/log';
 import debug from 'debug';
@@ -56,7 +56,7 @@ export const appletBuild = createCommandDefinition({
 		const organization = await getOrganization(organizationUid);
 		const restApi = await createOrganizationRestApi(organization);
 		const config = await loadConfig();
-		const dev = createDevelopment({
+		const dev = createDevelopmentWithOptions({
 			organizationUid: organization.uid,
 			url: getApiUrl(config),
 			accessToken: config.accessToken,

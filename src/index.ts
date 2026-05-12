@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+process.env.SOS_SKIP_DOTENV = '1';
 import { applet } from './Applet/appletCommand';
 import { login } from './Auth/loginCommand';
 import { logout } from './Auth/logoutCommand';

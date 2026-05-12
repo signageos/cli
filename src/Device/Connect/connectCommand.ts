@@ -8,7 +8,7 @@ import {
 import { APPLET_UID_OPTION, getAppletUid, getAppletVersion } from '../../Applet/appletFacade';
 import { createOrganizationRestApi, getApiUrl } from '../../helper';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
-import { createDevelopment } from '@signageos/sdk';
+import { createDevelopmentWithOptions } from '../../Development/developmentFactory';
 import wait from '../../Timer/wait';
 import { loadConfig } from '../../RunControl/runControlHelper';
 import {
@@ -109,7 +109,7 @@ export const connect = createCommandDefinition({
 		const organization = await getOrganization(organizationUid);
 		const restApi = await createOrganizationRestApi(organization);
 		const config = await loadConfig();
-		const dev = createDevelopment({
+		const dev = createDevelopmentWithOptions({
 			organizationUid: organization.uid,
 			url: getApiUrl(config),
 			accessToken: config.accessToken,
