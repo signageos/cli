@@ -1,4 +1,5 @@
 import { stringify } from 'querystring';
+import debug from 'debug';
 import prompts from 'prompts';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import IRestApiOptions from '@signageos/sdk/dist/RestApi/IOptions';
@@ -6,6 +7,8 @@ import { loadConfig, IExtendedConfig } from './RunControl/runControlHelper';
 import { ApiVersions } from '@signageos/sdk/dist/RestApi/apiVersions';
 import { parameters } from './parameters';
 import { getGlobalApiUrl } from './Command/globalArgs';
+
+const Debug = debug('@signageos/cli:helper');
 
 type RequestInit = globalThis.RequestInit;
 interface ICredentials {
@@ -19,13 +22,24 @@ export async function loadApiUrl() {
 }
 
 export function getApiUrl(config: IExtendedConfig) {
-	// Precedence:
-	// 1. Explicit global CLI argument (--api-url)
-	// 2. Environment variable (SOS_API_URL) - for CI/CD and testing
-	// 3. Stored profile configuration (config.apiUrl from ~/.sosrc)
+	// Precedence (highest to lowest):
+	// 1. CLI --api-url argument
+	// 2. SOS_API_URL env var (user-explicit override, for CI/CD)
+	// 3. config.apiUrl (.sosrc field — user's saved profile)
+	// 4. SOS_DEFAULT_API_URL env var (package default from .env.production)
 	const cliUrl = getGlobalApiUrl();
+	const envUrl = process.env.SOS_API_URL;
 	const profileUrl = config.apiUrl;
-	const rawApiUrl = cliUrl || profileUrl;
+	const defaultUrl = process.env.SOS_DEFAULT_API_URL;
+	const rawApiUrl = cliUrl || envUrl || profileUrl || defaultUrl;
+	Debug(
+		'API URL resolution: cli=%o env(SOS_API_URL)=%o profile=%o env(SOS_DEFAULT_API_URL)=%o resolved=%o',
+		cliUrl,
+		envUrl,
+		profileUrl,
+		defaultUrl,
+		rawApiUrl,
+	);
 	if (!rawApiUrl) {
 		throw new Error(`No API URL is defined. Please use --api-url or set SOS_API_URL environment variable.`);
 	}
@@ -44,8 +58,15 @@ export async function createOrganizationRestApi(credentials: ICredentials) {
 	const auth = config.accessToken
 		? { accessToken: config.accessToken }
 		: { clientId: credentials.oauthClientId, secret: credentials.oauthClientSecret };
+	const url = await loadApiUrl();
+	Debug(
+		'Creating organization REST API: url=%s authMode=%s organizationUid=%o',
+		url,
+		config.accessToken ? 'jwt' : 'legacy',
+		config.defaultOrganizationUid,
+	);
 	const options: IRestApiOptions = {
-		url: await loadApiUrl(),
+		url,
 		auth,
 		version: ApiVersions.V1,
 		clientVersions: createClientVersions(),
@@ -87,7 +108,9 @@ export function createOptions(method: 'POST' | 'GET' | 'PUT' | 'DELETE', options
 }
 
 export function createUri(options: IOptions, resource: string, queryParams?: any) {
-	return [options.url, options.version, resource].join('/') + (typeof queryParams !== 'undefined' ? '?' + stringify(queryParams) : '');
+	const uri = [options.url, options.version, resource].join('/') + (typeof queryParams !== 'undefined' ? '?' + stringify(queryParams) : '');
+	Debug('API request URI: %s (auth=%s)', uri, options.accessToken ? 'jwt' : 'legacy');
+	return uri;
 }
 
 export function getResource(options: IOptions, path: string, query?: any) {

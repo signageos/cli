@@ -9,6 +9,8 @@ const rootPath = path.normalize(__dirname + '/..');
 // Load environment-specific .env file
 const envFile = environment === 'test' ? '.env.test' : '.env';
 dotenv.config({ path: path.join(rootPath, envFile) });
+// Load production defaults for any vars not already set
+dotenv.config({ path: path.join(rootPath, '.env.production') });
 
 const configurableEnvVars = [
 	'SOS_PROFILE',
@@ -26,10 +28,10 @@ for (const envVar of configurableEnvVars) {
 	}
 }
 
-const apiUrl = process.env.SOS_API_URL;
+const apiUrl = process.env.SOS_API_URL ?? process.env.SOS_DEFAULT_API_URL;
 
 if (!apiUrl) {
-	throw new Error(`Environment variable SOS_API_URL is required`);
+	throw new Error(`Environment variable SOS_API_URL or SOS_DEFAULT_API_URL is required`);
 }
 
 export const parameters = {
@@ -38,7 +40,7 @@ export const parameters = {
 	version: packageConfig.version,
 	profile: process.env.SOS_PROFILE,
 	apiUrl,
-	forwardServerUrl: process.env.SOS_FORWARD_SERVER_URL,
+	forwardServerUrl: process.env.SOS_FORWARD_SERVER_URL ?? process.env.SOS_DEFAULT_FORWARD_SERVER_URL,
 	applet: {
 		uid: process.env.SOS_APPLET_UID,
 		version: process.env.SOS_APPLET_VERSION,

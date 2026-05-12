@@ -5,7 +5,18 @@ import { tmpdir } from 'node:os';
 import { getAuth0Settings, getBoxUrl } from '../../../src/Auth/auth0Settings';
 
 describe('Auth.auth0Settings', function () {
-	const ENV_KEYS = ['SOS_AUTH0_DOMAIN', 'SOS_AUTH0_CLIENT_ID', 'SOS_AUTH0_AUDIENCE', 'SOS_AUTH0_SCOPE', 'SOS_BOX_HOST'] as const;
+	const ENV_KEYS = [
+		'SOS_AUTH0_DOMAIN',
+		'SOS_AUTH0_CLIENT_ID',
+		'SOS_AUTH0_AUDIENCE',
+		'SOS_AUTH0_SCOPE',
+		'SOS_BOX_HOST',
+		'SOS_DEFAULT_AUTH0_DOMAIN',
+		'SOS_DEFAULT_AUTH0_CLIENT_ID',
+		'SOS_DEFAULT_AUTH0_AUDIENCE',
+		'SOS_DEFAULT_AUTH0_SCOPE',
+		'SOS_DEFAULT_BOX_HOST',
+	] as const;
 	const savedEnv: Record<string, string | undefined> = {};
 	let originalArgv: string[];
 	let tempDir: string;
@@ -16,13 +27,14 @@ describe('Auth.auth0Settings', function () {
 		process.argv = ['node', 'sos', 'test'];
 		for (const key of ENV_KEYS) {
 			savedEnv[key] = process.env[key];
+			delete process.env[key];
 		}
-		// Set known defaults via env vars (simulates .env.production loaded by dotenv)
-		process.env.SOS_AUTH0_DOMAIN = 'auth0.signageos.io';
-		process.env.SOS_AUTH0_CLIENT_ID = '8AU8D3zJ4mK8gszZP3gZO0nv9DusSNjV';
-		process.env.SOS_AUTH0_AUDIENCE = 'https://sos-production.us.auth0.com/api/v2/';
-		process.env.SOS_AUTH0_SCOPE = 'openid profile email offline_access';
-		process.env.SOS_BOX_HOST = 'box.signageos.io';
+		// Set known package defaults via SOS_DEFAULT_* env vars (simulates .env.production loaded by dotenv)
+		process.env.SOS_DEFAULT_AUTH0_DOMAIN = 'auth0.signageos.io';
+		process.env.SOS_DEFAULT_AUTH0_CLIENT_ID = '8AU8D3zJ4mK8gszZP3gZO0nv9DusSNjV';
+		process.env.SOS_DEFAULT_AUTH0_AUDIENCE = 'https://sos-production.us.auth0.com/api/v2/';
+		process.env.SOS_DEFAULT_AUTH0_SCOPE = 'openid profile email offline_access';
+		process.env.SOS_DEFAULT_BOX_HOST = 'box.signageos.io';
 		tempDir = join(tmpdir(), `cli-auth0-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
 		mkdirSync(tempDir, { recursive: true });
 		originalHome = process.env.HOME;
@@ -113,9 +125,15 @@ describe('Auth.auth0Settings', function () {
 			should(settings).have.property('audience', 'https://named-audience.com');
 		});
 
-		it('should prefer profile settings over env vars', function () {
+		it('should prefer SOS_AUTH0_* env var over profile settings', function () {
 			writeFileSync(join(tempDir, '.sosrc'), 'auth0Domain=profile.auth0.com\n');
 			process.env.SOS_AUTH0_DOMAIN = 'env.auth0.com';
+			const settings = getAuth0Settings();
+			should(settings).have.property('domain', 'env.auth0.com');
+		});
+
+		it('should prefer profile settings over SOS_DEFAULT_AUTH0_* package defaults', function () {
+			writeFileSync(join(tempDir, '.sosrc'), 'auth0Domain=profile.auth0.com\n');
 			const settings = getAuth0Settings();
 			should(settings).have.property('domain', 'profile.auth0.com');
 		});
@@ -153,9 +171,15 @@ describe('Auth.auth0Settings', function () {
 			should(url).equal('box.whitelabel.com');
 		});
 
-		it('should prefer profile setting over env var', function () {
+		it('should prefer SOS_BOX_HOST env var over profile setting', function () {
 			writeFileSync(join(tempDir, '.sosrc'), 'boxUrl=profile.box.com\n');
 			process.env.SOS_BOX_HOST = 'env.box.com';
+			const url = getBoxUrl();
+			should(url).equal('env.box.com');
+		});
+
+		it('should prefer profile setting over SOS_DEFAULT_BOX_HOST package default', function () {
+			writeFileSync(join(tempDir, '.sosrc'), 'boxUrl=profile.box.com\n');
 			const url = getBoxUrl();
 			should(url).equal('profile.box.com');
 		});
