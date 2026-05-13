@@ -70,7 +70,7 @@ export const login = createCommandDefinition({
 				type: 'text',
 				name: 'inputApiUrl',
 				message: 'Server API URL',
-				initial: process.env.SOS_API_URL ?? 'https://api.signageos.io',
+				initial: process.env.SOS_API_URL ?? process.env.SOS_DEFAULT_API_URL ?? 'https://api.signageos.io',
 				validate: (v: string) => (v.startsWith('http') ? true : 'Must be a valid URL starting with http'),
 			});
 			if (!inputApiUrl) {
@@ -82,7 +82,7 @@ export const login = createCommandDefinition({
 				type: 'text',
 				name: 'inputBoxUrl',
 				message: 'Box URL',
-				initial: process.env.SOS_BOX_HOST ?? 'box.signageos.io',
+				initial: process.env.SOS_BOX_HOST ?? process.env.SOS_DEFAULT_BOX_HOST ?? 'box.signageos.io',
 			});
 			if (inputBoxUrl) {
 				writeProfileField('boxUrl', inputBoxUrl.replace(/\/+$/, ''), profile);
@@ -92,7 +92,7 @@ export const login = createCommandDefinition({
 				type: 'text',
 				name: 'inputAuth0Domain',
 				message: 'Auth0 domain',
-				initial: process.env.SOS_AUTH0_DOMAIN ?? 'auth0.signageos.io',
+				initial: process.env.SOS_AUTH0_DOMAIN ?? process.env.SOS_DEFAULT_AUTH0_DOMAIN ?? 'auth0.signageos.io',
 			});
 			if (inputAuth0Domain) {
 				writeProfileField('auth0Domain', inputAuth0Domain, profile);
@@ -102,7 +102,7 @@ export const login = createCommandDefinition({
 				type: 'text',
 				name: 'inputAuth0ClientId',
 				message: 'Auth0 client ID',
-				initial: process.env.SOS_AUTH0_CLIENT_ID ?? '',
+				initial: process.env.SOS_AUTH0_CLIENT_ID ?? process.env.SOS_DEFAULT_AUTH0_CLIENT_ID ?? '',
 			});
 			if (inputAuth0ClientId) {
 				writeProfileField('auth0ClientId', inputAuth0ClientId, profile);
@@ -112,7 +112,7 @@ export const login = createCommandDefinition({
 				type: 'text',
 				name: 'inputAuth0Audience',
 				message: 'Auth0 audience',
-				initial: process.env.SOS_AUTH0_AUDIENCE ?? '',
+				initial: process.env.SOS_AUTH0_AUDIENCE ?? process.env.SOS_DEFAULT_AUTH0_AUDIENCE ?? '',
 			});
 			if (inputAuth0Audience) {
 				writeProfileField('auth0Audience', inputAuth0Audience, profile);

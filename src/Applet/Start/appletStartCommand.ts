@@ -14,7 +14,7 @@ import {
 	NO_DEFAULT_ORGANIZATION_OPTION,
 	ORGANIZATION_UID_OPTION,
 } from '../../Organization/organizationFacade';
-import { createDevelopment } from '@signageos/sdk/dist';
+import { createDevelopmentWithOptions } from '../../Development/developmentFactory';
 import { AppletHotReload } from '@signageos/sdk/dist/Development/Applet/AppletHotReload';
 import wait from '../../Timer/wait';
 import { loadConfig } from '../../RunControl/runControlHelper';
@@ -112,7 +112,7 @@ export const appletStart = createCommandDefinition({
 		const entryFileRelativePath = getAppletEntryFileRelativePath(entryFileAbsolutePath, appletPath);
 		const emulatorUid = await loadEmulatorOrCreateNewAndReturnUid(organizationUid);
 		const config = await loadConfig();
-		const dev = createDevelopment({
+		const dev = createDevelopmentWithOptions({
 			organizationUid,
 			url: getApiUrl(config),
 			accessToken: config.accessToken,

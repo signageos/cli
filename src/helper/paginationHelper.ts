@@ -1,4 +1,4 @@
-import { IPaginatedList } from '@signageos/sdk';
+import { IPaginatedList } from '@signageos/sdk/dist/Lib/Pagination/PaginatedList';
 
 /**
  * Fetches all pages from a paginated list.

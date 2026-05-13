@@ -25,7 +25,7 @@ import { saveToPackage } from '@signageos/sdk/dist/FileSystem/packageConfig';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
 import { AppletDoesNotExistError } from '../appletErrors';
 import { log } from '@signageos/sdk/dist/Console/log';
-import { dev } from '@signageos/sdk';
+import { AppletFilesManagement } from '@signageos/sdk/dist/Development/Applet/Files/AppletFilesManagement';
 import GatewayError from '@signageos/sdk/dist/RestApi/Error/GatewayError';
 import IAppletVersion from '@signageos/sdk/dist/RestApi/Applet/Version/IAppletVersion';
 import NotFoundError from '@signageos/sdk/dist/RestApi/Error/NotFoundError';
@@ -206,7 +206,8 @@ export const appletUpload = createCommandDefinition({
 		const appletFiles: string[] = [];
 
 		if (!isSingleFileApplet) {
-			const appletFilePaths = await dev.applet.files.listAppletFiles({
+			const appletFilesManagement = new AppletFilesManagement();
+			const appletFilePaths = await appletFilesManagement.listAppletFiles({
 				appletPath: appletDirectoryPath!,
 			});
 
