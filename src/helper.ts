@@ -53,6 +53,22 @@ export function createClientVersions() {
 	};
 }
 
+export async function createAccountRestApi() {
+	const config = await loadConfig();
+	const auth = config.accessToken
+		? { accessToken: config.accessToken }
+		: { clientId: config.identification ?? '', secret: config.apiSecurityToken ?? '' };
+	const url = await loadApiUrl();
+	Debug('Creating account REST API: url=%s authMode=%s', url, config.accessToken ? 'jwt' : 'legacy');
+	const options: IRestApiOptions = {
+		url,
+		auth,
+		version: ApiVersions.V1,
+		clientVersions: createClientVersions(),
+	};
+	return new RestApi(options, options);
+}
+
 export async function createOrganizationRestApi(credentials: ICredentials) {
 	const config = await loadConfig();
 	const auth = config.accessToken
