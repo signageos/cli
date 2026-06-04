@@ -21,6 +21,7 @@ describe('Auth.auth0Settings', function () {
 	let originalArgv: string[];
 	let tempDir: string;
 	let originalHome: string | undefined;
+	let originalUserProfile: string | undefined;
 
 	beforeEach(function () {
 		originalArgv = process.argv.slice();
@@ -39,6 +40,11 @@ describe('Auth.auth0Settings', function () {
 		mkdirSync(tempDir, { recursive: true });
 		originalHome = process.env.HOME;
 		process.env.HOME = tempDir;
+		// os.homedir() reads USERPROFILE on Windows (not HOME), so mock it too — otherwise
+		// .sosrc lookups resolve to the real home dir on Windows and these tests silently
+		// fall back to defaults.
+		originalUserProfile = process.env.USERPROFILE;
+		process.env.USERPROFILE = tempDir;
 	});
 
 	afterEach(function () {
@@ -51,6 +57,11 @@ describe('Auth.auth0Settings', function () {
 			}
 		}
 		process.env.HOME = originalHome;
+		if (originalUserProfile !== undefined) {
+			process.env.USERPROFILE = originalUserProfile;
+		} else {
+			delete process.env.USERPROFILE;
+		}
 		if (existsSync(tempDir)) {
 			rmSync(tempDir, { recursive: true, force: true });
 		}
