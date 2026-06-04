@@ -1,10 +1,11 @@
 import chalk from 'chalk';
 import debug from 'debug';
 import prompts from 'prompts';
-import { getResource, deserializeJSON, getApiUrl, autocompleteSuggest } from '../helper';
+import { getResource, deserializeJSON, getApiUrl, createAccountRestApi, autocompleteSuggest } from '../helper';
 import { loadConfig, updateConfig } from '../RunControl/runControlHelper';
 import { CommandLineOptions } from '../Command/commandDefinition';
 import { ApiVersions } from '@signageos/sdk/dist/RestApi/apiVersions';
+import { getAllPages } from '../helper/paginationHelper';
 const Debug = debug('@signageos/cli:Organization:facade');
 
 export interface IOrganization {
@@ -119,27 +120,18 @@ export async function selectOrganizationUid(options: CommandLineOptions<[typeof 
 }
 
 export async function getOrganizations(): Promise<IOrganization[]> {
-	const ORGANIZATION_RESOURCE = 'organization';
-	const config = await loadConfig();
-	const options = {
-		url: getApiUrl(config),
-		auth: {
-			clientId: config.identification,
-			secret: config.apiSecurityToken,
-		},
-		accessToken: config.accessToken,
-		version: ApiVersions.V1,
-	};
-	const responseOfGet = await getResource(options, ORGANIZATION_RESOURCE);
-	const bodyOfGet = JSON.parse(await responseOfGet.text(), deserializeJSON);
-	Debug('GET organizations response', bodyOfGet);
-	if (responseOfGet.status === 200) {
-		return bodyOfGet;
-	} else if (responseOfGet.status === 403) {
-		throw new Error(`Authentication error. Try to login using ${chalk.green('sos login')}`);
-	} else {
-		throw new Error('Unknown error: ' + (bodyOfGet?.message ? bodyOfGet.message : responseOfGet.status));
-	}
+	const restApi = await createAccountRestApi();
+	const firstPage = await restApi.organization.list();
+	const allOrgs = await getAllPages(firstPage);
+	Debug('GET organizations response count=%d', allOrgs.length);
+	return allOrgs.map((org) => ({
+		uid: org.uid,
+		name: org.name,
+		title: org.title,
+		createdAt: org.createdAt instanceof Date ? org.createdAt.toISOString() : String(org.createdAt),
+		oauthClientId: org.oauthClientId,
+		oauthClientSecret: org.oauthClientSecret,
+	}));
 }
 
 export async function getOrganization(organizationUid: string): Promise<IOrganization> {
