@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 ## [Unreleased]
 ### Fixed
 - Fix pagination for high organizations count
+- Generated pnpm applets now build under pnpm 10+ — added `pnpm-workspace.yaml` with `verifyDepsBeforeRun: false` so `pnpm run build` doesn't re-run the `prepare` build via the pre-run dependency check
 
 ## [4.0.5] - 2026-05-13
 ### Fixed
