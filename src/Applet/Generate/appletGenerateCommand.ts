@@ -319,6 +319,18 @@ export const appletGenerate = createCommandDefinition({
 			content: 'registry=https://registry.npmjs.org/\nalways-auth=false',
 		});
 
+		// pnpm 10+ verifies dependencies before running any script (verify-deps-before-run defaults
+		// to "install"), so `pnpm run build` first runs `pnpm install`, which re-fires the `prepare`
+		// lifecycle (clean + build) and fails. npm/yarn don't pre-install before `run`, so only pnpm
+		// breaks. Disable the pre-run check so `pnpm run build` runs the build directly. In recent
+		// pnpm this setting is only honored from pnpm-workspace.yaml, not .npmrc.
+		if (packager === Packager.Pnpm) {
+			generateFiles.push({
+				path: path.join(appletRootDirectory, 'pnpm-workspace.yaml'),
+				content: 'verifyDepsBeforeRun: false\n',
+			});
+		}
+
 		// TypeScript or JavaScript
 		if (language === Language.TypeScript) {
 			generateFiles.push(
@@ -439,7 +451,10 @@ export const appletGenerate = createCommandDefinition({
 			// Install dependencies
 			process.chdir(appletRootDirectory);
 
-			const installCommand = packager === Packager.Yarn ? 'add' : 'install';
+			// Dev deps must be added with the `add` subcommand for yarn AND pnpm.
+			// pnpm v11 rejects `pnpm install --save-dev` ("Unknown option: 'save-dev'")
+			// — only `pnpm add --save-dev` is valid (pnpm v10 silently tolerated it).
+			const installCommand = packager === Packager.Yarn || packager === Packager.Pnpm ? 'add' : 'install';
 
 			// Log the command being executed
 			console.info(`Installing dependencies: ${PACKAGER_EXECUTABLE} ${installCommand} --save-dev ${mergedDeps.join(' ')}`);
