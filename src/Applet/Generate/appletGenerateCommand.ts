@@ -7,6 +7,7 @@ import { log } from '@signageos/sdk/dist/Console/log';
 import { initGitRepository } from '../../Lib/git';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
 import which from 'which';
+import { validatePathForShellMetachars } from '../../helper';
 
 enum Language {
 	JavaScript = 'javascript',
@@ -248,6 +249,8 @@ export const appletGenerate = createCommandDefinition({
 		const appletRootDirectory = targetDir || path.join(currentDirectory, appletName);
 		const appletRootDirectoryName = targetDir || appletName;
 
+		validatePathForShellMetachars(appletRootDirectory);
+
 		// Merge dependencies
 		const mergedDeps = [...DEPENDENCIES.common];
 		switch (bundler) {
@@ -299,7 +302,7 @@ export const appletGenerate = createCommandDefinition({
 					upload: 'sos applet upload',
 					clean: 'npx rimraf dist',
 					escheck: 'npx es-check@9.4.0 --module es5 "./dist/**/*.js"',
-					postbuild: 'npm run escheck',
+					postbuild: 'yarn run escheck',
 				};
 				break;
 			case Packager.Bun:

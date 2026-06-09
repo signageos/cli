@@ -1,4 +1,5 @@
 import { stringify } from 'querystring';
+import chalk from 'chalk';
 import debug from 'debug';
 import prompts from 'prompts';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
@@ -188,4 +189,34 @@ export function autocompleteSuggest<T extends prompts.Choice>(input: string, cho
 	return Promise.resolve(
 		choices.filter((choice) => choice.title?.toLowerCase().includes(searchTerm) || choice.value?.toLowerCase().includes(searchTerm)),
 	);
+}
+
+/**
+ * Validates that a path doesn't contain shell metacharacters that break build tools on Windows.
+ * Throws an error listing the offending characters if any are found.
+ *
+ * Only runs on Windows: cmd.exe treats `& | < > ^` as command separators/operators, so they break
+ * the shell-invoked build/install tooling. On macOS/Linux these characters are valid in paths, so
+ * the check is a no-op there to avoid rejecting legitimate paths.
+ *
+ * Note: `( ) %` are intentionally excluded — they are common in legitimate Windows paths (e.g.
+ * `Program Files (x86)`, OneDrive folders) and would cause false positives on inherited parent
+ * directories the user did not choose.
+ */
+export function validatePathForShellMetachars(pathToValidate: string): void {
+	if (process.platform !== 'win32') {
+		return;
+	}
+
+	const shellMetachars = /[&|<>^]/g;
+	const foundChars = Array.from(new Set(pathToValidate.match(shellMetachars) ?? []));
+	if (foundChars.length > 0) {
+		throw new Error(
+			`\nPath contains special characters: ${foundChars.map((c) => `'${c}'`).join(', ')}\n\n` +
+				`${chalk.yellow('Path:')} ${pathToValidate}\n\n` +
+				`These characters (${foundChars.join(' ')}) break build tools on Windows.\n` +
+				`Please use a path without special characters like: & | < > ^\n\n` +
+				`${chalk.green('Example:')} ${pathToValidate.replace(shellMetachars, '_')}\n`,
+		);
+	}
 }
