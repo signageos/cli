@@ -4,6 +4,7 @@ import chalk from 'chalk';
 import debug from 'debug';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import NotFoundError from '@signageos/sdk/dist/RestApi/Error/NotFoundError';
+import { createUploadProgressStream } from '@signageos/cli-common';
 import { getAppletFileRelativePath, getAppletFilesDictionary } from './appletUploadFacadeHelper';
 import { getFileType, getFileMD5Checksum } from '../../Lib/fileSystem';
 import { ProgressBar } from '../../CommandLine/IProgressBar';
@@ -82,13 +83,21 @@ export const updateMultiFileApplet = async (parameters: {
 			progressBar.init({ size: fileSize, name: fileRelativePosixPath });
 		}
 
-		const fileStream = fs.createReadStream(fileAbsolutePath);
-		fileStream.pause();
-		fileStream.on('data', (chunk: string | Buffer) => {
-			if (progressBar) {
-				progressBar.update({ add: chunk.length, name: fileRelativePosixPath });
-			}
+		let prevTransferred = 0;
+		const tracker = createUploadProgressStream({
+			totalBytes: fileSize,
+			throttleMs: 0,
+			onProgress: (progress) => {
+				if (progressBar) {
+					const delta = progress.transferred - prevTransferred;
+					prevTransferred = progress.transferred;
+					if (delta > 0) {
+						progressBar.update({ add: delta, name: fileRelativePosixPath });
+					}
+				}
+			},
 		});
+		const fileStream = fs.createReadStream(fileAbsolutePath).pipe(tracker);
 
 		// update file is just alias to create file (both are idempotent)
 		await restApi.applet.version.file
@@ -255,14 +264,21 @@ export const createMultiFileFileApplet = async (parameters: {
 					progressBar.init({ size: fileSize, name: filePosixPath });
 				}
 
-				const fileStream = fs.createReadStream(fileAbsolutePath);
-				fileStream.pause();
-
-				fileStream.on('data', (chunk: string | Buffer) => {
-					if (progressBar) {
-						progressBar.update({ add: chunk.length, name: filePosixPath });
-					}
+				let prevTransferred = 0;
+				const tracker = createUploadProgressStream({
+					totalBytes: fileSize,
+					throttleMs: 0,
+					onProgress: (progress) => {
+						if (progressBar) {
+							const delta = progress.transferred - prevTransferred;
+							prevTransferred = progress.transferred;
+							if (delta > 0) {
+								progressBar.update({ add: delta, name: filePosixPath });
+							}
+						}
+					},
 				});
+				const fileStream = fs.createReadStream(fileAbsolutePath).pipe(tracker);
 
 				await restApi.applet.version.file
 					.create(
