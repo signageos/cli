@@ -1,6 +1,7 @@
 import * as fs from 'fs-extra';
 import * as os from 'os';
 import * as path from 'path';
+import { Readable, Transform } from 'node:stream';
 import should from 'should';
 import * as sinon from 'sinon';
 import { updateMultiFileApplet } from '../../../../src/Applet/Upload/appletUploadFacade';
@@ -46,7 +47,7 @@ describe('Applet.Upload.appletUploadFacade', function () {
 										return createMockPaginatedList([{ path: 'oldFile1.txt' }, { path: 'oldFile2.txt' }]);
 									}
 								},
-								update: sinon.stub().resolves(),
+								update: createDrainingUploadStub(),
 								remove: sinon.stub().resolves(),
 							},
 						},
@@ -78,7 +79,7 @@ describe('Applet.Upload.appletUploadFacade', function () {
 				should(fileUpdateFirstCallArgs[0]).equal('test1');
 				should(fileUpdateFirstCallArgs[1]).equal('1.0.0');
 				should(fileUpdateFirstCallArgs[2]).equal('newFile1.txt');
-				should(fileUpdateFirstCallArgs[3].content).instanceOf(fs.ReadStream);
+				should(fileUpdateFirstCallArgs[3].content).instanceOf(Transform);
 				should(fileUpdateFirstCallArgs[3].hash).equal('1vwgbAV9J16slyAIMpq/vA==');
 				should(fileUpdateFirstCallArgs[3].size).equal(10);
 				should(fileUpdateFirstCallArgs[3].type).equal('text/plain');
@@ -87,7 +88,7 @@ describe('Applet.Upload.appletUploadFacade', function () {
 				should(fileUpdateSecondCallArgs[0]).equal('test1');
 				should(fileUpdateSecondCallArgs[1]).equal('1.0.0');
 				should(fileUpdateSecondCallArgs[2]).equal('newFile2.txt');
-				should(fileUpdateSecondCallArgs[3].content).instanceOf(fs.ReadStream);
+				should(fileUpdateSecondCallArgs[3].content).instanceOf(Transform);
 				should(fileUpdateSecondCallArgs[3].hash).equal('6t6gOLnZSkLSl5czppfKug==');
 				should(fileUpdateSecondCallArgs[3].size).equal(10);
 				should(fileUpdateSecondCallArgs[3].type).equal('text/plain');
@@ -129,7 +130,7 @@ describe('Applet.Upload.appletUploadFacade', function () {
 										]);
 									}
 								},
-								update: sinon.stub().resolves(),
+								update: createDrainingUploadStub(),
 								remove: sinon.stub().resolves(),
 							},
 						},
@@ -161,7 +162,7 @@ describe('Applet.Upload.appletUploadFacade', function () {
 				should(fileUpdateFirstCallArgs[0]).equal('test1');
 				should(fileUpdateFirstCallArgs[1]).equal('1.0.0');
 				should(fileUpdateFirstCallArgs[2]).equal('file1.txt');
-				should(fileUpdateFirstCallArgs[3].content).instanceOf(fs.ReadStream);
+				should(fileUpdateFirstCallArgs[3].content).instanceOf(Transform);
 				should(fileUpdateFirstCallArgs[3].hash).equal('1vwgbAV9J16slyAIMpq/vA==');
 				should(fileUpdateFirstCallArgs[3].size).equal(10);
 				should(fileUpdateFirstCallArgs[3].type).equal('text/plain');
@@ -170,7 +171,7 @@ describe('Applet.Upload.appletUploadFacade', function () {
 				should(fileUpdateSecondCallArgs[0]).equal('test1');
 				should(fileUpdateSecondCallArgs[1]).equal('1.0.0');
 				should(fileUpdateSecondCallArgs[2]).equal('file2.txt');
-				should(fileUpdateSecondCallArgs[3].content).instanceOf(fs.ReadStream);
+				should(fileUpdateSecondCallArgs[3].content).instanceOf(Transform);
 				should(fileUpdateSecondCallArgs[3].hash).equal('6t6gOLnZSkLSl5czppfKug==');
 				should(fileUpdateSecondCallArgs[3].size).equal(10);
 				should(fileUpdateSecondCallArgs[3].type).equal('text/plain');
@@ -204,7 +205,7 @@ describe('Applet.Upload.appletUploadFacade', function () {
 										return createMockPaginatedList([{ path: 'file1.txt', hash: '1vwgbAV9J16slyAIMpq/vA==', type: 'text/plain' }]);
 									}
 								},
-								update: sinon.stub().resolves(),
+								update: createDrainingUploadStub(),
 								remove: sinon.stub().resolves(),
 							},
 						},
@@ -252,7 +253,7 @@ describe('Applet.Upload.appletUploadFacade', function () {
 										return createMockPaginatedList([{ path: 'oldFile1.txt', hash: '1vwgbAV9J16slyAIMpq/vA==', type: 'text/plain' }]);
 									}
 								},
-								update: sinon.stub().resolves(),
+								update: createDrainingUploadStub(),
 								remove: sinon.stub().rejects(new NotFoundError(404, 'fail')),
 							},
 						},
@@ -270,6 +271,70 @@ describe('Applet.Upload.appletUploadFacade', function () {
 				});
 
 				should(mockRestApi.applet.version.file.remove.callCount).equal(1);
+			} finally {
+				await safeRemove(tmpDir);
+			}
+		});
+
+		it('should report upload progress as byte deltas for changed files', async function () {
+			const tmpDir = await makeTempDir();
+			try {
+				const file1 = path.join(tmpDir, 'file1.txt');
+				const fileContent = Buffer.alloc(200 * 1024, 'a');
+				await fs.writeFile(file1, fileContent);
+				const progressBar = {
+					init: sinon.stub(),
+					update: sinon.stub(),
+					end: sinon.stub(),
+				};
+
+				const mockRestApi = {
+					applet: {
+						version: {
+							update: sinon.stub().resolves(),
+							async get(uid: string, version: string) {
+								return {
+									appletUid: uid,
+									version,
+									entryFile: 'index.html',
+								} as IAppletVersion;
+							},
+							file: {
+								async list(uid: string, version: string) {
+									if (uid === 'test1' && version === '1.0.0') {
+										return createMockPaginatedList([]);
+									}
+								},
+								update: createDrainingUploadStub(),
+								remove: sinon.stub().resolves(),
+							},
+						},
+					},
+				};
+
+				await updateMultiFileApplet({
+					restApi: mockRestApi as unknown as RestApi,
+					applet: {
+						uid: 'test1',
+						version: '1.0.0',
+						entryFilePath: 'index.html',
+						directoryPath: tmpDir,
+						files: [file1],
+					},
+					progressBar,
+				});
+
+				should(
+					progressBar.init.calledOnceWithExactly({
+						size: fileContent.length,
+						name: 'file1.txt',
+					}),
+				).true();
+				const uploadedBytes = progressBar.update.getCalls().map((call) => call.args[0].add);
+				should(uploadedBytes.length).greaterThan(1);
+				should(uploadedBytes.reduce((sum, add) => sum + add, 0)).equal(fileContent.length);
+				should(uploadedBytes.every((add) => add > 0 && add <= 64 * 1024)).true();
+				should(progressBar.end.calledOnce).true();
 			} finally {
 				await safeRemove(tmpDir);
 			}
@@ -298,7 +363,7 @@ describe('Applet.Upload.appletUploadFacade', function () {
 										return createMockPaginatedList([{ path: 'oldFile1.txt', hash: '1vwgbAV9J16slyAIMpq/vA==', type: 'text/plain' }]);
 									}
 								},
-								update: sinon.stub().resolves(),
+								update: createDrainingUploadStub(),
 								remove: sinon.stub().rejects(new Error('unexpected fail')),
 							},
 						},
@@ -324,6 +389,26 @@ describe('Applet.Upload.appletUploadFacade', function () {
 		});
 	});
 });
+
+function hasReadableContent(value: unknown): value is { content: Readable } {
+	return typeof value === 'object' && value !== null && 'content' in value && value.content instanceof Readable;
+}
+
+// The real upload API consumes the content stream; the mock must drain it too so the
+// underlying file handles close and mocha (which runs without --exit) can terminate.
+function createDrainingUploadStub() {
+	return sinon.stub().callsFake(async (...args: unknown[]) => {
+		const options = args[3];
+		if (hasReadableContent(options)) {
+			await new Promise<void>((resolve) => {
+				options.content.on('end', resolve);
+				options.content.on('close', resolve);
+				options.content.on('error', resolve);
+				options.content.resume();
+			});
+		}
+	});
+}
 
 function makeTempDir() {
 	const prefix = path.join(os.tmpdir(), 'appletUploadFacadeSpec-');

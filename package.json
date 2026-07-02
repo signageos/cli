@@ -86,7 +86,7 @@
     "unzipper": "0.12.3"
   },
   "dependencies": {
-    "@signageos/cli-common": "0.1.0",
+    "@signageos/cli-common": "0.2.0",
     "@signageos/file": "2.0.1",
     "@signageos/sdk": "2.8.0",
     "archiver": "7.0.1",
