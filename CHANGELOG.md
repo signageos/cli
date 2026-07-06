@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ## [Unreleased]
 ### Fixed
+- `sos device connect --hot-reload` now passes the resolved applet UID (from `--applet-uid`, `SOS_APPLET_UID` or `sos.appletUid` in package.json) to the hot reload, so it no longer fails with "Multiple applets with name ... found" when duplicate applet names exist
 - `sos applet generate` and `sos applet build` now fail fast with a clear message on Windows when the target path contains shell metacharacters (`& | < > ^`), which otherwise break the shell-invoked build tooling (no-op on macOS/Linux, where these are valid in paths)
 - `sos applet upload` now streams file uploads through a shared progress tracker and ignores zero-delta progress updates, making upload progress reporting smoother and less noisy
 
