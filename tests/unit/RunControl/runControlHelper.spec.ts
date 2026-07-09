@@ -1,15 +1,34 @@
 import should from 'should';
 import sinon from 'sinon';
+import { mkdirSync, rmSync, writeFileSync, existsSync } from 'node:fs';
+import { join } from 'node:path';
+import { tmpdir } from 'node:os';
 
 describe('RunControl.runControlHelper', function () {
-	const ENV_KEYS = ['SOS_ACCESS_TOKEN', 'SOS_API_IDENTIFICATION', 'SOS_API_SECURITY_TOKEN', 'SOS_ORGANIZATION_UID', 'SOS_API_URL'] as const;
+	const ENV_KEYS = [
+		'SOS_ACCESS_TOKEN',
+		'SOS_API_IDENTIFICATION',
+		'SOS_API_SECURITY_TOKEN',
+		'SOS_ORGANIZATION_UID',
+		'SOS_API_URL',
+		'SOS_PROFILE',
+	] as const;
 	const savedEnv: Record<string, string | undefined> = {};
 	let originalArgv: string[];
+	let tempDir: string;
+	let originalHome: string | undefined;
+	let originalUserProfile: string | undefined;
 
 	beforeEach(function () {
 		originalArgv = process.argv.slice();
 		// Ensure no --profile arg for most tests
 		process.argv = ['node', 'sos', 'test'];
+		tempDir = join(tmpdir(), `cli-runcontrol-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+		mkdirSync(tempDir, { recursive: true });
+		originalHome = process.env.HOME;
+		process.env.HOME = tempDir;
+		originalUserProfile = process.env.USERPROFILE;
+		process.env.USERPROFILE = tempDir;
 		for (const key of ENV_KEYS) {
 			savedEnv[key] = process.env[key];
 			delete process.env[key];
@@ -24,6 +43,15 @@ describe('RunControl.runControlHelper', function () {
 			} else {
 				delete process.env[key];
 			}
+		}
+		process.env.HOME = originalHome;
+		if (originalUserProfile !== undefined) {
+			process.env.USERPROFILE = originalUserProfile;
+		} else {
+			delete process.env.USERPROFILE;
+		}
+		if (existsSync(tempDir)) {
+			rmSync(tempDir, { recursive: true, force: true });
 		}
 		sinon.restore();
 	});
@@ -42,6 +70,19 @@ describe('RunControl.runControlHelper', function () {
 			const mod = rawMod.default ?? rawMod;
 			return mod.loadConfig as () => Promise<Record<string, unknown>>;
 		}
+
+		it('should load named profile from SOS_PROFILE when no --profile is provided', async function () {
+			writeFileSync(
+				join(tempDir, '.sosrc'),
+				['defaultOrganizationUid=default-org', '[profile my-profile]', 'defaultOrganizationUid=named-org'].join('\n'),
+			);
+			process.env.SOS_PROFILE = 'my-profile';
+
+			const loadConfig = await getLoadConfig();
+			const config = await loadConfig();
+
+			should(config).have.property('defaultOrganizationUid', 'named-org');
+		});
 
 		it('should return config with accessToken when SOS_ACCESS_TOKEN env var is set', async function () {
 			process.env.SOS_ACCESS_TOKEN = 'env-jwt-token-123';
