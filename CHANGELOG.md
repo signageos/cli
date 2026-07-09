@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- `sos applet version publish|deprecate|renew` commands to set an applet version's lifecycle status. Target a version directly with `--applet-uid` and `--applet-version` (no local applet directory required, so it can be scripted across many organizations), or run interactively; `--yes` skips confirmation
 
 ## [4.1.0] - 2026-07-17
 ### Added

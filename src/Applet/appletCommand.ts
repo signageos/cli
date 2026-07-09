@@ -4,6 +4,7 @@ import { appletStart } from './Start/appletStartCommand';
 import { appletTest } from './Test/appletTestCommand';
 import { createCommandDefinition } from '../Command/commandDefinition';
 import { appletBuild } from './Build/appletBuildCommand';
+import { appletVersion } from './Version/appletVersionCommand';
 
 /**
  * Provides comprehensive commands for the complete applet development lifecycle including
@@ -17,6 +18,7 @@ import { appletBuild } from './Build/appletBuildCommand';
  * - `build` - Build applet for production deployment
  * - `upload` - Upload applet to signageOS platform
  * - `test` - Run and upload applet tests
+ * - `version` - Manage applet version lifecycle status (publish, deprecate, renew)
  *
  * @example
  * ```bash
@@ -41,7 +43,7 @@ export const applet = createCommandDefinition({
 	name: 'applet',
 	description: 'Applet development and management operations',
 	optionList: [],
-	commands: [appletGenerate, appletUpload, appletStart, appletTest, appletBuild],
+	commands: [appletGenerate, appletUpload, appletStart, appletTest, appletBuild, appletVersion],
 	async run() {
 		throw new Error('Unknown command');
 	},
