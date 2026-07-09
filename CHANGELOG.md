@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 ### Fixed
 - `sos applet generate` and `sos applet build` now fail fast with a clear message on Windows when the target path contains shell metacharacters (`& | < > ^`), which otherwise break the shell-invoked build tooling (no-op on macOS/Linux, where these are valid in paths)
 - `sos applet upload` now streams file uploads through a shared progress tracker and ignores zero-delta progress updates, making upload progress reporting smoother and less noisy
+- `SOS_PROFILE` fallback now works like `--profile` again: active profile precedence is `--profile` > `SOS_PROFILE` > default profile, and profile selection remains mutually exclusive with `--api-url`
 
 ## [4.0.6] - 2026-06-08
 ### Fixed

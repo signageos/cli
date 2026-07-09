@@ -26,7 +26,9 @@ export function getGlobalApiUrl(): string | undefined {
  * to use for CLI operations. Profiles allow management of multiple signageOS
  * environments or accounts from the same machine.
  *
- * @returns The profile name if specified, falls back to default profile
+ * Precedence: --profile CLI option > SOS_PROFILE env var > default profile.
+ *
+ * @returns The profile name if specified either by CLI or environment, undefined otherwise
  *
  * @example
  * ```bash
@@ -37,9 +39,9 @@ export function getGlobalApiUrl(): string | undefined {
  * sos --profile staging device connect
  * ```
  */
-export function getGlobalProfile(): string {
-	const options = cliArgs([PROFILE_OPTION], { partial: true });
-	return options[PROFILE_OPTION.name];
+export function getGlobalProfile(): string | undefined {
+	const cliProfile = cliArgs([PROFILE_OPTION], { partial: true })[PROFILE_OPTION.name];
+	return cliProfile || process.env.SOS_PROFILE;
 }
 
 /**
