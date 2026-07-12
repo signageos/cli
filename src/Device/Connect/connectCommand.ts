@@ -134,6 +134,8 @@ export const connect = createCommandDefinition({
 			const forwardServerUrl = options[FORWARD_SERVER_URL_OPTION.name] ?? parameters.forwardServerUrl;
 			const appletHotReload = await dev.applet.startHotReload({
 				appletPath,
+				appletUid,
+				appletVersion,
 				port: appletPort,
 				publicUrl: appletPublicUrl,
 				detachProcess,
