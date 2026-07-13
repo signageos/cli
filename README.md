@@ -245,6 +245,26 @@ sos applet test run
 | --yes *(optional)*             | Skip interactive mode before it's uploaded                   | false                  |
 | --test *(optional)*            | Test files which should be run. If omitted, all test are run | {all tests}            |
 
+#### Applet Version Status
+```bash
+# Publish a version (must be built successfully, not already published)
+sos applet version publish --applet-uid my-applet-uid --applet-version 1.0.0
+# Deprecate a version to retire a broken or obsolete one
+sos applet version deprecate --applet-uid my-applet-uid --applet-version 1.0.0
+# Renew (un-deprecate) a version
+sos applet version renew --applet-uid my-applet-uid --applet-version 1.0.0
+```
+
+- Set the lifecycle status of an applet version.
+- When `--applet-uid` and `--applet-version` are provided, the command does not need a local applet directory, so it can be scripted across many organizations. Otherwise the applet and version are resolved interactively.
+
+| Argument                        | Description                                          | Default value |
+|---------------------------------|------------------------------------------------------|---------------|
+| --applet-uid *(optional)*       | Applet UID (resolved from package.json if omitted)   | STDIN         |
+| --applet-version *(optional)*   | Applet version, e.g. 1.0.0 (interactive if omitted)  | STDIN         |
+| --organization-uid *(optional)* | Organization UID                                     | STDIN         |
+| --yes *(optional)*              | Perform the action without the confirmation step     | false         |
+
 ### Organization
 ```bash
 sos organization --help
