@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- `sos login` now lets you choose the region from a predefined list
 
 ## [4.0.7] - 2026-07-12
 ### Fixed
