@@ -59,6 +59,9 @@ This will remove the completion script and the source line from your shell confi
 ```bash
 sos login
 ```
+- First prompts you to select a region from the list of predefined signageOS regions (`default` is the production deployment), then opens the browser for authentication.
+- The selected region's connection settings (API URL, Box URL, Auth0 settings) are saved to `~/.sosrc` and used for all subsequent commands.
+- Skip the region selection and enter connection settings manually with `--interactive-profile` (see [Custom deployment](#custom-deployment)).
 - Login account to allow you to use REST API commands
 - Logged account credentials are stored in `~/.sosrc` file.
 - You can override login credentials using environment variables `SOS_API_IDENTIFICATION` & `SOS_API_SECURITY_TOKEN`. Go to https://box.signageos.io/settings to generate the token.
@@ -82,7 +85,7 @@ apiSecurityToken=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 #### Custom deployment
 
-When connecting to a non-default signageOS deployment, use the `--interactive-profile` flag during login. This will interactively prompt for connection settings:
+By default `sos login` lets you pick a region from a predefined list. To connect to a deployment that is not in that list, use the `--interactive-profile` flag during login. This skips the region selection and interactively prompts for connection settings:
 
 ```bash
 sos login --interactive-profile

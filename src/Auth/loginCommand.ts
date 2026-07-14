@@ -6,6 +6,7 @@ import { log } from '@signageos/sdk/dist/Console/log';
 import { getConfigFilePath } from '@signageos/sdk/dist/SosHelper/sosControlHelper';
 import { requestDeviceCode, pollForToken, saveStoredTokens, writeProfileField } from '@signageos/cli-common';
 import { getAuth0Settings } from './auth0Settings';
+import { PREDEFINED_REGIONS, getPredefinedRegionByName } from './predefinedRegions';
 import { getGlobalProfile } from '../Command/globalArgs';
 import { createCommandDefinition } from '../Command/commandDefinition';
 
@@ -41,10 +42,10 @@ const LOGIN_OPTION_LIST = [
  *
  * @example
  * ```bash
- * # Interactive login (opens browser for Auth0 authentication)
+ * # Interactive login (prompts to select a region, then opens browser for Auth0 authentication)
  * sos login
  *
- * # Login with custom configuration (prompts for Auth0 and connection settings)
+ * # Login with custom configuration (skips region selection, prompts for Auth0 and connection settings)
  * sos login --interactive-profile
  *
  * # Login with a specific profile
@@ -117,6 +118,29 @@ export const login = createCommandDefinition({
 			if (inputAuth0Audience) {
 				writeProfileField('auth0Audience', inputAuth0Audience, profile);
 			}
+		} else {
+			const { regionName } = await prompts({
+				type: 'select',
+				name: 'regionName',
+				message: 'Select region',
+				choices: PREDEFINED_REGIONS.map((regionChoice) => ({ title: regionChoice.label, value: regionChoice.name })),
+				initial: 0,
+			});
+			if (!regionName) {
+				throw new Error('Region selection is required to log in.');
+			}
+			const region = getPredefinedRegionByName(regionName);
+			if (!region) {
+				throw new Error(`Unknown region: ${regionName}`);
+			}
+
+			log('info', `Using ${chalk.cyan(region.label)} region. Saving connection settings in ${configFilePath}.`);
+			writeProfileField('apiUrl', region.apiUrl.replace(/\/+$/, ''), profile);
+			writeProfileField('boxUrl', region.boxUrl.replace(/\/+$/, ''), profile);
+			writeProfileField('auth0Domain', region.auth0Domain, profile);
+			writeProfileField('auth0ClientId', region.auth0ClientId, profile);
+			writeProfileField('auth0Audience', region.auth0Audience, profile);
+			writeProfileField('auth0Scope', region.auth0Scope, profile);
 		}
 
 		const auth0 = getAuth0Settings();
