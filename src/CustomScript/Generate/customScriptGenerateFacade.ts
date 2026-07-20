@@ -6,6 +6,7 @@ import { log } from '@signageos/sdk/dist/Console/log';
 import { cloneGitRepository } from '../../Lib/git';
 import { CommandLineOptions } from '../../Command/commandDefinition';
 import { OPTION_LIST } from './customScriptGenerateOptions';
+import { DANGER_LEVELS, DangerLevelSchema } from '../customScriptFacade';
 
 /**
  * Prompts the user for the parameters needed to generate a custom script.
@@ -21,9 +22,8 @@ export async function askForParameters(options?: CommandLineOptions<typeof OPTIO
 	let dangerLevel = options?.['danger-level'];
 
 	// Validate danger level if provided
-	const validDangerLevels = ['low', 'medium', 'high', 'critical'];
-	if (dangerLevel && !validDangerLevels.includes(dangerLevel)) {
-		throw new Error(`Invalid danger level '${dangerLevel}'. Must be one of: ${validDangerLevels.join(', ')}`);
+	if (dangerLevel !== undefined && !DangerLevelSchema.safeParse(dangerLevel).success) {
+		throw new Error(`Invalid danger level '${dangerLevel}'. Must be one of: ${DANGER_LEVELS.join(', ')}`);
 	}
 
 	// If --yes is used, validate all required fields are present without prompting
@@ -119,7 +119,8 @@ export async function askForParameters(options?: CommandLineOptions<typeof OPTIO
 		targetDir,
 		name,
 		description,
-		dangerLevel,
+		// Narrowed to the DangerLevel union; guaranteed set and valid by the checks above.
+		dangerLevel: DangerLevelSchema.parse(dangerLevel),
 	};
 }
 
