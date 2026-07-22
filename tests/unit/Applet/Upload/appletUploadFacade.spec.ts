@@ -4,7 +4,7 @@ import * as path from 'path';
 import { Readable, Transform } from 'node:stream';
 import should from 'should';
 import * as sinon from 'sinon';
-import { updateMultiFileApplet } from '../../../../src/Applet/Upload/appletUploadFacade';
+import { createMultiFileFileApplet, updateMultiFileApplet } from '../../../../src/Applet/Upload/appletUploadFacade';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import NotFoundError from '@signageos/sdk/dist/RestApi/Error/NotFoundError';
 import IAppletVersion from '@signageos/sdk/dist/RestApi/Applet/Version/IAppletVersion';
@@ -80,6 +80,7 @@ describe('Applet.Upload.appletUploadFacade', function () {
 				should(fileUpdateFirstCallArgs[1]).equal('1.0.0');
 				should(fileUpdateFirstCallArgs[2]).equal('newFile1.txt');
 				should(fileUpdateFirstCallArgs[3].content).instanceOf(Transform);
+				should(fileUpdateFirstCallArgs[3].content.path).equal(newFile1);
 				should(fileUpdateFirstCallArgs[3].hash).equal('1vwgbAV9J16slyAIMpq/vA==');
 				should(fileUpdateFirstCallArgs[3].size).equal(10);
 				should(fileUpdateFirstCallArgs[3].type).equal('text/plain');
@@ -89,6 +90,7 @@ describe('Applet.Upload.appletUploadFacade', function () {
 				should(fileUpdateSecondCallArgs[1]).equal('1.0.0');
 				should(fileUpdateSecondCallArgs[2]).equal('newFile2.txt');
 				should(fileUpdateSecondCallArgs[3].content).instanceOf(Transform);
+				should(fileUpdateSecondCallArgs[3].content.path).equal(newFile2);
 				should(fileUpdateSecondCallArgs[3].hash).equal('6t6gOLnZSkLSl5czppfKug==');
 				should(fileUpdateSecondCallArgs[3].size).equal(10);
 				should(fileUpdateSecondCallArgs[3].type).equal('text/plain');
@@ -388,6 +390,59 @@ describe('Applet.Upload.appletUploadFacade', function () {
 			}
 		});
 	});
+
+	describe('createMultiFileFileApplet', function () {
+		it('should create applet version, upload file with source path preserved on content stream and finalize entry file', async function () {
+			const tmpDir = await makeTempDir();
+			try {
+				const file1 = path.join(tmpDir, 'file1.txt');
+				await fs.writeFile(file1, 'new file 1');
+
+				const mockRestApi = {
+					applet: {
+						version: {
+							create: sinon.stub().resolves(),
+							update: sinon.stub().resolves(),
+							file: {
+								create: createDrainingUploadStub(),
+							},
+						},
+					},
+				};
+				await createMultiFileFileApplet({
+					restApi: mockRestApi as unknown as RestApi,
+					applet: {
+						uid: 'test1',
+						version: '1.0.0',
+						entryFilePath: 'index.html',
+						directoryPath: tmpDir,
+						files: [file1],
+					},
+				});
+
+				should(mockRestApi.applet.version.create.callCount).equal(1);
+				should(mockRestApi.applet.version.create.getCall(0).args).deepEqual(['test1', { version: '1.0.0', entryFile: 'index.html' }]);
+
+				should(mockRestApi.applet.version.file.create.callCount).equal(1);
+				const fileCreateArgs = mockRestApi.applet.version.file.create.getCall(0).args;
+				should(fileCreateArgs[0]).equal('test1');
+				should(fileCreateArgs[1]).equal('1.0.0');
+				should(fileCreateArgs[2].name).equal('file1.txt');
+				should(fileCreateArgs[2].path).equal('file1.txt');
+				should(fileCreateArgs[2].content).instanceOf(Transform);
+				should(fileCreateArgs[2].content.path).equal(file1);
+				should(fileCreateArgs[2].hash).equal('1vwgbAV9J16slyAIMpq/vA==');
+				should(fileCreateArgs[2].size).equal(10);
+				should(fileCreateArgs[2].type).equal('text/plain');
+				should(fileCreateArgs[3]).deepEqual({ build: false });
+
+				should(mockRestApi.applet.version.update.callCount).equal(1);
+				should(mockRestApi.applet.version.update.getCall(0).args).deepEqual(['test1', '1.0.0', { entryFile: 'index.html' }]);
+			} finally {
+				await safeRemove(tmpDir);
+			}
+		});
+	});
 });
 
 function hasReadableContent(value: unknown): value is { content: Readable } {
@@ -398,8 +453,8 @@ function hasReadableContent(value: unknown): value is { content: Readable } {
 // underlying file handles close and mocha (which runs without --exit) can terminate.
 function createDrainingUploadStub() {
 	return sinon.stub().callsFake(async (...args: unknown[]) => {
-		const options = args[3];
-		if (hasReadableContent(options)) {
+		const options = args.find(hasReadableContent);
+		if (options) {
 			await new Promise<void>((resolve) => {
 				options.content.on('end', resolve);
 				options.content.on('close', resolve);
