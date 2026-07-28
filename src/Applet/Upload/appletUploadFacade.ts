@@ -97,7 +97,9 @@ export const updateMultiFileApplet = async (parameters: {
 				}
 			},
 		});
-		const fileStream = fs.createReadStream(fileAbsolutePath).pipe(tracker);
+		// form-data (inside SDK postStorage) infers the multipart part's filename and Content-Type from the stream's `path`.
+		// GCS rejects file parts without a filename (HTTP 400 "Metadata part is too large."), so preserve it on the piped stream.
+		const fileStream = Object.assign(fs.createReadStream(fileAbsolutePath).pipe(tracker), { path: fileAbsolutePath });
 
 		// update file is just alias to create file (both are idempotent)
 		await restApi.applet.version.file
@@ -278,7 +280,9 @@ export const createMultiFileFileApplet = async (parameters: {
 						}
 					},
 				});
-				const fileStream = fs.createReadStream(fileAbsolutePath).pipe(tracker);
+				// form-data (inside SDK postStorage) infers the multipart part's filename and Content-Type from the stream's `path`.
+				// GCS rejects file parts without a filename (HTTP 400 "Metadata part is too large."), so preserve it on the piped stream.
+				const fileStream = Object.assign(fs.createReadStream(fileAbsolutePath).pipe(tracker), { path: fileAbsolutePath });
 
 				await restApi.applet.version.file
 					.create(

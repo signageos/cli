@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- `sos applet upload` no longer fails with HTTP 400 `Metadata part is too large.` against GCS-backed environments — the 4.0.7 progress-tracking change dropped the file path from the upload stream, so multipart requests were sent without a filename
 
 ## [4.2.0] - 2026-07-17
 ### Added
