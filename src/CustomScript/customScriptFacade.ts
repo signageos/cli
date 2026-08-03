@@ -23,12 +23,23 @@ export const PlatformSchema = z.strictObject({
 
 export type PlatformConfig = z.infer<typeof PlatformSchema>;
 
+/** Danger levels accepted by the custom script API (`low | medium | high | critical`). */
+export const DANGER_LEVELS = ['low', 'medium', 'high', 'critical'] as const;
+export const DangerLevelSchema = z.enum(DANGER_LEVELS);
+export type DangerLevel = z.infer<typeof DangerLevelSchema>;
+
 const ConfigSchema = z.object({
 	uid: z.string().optional(),
+	/**
+	 * Whether the script referenced by `uid` is a signageOS-managed (global) script. Written on creation only for
+	 * managed scripts, so later uploads target the correct endpoint without having to re-pass `--managed`; an
+	 * organization-owned script leaves it out entirely (absent means not managed).
+	 */
+	managed: z.boolean().optional(),
 	name: z.string(),
 	version: z.string(),
 	description: z.string().optional(),
-	dangerLevel: z.string().optional(),
+	dangerLevel: DangerLevelSchema.optional(),
 	sos: z
 		.object({
 			'@signageos/front-applet': z.string().optional(),
@@ -92,13 +103,38 @@ function getConfigFilePath(workDir: string) {
 	return path.join(workDir, SOS_CONFIG_FILE_NAME);
 }
 
+/**
+ * Resolves whether an upload targets a managed (global) script. A script's kind is fixed once it exists, so
+ * once `.sosconfig.json` records a `uid`, the config decides and a contradicting `--managed` flag is rejected
+ * with a clear message. Otherwise the flag decides (script creation).
+ *
+ * Only managed scripts carry `managed: true` in the config file — organization-owned is the default, so an
+ * absent `managed` means organization-owned rather than "unknown".
+ */
+export function resolveManaged(config: CustomScriptConfig, flagManaged: boolean | undefined): boolean {
+	if (config.uid !== undefined) {
+		const configManaged = config.managed ?? false;
+		if (flagManaged !== undefined && flagManaged !== configManaged) {
+			throw new Error(
+				configManaged
+					? `The custom script in ${SOS_CONFIG_FILE_NAME} is managed; re-run with --managed (or remove "uid" to create a new script).`
+					: `The custom script in ${SOS_CONFIG_FILE_NAME} is organization-owned; --managed cannot be used for it ` +
+							`(add "managed": true to ${SOS_CONFIG_FILE_NAME} if it really is a managed script).`,
+			);
+		}
+		return configManaged;
+	}
+	return flagManaged ?? false;
+}
+
 export async function ensureCustomScriptVersion(
 	restApi: RestApi,
 	config: CustomScriptConfig,
 	skipConfirmation?: boolean,
 	organizationUid?: string,
+	managed?: boolean,
 ) {
-	const customScript = await ensureCustomScript(restApi, config, skipConfirmation, organizationUid);
+	const customScript = await ensureCustomScript(restApi, config, skipConfirmation, organizationUid, managed);
 
 	const customScriptVersion = await restApi.customScript.version.get({
 		customScriptUid: customScript.uid,
@@ -133,11 +169,20 @@ export async function ensureCustomScriptVersion(
 	});
 }
 
-async function ensureCustomScript(restApi: RestApi, config: CustomScriptConfig, skipConfirmation?: boolean, organizationUid?: string) {
+async function ensureCustomScript(
+	restApi: RestApi,
+	config: CustomScriptConfig,
+	skipConfirmation?: boolean,
+	organizationUid?: string,
+	managed?: boolean,
+) {
+	// Managed (global) scripts have no owning organization and are read/written through the managed endpoints.
+	const customScriptApi = managed ? restApi.customScript.managed : restApi.customScript;
+
 	if (config.uid) {
-		const customScript = await restApi.customScript.get(config.uid);
+		const customScript = await customScriptApi.get(config.uid);
 		if (customScript) {
-			await restApi.customScript.update(customScript.uid, {
+			await customScriptApi.update(customScript.uid, {
 				name: config.name,
 				title: config.name, // TODO change
 				description: config.description,
@@ -151,32 +196,36 @@ async function ensureCustomScript(restApi: RestApi, config: CustomScriptConfig, 
 	}
 
 	if (skipConfirmation) {
-		log('info', chalk.yellow(`Creating Custom Script "${config.name}"`));
+		log('info', chalk.yellow(`Creating ${managed ? 'managed ' : ''}Custom Script "${config.name}"`));
 	} else {
 		const response = await prompts({
 			type: 'confirm',
 			name: 'create',
-			message: `Custom Script "${config.name}" does not exist. Do you want to create it?`,
+			message: `${managed ? 'Managed ' : ''}Custom Script "${config.name}" does not exist. Do you want to create it?`,
 		});
 
 		if (!response.create) {
 			throw new Error('Custom Script upload was canceled.');
 		}
 
-		log('info', chalk.yellow(`Creating Custom Script "${config.name}"`));
+		log('info', chalk.yellow(`Creating ${managed ? 'managed ' : ''}Custom Script "${config.name}"`));
 	}
 
-	const createdCustomScript = await restApi.customScript.create({
+	const commonCreatable = {
 		name: config.name,
 		title: config.name, // TODO change
 		description: config.description,
-		dangerLevel: config.dangerLevel ? config.dangerLevel : 'normal', // default to 'normal' if not provided
-		organizationUid,
-	});
+		dangerLevel: config.dangerLevel ?? 'low', // default to 'low' if not provided
+	};
+	const createdCustomScript = managed
+		? await restApi.customScript.managed.create(commonCreatable)
+		: await restApi.customScript.create({ ...commonCreatable, organizationUid });
 
 	// TODO ask for permission or read from CLI arg
 	log('info', chalk.yellow('Adding Custom Script uid to the config file'));
-	await addToConfigFile(process.cwd(), { uid: createdCustomScript.uid });
+	// Persist `managed` alongside `uid` so subsequent uploads target the same endpoint without `--managed`.
+	// Only a managed script is recorded — organization-owned is the default and stays implicit in the config file.
+	await addToConfigFile(process.cwd(), { uid: createdCustomScript.uid, ...(managed ? { managed: true } : {}) });
 
 	return createdCustomScript;
 }

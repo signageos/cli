@@ -396,8 +396,11 @@ Upload custom script to the signageOS platform.
 
 | Argument                        | Description                  | Default value  |
 |---------------------------------|------------------------------|----------------|
-| --organization-uid *(required)* | Organization UID             | STDIN          |
+| --organization-uid *(required unless --managed)* | Organization UID   | STDIN          |
 | --script-path *(optional)*      | Path to script file          | ${PWD}         |
+| --managed *(optional)*          | Upload as a signageOS-managed global script (admins only) | false |
+
+> **Note:** `--managed` uploads the script as a signageOS-managed **global** custom script that has no owning organization and can be run by any organization. It is reserved for signageOS **admin accounts** and is not intended for regular users; regular accounts cannot create or modify managed scripts.
 
 ### Plugin
 ```bash

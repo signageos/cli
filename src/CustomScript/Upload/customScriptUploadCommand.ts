@@ -3,14 +3,14 @@ import { isDeepStrictEqual } from 'util';
 import debug from 'debug';
 import { log } from '@signageos/sdk/dist/Console/log';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
-import { createOrganizationRestApi } from '../../helper';
+import { createAccountRestApi, createOrganizationRestApi } from '../../helper';
 import {
 	getOrganization,
 	getOrganizationUidOrDefaultOrSelect,
 	NO_DEFAULT_ORGANIZATION_OPTION,
 	ORGANIZATION_UID_OPTION,
 } from '../../Organization/organizationFacade';
-import { ensureCustomScriptVersion, getConfig, uploadCode } from '../customScriptFacade';
+import { ensureCustomScriptVersion, getConfig, resolveManaged, uploadCode } from '../customScriptFacade';
 
 const Debug = debug('@signageos/cli:CustomScript:Upload:Command');
 
@@ -21,6 +21,13 @@ export const OPTION_LIST = [
 		name: 'yes',
 		type: Boolean,
 		description: `Allow to upload new custom script or create new version without confirmation step`,
+	},
+	{
+		name: 'managed',
+		type: Boolean,
+		description:
+			`Upload as a signageOS-managed GLOBAL custom script that has no owning organization and can be run by any organization. ` +
+			`Reserved for signageOS admin accounts — regular users cannot create or modify managed scripts.`,
 	},
 ] as const;
 
@@ -43,6 +50,9 @@ export const OPTION_LIST = [
  *
  * # Specific organization
  * sos custom-script upload --organization-uid abc123def456
+ *
+ * # Upload as a signageOS-managed GLOBAL script (signageOS admin accounts only)
+ * sos custom-script upload --managed
  * ```
  *
  * @throws {Error} When `.sosconfig.json` missing/invalid or upload fails
@@ -61,13 +71,25 @@ export const customScriptUpload = createCommandDefinition({
 	async run(options: CommandLineOptions<typeof OPTION_LIST>) {
 		const currentDirectory = process.cwd();
 		const skipConfirmation = options.yes;
-		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options, skipConfirmation);
-		const organization = await getOrganization(organizationUid);
-		const restApi = await createOrganizationRestApi(organization);
+
+		// `--managed` and `--organization-uid` are mutually exclusive: a managed script has no owning organization.
+		if (options.managed && options['organization-uid'] !== undefined) {
+			throw new Error('--managed cannot be combined with --organization-uid (managed scripts have no owning organization).');
+		}
 
 		const config = await getConfig(currentDirectory);
+		// A script's kind is fixed once it exists; honour the value persisted in the config over the flag.
+		const managed = resolveManaged(config, options.managed);
 
-		const customScriptVersion = await ensureCustomScriptVersion(restApi, config, skipConfirmation, organizationUid);
+		// Managed (global) scripts have no owning organization and use account-scoped authentication; otherwise the
+		// organization is resolved, which lets TypeScript narrow `organizationUid` to `string` for the org REST API.
+		const organizationUid = managed ? undefined : await getOrganizationUidOrDefaultOrSelect(options, skipConfirmation);
+		const restApi =
+			organizationUid === undefined
+				? await createAccountRestApi()
+				: await createOrganizationRestApi(await getOrganization(organizationUid));
+
+		const customScriptVersion = await ensureCustomScriptVersion(restApi, config, skipConfirmation, organizationUid, managed);
 
 		for (const platform of Object.keys(config.platforms)) {
 			const platformConfig = config.platforms[platform];

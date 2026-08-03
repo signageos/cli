@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- `sos custom-script upload --managed` uploads the script as a signageOS-managed global custom script that has no owning organization and can be run by any organization; reserved for signageOS admin accounts
 
 ## [4.2.1] - 2026-07-28
 ### Fixed

@@ -4,13 +4,19 @@ import should from 'should';
 import * as sinon from 'sinon';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
 import { useTmpFiles } from '../../lib/tmpFiles';
-import { getConfig, addToConfigFile, ensureCustomScriptVersion, CustomScriptConfig } from '../../../src/CustomScript/customScriptFacade';
+import {
+	getConfig,
+	addToConfigFile,
+	ensureCustomScriptVersion,
+	resolveManaged,
+	CustomScriptConfig,
+} from '../../../src/CustomScript/customScriptFacade';
 import { SOS_CONFIG_FILE_NAME } from '../../../src/Lib/fileSystem';
 
 describe('CustomScript.customScriptFacade', function () {
 	const tmpDir = useTmpFiles();
 
-	const validConfig = {
+	const validConfig: CustomScriptConfig = {
 		name: 'test-script',
 		version: '1.0.0',
 		description: 'Test custom script',
@@ -77,6 +83,39 @@ describe('CustomScript.customScriptFacade', function () {
 		});
 	});
 
+	describe('resolveManaged', function () {
+		const newScriptConfig: CustomScriptConfig = { ...validConfig };
+
+		it('should use the flag when the config points at no existing script', function () {
+			should(resolveManaged(newScriptConfig, true)).be.true();
+			should(resolveManaged(newScriptConfig, undefined)).be.false();
+		});
+
+		it('should honour the persisted managed value over the flag for an existing script', function () {
+			should(resolveManaged({ ...validConfig, uid: 'cs-1', managed: true }, undefined)).be.true();
+			should(resolveManaged({ ...validConfig, uid: 'cs-1', managed: false }, undefined)).be.false();
+		});
+
+		it('should not throw when the flag matches the persisted managed value', function () {
+			should(resolveManaged({ ...validConfig, uid: 'cs-1', managed: true }, true)).be.true();
+		});
+
+		it('should throw when --managed is used on an organization-owned script', function () {
+			should(() => resolveManaged({ ...validConfig, uid: 'cs-1', managed: false }, true)).throw(/organization-owned/);
+		});
+
+		// Organization-owned is the implicit default, so an existing script simply has no `managed` key at all.
+		it('should treat an existing script without the managed key as organization-owned', function () {
+			should(resolveManaged({ ...validConfig, uid: 'cs-1' }, undefined)).be.false();
+			should(resolveManaged({ ...validConfig, uid: 'cs-1' }, false)).be.false();
+			should(() => resolveManaged({ ...validConfig, uid: 'cs-1' }, true)).throw(/organization-owned/);
+		});
+
+		it('should throw when a managed script is uploaded without --managed being consistent', function () {
+			should(() => resolveManaged({ ...validConfig, uid: 'cs-1', managed: true }, false)).throw(/is managed/);
+		});
+	});
+
 	describe('ensureCustomScriptVersion', function () {
 		const existingVersion = { customScriptUid: 'cs-uid-1', version: '1.0.0' };
 		const existingCustomScript = { uid: 'cs-uid-1', name: 'test-script' };
@@ -135,6 +174,47 @@ describe('CustomScript.customScriptFacade', function () {
 			await should(ensureCustomScriptVersion(mockRestApi as unknown as RestApi, configWithUid, true)).be.rejectedWith(
 				/Custom Script with uid "cs-uid-1" not found/,
 			);
+		});
+
+		describe('config file written on creation', function () {
+			// ensureCustomScript writes the created uid back into the config file in the current directory.
+			async function createScriptInTmpDir(managed: boolean) {
+				const mockRestApi = {
+					customScript: {
+						create: sinon.fake.resolves(existingCustomScript),
+						managed: {
+							create: sinon.fake.resolves(existingCustomScript),
+						},
+						version: {
+							get: sinon.fake.resolves(existingVersion),
+						},
+					},
+				};
+				await fs.writeFile(path.join(tmpDir, SOS_CONFIG_FILE_NAME), JSON.stringify(validConfig, undefined, '\t'));
+				const cwdStub = sinon.stub(process, 'cwd').returns(tmpDir);
+
+				try {
+					await ensureCustomScriptVersion(mockRestApi as unknown as RestApi, { ...validConfig }, true, 'org-1', managed);
+				} finally {
+					cwdStub.restore();
+				}
+
+				return JSON.parse(await fs.readFile(path.join(tmpDir, SOS_CONFIG_FILE_NAME), 'utf-8'));
+			}
+
+			it('should not write managed for an organization-owned script', async function () {
+				const writtenConfig = await createScriptInTmpDir(false);
+
+				should(writtenConfig.uid).be.equal('cs-uid-1');
+				should(writtenConfig).not.have.property('managed');
+			});
+
+			it('should write managed true for a managed script', async function () {
+				const writtenConfig = await createScriptInTmpDir(true);
+
+				should(writtenConfig.uid).be.equal('cs-uid-1');
+				should(writtenConfig.managed).be.true();
+			});
 		});
 	});
 });
