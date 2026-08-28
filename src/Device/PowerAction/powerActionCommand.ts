@@ -1,11 +1,10 @@
 import {
-	getOrganization,
 	getOrganizationUidOrDefaultOrSelect,
 	NO_DEFAULT_ORGANIZATION_OPTION,
 	ORGANIZATION_UID_OPTION,
 } from '../../Organization/organizationFacade';
 import { DEVICE_UID_OPTION, getDeviceUid, POWER_ACTION_TYPE_OPTION, typeMap, getActionType } from '../deviceFacade';
-import { createOrganizationRestApi } from '../../helper';
+import { createOrganizationRestApiFromUid } from '../../helper';
 import chalk from 'chalk';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
 import { log } from '@signageos/sdk/dist/Console/log';
@@ -71,8 +70,7 @@ export const powerAction = createCommandDefinition({
 	commands: [],
 	async run(options: CommandLineOptions<typeof OPTION_LIST>) {
 		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
-		const organization = await getOrganization(organizationUid);
-		const restApi = await createOrganizationRestApi(organization);
+		const restApi = await createOrganizationRestApiFromUid(organizationUid);
 		const deviceUid = await getDeviceUid(restApi, options);
 		const actionType = await getActionType(options);
 		await restApi.device.powerAction

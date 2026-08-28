@@ -1,13 +1,12 @@
 import chalk from 'chalk';
 import debug from 'debug';
 import {
-	getOrganization,
 	getOrganizationUidOrDefaultOrSelect,
 	NO_DEFAULT_ORGANIZATION_OPTION,
 	ORGANIZATION_UID_OPTION,
 } from '../../Organization/organizationFacade';
 import { getDeviceUid, DEVICE_UID_OPTION } from '../../Device/deviceFacade';
-import { createOrganizationRestApi } from '../../helper';
+import { createOrganizationRestApiFromUid } from '../../helper';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
 const Debug = debug('@signageos/cli:Timing:list');
 
@@ -45,8 +44,7 @@ export const timingList = createCommandDefinition({
 	async run(options: CommandLineOptions<typeof OPTION_LIST>) {
 		Debug('Timing list');
 		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
-		const organization = await getOrganization(organizationUid);
-		const restApi = await createOrganizationRestApi(organization);
+		const restApi = await createOrganizationRestApiFromUid(organizationUid);
 		const deviceUid = await getDeviceUid(restApi, options);
 		const timings = await restApi.timing.getList({ deviceUid });
 		console.info(chalk.yellow(JSON.stringify(timings, undefined, 2)));

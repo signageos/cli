@@ -3,10 +3,8 @@ import { isDeepStrictEqual } from 'util';
 import debug from 'debug';
 import { log } from '@signageos/sdk/dist/Console/log';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
-import { createAccountRestApi, createOrganizationRestApi } from '../../helper';
-import { loadConfig } from '../../RunControl/runControlHelper';
+import { createAccountRestApi, createOrganizationRestApiFromUid } from '../../helper';
 import {
-	getOrganization,
 	getOrganizationUidOrDefaultOrSelect,
 	NO_DEFAULT_ORGANIZATION_OPTION,
 	ORGANIZATION_UID_OPTION,
@@ -84,15 +82,7 @@ export const customScriptUpload = createCommandDefinition({
 		// Managed (global) scripts have no owning organization and use account-scoped authentication; otherwise the
 		// organization is resolved, which lets TypeScript narrow `organizationUid` to `string` for the org REST API.
 		const organizationUid = managed ? undefined : await getOrganizationUidOrDefaultOrSelect(options, skipConfirmation);
-		// When the user provided explicit identification/apiSecurityToken (e.g. via SOS_API_* env vars), the token
-		// already carries org identity — skip fetching the organization's OAuth credentials. This makes upload work
-		// with org-scoped tokens that lack permission to read the organization object itself.
-		const cliConfig = await loadConfig();
-		const hasExplicitLegacyCredentials = !cliConfig.accessToken && !!cliConfig.identification && !!cliConfig.apiSecurityToken;
-		const restApi =
-			organizationUid === undefined
-				? await createAccountRestApi()
-				: await createOrganizationRestApi(hasExplicitLegacyCredentials ? undefined : await getOrganization(organizationUid));
+		const restApi = organizationUid === undefined ? await createAccountRestApi() : await createOrganizationRestApiFromUid(organizationUid);
 
 		const customScriptVersion = await ensureCustomScriptVersion(restApi, config, skipConfirmation, organizationUid, managed);
 

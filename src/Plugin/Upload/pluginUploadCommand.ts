@@ -2,14 +2,13 @@ import chalk from 'chalk';
 import { log } from '@signageos/sdk/dist/Console/log';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
 import {
-	getOrganization,
 	getOrganizationUidOrDefaultOrSelect,
 	NO_DEFAULT_ORGANIZATION_OPTION,
 	ORGANIZATION_UID_OPTION,
 } from '../../Organization/organizationFacade';
 import { ensurePluginVersion, getSosConfig, loadSchemas, uploadCode } from '../pluginFacade';
 import { isDeepStrictEqual } from 'util';
-import { createOrganizationRestApi } from '../../helper';
+import { createOrganizationRestApiFromUid } from '../../helper';
 import debug from 'debug';
 
 const Debug = debug('@signageos/cli:Plugin:Upload:Command');
@@ -53,8 +52,7 @@ export const pluginUpload = createCommandDefinition({
 		const currentDirectory = process.cwd();
 		const skipPrompts = options.yes as boolean;
 		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options, skipPrompts);
-		const organization = await getOrganization(organizationUid);
-		const restApi = await createOrganizationRestApi(organization);
+		const restApi = await createOrganizationRestApiFromUid(organizationUid);
 
 		const config = await getSosConfig(currentDirectory);
 		const schema = await loadSchemas(currentDirectory);

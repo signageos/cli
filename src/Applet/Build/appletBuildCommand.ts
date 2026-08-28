@@ -1,12 +1,11 @@
 import chalk from 'chalk';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
 import {
-	getOrganization,
 	getOrganizationUidOrDefaultOrSelect,
 	NO_DEFAULT_ORGANIZATION_OPTION,
 	ORGANIZATION_UID_OPTION,
 } from '../../Organization/organizationFacade';
-import { createOrganizationRestApi, getApiUrl, validatePathForShellMetachars } from '../../helper';
+import { createOrganizationRestApiFromUid, getApiUrl, validatePathForShellMetachars } from '../../helper';
 import { createDevelopmentWithOptions } from '../../Development/developmentFactory';
 import { APPLET_UID_OPTION, getAppletUid, getAppletVersion } from '../appletFacade';
 import { log } from '@signageos/sdk/dist/Console/log';
@@ -53,11 +52,10 @@ export const appletBuild = createCommandDefinition({
 		await validateAppletDirectory(currentDirectory);
 		validatePathForShellMetachars(currentDirectory);
 		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
-		const organization = await getOrganization(organizationUid);
-		const restApi = await createOrganizationRestApi(organization);
+		const restApi = await createOrganizationRestApiFromUid(organizationUid);
 		const config = await loadConfig();
 		const dev = createDevelopmentWithOptions({
-			organizationUid: organization.uid,
+			organizationUid,
 			url: getApiUrl(config),
 			accessToken: config.accessToken,
 		});

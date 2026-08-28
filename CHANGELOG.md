@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ## [Unreleased]
 ### Fixed
-- `sos custom-script upload` now works with org-scoped API credentials (`SOS_API_IDENTIFICATION`/`SOS_API_SECURITY_TOKEN`) that cannot read the organization object — the organization lookup is skipped when explicit credentials are provided, fixing the misleading "Authentication error" in CI pipelines
+- Org-scoped API credentials (`SOS_API_IDENTIFICATION`/`SOS_API_SECURITY_TOKEN`) now work with all organization-level commands (`custom-script upload`, `applet upload`, `plugin upload`, `runner upload`, `device set-content`, `device power-action`, `device connect`, `applet build`, `applet test upload`, `applet test run`, `applet version status`, `timing list`) — the organization lookup is skipped when explicit credentials are provided, fixing the misleading "Authentication error" that occurred when the token lacked permission to read the organization object
 
 ## [4.3.0] - 2026-08-04
 ### Added

@@ -72,9 +72,6 @@ export async function createAccountRestApi() {
 
 export async function createOrganizationRestApi(credentials: ICredentials | undefined) {
 	const config = await loadConfig();
-	// Legacy auth: prefer the user's own identification/apiSecurityToken over the
-	// organization's oauthClientId/oauthClientSecret. The org lookup is only needed
-	// when the caller hasn't provided explicit credentials (e.g. JWT or oauth login).
 	const auth = config.accessToken
 		? { accessToken: config.accessToken }
 		: config.identification && config.apiSecurityToken
@@ -99,6 +96,26 @@ export async function createOrganizationRestApi(credentials: ICredentials | unde
 	};
 
 	return new RestApi(options, accountOptions);
+}
+
+/**
+ * Creates an organization-scoped REST API from an organization UID.
+ * Fetches the organization's OAuth credentials only when needed: when the user
+ * authenticated with explicit identification/apiSecurityToken (e.g. SOS_API_* env
+ * vars), the token already carries org identity and the organization lookup is
+ * skipped entirely. This allows org-scoped tokens that lack permission to read
+ * the organization object itself to use org-level commands (uploads, device
+ * operations, etc.).
+ */
+export async function createOrganizationRestApiFromUid(organizationUid: string) {
+	const config = await loadConfig();
+	const hasExplicitLegacyCredentials = !config.accessToken && !!config.identification && !!config.apiSecurityToken;
+	if (hasExplicitLegacyCredentials) {
+		return createOrganizationRestApi(undefined);
+	}
+	// Lazy import to avoid a circular dependency: organizationFacade imports from helper.ts
+	const { getOrganization } = await import('./Organization/organizationFacade.js');
+	return createOrganizationRestApi(await getOrganization(organizationUid));
 }
 
 export const AUTH_HEADER = 'X-Auth';
