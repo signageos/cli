@@ -8,7 +8,7 @@ import {
 } from '../../Organization/organizationFacade';
 import { ensurePluginVersion, getSosConfig, loadSchemas, uploadCode } from '../pluginFacade';
 import { isDeepStrictEqual } from 'util';
-import { createOrganizationRestApiFromUid } from '../../helper';
+import { createOrganizationRestApiFromUid } from '../../Organization/organizationRestApi';
 import debug from 'debug';
 
 const Debug = debug('@signageos/cli:Plugin:Upload:Command');

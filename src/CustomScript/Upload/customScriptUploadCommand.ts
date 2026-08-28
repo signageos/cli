@@ -3,7 +3,8 @@ import { isDeepStrictEqual } from 'util';
 import debug from 'debug';
 import { log } from '@signageos/sdk/dist/Console/log';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
-import { createAccountRestApi, createOrganizationRestApiFromUid } from '../../helper';
+import { createAccountRestApi } from '../../helper';
+import { createOrganizationRestApiFromUid } from '../../Organization/organizationRestApi';
 import {
 	getOrganizationUidOrDefaultOrSelect,
 	NO_DEFAULT_ORGANIZATION_OPTION,

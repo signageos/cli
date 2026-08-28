@@ -28,7 +28,7 @@ const restApi = {
 };
 
 export default {
-	createOrganizationRestApi: sinon.fake(() => restApi),
+	createOrganizationRestApiFromUid: sinon.fake(() => restApi),
 };
 
 const notFoundError = new NotFoundError(404, {
@@ -36,7 +36,7 @@ const notFoundError = new NotFoundError(404, {
 });
 
 export const restApiWithNonExistingAppletVersion = {
-	createOrganizationRestApi: sinon.fake(() => ({
+	createOrganizationRestApiFromUid: sinon.fake(() => ({
 		...restApi,
 		applet: {
 			...appletApi,

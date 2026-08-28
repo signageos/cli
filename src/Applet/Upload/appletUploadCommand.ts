@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import prompts from 'prompts';
 import * as path from 'path';
 import * as fs from 'fs-extra';
-import { createOrganizationRestApiFromUid } from '../../helper';
+import { createOrganizationRestApiFromUid } from '../../Organization/organizationRestApi';
 import {
 	getOrganizationUidOrDefaultOrSelect,
 	NO_DEFAULT_ORGANIZATION_OPTION,

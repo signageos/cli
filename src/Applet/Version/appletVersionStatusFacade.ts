@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import prompts from 'prompts';
 import { log } from '@signageos/sdk/dist/Console/log';
-import { createOrganizationRestApiFromUid } from '../../helper';
+import { createOrganizationRestApiFromUid } from '../../Organization/organizationRestApi';
 import {
 	getOrganizationUidOrDefaultOrSelect,
 	NO_DEFAULT_ORGANIZATION_OPTION,

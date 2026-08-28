@@ -5,7 +5,8 @@ import {
 	NO_DEFAULT_ORGANIZATION_OPTION,
 	ORGANIZATION_UID_OPTION,
 } from '../../Organization/organizationFacade';
-import { createOrganizationRestApiFromUid, getApiUrl, validatePathForShellMetachars } from '../../helper';
+import { getApiUrl, validatePathForShellMetachars } from '../../helper';
+import { createOrganizationRestApiFromUid } from '../../Organization/organizationRestApi';
 import { createDevelopmentWithOptions } from '../../Development/developmentFactory';
 import { APPLET_UID_OPTION, getAppletUid, getAppletVersion } from '../appletFacade';
 import { log } from '@signageos/sdk/dist/Console/log';

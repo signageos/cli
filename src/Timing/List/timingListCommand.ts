@@ -6,7 +6,7 @@ import {
 	ORGANIZATION_UID_OPTION,
 } from '../../Organization/organizationFacade';
 import { getDeviceUid, DEVICE_UID_OPTION } from '../../Device/deviceFacade';
-import { createOrganizationRestApiFromUid } from '../../helper';
+import { createOrganizationRestApiFromUid } from '../../Organization/organizationRestApi';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
 const Debug = debug('@signageos/cli:Timing:list');
 
