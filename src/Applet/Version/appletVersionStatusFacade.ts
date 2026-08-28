@@ -1,9 +1,8 @@
 import chalk from 'chalk';
 import prompts from 'prompts';
 import { log } from '@signageos/sdk/dist/Console/log';
-import { createOrganizationRestApi } from '../../helper';
+import { createOrganizationRestApiFromUid } from '../../Organization/organizationRestApi';
 import {
-	getOrganization,
 	getOrganizationUidOrDefaultOrSelect,
 	NO_DEFAULT_ORGANIZATION_OPTION,
 	ORGANIZATION_UID_OPTION,
@@ -41,8 +40,7 @@ export async function runAppletVersionStatusAction(
 	const skipConfirmation = !!options.yes;
 
 	const organizationUid = await getOrganizationUidOrDefaultOrSelect(options, skipConfirmation);
-	const organization = await getOrganization(organizationUid);
-	const restApi = await createOrganizationRestApi(organization);
+	const restApi = await createOrganizationRestApiFromUid(organizationUid);
 
 	// Prefer explicit args so the command works without a local applet directory (bulk scripting across organizations).
 	const appletUid = options['applet-uid'] ?? (await getAppletUid(restApi, options));

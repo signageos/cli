@@ -3,9 +3,9 @@ import { isDeepStrictEqual } from 'util';
 import debug from 'debug';
 import { log } from '@signageos/sdk/dist/Console/log';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
-import { createAccountRestApi, createOrganizationRestApi } from '../../helper';
+import { createAccountRestApi } from '../../helper';
+import { createOrganizationRestApiFromUid } from '../../Organization/organizationRestApi';
 import {
-	getOrganization,
 	getOrganizationUidOrDefaultOrSelect,
 	NO_DEFAULT_ORGANIZATION_OPTION,
 	ORGANIZATION_UID_OPTION,
@@ -71,7 +71,6 @@ export const customScriptUpload = createCommandDefinition({
 	async run(options: CommandLineOptions<typeof OPTION_LIST>) {
 		const currentDirectory = process.cwd();
 		const skipConfirmation = options.yes;
-
 		// `--managed` and `--organization-uid` are mutually exclusive: a managed script has no owning organization.
 		if (options.managed && options['organization-uid'] !== undefined) {
 			throw new Error('--managed cannot be combined with --organization-uid (managed scripts have no owning organization).');
@@ -84,10 +83,7 @@ export const customScriptUpload = createCommandDefinition({
 		// Managed (global) scripts have no owning organization and use account-scoped authentication; otherwise the
 		// organization is resolved, which lets TypeScript narrow `organizationUid` to `string` for the org REST API.
 		const organizationUid = managed ? undefined : await getOrganizationUidOrDefaultOrSelect(options, skipConfirmation);
-		const restApi =
-			organizationUid === undefined
-				? await createAccountRestApi()
-				: await createOrganizationRestApi(await getOrganization(organizationUid));
+		const restApi = organizationUid === undefined ? await createAccountRestApi() : await createOrganizationRestApiFromUid(organizationUid);
 
 		const customScriptVersion = await ensureCustomScriptVersion(restApi, config, skipConfirmation, organizationUid, managed);
 

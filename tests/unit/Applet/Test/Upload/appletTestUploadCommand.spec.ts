@@ -25,7 +25,7 @@ const mockRestApi = {
 };
 
 rewireMock('../../../Organization/organizationFacade').with(organizationFacadeMock);
-rewireMock('../../../helper').with({ createOrganizationRestApi: sinon.fake.returns(mockRestApi) });
+rewireMock('../../../Organization/organizationRestApi').with({ createOrganizationRestApiFromUid: sinon.fake.returns(mockRestApi) });
 rewireMock('../../appletFacade').with({
 	getAppletUid: sinon.fake.resolves('applet-uid'),
 	getAppletVersion: sinon.fake.resolves('1.0.0'),

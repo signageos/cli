@@ -1,8 +1,7 @@
 import chalk from 'chalk';
 import prompts from 'prompts';
-import { createOrganizationRestApi } from '../../../helper';
+import { createOrganizationRestApiFromUid } from '../../../Organization/organizationRestApi';
 import {
-	getOrganization,
 	getOrganizationUidOrDefaultOrSelect,
 	NO_DEFAULT_ORGANIZATION_OPTION,
 	ORGANIZATION_UID_OPTION,
@@ -76,8 +75,7 @@ export const appletTestUpload = createCommandDefinition({
 		await validateAppletDirectory(currentDirectory);
 
 		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options, skipConfirmation);
-		const organization = await getOrganization(organizationUid);
-		const restApi = await createOrganizationRestApi(organization);
+		const restApi = await createOrganizationRestApiFromUid(organizationUid);
 
 		const version = await getAppletVersion(currentDirectory);
 		const appletUid = await getAppletUid(restApi, options);

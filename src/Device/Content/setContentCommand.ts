@@ -2,9 +2,8 @@ import { log } from '@signageos/sdk/dist/Console/log';
 import chalk from 'chalk';
 import { APPLET_UID_OPTION, getAppletUid, getAppletVersionFromApi } from '../../Applet/appletFacade';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
-import { createOrganizationRestApi } from '../../helper';
+import { createOrganizationRestApiFromUid } from '../../Organization/organizationRestApi';
 import {
-	getOrganization,
 	getOrganizationUidOrDefaultOrSelect,
 	NO_DEFAULT_ORGANIZATION_OPTION,
 	ORGANIZATION_UID_OPTION,
@@ -59,8 +58,7 @@ export const setContent = createCommandDefinition({
 	async run(options: CommandLineOptions<typeof OPTION_LIST>) {
 		const skipConfirmation = !!options.yes;
 		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options, skipConfirmation);
-		const organization = await getOrganization(organizationUid);
-		const restApi = await createOrganizationRestApi(organization);
+		const restApi = await createOrganizationRestApiFromUid(organizationUid);
 		const appletUid = await getAppletUid(restApi, options, skipConfirmation);
 		const appletVersion = await getAppletVersionFromApi(restApi, appletUid, skipConfirmation);
 		const deviceUid = await getDeviceUid(restApi, options, skipConfirmation);

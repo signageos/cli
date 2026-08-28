@@ -8,6 +8,8 @@ import { createClientVersions } from '../helper';
 export interface IDevelopmentFactoryOptions {
 	url: string;
 	accessToken?: string;
+	clientId?: string;
+	secret?: string;
 	organizationUid?: string;
 }
 
@@ -17,7 +19,7 @@ export interface IDevelopmentFactoryOptions {
  * All configuration is passed explicitly.
  */
 export function createDevelopmentWithOptions(opts: IDevelopmentFactoryOptions): Development {
-	const auth = opts.accessToken ? { accessToken: opts.accessToken } : { clientId: '', secret: '' };
+	const auth = opts.accessToken ? { accessToken: opts.accessToken } : { clientId: opts.clientId || '', secret: opts.secret || '' };
 
 	const baseV1: IOptions = {
 		url: opts.url,

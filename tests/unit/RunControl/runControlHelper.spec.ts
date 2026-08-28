@@ -91,19 +91,27 @@ describe('RunControl.runControlHelper', function () {
 			should(config).have.property('accessToken', 'env-jwt-token-123');
 		});
 
-		it('should apply SOS_API_IDENTIFICATION env var override', async function () {
-			process.env.SOS_ACCESS_TOKEN = 'token-for-early-return';
+		it('should apply SOS_API_IDENTIFICATION environment override independently', async function () {
+			writeFileSync(
+				join(tempDir, '.sosrc'),
+				['identification=profile-identification', 'apiSecurityToken=profile-security-token'].join('\n'),
+			);
 			process.env.SOS_API_IDENTIFICATION = 'custom-identification';
 			const loadConfig = await getLoadConfig();
 			const config = await loadConfig();
 			should(config).have.property('identification', 'custom-identification');
+			should(config).have.property('apiSecurityToken', 'profile-security-token');
 		});
 
-		it('should apply SOS_API_SECURITY_TOKEN env var override', async function () {
-			process.env.SOS_ACCESS_TOKEN = 'token-for-early-return';
+		it('should apply SOS_API_SECURITY_TOKEN environment override independently', async function () {
+			writeFileSync(
+				join(tempDir, '.sosrc'),
+				['identification=profile-identification', 'apiSecurityToken=profile-security-token'].join('\n'),
+			);
 			process.env.SOS_API_SECURITY_TOKEN = 'custom-security-token';
 			const loadConfig = await getLoadConfig();
 			const config = await loadConfig();
+			should(config).have.property('identification', 'profile-identification');
 			should(config).have.property('apiSecurityToken', 'custom-security-token');
 		});
 
@@ -126,6 +134,19 @@ describe('RunControl.runControlHelper', function () {
 			should(config).have.property('identification', 'id-override');
 			should(config).have.property('apiSecurityToken', 'sec-override');
 			should(config).have.property('defaultOrganizationUid', 'org-override');
+		});
+
+		it('should prefer complete organization environment credentials over a stored access token', async function () {
+			writeFileSync(join(tempDir, '.sosrc'), ['accessToken=stored-access-token', 'expiresAt=2099-01-01T00:00:00.000Z'].join('\n'));
+			process.env.SOS_API_IDENTIFICATION = 'env-identification';
+			process.env.SOS_API_SECURITY_TOKEN = 'env-security-token';
+
+			const loadConfig = await getLoadConfig();
+			const config = await loadConfig();
+
+			should(config).not.have.property('accessToken');
+			should(config).have.property('identification', 'env-identification');
+			should(config).have.property('apiSecurityToken', 'env-security-token');
 		});
 
 		it('should return config without accessToken when no tokens are available', async function () {
