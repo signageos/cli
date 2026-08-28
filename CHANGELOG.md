@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- `sos custom-script upload` now works with org-scoped API credentials (`SOS_API_IDENTIFICATION`/`SOS_API_SECURITY_TOKEN`) that cannot read the organization object — the organization lookup is skipped when explicit credentials are provided, fixing the misleading "Authentication error" in CI pipelines
 
 ## [4.3.0] - 2026-08-04
 ### Added

@@ -70,11 +70,16 @@ export async function createAccountRestApi() {
 	return new RestApi(options, options);
 }
 
-export async function createOrganizationRestApi(credentials: ICredentials) {
+export async function createOrganizationRestApi(credentials: ICredentials | undefined) {
 	const config = await loadConfig();
+	// Legacy auth: prefer the user's own identification/apiSecurityToken over the
+	// organization's oauthClientId/oauthClientSecret. The org lookup is only needed
+	// when the caller hasn't provided explicit credentials (e.g. JWT or oauth login).
 	const auth = config.accessToken
 		? { accessToken: config.accessToken }
-		: { clientId: credentials.oauthClientId, secret: credentials.oauthClientSecret };
+		: config.identification && config.apiSecurityToken
+			? { clientId: config.identification, secret: config.apiSecurityToken }
+			: { clientId: credentials?.oauthClientId ?? '', secret: credentials?.oauthClientSecret ?? '' };
 	const url = await loadApiUrl();
 	Debug(
 		'Creating organization REST API: url=%s authMode=%s organizationUid=%o',
