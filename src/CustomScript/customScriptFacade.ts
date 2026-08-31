@@ -5,6 +5,8 @@ import * as z from 'zod';
 import prompts from 'prompts';
 import chalk from 'chalk';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
+import RequestError from '@signageos/sdk/dist/RestApi/Error/RequestError';
+import { ICustomScript } from '@signageos/sdk/dist/RestApi/CustomScript/ICustomScript';
 import { log } from '@signageos/sdk/dist/Console/log';
 import { generateZip } from '../Lib/archive';
 import { getFileMD5Checksum, SOS_CONFIG_FILE_NAME } from '../Lib/fileSystem';
@@ -169,6 +171,65 @@ export async function ensureCustomScriptVersion(
 	});
 }
 
+/** Error name the API answers a custom script name collision with. */
+const CUSTOM_SCRIPT_NAME_ALREADY_EXISTS = 'CUSTOM_SCRIPT_NAME_ALREADY_EXISTS';
+
+type CustomScriptApi = RestApi['customScript'] | RestApi['customScript']['managed'];
+
+/**
+ * A custom script name is unique within its organization, and among managed scripts, so creating one can collide with
+ * a script that is already uploaded — typically the same script, from a checkout whose `.sosconfig.json` never got the
+ * `uid` written back. Point at that script instead of surfacing the raw API error, and offer to upload into it when
+ * there is somebody to confirm; with `--yes` this stays a failure, since silently writing into a script the config
+ * file does not name could target somebody else's work.
+ */
+async function adoptCustomScriptWithSameName({
+	customScriptApi,
+	config,
+	managed,
+	skipConfirmation,
+	error,
+}: {
+	customScriptApi: CustomScriptApi;
+	config: CustomScriptConfig;
+	managed?: boolean;
+	skipConfirmation?: boolean;
+	error: unknown;
+}): Promise<ICustomScript> {
+	if (!(error instanceof RequestError) || error.errorName !== CUSTOM_SCRIPT_NAME_ALREADY_EXISTS) {
+		throw error;
+	}
+
+	const scriptKind = `${managed ? 'Managed ' : ''}Custom Script`;
+	const customScriptWithSameName = (await customScriptApi.list()).find((customScript) => customScript.name === config.name);
+
+	if (!customScriptWithSameName) {
+		throw new Error(`${scriptKind} "${config.name}" already exists but is not readable by this account. Choose another name.`);
+	}
+
+	if (skipConfirmation) {
+		throw new Error(
+			`${scriptKind} "${config.name}" already exists (uid "${customScriptWithSameName.uid}"). ` +
+				`Add "uid": "${customScriptWithSameName.uid}" to ${SOS_CONFIG_FILE_NAME} to upload into it, or choose another name.`,
+		);
+	}
+
+	const response = await prompts({
+		type: 'confirm',
+		name: 'useExisting',
+		message: `${scriptKind} "${config.name}" already exists (uid "${customScriptWithSameName.uid}"). Do you want to upload into it?`,
+	});
+
+	if (!response.useExisting) {
+		throw new Error('Custom Script upload was canceled.');
+	}
+
+	log('info', chalk.yellow('Adding Custom Script uid to the config file'));
+	await addToConfigFile(process.cwd(), { uid: customScriptWithSameName.uid, ...(managed ? { managed: true } : {}) });
+
+	return customScriptWithSameName;
+}
+
 async function ensureCustomScript(
 	restApi: RestApi,
 	config: CustomScriptConfig,
@@ -217,9 +278,15 @@ async function ensureCustomScript(
 		description: config.description,
 		dangerLevel: config.dangerLevel ?? 'low', // default to 'low' if not provided
 	};
-	const createdCustomScript = managed
-		? await restApi.customScript.managed.create(commonCreatable)
-		: await restApi.customScript.create({ ...commonCreatable, organizationUid });
+
+	let createdCustomScript: ICustomScript;
+	try {
+		createdCustomScript = managed
+			? await restApi.customScript.managed.create(commonCreatable)
+			: await restApi.customScript.create({ ...commonCreatable, organizationUid });
+	} catch (error) {
+		return await adoptCustomScriptWithSameName({ customScriptApi, config, managed, skipConfirmation, error });
+	}
 
 	// TODO ask for permission or read from CLI arg
 	log('info', chalk.yellow('Adding Custom Script uid to the config file'));
