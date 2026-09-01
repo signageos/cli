@@ -134,9 +134,13 @@ export const appletTestRun = createCommandDefinition({
 					add: nextCountFinished - lastCountFinished,
 					name: progressName,
 				});
-			} while (!deviceAppletTest?.finishedAt);
+			} while (!isDeviceAppletTestTerminal(deviceAppletTest));
 
-			if (deviceAppletTest.failedTests.length > 0) {
+			if (hasCanceledAt(deviceAppletTest)) {
+				throw new Error(`Applet tests run canceled`);
+			}
+
+			if (hasFailedAt(deviceAppletTest) || deviceAppletTest.failedTests.length > 0) {
 				displayFailureMessage(applet.name, appletVersion.version, deviceAppletTest);
 				throw new Error(`Tests run failed`);
 			} else {
@@ -147,6 +151,18 @@ export const appletTestRun = createCommandDefinition({
 		}
 	},
 });
+
+function isDeviceAppletTestTerminal(deviceAppletTest: IDeviceAppletTest | undefined): boolean {
+	return !!deviceAppletTest && (!!deviceAppletTest.finishedAt || hasCanceledAt(deviceAppletTest) || hasFailedAt(deviceAppletTest));
+}
+
+function hasCanceledAt(deviceAppletTest: IDeviceAppletTest): boolean {
+	return 'canceledAt' in deviceAppletTest && !!deviceAppletTest.canceledAt;
+}
+
+function hasFailedAt(deviceAppletTest: IDeviceAppletTest): boolean {
+	return 'failedAt' in deviceAppletTest && !!deviceAppletTest.failedAt;
+}
 
 function displaySuccessMessage(appletName: string, appletVersion: string, deviceAppletTest: IDeviceAppletTest) {
 	log('info', `Applet ${chalk.green(appletName)} version ${chalk.green(appletVersion)} tests ${chalk.green('succeeded')}.`);
