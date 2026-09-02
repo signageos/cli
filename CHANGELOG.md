@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [4.3.1] - 2026-09-02
 ### Fixed
 - Org-scoped API credentials now work with all organization-level commands.
 - Applet test runs now stop polling when remote execution fails or is canceled.
