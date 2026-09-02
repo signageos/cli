@@ -148,7 +148,7 @@ export async function getOrganization(organizationUid: string): Promise<IOrganiz
 	};
 	const responseOfGet = await getResource(options, ORGANIZATION_RESOURCE + '/' + organizationUid);
 	const bodyOfGet = JSON.parse(await responseOfGet.text(), deserializeJSON);
-	Debug('GET organization response', bodyOfGet);
+	Debug('GET organization response status=%d organizationUid=%s', responseOfGet.status, organizationUid);
 	if (responseOfGet.status === 200) {
 		return bodyOfGet;
 	} else if (responseOfGet.status === 403) {

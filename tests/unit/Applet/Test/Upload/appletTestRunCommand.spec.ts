@@ -9,6 +9,7 @@ const page2TestSuites = createPage([{ identifier: 'test-page2-suite' }]);
 const page1TestSuites = createPage([{ identifier: 'test-page1-suite' }], page2TestSuites);
 
 const deviceAppletTestRunStub = sinon.stub().resolves();
+const deviceAppletTestGetStub = sinon.stub();
 
 const mockRestApi = {
 	applet: {
@@ -20,18 +21,13 @@ const mockRestApi = {
 		get: sinon.fake.resolves({ uid: 'device-uid', name: 'TestDevice' }),
 		appletTest: {
 			run: deviceAppletTestRunStub,
-			get: sinon.fake.resolves({
-				successfulTests: ['test-page2-suite'],
-				failedTests: [],
-				pendingTests: [],
-				finishedAt: new Date(),
-			}),
+			get: deviceAppletTestGetStub,
 		},
 	},
 };
 
 rewireMock('../../../Organization/organizationFacade').with(organizationFacadeMock);
-rewireMock('../../../helper').with({ createOrganizationRestApi: sinon.fake.returns(mockRestApi) });
+rewireMock('../../../Organization/organizationRestApi').with({ createOrganizationRestApiFromUid: sinon.fake.returns(mockRestApi) });
 rewireMock('../../appletFacade').with({
 	getAppletUid: sinon.fake.resolves('applet-uid'),
 	getAppletVersion: sinon.fake.resolves('1.0.0'),
@@ -59,23 +55,62 @@ rewireMock.disable();
 
 describe('appletTestRunCommand', function () {
 	describe('appletTestRun', function () {
+		beforeEach(function () {
+			deviceAppletTestRunStub.resetHistory();
+			deviceAppletTestGetStub.reset();
+			deviceAppletTestGetStub.resolves({
+				successfulTests: ['test-page2-suite'],
+				failedTests: [],
+				pendingTests: [],
+				finishedAt: new Date(),
+			});
+		});
+
 		it('should run a test whose identifier exists only on the second page', async function () {
 			// 'test-page2-suite' is only on page 2.
 			// Without pagination: validateTestIdentifiers throws "test-page2-suite is not in currently
 			//   uploaded test suites" before device.appletTest.run is ever called.
 			// With pagination: all suites are collected, validation passes, device.appletTest.run is called.
-			deviceAppletTestRunStub.resetHistory();
-
-			try {
-				type Args = Parameters<typeof appletTestRun.run>[0];
-				await appletTestRun.run({ test: ['test-page2-suite'], yes: true } satisfies Partial<Args> as Args); // TODO: run should accept Partial options
-			} catch {
-				// errors from polling etc. are irrelevant to the pagination assertion
-			}
+			type Args = Parameters<typeof appletTestRun.run>[0];
+			await appletTestRun.run({ test: ['test-page2-suite'], yes: true } satisfies Partial<Args> as Args); // TODO: run should accept Partial options
 
 			// FAILS now: run is never reached because validateTestIdentifiers throws first.
 			// PASSES after fix: pagination collects page-2 suite, validation succeeds, run IS called.
 			should(deviceAppletTestRunStub.calledOnce).be.true();
+		});
+
+		it('should stop polling when remote applet test execution fails', async function () {
+			deviceAppletTestGetStub.resolves({
+				successfulTests: [],
+				failedTests: [],
+				pendingTests: ['test-page2-suite'],
+				finishedAt: null,
+				failedAt: new Date(),
+			});
+
+			type Args = Parameters<typeof appletTestRun.run>[0];
+			await should(
+				appletTestRun.run({ test: ['test-page2-suite'], yes: true } satisfies Partial<Args> as Args), // TODO: run should accept Partial options
+			).be.rejectedWith(/Tests run failed/);
+
+			should(deviceAppletTestGetStub.calledOnce).be.true();
+		});
+
+		it('should stop polling when remote applet test execution is canceled', async function () {
+			deviceAppletTestGetStub.resolves({
+				successfulTests: [],
+				failedTests: [],
+				pendingTests: ['test-page2-suite'],
+				finishedAt: null,
+				canceledAt: new Date(),
+			});
+
+			type Args = Parameters<typeof appletTestRun.run>[0];
+			await should(
+				appletTestRun.run({ test: ['test-page2-suite'], yes: true } satisfies Partial<Args> as Args), // TODO: run should accept Partial options
+			).be.rejectedWith(/Applet tests run canceled/);
+
+			should(deviceAppletTestGetStub.calledOnce).be.true();
 		});
 	});
 });

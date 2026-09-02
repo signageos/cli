@@ -2,9 +2,8 @@ import chalk from 'chalk';
 import prompts from 'prompts';
 import * as path from 'path';
 import * as fs from 'fs-extra';
-import { createOrganizationRestApi } from '../../helper';
+import { createOrganizationRestApiFromUid } from '../../Organization/organizationRestApi';
 import {
-	getOrganization,
 	getOrganizationUidOrDefaultOrSelect,
 	NO_DEFAULT_ORGANIZATION_OPTION,
 	ORGANIZATION_UID_OPTION,
@@ -121,9 +120,8 @@ export const appletUpload = createCommandDefinition({
 		const currentDirectory = process.cwd();
 		const skipPrompts = options.yes as boolean;
 		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options, skipPrompts);
-		const organization = await getOrganization(organizationUid);
 
-		const restApi = await createOrganizationRestApi(organization);
+		const restApi = await createOrganizationRestApiFromUid(organizationUid);
 
 		const appletPathOption = options['applet-path'];
 		const appletEntryOption = options['entry-file-path'];

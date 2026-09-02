@@ -1,12 +1,12 @@
 import { DEVICE_UID_OPTION, getDeviceUid } from '../deviceFacade';
 import {
-	getOrganization,
 	getOrganizationUidOrDefaultOrSelect,
 	NO_DEFAULT_ORGANIZATION_OPTION,
 	ORGANIZATION_UID_OPTION,
 } from '../../Organization/organizationFacade';
 import { APPLET_UID_OPTION, getAppletUid, getAppletVersion } from '../../Applet/appletFacade';
-import { createOrganizationRestApi, getApiUrl } from '../../helper';
+import { getApiUrl } from '../../helper';
+import { createOrganizationRestApiFromUid } from '../../Organization/organizationRestApi';
 import { CommandLineOptions, createCommandDefinition } from '../../Command/commandDefinition';
 import { createDevelopmentWithOptions } from '../../Development/developmentFactory';
 import wait from '../../Timer/wait';
@@ -106,13 +106,14 @@ export const connect = createCommandDefinition({
 	run: async function (options: CommandLineOptions<typeof OPTION_LIST>) {
 		const currentDirectory = process.cwd();
 		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options);
-		const organization = await getOrganization(organizationUid);
-		const restApi = await createOrganizationRestApi(organization);
+		const restApi = await createOrganizationRestApiFromUid(organizationUid);
 		const config = await loadConfig();
 		const dev = createDevelopmentWithOptions({
-			organizationUid: organization.uid,
+			organizationUid,
 			url: getApiUrl(config),
 			accessToken: config.accessToken,
+			clientId: config.identification,
+			secret: config.apiSecurityToken,
 		});
 
 		const appletUid = await getAppletUid(restApi, options);

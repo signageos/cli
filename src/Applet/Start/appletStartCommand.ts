@@ -116,6 +116,8 @@ export const appletStart = createCommandDefinition({
 			organizationUid,
 			url: getApiUrl(config),
 			accessToken: config.accessToken,
+			clientId: config.identification,
+			secret: config.apiSecurityToken,
 		});
 
 		const emulatorServerPort = options[PORT_OPTION.name] ?? DEFAULT_PORT;

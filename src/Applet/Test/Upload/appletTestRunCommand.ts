@@ -1,8 +1,7 @@
 import chalk from 'chalk';
 import prompts from 'prompts';
-import { createOrganizationRestApi } from '../../../helper';
+import { createOrganizationRestApiFromUid } from '../../../Organization/organizationRestApi';
 import {
-	getOrganization,
 	getOrganizationUidOrDefaultOrSelect,
 	NO_DEFAULT_ORGANIZATION_OPTION,
 	ORGANIZATION_UID_OPTION,
@@ -73,8 +72,7 @@ export const appletTestRun = createCommandDefinition({
 		await validateAppletDirectory(currentDirectory);
 
 		const organizationUid = await getOrganizationUidOrDefaultOrSelect(options, skipConfirmation);
-		const organization = await getOrganization(organizationUid);
-		const restApi = await createOrganizationRestApi(organization);
+		const restApi = await createOrganizationRestApiFromUid(organizationUid);
 		const deviceUid = await getDeviceUid(restApi, options);
 		const device = await restApi.device.get(deviceUid);
 
@@ -136,9 +134,13 @@ export const appletTestRun = createCommandDefinition({
 					add: nextCountFinished - lastCountFinished,
 					name: progressName,
 				});
-			} while (!deviceAppletTest?.finishedAt);
+			} while (!isDeviceAppletTestTerminal(deviceAppletTest));
 
-			if (deviceAppletTest.failedTests.length > 0) {
+			if (hasCanceledAt(deviceAppletTest)) {
+				throw new Error(`Applet tests run canceled`);
+			}
+
+			if (hasFailedAt(deviceAppletTest) || deviceAppletTest.failedTests.length > 0) {
 				displayFailureMessage(applet.name, appletVersion.version, deviceAppletTest);
 				throw new Error(`Tests run failed`);
 			} else {
@@ -149,6 +151,18 @@ export const appletTestRun = createCommandDefinition({
 		}
 	},
 });
+
+function isDeviceAppletTestTerminal(deviceAppletTest: IDeviceAppletTest | undefined): boolean {
+	return !!deviceAppletTest && (!!deviceAppletTest.finishedAt || hasCanceledAt(deviceAppletTest) || hasFailedAt(deviceAppletTest));
+}
+
+function hasCanceledAt(deviceAppletTest: IDeviceAppletTest): boolean {
+	return 'canceledAt' in deviceAppletTest && !!deviceAppletTest.canceledAt;
+}
+
+function hasFailedAt(deviceAppletTest: IDeviceAppletTest): boolean {
+	return 'failedAt' in deviceAppletTest && !!deviceAppletTest.failedAt;
+}
 
 function displaySuccessMessage(appletName: string, appletVersion: string, deviceAppletTest: IDeviceAppletTest) {
 	log('info', `Applet ${chalk.green(appletName)} version ${chalk.green(appletVersion)} tests ${chalk.green('succeeded')}.`);

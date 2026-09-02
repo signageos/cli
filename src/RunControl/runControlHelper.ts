@@ -31,11 +31,14 @@ export async function loadConfig(): Promise<IExtendedConfig> {
 	// precedence chain (cli > SOS_API_URL > .sosrc > SOS_DEFAULT_API_URL) is honored
 	// in a single place.
 	const envOverride: Partial<IExtendedConfig> = {};
-	if (process.env.SOS_API_IDENTIFICATION) {
-		envOverride.identification = process.env.SOS_API_IDENTIFICATION;
+	const environmentIdentification = process.env.SOS_API_IDENTIFICATION;
+	const environmentSecurityToken = process.env.SOS_API_SECURITY_TOKEN;
+	const hasEnvironmentOrganizationCredentials = Boolean(environmentIdentification && environmentSecurityToken);
+	if (environmentIdentification) {
+		envOverride.identification = environmentIdentification;
 	}
-	if (process.env.SOS_API_SECURITY_TOKEN) {
-		envOverride.apiSecurityToken = process.env.SOS_API_SECURITY_TOKEN;
+	if (environmentSecurityToken) {
+		envOverride.apiSecurityToken = environmentSecurityToken;
 	}
 	if (process.env.SOS_ORGANIZATION_UID) {
 		envOverride.defaultOrganizationUid = process.env.SOS_ORGANIZATION_UID;
@@ -50,6 +53,11 @@ export async function loadConfig(): Promise<IExtendedConfig> {
 	if (envToken) {
 		Debug('Using access token from SOS_ACCESS_TOKEN env var');
 		finalConfig.accessToken = envToken;
+		return finalConfig;
+	}
+
+	if (hasEnvironmentOrganizationCredentials) {
+		delete finalConfig.accessToken;
 		return finalConfig;
 	}
 

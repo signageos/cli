@@ -31,18 +31,18 @@ rewireMock('../appletValidation').with(appletValidationMock);
 rewireMock('../../Organization/organizationFacade').with(organizationFacadeMock);
 rewireMock('../../Lib/fileSystem').with(fileSystemHelperMock);
 rewireMock.enable();
-rewireMock('../../helper').with(helperMock);
+rewireMock('../../Organization/organizationRestApi').with(helperMock);
 rewireMock('prompts').with(promptsMockOverrideTrue);
 import { appletUpload as singleFileAppletUploadOverrideTrue } from '../../../../src/Applet/Upload/appletUploadCommand';
-rewireMock('../../helper').with(helperMock);
+rewireMock('../../Organization/organizationRestApi').with(helperMock);
 rewireMock('prompts').with(promptsMockOverrideFalse);
 // eslint-disable-next-line no-duplicate-imports
 import { appletUpload as singleFileAppletUploadOverrideFalse } from '../../../../src/Applet/Upload/appletUploadCommand';
-rewireMock('../../helper').with(restApiWithNonExistingAppletVersion);
+rewireMock('../../Organization/organizationRestApi').with(restApiWithNonExistingAppletVersion);
 rewireMock('prompts').with(promptsMockConfirmTrue);
 // eslint-disable-next-line no-duplicate-imports
 import { appletUpload as singleFileAppletUploadConfirmTrue } from '../../../../src/Applet/Upload/appletUploadCommand';
-rewireMock('../../helper').with(restApiWithNonExistingAppletVersion);
+rewireMock('../../Organization/organizationRestApi').with(restApiWithNonExistingAppletVersion);
 rewireMock('prompts').with(promptsMockConfirmFalse);
 // eslint-disable-next-line no-duplicate-imports
 import { appletUpload as singleFileAppletUploadConfirmFalse } from '../../../../src/Applet/Upload/appletUploadCommand';
