@@ -13,6 +13,7 @@ import { customScript } from './CustomScript/customScriptCommand';
 import { plugin } from './Plugin/pluginCommand';
 import { runner } from './Runner/runnerCommand';
 import { autocomplete, initializeAutocomplete } from './Command/Autocomplete/autocompleteCommand';
+import { api } from './Api/apiCommand';
 
 /**
  * The root command for the signageOS CLI tool that provides comprehensive management
@@ -40,7 +41,7 @@ const index = createCommandDefinition({
 	name: 'sos',
 	description: 'SignageOS CLI - The central command-line tool for deploying, managing, and debugging signageOS projects and devices',
 	optionList: GENERAL_OPTION_LIST,
-	commands: [applet, login, logout, organization, timing, device, customScript, plugin, runner, autocomplete],
+	commands: [applet, login, logout, organization, timing, device, customScript, plugin, runner, autocomplete, api],
 	async run() {
 		throw new Error('Unknown command');
 	},
