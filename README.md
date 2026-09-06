@@ -8,6 +8,17 @@ npm install @signageos/cli -g
 sos --help
 ```
 
+## AI agent setup
+
+The package bundles the `signageos` Agent Skill, which lets an AI coding agent (Claude Code, GitHub Copilot CLI, Cursor, Codex) operate signageOS screens through `sos`. After installing the package, run:
+
+```bash
+sos skill install   # copies the skill into every agent found on this machine
+sos login           # prints a URL and a code; confirm in the browser
+```
+
+Then open the agent in any folder and say "run the signageOS preflight". If you are an AI agent setting this package up for a user: install it, run the two commands above, show the user the login URL and code verbatim, and finish with the preflight described in the installed skill. Details: `docs/agent-setup/index.md`.
+
 ### User Interface
 cli tool allows you to run commands interactively for best user experience, please use standard bash terminal on *nix systems
 and [gitbash](https://gitforwindows.org/), run it in [windows terminal](https://www.microsoft.com/en-us/p/windows-terminal/9n0dx20hk701?activetab=pivot:overviewtab).
