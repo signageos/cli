@@ -88,6 +88,7 @@ describe('integration.appletGenerateCommand', function () {
 
 			should(await fs.pathExists(targetDir)).be.true();
 			should(await fs.pathExists(path.join(targetDir, './node_modules'))).be.true();
+			await shouldHaveOnlyDevDependencies(targetDir);
 		}).timeout(180000);
 
 		it('should generate applet with pnpm packager', async function () {
@@ -105,6 +106,7 @@ describe('integration.appletGenerateCommand', function () {
 
 			should(await fs.pathExists(targetDir)).be.true();
 			should(await fs.pathExists(path.join(targetDir, './node_modules'))).be.true();
+			await shouldHaveOnlyDevDependencies(targetDir);
 		}).timeout(180000);
 
 		// bun hangs during linking on Windows Server Core 1809; covered by Linux CI
@@ -123,6 +125,7 @@ describe('integration.appletGenerateCommand', function () {
 
 			should(await fs.pathExists(targetDir)).be.true();
 			should(await fs.pathExists(path.join(targetDir, './node_modules'))).be.true();
+			await shouldHaveOnlyDevDependencies(targetDir);
 		}).timeout(180000);
 
 		it('should generate applet with npm packager and git init', async function () {
@@ -251,3 +254,13 @@ const buildApplet = async (workDir: string, command: string) => {
 		throw error; // Ensure the test fails if the build fails
 	}
 };
+
+/**
+ * An applet ships only its bundled `dist`, so everything the generator installs is build
+ * tooling and belongs in `devDependencies` — whichever packager was used.
+ */
+async function shouldHaveOnlyDevDependencies(targetDir: string) {
+	const packageConfig = await fs.readJson(path.join(targetDir, 'package.json'));
+	should(Object.keys(packageConfig.devDependencies ?? {})).not.be.empty();
+	should(Object.keys(packageConfig.dependencies ?? {})).be.empty();
+}
