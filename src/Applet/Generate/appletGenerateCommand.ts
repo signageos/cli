@@ -24,7 +24,7 @@ enum GitOptions {
 	Yes = 'yes',
 }
 
-enum Packager {
+export enum Packager {
 	Npm = 'npm',
 	Pnpm = 'pnpm',
 	Yarn = 'yarn',
@@ -454,13 +454,10 @@ export const appletGenerate = createCommandDefinition({
 			// Install dependencies
 			process.chdir(appletRootDirectory);
 
-			// Dev deps must be added with the `add` subcommand for yarn AND pnpm.
-			// pnpm v11 rejects `pnpm install --save-dev` ("Unknown option: 'save-dev'")
-			// — only `pnpm add --save-dev` is valid (pnpm v10 silently tolerated it).
-			const installCommand = packager === Packager.Yarn || packager === Packager.Pnpm ? 'add' : 'install';
+			const installArgs = buildInstallArgs(packager, mergedDeps);
 
 			// Log the command being executed
-			console.info(`Installing dependencies: ${PACKAGER_EXECUTABLE} ${installCommand} --save-dev ${mergedDeps.join(' ')}`);
+			console.info(`Installing dependencies: ${PACKAGER_EXECUTABLE} ${installArgs.join(' ')}`);
 
 			// Override registry env so the spawned process doesn't inherit a private
 			// registry from the parent project's .npmrc or global config.
@@ -468,7 +465,7 @@ export const appletGenerate = createCommandDefinition({
 			const registryUrl = typeof options['npm-registry'] === 'string' ? options['npm-registry'] : 'https://registry.npmjs.org/';
 			const spawnEnv = { ...process.env, npm_config_registry: registryUrl };
 
-			const child = child_process.spawn(PACKAGER_EXECUTABLE, [installCommand, '--save-dev', ...mergedDeps], {
+			const child = child_process.spawn(PACKAGER_EXECUTABLE, installArgs, {
 				stdio: 'pipe', // Use 'pipe' to capture stdout and stderr
 				shell: true,
 				env: spawnEnv,
@@ -514,6 +511,28 @@ export const appletGenerate = createCommandDefinition({
 		}
 	},
 });
+
+/**
+ * Build the argument list that installs `deps` as dev dependencies with the given packager.
+ *
+ * Every packager spells this differently:
+ * - npm understands `install --save-dev`.
+ * - yarn and pnpm need the `add` subcommand; pnpm v11 rejects `pnpm install --save-dev`
+ *   ("Unknown option: 'save-dev'") where pnpm v10 silently tolerated it.
+ * - bun needs `add --dev`. It accepts `--save-dev` without complaining but ignores it,
+ *   writing the packages into `dependencies` instead.
+ */
+export function buildInstallArgs(packager: Packager, deps: string[]): string[] {
+	switch (packager) {
+		case Packager.Bun:
+			return ['add', '--dev', ...deps];
+		case Packager.Yarn:
+		case Packager.Pnpm:
+			return ['add', '--save-dev', ...deps];
+		default:
+			return ['install', '--save-dev', ...deps];
+	}
+}
 
 /**
  * Create package.json config
