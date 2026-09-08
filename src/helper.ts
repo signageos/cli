@@ -3,7 +3,7 @@ import chalk from 'chalk';
 import debug from 'debug';
 import prompts from 'prompts';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
-import IRestApiOptions from '@signageos/sdk/dist/RestApi/IOptions';
+import IRestApiOptions, { IAuthOptions } from '@signageos/sdk/dist/RestApi/IOptions';
 import { loadConfig, IExtendedConfig } from './RunControl/runControlHelper';
 import { ApiVersions } from '@signageos/sdk/dist/RestApi/apiVersions';
 import { parameters } from './parameters';
@@ -54,11 +54,27 @@ export function createClientVersions() {
 	};
 }
 
+/**
+ * Fail early when nothing has authenticated us yet.
+ *
+ * Without this the empty credentials are sent to the API, which answers 403 WRONG_JWT_TOKEN,
+ * and the SDK surfaces that raw response — a stack trace about JWT decoding that says nothing
+ * about the actual problem. It is also raised by `@signageos/webpack-plugin`, so a first-time
+ * user running `npm start` in a fresh applet sees it before ever touching the CLI directly.
+ */
+function assertAuthenticated(auth: IAuthOptions): void {
+	const isAuthenticated = 'accessToken' in auth ? Boolean(auth.accessToken) : Boolean(auth.clientId && auth.secret);
+	if (!isAuthenticated) {
+		throw new Error(`You are not logged in. Try to login using ${chalk.green('sos login')}`);
+	}
+}
+
 export async function createAccountRestApi() {
 	const config = await loadConfig();
 	const auth = config.accessToken
 		? { accessToken: config.accessToken }
 		: { clientId: config.identification ?? '', secret: config.apiSecurityToken ?? '' };
+	assertAuthenticated(auth);
 	const url = await loadApiUrl();
 	Debug('Creating account REST API: url=%s authMode=%s', url, config.accessToken ? 'jwt' : 'legacy');
 	const options: IRestApiOptions = {
@@ -77,6 +93,7 @@ export async function createOrganizationRestApi(credentials: ICredentials | unde
 		: config.identification && config.apiSecurityToken
 			? { clientId: config.identification, secret: config.apiSecurityToken }
 			: { clientId: credentials?.oauthClientId ?? '', secret: credentials?.oauthClientSecret ?? '' };
+	assertAuthenticated(auth);
 	const url = await loadApiUrl();
 	Debug(
 		'Creating organization REST API: url=%s authMode=%s organizationUid=%o',
