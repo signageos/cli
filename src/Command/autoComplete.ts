@@ -59,7 +59,10 @@ export function generateCompletionScript(rootCommand: ICommand<string, OptionLis
 
 	// Replace placeholders in the shell script
 	script = script.replace(/\${TOPLEVEL_COMMANDS}/g, topLevelCommands);
-	script = script.replace(/ {4}# COMMAND_SCHEMA_CASES will be replaced with actual cases during generation/g, commandCases);
+	// Match whatever indentation the template uses. Anchoring this to four literal spaces made
+	// the substitution silently stop working when the template was reindented with tabs, which
+	// left every nested command falling through to the top level list.
+	script = script.replace(/^[ \t]*# COMMAND_SCHEMA_CASES will be replaced with actual cases during generation$/gm, commandCases);
 
 	return script;
 }
