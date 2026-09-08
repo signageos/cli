@@ -1,5 +1,5 @@
 import 'should';
-import { preprocessArgv } from '../../../src/Command/commandProcessor';
+import { preprocessArgv, unknownCommandMessage } from '../../../src/Command/commandProcessor';
 
 describe('Command.CommandProcessor', function () {
 	describe('preprocessArgv', function () {
@@ -69,6 +69,34 @@ describe('Command.CommandProcessor', function () {
 			const input = ['node', 'script.js', '-unknown', 'value', '--valid', 'value2'];
 			const result = preprocessArgv(input);
 			result.should.deepEqual(['node', 'script.js', '--unknown', 'value', '--valid', 'value2']);
+		});
+	});
+
+	describe('unknownCommandMessage', function () {
+		const COMMANDS = ['applet', 'login', 'logout', 'organization', 'timing', 'device', 'custom-script'];
+
+		it('should suggest the nearest command for a typo', function () {
+			unknownCommandMessage('logi', COMMANDS).should.equal("Unknown command: 'logi'. Did you mean 'login'?");
+		});
+
+		it('should suggest the nearest command for a missing letter', function () {
+			unknownCommandMessage('aplet', COMMANDS).should.equal("Unknown command: 'aplet'. Did you mean 'applet'?");
+		});
+
+		it('should pick the closest of several similar commands', function () {
+			unknownCommandMessage('logou', COMMANDS).should.equal("Unknown command: 'logou'. Did you mean 'logout'?");
+		});
+
+		it('should not suggest anything for input that resembles no command', function () {
+			unknownCommandMessage('xyzzy', COMMANDS).should.equal("Unknown command: 'xyzzy'");
+		});
+
+		it('should ignore letter case', function () {
+			unknownCommandMessage('Login', COMMANDS).should.equal("Unknown command: 'Login'. Did you mean 'login'?");
+		});
+
+		it('should not suggest anything when the command has no subcommands', function () {
+			unknownCommandMessage('logi', []).should.equal("Unknown command: 'logi'");
 		});
 	});
 });
