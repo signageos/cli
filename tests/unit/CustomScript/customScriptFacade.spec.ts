@@ -3,6 +3,8 @@ import * as fs from 'fs-extra';
 import should from 'should';
 import * as sinon from 'sinon';
 import RestApi from '@signageos/sdk/dist/RestApi/RestApi';
+import RequestError from '@signageos/sdk/dist/RestApi/Error/RequestError';
+import prompts from 'prompts';
 import { useTmpFiles } from '../../lib/tmpFiles';
 import {
 	getConfig,
@@ -174,6 +176,60 @@ describe('CustomScript.customScriptFacade', function () {
 			await should(ensureCustomScriptVersion(mockRestApi as unknown as RestApi, configWithUid, true)).be.rejectedWith(
 				/Custom Script with uid "cs-uid-1" not found/,
 			);
+		});
+
+		describe('name already taken', function () {
+			const nameConflictError = new RequestError(409, {
+				errorName: 'CUSTOM_SCRIPT_NAME_ALREADY_EXISTS',
+				message: 'Conflict - Custom script with name test-script already exists in this organization: cs-uid-1',
+			});
+
+			function createMockRestApi(createError: Error, listed: { uid: string; name: string }[]) {
+				return {
+					customScript: {
+						list: sinon.fake.resolves(listed),
+						create: sinon.fake.rejects(createError),
+						version: {
+							get: sinon.fake.resolves(existingVersion),
+						},
+					},
+				};
+			}
+
+			it('should point at the existing script instead of failing with the raw API error when confirmations are skipped', async function () {
+				const mockRestApi = createMockRestApi(nameConflictError, [existingCustomScript]);
+
+				await should(ensureCustomScriptVersion(mockRestApi as unknown as RestApi, { ...validConfig }, true, 'org-1')).be.rejectedWith(
+					/Custom Script "test-script" already exists \(uid "cs-uid-1"\)\..*\.sosconfig\.json/,
+				);
+			});
+
+			it('should upload into the existing script and record its uid once confirmed', async function () {
+				const mockRestApi = createMockRestApi(nameConflictError, [existingCustomScript]);
+				await fs.writeFile(path.join(tmpDir, SOS_CONFIG_FILE_NAME), JSON.stringify(validConfig, undefined, '\t'));
+				const cwdStub = sinon.stub(process, 'cwd').returns(tmpDir);
+				// Two confirmations: the create prompt, then the prompt offering the script that already holds the name.
+				prompts.inject([true, true]);
+
+				try {
+					const result = await ensureCustomScriptVersion(mockRestApi as unknown as RestApi, { ...validConfig }, false, 'org-1');
+
+					should(result).be.eql(existingVersion);
+				} finally {
+					cwdStub.restore();
+				}
+
+				const writtenConfig = JSON.parse(await fs.readFile(path.join(tmpDir, SOS_CONFIG_FILE_NAME), 'utf-8'));
+				should(writtenConfig.uid).be.equal('cs-uid-1');
+			});
+
+			it('should rethrow errors that are not a name conflict', async function () {
+				const mockRestApi = createMockRestApi(new Error('Something else broke'), [existingCustomScript]);
+
+				await should(ensureCustomScriptVersion(mockRestApi as unknown as RestApi, { ...validConfig }, true, 'org-1')).be.rejectedWith(
+					'Something else broke',
+				);
+			});
 		});
 
 		describe('config file written on creation', function () {
