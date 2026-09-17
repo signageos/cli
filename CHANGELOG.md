@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [4.4.0] - 2026-09-17
 ### Added
 - (public) `sos custom-script upload` reports a custom script name that is already taken and offers to upload into the existing script, instead of failing with a raw API error.
 
