@@ -1,8 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to
-[Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
+and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+
+Entries should be short and human-readable; for longer entries, use an indented list.
+
+`Changed` and `Removed` entries should be used only for breaking changes to the outward-facing API.
 
 ## [Unreleased]
 
@@ -79,8 +83,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ### Fixed
 
-- (public) All paginated list endpoints are now fully traversed - devices, applet versions, and applet test suites spanning multiple pages are no
-  longer silently truncated
+- (public) All paginated list endpoints are now fully traversed - devices, applet versions, and applet test suites spanning multiple pages are no longer silently truncated
 - (public) `sos applet upload` reupload correctly fetches all existing remote files across pages before diffing
 
 ## [3.0.0] - 2026-04-10
@@ -266,6 +269,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 ## [1.5.0] - 2024-08-20
 ### Added
 - (public) A bundler flag to the `applet generate` command to enable bundler selection for the generated applet - the options are `webpack` and `esbuild`, defaulting to `webpack`
+
 ### Fixed
 - (public) Updated `Node.js` version to 20 and `npm` version to 10
 
@@ -547,3 +551,4 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 ### Added
 - (public) Package is available in npm registry https://www.npmjs.com/package/@signageos/cli
 - (public) Applet generation command to create vanilla JS applet `sos applet generate --name my-new-applet`
+
