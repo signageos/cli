@@ -10,6 +10,12 @@ Entries should be short and human-readable; for longer entries, use an indented 
 
 ## [Unreleased]
 
+## [4.5.0] - 2026-10-15
+### Added
+- (public) `sos api` calls REST API endpoints with the stored login and prints raw responses; write requests require `--confirm-write` on each invocation.
+- (public) `sos docs search --query` searches the public signageOS documentation and prints matching passages as JSON.
+- (public) `sos skill install` installs the signageOS Agent Skill for Claude Code, GitHub Copilot CLI, Cursor and Codex to guide device management.
+
 ## [4.4.0] - 2026-09-17
 ### Added
 - (public) `sos custom-script upload` reports a custom script name that is already taken and offers to upload into the existing script, instead of failing with a raw API error.
@@ -21,7 +27,7 @@ Entries should be short and human-readable; for longer entries, use an indented 
 
 ## [4.3.0] - 2026-08-04
 ### Added
-- (internal) `sos custom-script upload --managed` uploads the script as a signageOS-managed global custom script that has no owning organization and can be run by any organization; reserved for signageOS admin accounts
+- `sos custom-script upload --managed` uploads the script as a signageOS-managed global custom script that has no owning organization and can be run by any organization; reserved for signageOS admin accounts
 
 ## [4.2.1] - 2026-07-28
 ### Fixed
@@ -61,12 +67,10 @@ Entries should be short and human-readable; for longer entries, use an indented 
 ## [4.0.2] - 2026-04-29
 
 ## [4.0.1] - 2026-04-29
-
 ### Fixed
 - (public) Pass `organizationUid` as query parameter on all SDK requests to support JWT auth with organization-authenticated API endpoints (applet versions, device settings, etc.)
 
 ## [4.0.0] - 2026-04-28
-
 ### Added
 - (public) Auth0 Device Authorization Flow for `sos login` — replaces legacy username/password authentication
 - (public) JWT access token support for all API interactions
@@ -76,13 +80,12 @@ Entries should be short and human-readable; for longer entries, use an indented 
 
 ### Changed
 - (public) Authentication now uses Auth0 Device Flow instead of legacy username/password login
-- (internal) SDK dependency updated to support JWT access tokens in `X-Auth` header
+- SDK dependency updated to support JWT access tokens in `X-Auth` header
 
 ### Removed
 - (public) removed `sos firmware upload` feature
 
 ### Fixed
-
 - (public) All paginated list endpoints are now fully traversed - devices, applet versions, and applet test suites spanning multiple pages are no longer silently truncated
 - (public) `sos applet upload` reupload correctly fetches all existing remote files across pages before diffing
 
@@ -108,7 +111,7 @@ Entries should be short and human-readable; for longer entries, use an indented 
 - (public) Applet directory validation to prevent accidental wrong uploads of non-applet projects (respects `--applet-path` option)
 - (public) Graceful cancellation handling for all interactive prompts
 - (public) Support for `sos.config.local.json` on real connected devices (require support on Core App)
-  
+
 ## [2.8.0] - 2026-01-15
 ### Added
 - (public) Support for `sos.config.local.json` file in applet directory for local development configuration
@@ -127,12 +130,12 @@ Entries should be short and human-readable; for longer entries, use an indented 
 - (public) `sos plugin generate` now supports `--name`, `--description`, and `--yes` options for non-interactive generation
 - (public) `sos runner upload` now supports `--yes` flag to skip confirmation prompts for runner/version creation
 - (public) `sos plugin upload` now supports `--yes` flag to skip confirmation prompts for plugin/version creation
-- (internal) Enhanced JSDoc documentation with comprehensive CI/CD usage examples for all automation-enabled commands
+- Enhanced JSDoc documentation with comprehensive CI/CD usage examples for all automation-enabled commands
 
 ### Fixed
 - (public) Fixed CLI argument validation, making command to fail if contains invalid arguments (e.g.`sos runner generate --invalid`)
 - (public) Removed support for `--legacy-enabled` authentication flag from `sos login` command
-- (internal) Pinned `es-check` to `9.4.0` (9.4.1 introduced parsing bug)
+- Pinned `es-check` to `9.4.0` (9.4.1 introduced parsing bug)
 
 ## [2.6.0] - 2025-09-23
 ### Added
@@ -143,11 +146,11 @@ Entries should be short and human-readable; for longer entries, use an indented 
 - (public) Improved security and updated dependencies for generated applet
 
 ### Fixed
-- (internal) Upgrade underlying SDK to latest `@signageos/sdk`
+- Upgrade underlying SDK to latest `@signageos/sdk`
 
 ## [2.5.0] - 2025-07-30
 ### Fixed
-- (internal) Upgrade underlying SDK
+- Upgrade underlying SDK
 
 ### Added
 - (public) Logic for automatic `/docs` generation - documentation available online at `https://developers.signageos.io`
@@ -162,8 +165,8 @@ Entries should be short and human-readable; for longer entries, use an indented 
 
 ### Added
 - (public) Added basic `CHANGELOG.md` and `README.md` files to generated applets
-- (internal) Prepared for applet authorship support
-- (internal) Updated dependencies for applet generator
+- Prepared for applet authorship support
+- Updated dependencies for applet generator
 - (public) Support for shell auto-completion feature (`sos autocomplete install`)
 
 ## [2.3.1] - 2025-04-25
@@ -173,8 +176,8 @@ Entries should be short and human-readable; for longer entries, use an indented 
 ## [2.3.0] - 2025-04-17
 ### Added
 - (public) Added support for preferred package manager (npm, pnpm, bun, yarn)
-- (internal) Updated project dependencies
-- (internal) Windows build and test environment
+- Updated project dependencies
+- Windows build and test environment
 
 ### Fixed
 - (public) Improved strategy to detect cli and interactive arguments
@@ -195,9 +198,9 @@ Entries should be short and human-readable; for longer entries, use an indented 
 
 ## [2.0.0] - 2025-03-28
 ### Changed
-- (internal) Updated `tsconfig.js` rules to match current framework features
-- (internal) Updated `package.json` minimal supported node/npm engine versions
-- (internal) Updated dependencies
+- Updated `tsconfig.js` rules to match current framework features
+- Updated `package.json` minimal supported node/npm engine versions
+- Updated dependencies
 - (public) Updated documentation
 
 ## [1.10.0] - 2025-03-24
@@ -239,7 +242,7 @@ Entries should be short and human-readable; for longer entries, use an indented 
 
 ## [1.6.4] - 2025-02-17
 ### Fixed
-- (internal) Upgrade underlying SDK
+- Upgrade underlying SDK
 
 ## [1.6.3] - 2024-11-19
 ### Fixed
@@ -255,7 +258,7 @@ Entries should be short and human-readable; for longer entries, use an indented 
 
 ## [1.6.0] - 2024-09-26
 ### Added
-- (internal) Upgrade underlying SDK
+- Upgrade underlying SDK
 
 ### Fixed
 - (public) Improved the error message when an applet upload fails
@@ -263,8 +266,8 @@ Entries should be short and human-readable; for longer entries, use an indented 
 
 ## [1.5.1] - 2024-08-21
 ### Fixed
-- (internal) Removed tslint
-- (internal) Added eslint and eslint-plugin-prettier to harmonize the codestyle checking with company standards
+- Removed tslint
+- Added eslint and eslint-plugin-prettier to harmonize the codestyle checking with company standards
 
 ## [1.5.0] - 2024-08-20
 ### Added
@@ -366,7 +369,7 @@ Entries should be short and human-readable; for longer entries, use an indented 
 
 ## [1.0.1] - 2022-05-06
 ### Fixed
-- (internal) Upgrade underlying SDK
+- Upgrade underlying SDK
 
 ## [1.0.0] - 2022-04-06
 ### Added
@@ -551,4 +554,3 @@ Entries should be short and human-readable; for longer entries, use an indented 
 ### Added
 - (public) Package is available in npm registry https://www.npmjs.com/package/@signageos/cli
 - (public) Applet generation command to create vanilla JS applet `sos applet generate --name my-new-applet`
-
