@@ -13,6 +13,10 @@ const TEMPLATE_DEST_DIR = path.resolve(__dirname, '../dist/Applet/Generate/Templ
 const AUTOCOMPLETE_SOURCE_DIR = path.resolve(__dirname, '../src/Command/Autocomplete/Install');
 const AUTOCOMPLETE_DEST_DIR = path.resolve(__dirname, '../dist/Command/Autocomplete/Install');
 
+// Bundled agent skill
+const SKILL_SOURCE_DIR = path.resolve(__dirname, '../src/Skill/signageos');
+const SKILL_DEST_DIR = path.resolve(__dirname, '../dist/Skill/signageos');
+
 // Self-executing async function to copy templates
 (async function () {
 	try {
@@ -27,6 +31,11 @@ const AUTOCOMPLETE_DEST_DIR = path.resolve(__dirname, '../dist/Command/Autocompl
 		// Copy the autocomplete script
 		await fs.copy(AUTOCOMPLETE_SOURCE_DIR, AUTOCOMPLETE_DEST_DIR);
 		console.info('Autocomplete scripts copied successfully!');
+
+		// Copy the bundled agent skill
+		await fs.ensureDir(SKILL_DEST_DIR);
+		await fs.copy(SKILL_SOURCE_DIR, SKILL_DEST_DIR);
+		console.info('Agent skill copied successfully!');
 	} catch (err) {
 		console.error('Error copying files:', err);
 		process.exit(1);
