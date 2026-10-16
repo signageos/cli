@@ -9,7 +9,7 @@ const rewireMock = require('rewiremock').default;
 const homedirStub = sinon.stub();
 rewireMock('os').callThrough().with({ homedir: homedirStub });
 rewireMock.enable();
-import { skillInstall, SKILL_SOURCE_DIR } from '../../../src/Skill/Install/skillInstallCommand';
+import { skillInstall, SKILL_SOURCE_DIR, DIR_OPTION } from '../../../src/Skill/Install/skillInstallCommand';
 import { skill } from '../../../src/Skill/skillCommand';
 rewireMock.disable();
 
@@ -29,6 +29,11 @@ describe('Skill.skillInstallCommand', function () {
 		should(skill.name).equal('skill');
 		should(skill.commands.map((c) => c.name)).deepEqual(['install']);
 		should(skillInstall.optionList.map((o) => o.name)).deepEqual(['agent', 'dir']);
+	});
+
+	it('should describe the custom destination without JSX-like placeholders', function () {
+		should(DIR_OPTION.description).containEql('a signageos subdirectory');
+		should(DIR_OPTION.description).not.match(/[<>]/);
 	});
 
 	it('should bundle a SKILL.md next to the command', async function () {
