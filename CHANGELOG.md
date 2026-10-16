@@ -10,6 +10,10 @@ Entries should be short and human-readable; for longer entries, use an indented 
 
 ## [Unreleased]
 
+## [4.5.1] - 2026-10-16
+### Fixed
+- (public) Fixed the generated skill installation documentation so it compiles in the developer portal.
+
 ## [4.5.0] - 2026-10-15
 ### Added
 - (public) `sos api` calls REST API endpoints with the stored login and prints raw responses; write requests require `--confirm-write` on each invocation.
