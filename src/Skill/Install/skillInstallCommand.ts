@@ -15,7 +15,7 @@ export const AGENT_OPTION = {
 export const DIR_OPTION = {
 	name: 'dir',
 	type: String,
-	description: 'Skills directory to install into instead (the skill lands in <dir>/signageos)',
+	description: 'Skills directory to install into instead (the skill lands in a signageos subdirectory)',
 } as const;
 
 const OPTION_LIST = [AGENT_OPTION, DIR_OPTION] as const;
