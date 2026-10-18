@@ -29,6 +29,49 @@ export function preprocessArgv(argv: string[]): string[] {
 	});
 }
 
+/**
+ * Describe an unknown command, pointing at the nearest real one when the input looks like a typo.
+ *
+ * Mirrors the `Did you mean '--yes'?` hint that preprocessArgv already gives for mistyped options.
+ * The edit distance is capped at 2 so that genuinely unrelated input is reported plainly rather
+ * than with a misleading guess.
+ */
+export function unknownCommandMessage(unknownCommandName: string, commandNames: string[]): string {
+	const message = `Unknown command: '${unknownCommandName}'`;
+	const suggestion = findNearestCommandName(unknownCommandName, commandNames);
+	return suggestion ? `${message}. Did you mean '${suggestion}'?` : message;
+}
+
+const MAX_SUGGESTION_DISTANCE = 2;
+
+function findNearestCommandName(unknownCommandName: string, commandNames: string[]): string | undefined {
+	const candidates = commandNames
+		.map((commandName) => ({ commandName, distance: editDistance(unknownCommandName.toLowerCase(), commandName.toLowerCase()) }))
+		.filter(({ distance }) => distance <= MAX_SUGGESTION_DISTANCE)
+		.sort((a, b) => a.distance - b.distance || a.commandName.localeCompare(b.commandName));
+
+	return candidates[0]?.commandName;
+}
+
+/** Levenshtein distance, iterative over one row at a time. */
+function editDistance(left: string, right: string): number {
+	let previousRow = Array.from({ length: right.length + 1 }, (_value, index) => index);
+
+	for (let leftIndex = 1; leftIndex <= left.length; leftIndex++) {
+		const currentRow = [leftIndex];
+		for (let rightIndex = 1; rightIndex <= right.length; rightIndex++) {
+			const substitutionCost = left[leftIndex - 1] === right[rightIndex - 1] ? 0 : 1;
+			const insertion = (currentRow[rightIndex - 1] ?? 0) + 1;
+			const deletion = (previousRow[rightIndex] ?? 0) + 1;
+			const substitution = (previousRow[rightIndex - 1] ?? 0) + substitutionCost;
+			currentRow.push(Math.min(insertion, deletion, substitution));
+		}
+		previousRow = currentRow;
+	}
+
+	return previousRow[right.length] ?? 0;
+}
+
 export async function processCommand(
 	currentCommand: ICommand<string, OptionList>,
 	parentOptionList: ICommandOption[] = [],
@@ -107,7 +150,12 @@ export async function processCommand(
 
 		// Check if there was an unknown subcommand provided
 		if (subCommandName && currentCommand.commands.length > 0) {
-			throw new Error(`Unknown command: '${subCommandName}'`);
+			throw new Error(
+				unknownCommandMessage(
+					subCommandName,
+					currentCommand.commands.map((command) => command.name),
+				),
+			);
 		}
 
 		// Check if there are extra arguments when no subcommands are expected
