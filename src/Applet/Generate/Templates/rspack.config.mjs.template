@@ -16,6 +16,12 @@ export default defineConfig({
 	output: {
 		filename: 'index.js',
 	},
+	// @signageos/front-applet is a prebuilt ~1.2 MiB bundle that every applet includes, so the
+	// default 244 KiB budget can never be met by an applet author. Warning about it on every
+	// build only teaches them to ignore build output.
+	performance: {
+		hints: false,
+	},
 	module: {
 		rules: [
 			{

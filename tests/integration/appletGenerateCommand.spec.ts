@@ -58,15 +58,15 @@ describe('integration.appletGenerateCommand', function () {
 	 */
 	describe('build applets - all bundler types', function () {
 		it('should build default webpack/typescript applet', async function () {
-			await buildApplet('tests/output/default', 'npm run build');
+			shouldHaveNoPerformanceWarnings(await buildApplet('tests/output/default', 'npm run build'));
 		}).timeout(180000);
 
 		it('should build webpack_js applet', async function () {
-			await buildApplet('tests/output/webpack_js', 'npm run build');
+			shouldHaveNoPerformanceWarnings(await buildApplet('tests/output/webpack_js', 'npm run build'));
 		}).timeout(180000);
 
 		it('should build rspack_js applet', async function () {
-			await buildApplet('tests/output/rspack_js', 'npm run build');
+			shouldHaveNoPerformanceWarnings(await buildApplet('tests/output/rspack_js', 'npm run build'));
 		}).timeout(180000);
 	});
 
@@ -153,22 +153,22 @@ describe('integration.appletGenerateCommand', function () {
 	describe('build applets - all packager types', function () {
 		it('should build rspack_yarn applet', async function () {
 			await checkPackage('yarn');
-			await buildApplet('tests/output/rspack_yarn', 'yarn run build');
+			shouldHaveNoPerformanceWarnings(await buildApplet('tests/output/rspack_yarn', 'yarn run build'));
 		}).timeout(180000);
 
 		it('should build rspack_pnpm applet', async function () {
 			await checkPackage('pnpm');
-			await buildApplet('tests/output/rspack_pnpm', 'pnpm run build');
+			shouldHaveNoPerformanceWarnings(await buildApplet('tests/output/rspack_pnpm', 'pnpm run build'));
 		}).timeout(180000);
 
 		// bun hangs during linking on Windows Server Core 1809; covered by Linux CI
 		(process.platform === 'win32' ? it.skip : it)('should build rspack_bun applet', async function () {
 			await checkPackage('bun');
-			await buildApplet('tests/output/rspack_bun', 'bun run build');
+			shouldHaveNoPerformanceWarnings(await buildApplet('tests/output/rspack_bun', 'bun run build'));
 		}).timeout(180000);
 
 		it('should build rspack_npm_git applet', async function () {
-			await buildApplet('tests/output/rspack_npm_git', 'npm run build');
+			shouldHaveNoPerformanceWarnings(await buildApplet('tests/output/rspack_npm_git', 'npm run build'));
 		}).timeout(180000);
 	});
 
@@ -227,13 +227,15 @@ const goToTarget = (workDir: string) => {
  * and provides detailed error logging if the build fails. It's designed to be used in tests
  * to verify build processes.
  */
-const buildApplet = async (workDir: string, command: string) => {
+const buildApplet = async (workDir: string, command: string): Promise<string> => {
 	const absoluteWorkDir = path.join(rootPath, workDir);
 	console.info('\n Navigating to', absoluteWorkDir);
 	goToTarget(workDir);
 
 	try {
-		execSync(command, { stdio: 'inherit' });
+		const output = execSync(`${command} 2>&1`, { encoding: 'utf8' });
+		console.info(output);
+		return output;
 	} catch (error: unknown) {
 		console.error('Build failed in:', absoluteWorkDir);
 		console.error('Error message', error instanceof Error ? error.message : String(error));
@@ -251,3 +253,12 @@ const buildApplet = async (workDir: string, command: string) => {
 		throw error; // Ensure the test fails if the build fails
 	}
 };
+
+/**
+ * `@signageos/front-applet` is a prebuilt ~1.2 MiB bundle that every applet includes, so the
+ * bundler's default 244 KiB budget can never be met. Warning about it on every single build
+ * only teaches applet authors to ignore build output.
+ */
+function shouldHaveNoPerformanceWarnings(buildOutput: string) {
+	should(buildOutput).not.match(/size limit/i);
+}
