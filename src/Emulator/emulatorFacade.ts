@@ -16,7 +16,7 @@ interface IEmulatorData {
 	createdAt: Date;
 }
 
-const createRestApi = (config: IExtendedConfig) => {
+const createRestApi = (config: IExtendedConfig, organizationUid: string) => {
 	const auth = config.accessToken
 		? { accessToken: config.accessToken }
 		: { clientId: config.identification ?? '', secret: config.apiSecurityToken ?? '' };
@@ -25,7 +25,7 @@ const createRestApi = (config: IExtendedConfig) => {
 		auth,
 		version: ApiVersions.V1,
 		clientVersions: createClientVersions(),
-		organizationUid: config.defaultOrganizationUid,
+		organizationUid,
 	};
 	return new RestApi(options, options);
 };
@@ -59,14 +59,14 @@ export async function loadEmulatorOrCreateNewAndReturnUid(organizationUid: strin
 	if (!config.accessToken && (!config.identification || !config.apiSecurityToken)) {
 		throw new Error(`No authenticized account found. Try to login using ${chalk.green('sos login')}`);
 	}
-	const restApi = createRestApi(config);
+	const restApi = createRestApi(config, organizationUid);
 	const listOfEmulatorsResponse = await getListOfEmulators(restApi, organizationUid);
 	const isSavedValidEmulator = config.emulatorUid && listOfEmulatorsResponse.some((emu: IEmulatorData) => emu.duid === config.emulatorUid);
 
 	if (isSavedValidEmulator) {
 		return config.emulatorUid as string;
 	} else if (config.emulatorUid) {
-		log('warning', chalk.yellow('Field emulatorUid in sos config links to non existent emulator'));
+		log('warning', chalk.yellow(`Saved emulator ${config.emulatorUid} is not in organization ${organizationUid}, selecting another one`));
 	}
 	let emulatorUid: string = '';
 	log('info', 'Looking for valid emulator assigned to your account via API...');
