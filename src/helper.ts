@@ -70,7 +70,7 @@ export async function createAccountRestApi() {
 	return new RestApi(options, options);
 }
 
-export async function createOrganizationRestApi(credentials: ICredentials | undefined) {
+export async function createOrganizationRestApi(credentials: ICredentials | undefined, organizationUid: string) {
 	const config = await loadConfig();
 	const auth = config.accessToken
 		? { accessToken: config.accessToken }
@@ -82,14 +82,14 @@ export async function createOrganizationRestApi(credentials: ICredentials | unde
 		'Creating organization REST API: url=%s authMode=%s organizationUid=%o',
 		url,
 		config.accessToken ? 'jwt' : 'legacy',
-		config.defaultOrganizationUid,
+		organizationUid,
 	);
 	const options: IRestApiOptions = {
 		url,
 		auth,
 		version: ApiVersions.V1,
 		clientVersions: createClientVersions(),
-		organizationUid: config.defaultOrganizationUid,
+		organizationUid,
 	};
 	const accountOptions: IRestApiOptions = {
 		...options,

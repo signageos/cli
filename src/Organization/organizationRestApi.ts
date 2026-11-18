@@ -13,7 +13,7 @@ export async function createOrganizationRestApiFromUid(organizationUid: string) 
 	const config = await loadConfig();
 	const hasExplicitLegacyCredentials = !config.accessToken && !!config.identification && !!config.apiSecurityToken;
 	if (hasExplicitLegacyCredentials) {
-		return createOrganizationRestApi(undefined);
+		return createOrganizationRestApi(undefined, organizationUid);
 	}
-	return createOrganizationRestApi(await getOrganization(organizationUid));
+	return createOrganizationRestApi(await getOrganization(organizationUid), organizationUid);
 }

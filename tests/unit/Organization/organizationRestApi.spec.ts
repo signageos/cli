@@ -33,7 +33,7 @@ describe('organizationRestApi', function () {
 
 		should(result).equal(restApi);
 		should(getOrganizationStub.notCalled).be.true();
-		should(createOrganizationRestApiStub.calledOnceWithExactly(undefined)).be.true();
+		should(createOrganizationRestApiStub.calledOnceWithExactly(undefined, 'organization-uid')).be.true();
 	});
 
 	it('should look up organization credentials for an account access token', async function () {
@@ -54,6 +54,6 @@ describe('organizationRestApi', function () {
 
 		should(result).equal(restApi);
 		should(getOrganizationStub.calledOnceWithExactly('organization-uid')).be.true();
-		should(createOrganizationRestApiStub.calledOnceWithExactly(organization)).be.true();
+		should(createOrganizationRestApiStub.calledOnceWithExactly(organization, 'organization-uid')).be.true();
 	});
 });

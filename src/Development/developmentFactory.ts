@@ -30,7 +30,9 @@ export function createDevelopmentWithOptions(opts: IDevelopmentFactoryOptions): 
 	};
 	const baseV2: IOptions = { ...baseV1, version: ApiVersions.V2 };
 
-	const v1 = new RestApi(baseV1, { ...baseV1, organizationUid: undefined });
-	const v2 = new RestApiV2(baseV2, { ...baseV2, organizationUid: undefined });
+	// Organization-level managers (applet list, V2 device) need the organization. The SDK's own createApiV1
+	// passes it with both option sets, and the account-level device calls already relied on that.
+	const v1 = new RestApi(baseV1, baseV1);
+	const v2 = new RestApiV2(baseV2, baseV2);
 	return new Development(v1, v2);
 }
