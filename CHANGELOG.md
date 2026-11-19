@@ -10,6 +10,10 @@ Entries should be short and human-readable; for longer entries, use an indented 
 
 ## [Unreleased]
 
+## [4.5.3] - 2026-11-19
+### Fixed
+- (public) The CI/CD setup and login guides describe the Auth0 browser sign-in of `sos login` instead of the old username/password login.
+
 ## [4.5.2] - 2026-11-18
 ### Fixed
 - (public) Organization-level commands, including `sos applet start`, `sos applet build` and `sos device connect`, now use the organization given by `--organization-uid` instead of the default organization when logged in with `sos login`.
