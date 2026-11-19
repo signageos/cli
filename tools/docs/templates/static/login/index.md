@@ -4,12 +4,16 @@
 
 #### Run Control File
 
-Login credentials are stored in `~/.sosrc` file. For the default profile, it contains:
+Login credentials are stored in `~/.sosrc` file. After `sos login`, the default profile contains the region settings and the Auth0 session tokens:
 
 ```ini
-identification=xxxxxxxxxxxxxxxxxxxx
-apiSecurityToken=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+apiUrl=https://api.signageos.io
+accessToken=eyJhbGciOi...
+refreshToken=v1.MjQ...
+expiresAt=1795110000000
 ```
+
+For CI/CD, configure an API security token (`identification` and `apiSecurityToken`) instead; see [CI/CD Pipeline Setup](/cli/ci-cd-setup/).
 
 #### Multiple Profiles
 
