@@ -9,9 +9,9 @@ How to configure the signageOS CLI for automated pipelines (GitLab CI, GitHub Ac
 
 ## Overview
 
-On a **local development machine**, you authenticate by running `sos login`, which interactively prompts for your username and password, generates a personal API security token, and stores it in `~/.sosrc`.
+On a **local development machine**, you authenticate by running `sos login`, which opens a browser sign-in (Auth0) for the selected region and stores the resulting short-lived session tokens in `~/.sosrc`.
 
-In a **CI/CD pipeline**, there is no interactive terminal. Instead, you generate a long-lived API security token ahead of time and provide it to the pipeline via the `~/.sosrc` configuration file or environment variables.
+In a **CI/CD pipeline**, there is no browser. Instead, you generate a long-lived API security token ahead of time and provide it to the pipeline via the `~/.sosrc` configuration file or environment variables. Do not copy an interactive login from a developer machine into a pipeline.
 
 ## Step 1: Generate an API Security Token
 
@@ -225,7 +225,7 @@ The CLI needs an API URL. Ensure either:
 
 ### "Your authentication token is outdated"
 
-The `identification` value does not match the expected format (20-character hex string). Regenerate the token via [signageOS Box](https://box.signageos.io/settings) or re-run `sos login` on your local machine and copy the new values.
+The `identification` value does not match the expected format (20-character hex string). Regenerate the token via [signageOS Box](https://box.signageos.io/settings) and update the pipeline's secrets.
 
 ## Security Best Practices
 
